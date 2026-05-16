@@ -18,11 +18,11 @@ const Footer = () => {
 							<img src="/img/logo/logoWhite.svg" alt="" className={'logo'} />
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>total free customer care</span>
+							<span>parent support</span>
 							<p>+82 10 4867 2909</p>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>nee live</span>
+							<span>support line</span>
 							<p>+82 10 4867 2909</p>
 							<span>Support?</span>
 						</Box>
@@ -40,15 +40,15 @@ const Footer = () => {
 						<Box component={'div'} className={'bottom'}>
 							<div>
 								<strong>Popular Search</strong>
-								<span>Property for Rent</span>
-								<span>Property Low to hide</span>
+								<span>Kindergartens</span>
+								<span>Parent Resources</span>
 							</div>
 							<div>
 								<strong>Quick Links</strong>
 								<span>Terms of Use</span>
 								<span>Privacy Policy</span>
-								<span>Pricing Plans</span>
-								<span>Our Services</span>
+								<span>Kindergarten Search</span>
+								<span>Parent Resources</span>
 								<span>Contact Support</span>
 								<span>FAQs</span>
 							</div>
@@ -63,7 +63,7 @@ const Footer = () => {
 					</Stack>
 				</Stack>
 				<Stack className={'second'}>
-					<span>© Nestar - All rights reserved. Nestar {moment().year()}</span>
+					<span>© KidsGarden - All rights reserved. KidsGarden {moment().year()}</span>
 				</Stack>
 			</Stack>
 		);
@@ -76,11 +76,11 @@ const Footer = () => {
 							<img src="/img/logo/logoWhite.svg" alt="" className={'logo'} />
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>total free customer care</span>
+							<span>parent support</span>
 							<p>+82 10 4867 2909</p>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>nee live</span>
+							<span>support line</span>
 							<p>+82 10 4867 2909</p>
 							<span>Support?</span>
 						</Box>
@@ -105,15 +105,15 @@ const Footer = () => {
 						<Box component={'div'} className={'bottom'}>
 							<div>
 								<strong>Popular Search</strong>
-								<span>Property for Rent</span>
-								<span>Property Low to hide</span>
+								<span>Kindergartens</span>
+								<span>Parent Resources</span>
 							</div>
 							<div>
 								<strong>Quick Links</strong>
 								<span>Terms of Use</span>
 								<span>Privacy Policy</span>
-								<span>Pricing Plans</span>
-								<span>Our Services</span>
+								<span>Kindergarten Search</span>
+								<span>Parent Resources</span>
 								<span>Contact Support</span>
 								<span>FAQs</span>
 							</div>
@@ -128,7 +128,7 @@ const Footer = () => {
 					</Stack>
 				</Stack>
 				<Stack className={'second'}>
-					<span>© Nestar - All rights reserved. Nestar {moment().year()}</span>
+					<span>© KidsGarden - All rights reserved. KidsGarden {moment().year()}</span>
 					<span>Privacy · Terms · Sitemap</span>
 				</Stack>
 			</Stack>

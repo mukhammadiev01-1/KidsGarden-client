@@ -10,6 +10,7 @@ import { getJwtToken } from '../../auth';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
+import { MemberType } from '../../enums/member.enum';
 
 const AddProperty = ({ initialValues, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -119,7 +120,7 @@ const AddProperty = ({ initialValues, ...props }: any) => {
 
 	const updatePropertyHandler = useCallback(async () => {}, [insertPropertyData]);
 
-	if (user?.memberType !== 'AGENT') {
+	if (user?.memberType !== MemberType.KINDERGARTEN_ADMIN) {
 		router.back();
 	}
 

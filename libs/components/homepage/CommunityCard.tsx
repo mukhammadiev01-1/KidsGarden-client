@@ -17,6 +17,12 @@ const CommunityCard = (props: CommunityCardProps) => {
 	const articleImage = article?.articleImage
 		? `${process.env.REACT_APP_API_URL}/${article?.articleImage}`
 		: '/img/event.svg';
+	const categoryLabels: Record<string, string> = {
+		FREE: 'Parent Board',
+		NEWS: 'News',
+		RECOMMEND: 'Kindergarten Updates',
+		HUMOR: 'Community',
+	};
 
 	if (device === 'mobile') {
 		return <div>COMMUNITY CARD (MOBILE)</div>;
@@ -29,7 +35,7 @@ const CommunityCard = (props: CommunityCardProps) => {
 							<div>{index + 1}</div>
 						</div>
 						<strong>{article?.articleTitle}</strong>
-						<span>Free Board</span>
+						<span>{categoryLabels[article?.articleCategory] || 'Community'}</span>
 					</Box>
 				</Link>
 			);

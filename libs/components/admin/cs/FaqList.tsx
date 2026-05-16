@@ -186,7 +186,7 @@ export const FaqArticlesPanelList = (props: FaqArticlesPanelListType) => {
 											</MenuItem>
 											<MenuItem onClick={(e) => generateMentorTypeHandle('member._id', 'user', 'remove')}>
 												<Typography variant={'subtitle1'} component={'span'}>
-													USER
+													PARENT
 												</Typography>
 											</MenuItem>
 										</Menu>

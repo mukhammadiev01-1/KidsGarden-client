@@ -6,29 +6,109 @@ import { gql } from '@apollo/client';
 
 export const GET_AGENTS = gql`
 	query GetAgents($input: AgentsInquiry!) {
-		getAgents(input: $input) {
+			getAgents(input: $input) {
+				list {
+					_id
+					memberNick
+					memberFullName
+					memberImage
+					memberDesc
+				}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_MEMBER = gql(`
+	query GetMember($input: String!) {
+	    getMember(memberId: $input) {
+	        _id
+	        memberNick
+	        memberFullName
+	        memberImage
+	        memberDesc
+	    }
+	}
+	`);
+
+/**************************
+ *      KINDERGARTEN      *
+ *************************/
+
+export const GET_KINDERGARTEN = gql`
+	query GetKindergarten($input: String!) {
+		getKindergarten(kindergartenId: $input) {
+			_id
+			kindergartenType
+			kindergartenStatus
+			kindergartenLocation
+			kindergartenAddress
+			kindergartenTitle
+			kindergartenPrice
+			kindergartenCapacity
+			kindergartenAgeRange
+			kindergartenPrograms
+			kindergartenViews
+			kindergartenLikes
+			kindergartenComments
+			kindergartenRank
+			kindergartenImages
+			kindergartenDesc
+			memberId
+			deletedAt
+			establishedAt
+			createdAt
+			updatedAt
+				memberData {
+						_id
+						memberNick
+						memberFullName
+						memberImage
+						memberDesc
+					}
+			meLiked {
+				memberId
+				likeRefId
+				myFavorite
+			}
+		}
+	}
+`;
+
+export const GET_KINDERGARTENS = gql`
+	query GetKindergartens($input: KindergartensInquiry!) {
+		getKindergartens(input: $input) {
 			list {
 				_id
-				memberType
-				memberStatus
-				memberAuthType
-				memberPhone
-				memberNick
-				memberFullName
-				memberImage
-				memberAddress
-				memberDesc
-				memberWarnings
-				memberBlocks
-				memberProperties
-				memberRank
-				memberPoints
-				memberLikes
-				memberViews
+				kindergartenType
+				kindergartenStatus
+				kindergartenLocation
+				kindergartenAddress
+				kindergartenTitle
+				kindergartenPrice
+				kindergartenCapacity
+				kindergartenAgeRange
+				kindergartenPrograms
+				kindergartenViews
+				kindergartenLikes
+				kindergartenComments
+				kindergartenRank
+				kindergartenImages
+				kindergartenDesc
+				memberId
 				deletedAt
+				establishedAt
 				createdAt
 				updatedAt
-				accessToken
+					memberData {
+						_id
+						memberNick
+						memberFullName
+						memberImage
+						memberDesc
+					}
 				meLiked {
 					memberId
 					likeRefId
@@ -42,155 +122,217 @@ export const GET_AGENTS = gql`
 	}
 `;
 
-export const GET_MEMBER = gql(`
-query GetMember($input: String!) {
-    getMember(memberId: $input) {
-        _id
-        memberType
-        memberStatus
-        memberAuthType
-        memberPhone
-        memberNick
-        memberFullName
-        memberImage
-        memberAddress
-        memberDesc
-        memberProperties
-        memberArticles
-        memberPoints
-        memberLikes
-        memberViews
-        memberFollowings
-				memberFollowers
-        memberRank
-        memberWarnings
-        memberBlocks
-        deletedAt
-        createdAt
-        updatedAt
-        accessToken
-        meFollowed {
-					followingId
-					followerId
-					myFollowing
-				}
-    }
-}
-`);
-
-/**************************
- *        PROPERTY        *
- *************************/
-
-export const GET_PROPERTY = gql`
-	query GetProperty($input: String!) {
-		getProperty(propertyId: $input) {
-			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
-			memberId
-			soldAt
-			deletedAt
-			constructedAt
-			createdAt
-			updatedAt
-			memberData {
+export const GET_OWNER_KINDERGARTENS = gql`
+	query GetOwnerKindergartens($input: OwnerKindergartensInquiry!) {
+		getOwnerKindergartens(input: $input) {
+			list {
 				_id
-				memberType
-				memberStatus
-				memberAuthType
-				memberPhone
-				memberNick
-				memberFullName
-				memberImage
-				memberAddress
-				memberDesc
-				memberWarnings
-				memberBlocks
-				memberPoints
-				memberLikes
-				memberViews
+				kindergartenType
+				kindergartenStatus
+				kindergartenLocation
+				kindergartenAddress
+				kindergartenTitle
+				kindergartenPrice
+				kindergartenCapacity
+				kindergartenAgeRange
+				kindergartenPrograms
+				kindergartenViews
+				kindergartenLikes
+				kindergartenComments
+				kindergartenRank
+				kindergartenImages
+				kindergartenDesc
+				memberId
 				deletedAt
+				establishedAt
 				createdAt
 				updatedAt
-				accessToken
 			}
-			meLiked {
-				memberId
-				likeRefId
-				myFavorite
+			metaCounter {
+				total
 			}
 		}
 	}
 `;
 
-export const GET_PROPERTIES = gql`
-	query GetProperties($input: PropertiesInquiry!) {
-		getProperties(input: $input) {
+export const GET_KINDERGARTEN_STAFFS = gql`
+	query GetKindergartenStaffs($input: KindergartenStaffsInquiry!) {
+		getKindergartenStaffs(input: $input) {
 			list {
 				_id
-				propertyType
-				propertyStatus
-				propertyLocation
-				propertyAddress
-				propertyTitle
-				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
-				propertyViews
-				propertyLikes
-				propertyRank
-				propertyImages
-				propertyDesc
-				propertyBarter
-				propertyRent
+				kindergartenId
 				memberId
-				soldAt
-				deletedAt
-				constructedAt
+				staffRole
+				staffStatus
 				createdAt
 				updatedAt
-				memberData {
-					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
-					memberNick
-					memberFullName
-					memberImage
-					memberAddress
-					memberDesc
-					memberWarnings
-					memberBlocks
-					memberProperties
-					memberRank
-					memberPoints
-					memberLikes
-					memberViews
-					deletedAt
-					createdAt
-					updatedAt
-				}
-				meLiked {
-					memberId
-					likeRefId
-					myFavorite
-				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const SEARCH_STAFF_CANDIDATES = gql`
+	query SearchStaffCandidates($input: StaffCandidatesInquiry!) {
+		searchStaffCandidates(input: $input) {
+			list {
+				_id
+				memberNick
+				memberPhone
+				memberType
+				memberStatus
+				memberImage
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_MY_STAFF_APPLICATIONS = gql`
+	query GetMyStaffApplications($input: StaffApplicationsInquiry!) {
+		getMyStaffApplications(input: $input) {
+			list {
+				_id
+				kindergartenId
+				applicantId
+				requestedRole
+				applicationStatus
+				message
+				reviewedBy
+				reviewedAt
+				rejectReason
+				createdAt
+				updatedAt
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_STAFF_APPLICATIONS = gql`
+	query GetStaffApplications($input: StaffApplicationsInquiry!) {
+		getStaffApplications(input: $input) {
+			list {
+				_id
+				kindergartenId
+				applicantId
+				requestedRole
+				applicationStatus
+				message
+				reviewedBy
+				reviewedAt
+				rejectReason
+				createdAt
+				updatedAt
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_MY_KINDERGARTEN_ADMIN_APPLICATIONS = gql`
+	query GetMyKindergartenAdminApplications($input: KindergartenAdminApplicationsInquiry!) {
+		getMyKindergartenAdminApplications(input: $input) {
+			list {
+				_id
+				applicantId
+				applicationStatus
+				message
+				kindergartenTitle
+				kindergartenAddress
+				kindergartenPhone
+				businessInfo
+				reviewedBy
+				reviewedAt
+				rejectReason
+				createdAt
+				updatedAt
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_GROUPS = gql`
+	query GetGroups($input: GroupsInquiry!) {
+		getGroups(input: $input) {
+			list {
+				_id
+				kindergartenId
+				groupName
+				groupAgeRange
+				groupCapacity
+				teacherIds
+				groupStatus
+				createdAt
+				updatedAt
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_GROUP = gql`
+	query GetGroup($groupId: String!) {
+		getGroup(groupId: $groupId) {
+			_id
+			groupName
+			groupAgeRange
+			groupCapacity
+			groupStatus
+		}
+	}
+`;
+
+export const GET_CHILDREN = gql`
+	query GetChildren($input: ChildrenInquiry!) {
+		getChildren(input: $input) {
+			list {
+				_id
+				childFullName
+				childBirthDate
+				childGender
+				childImage
+				childStatus
+				parentId
+				kindergartenId
+				groupId
+				createdAt
+				updatedAt
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_ATTENDANCES = gql`
+	query GetAttendances($input: AttendancesInquiry!) {
+		getAttendances(input: $input) {
+			list {
+				_id
+				childId
+				kindergartenId
+				groupId
+				attendanceDate
+				attendanceStatus
+				markedBy
+				note
+				createdAt
+				updatedAt
 			}
 			metaCounter {
 				total
@@ -261,33 +403,13 @@ export const GET_FAVORITES = gql`
 				constructedAt
 				createdAt
 				updatedAt
-				memberData {
-					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
-					memberNick
-					memberFullName
-					memberImage
-					memberAddress
-					memberDesc
-					memberProperties
-					memberArticles
-					memberPoints
-					memberLikes
-					memberViews
-					memberComments
-					memberFollowings
-					memberFollowers
-					memberRank
-					memberWarnings
-					memberBlocks
-					deletedAt
-					createdAt
-					updatedAt
-					accessToken
-				}
+					memberData {
+						_id
+						memberNick
+						memberFullName
+						memberImage
+						memberDesc
+					}
 			}
 			metaCounter {
 				total
@@ -324,33 +446,13 @@ export const GET_VISITED = gql`
 				constructedAt
 				createdAt
 				updatedAt
-				memberData {
-					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
-					memberNick
-					memberFullName
-					memberImage
-					memberAddress
-					memberDesc
-					memberProperties
-					memberArticles
-					memberPoints
-					memberLikes
-					memberViews
-					memberComments
-					memberFollowings
-					memberFollowers
-					memberRank
-					memberWarnings
-					memberBlocks
-					deletedAt
-					createdAt
-					updatedAt
-					accessToken
-				}
+					memberData {
+						_id
+						memberNick
+						memberFullName
+						memberImage
+						memberDesc
+					}
 			}
 			metaCounter {
 				total
@@ -379,27 +481,12 @@ export const GET_BOARD_ARTICLE = gql`
 			createdAt
 			updatedAt
 			memberData {
-				_id
-				memberType
-				memberStatus
-				memberAuthType
-				memberPhone
-				memberNick
-				memberFullName
-				memberImage
-				memberAddress
-				memberDesc
-				memberWarnings
-				memberBlocks
-				memberProperties
-				memberRank
-				memberPoints
-				memberLikes
-				memberViews
-				deletedAt
-				createdAt
-				updatedAt
-			}
+						_id
+						memberNick
+						memberFullName
+						memberImage
+						memberDesc
+					}
 			meLiked {
 				memberId
 				likeRefId
@@ -431,27 +518,12 @@ export const GET_BOARD_ARTICLES = gql`
 					myFavorite
 				}
 				memberData {
-					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
-					memberNick
-					memberFullName
-					memberImage
-					memberAddress
-					memberDesc
-					memberWarnings
-					memberBlocks
-					memberProperties
-					memberRank
-					memberPoints
-					memberLikes
-					memberViews
-					deletedAt
-					createdAt
-					updatedAt
-				}
+						_id
+						memberNick
+						memberFullName
+						memberImage
+						memberDesc
+					}
 			}
 			metaCounter {
 				total
@@ -476,29 +548,13 @@ export const GET_COMMENTS = gql`
 				memberId
 				createdAt
 				updatedAt
-				memberData {
-					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
-					memberNick
-					memberFullName
-					memberImage
-					memberAddress
-					memberDesc
-					memberWarnings
-					memberBlocks
-					memberProperties
-					memberRank
-					memberPoints
-					memberLikes
-					memberViews
-					deletedAt
-					createdAt
-					updatedAt
-					accessToken
-				}
+					memberData {
+						_id
+						memberNick
+						memberFullName
+						memberImage
+						memberDesc
+					}
 			}
 			metaCounter {
 				total
@@ -529,32 +585,13 @@ export const GET_MEMBER_FOLLOWERS = gql`
 					followerId
 					myFollowing
 				}
-				followerData {
-					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
-					memberNick
-					memberFullName
-					memberImage
-					memberAddress
-					memberDesc
-					memberProperties
-					memberArticles
-					memberPoints
-					memberLikes
-					memberViews
-					memberComments
-					memberFollowings
-					memberFollowers
-					memberRank
-					memberWarnings
-					memberBlocks
-					deletedAt
-					createdAt
-					updatedAt
-				}
+					followerData {
+						_id
+						memberNick
+						memberFullName
+						memberImage
+						memberDesc
+					}
 			}
 			metaCounter {
 				total
@@ -572,33 +609,13 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 				followerId
 				createdAt
 				updatedAt
-				followingData {
-					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
-					memberNick
-					memberFullName
-					memberImage
-					memberAddress
-					memberDesc
-					memberProperties
-					memberArticles
-					memberPoints
-					memberLikes
-					memberViews
-					memberComments
-					memberFollowings
-					memberFollowers
-					memberRank
-					memberWarnings
-					memberBlocks
-					deletedAt
-					createdAt
-					updatedAt
-					accessToken
-				}
+					followingData {
+						_id
+						memberNick
+						memberFullName
+						memberImage
+						memberDesc
+					}
 				meLiked {
 					memberId
 					likeRefId

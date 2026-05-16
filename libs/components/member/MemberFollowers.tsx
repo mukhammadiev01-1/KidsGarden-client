@@ -1,15 +1,12 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { Box, Button, Pagination, Stack, Typography } from '@mui/material';
+import { Button, Pagination, Stack, Typography } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { FollowInquiry } from '../../types/follow/follow.input';
 import { useReactiveVar } from '@apollo/client';
 import { Follower } from '../../types/follow/follow';
 import { REACT_APP_API_URL } from '../../config';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { userVar } from '../../../apollo/store';
-import { T } from '../../types/common';
 
 interface MemberFollowsProps {
 	initialInput: FollowInquiry;
@@ -81,25 +78,7 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 										<Typography className="name">{follower?.followerData?.memberNick}</Typography>
 									</Stack>
 								</Stack>
-								<Stack className={'details-box'}>
-									<Box className={'info-box'} component={'div'}>
-										<p>Followers</p>
-										<span>({follower?.followerData?.memberFollowers})</span>
-									</Box>
-									<Box className={'info-box'} component={'div'}>
-										<p>Followings</p>
-										<span>({follower?.followerData?.memberFollowings})</span>
-									</Box>
-									<Box className={'info-box'} component={'div'}>
-										{follower?.meLiked && follower?.meLiked[0]?.myFavorite ? (
-											<FavoriteIcon color="primary" />
-										) : (
-											<FavoriteBorderIcon />
-										)}
-										<span>({follower?.followerData?.memberLikes})</span>
-									</Box>
-								</Stack>
-								{user?._id !== follower?.followerId && (
+									{user?._id !== follower?.followerId && (
 									<Stack className="action-box">
 										{follower.meFollowed && follower.meFollowed[0]?.myFollowing ? (
 											<>

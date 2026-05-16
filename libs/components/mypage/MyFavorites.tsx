@@ -55,7 +55,7 @@ const MyFavorites: NextPage = () => {
 						</Stack>
 						<Stack className="total-result">
 							<Typography>
-								Total {total} favorite propert{total > 1 ? 'ies' : 'y'}
+								Total {total} favorite kindergarten{total > 1 ? 's' : ''}
 							</Typography>
 						</Stack>
 					</Stack>

@@ -6,7 +6,7 @@ import Collapse from '@mui/material/Collapse';
 import Typography from '@mui/material/Typography';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { ChatsCircle, Headset, User, UserCircleGear } from 'phosphor-react';
+import { User, UserCircleGear } from 'phosphor-react';
 import cookies from 'js-cookie';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 
@@ -31,22 +31,25 @@ const AdminMenuList = (props: any) => {
 
 		switch (pathnames[1]) {
 			case 'properties':
-				setClickMenu(['Properties']);
+				setClickMenu(['kindergartens']);
 				break;
 			case 'community':
-				setClickMenu(['Community']);
+				setClickMenu(['community']);
 				break;
 			case 'cs':
-				setClickMenu(['Cs']);
+				setClickMenu(['cs']);
 				break;
 			default:
-				setClickMenu(['Users']);
+				setClickMenu(['members']);
 				break;
 		}
 
 		switch (pathnames[2]) {
 			case 'logs':
 				setClickSubMenu('Logs');
+				break;
+			case 'kindergarten-admin-applications':
+				setClickSubMenu('Admin Applications');
 				break;
 			case 'inquiry':
 				setClickSubMenu('1:1 Inquiry');
@@ -79,32 +82,27 @@ const AdminMenuList = (props: any) => {
 
 	const menu_set = [
 		{
-			title: 'Users',
+			key: 'members',
+			title: 'Members',
 			icon: <User size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Users'),
+			on_click: () => subMenuChangeHandler('members'),
 		},
 		{
-			title: 'Properties',
+			key: 'kindergartens',
+			title: 'Kindergartens',
 			icon: <UserCircleGear size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Properties'),
-		},
-		{
-			title: 'Community',
-			icon: <ChatsCircle size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Community'),
-		},
-		{
-			title: 'Cs',
-			icon: <Headset size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Cs'),
+			on_click: () => subMenuChangeHandler('kindergartens'),
 		},
 	];
 
 	const sub_menu_set: any = {
-		Users: [{ title: 'List', url: '/_admin/users' }],
-		Properties: [{ title: 'List', url: '/_admin/properties' }],
-		Community: [{ title: 'List', url: '/_admin/community' }],
-		Cs: [
+		members: [
+			{ title: 'List', url: '/_admin/users' },
+			{ title: 'Admin Applications', url: '/_admin/users/kindergarten-admin-applications' },
+		],
+		kindergartens: [{ title: 'List', url: '/_admin/properties' }],
+		community: [{ title: 'List', url: '/_admin/community' }],
+		cs: [
 			{ title: 'FAQ', url: '/_admin/cs/faq' },
 			{ title: 'Notice', url: '/_admin/cs/notice' },
 		],
@@ -117,7 +115,7 @@ const AdminMenuList = (props: any) => {
 					<ListItemButton
 						onClick={item.on_click}
 						component={'li'}
-						className={clickMenu[0] === item.title ? 'menu on' : 'menu'}
+						className={clickMenu[0] === item.key ? 'menu on' : 'menu'}
 						sx={{
 							minHeight: 48,
 							justifyContent: openMenu ? 'initial' : 'center',
@@ -134,22 +132,22 @@ const AdminMenuList = (props: any) => {
 							{item.icon}
 						</ListItemIcon>
 						<ListItemText>{item.title}</ListItemText>
-						{clickMenu.find((menu: string) => item.title === menu) ? <ExpandLess /> : <ExpandMore />}
+						{clickMenu.find((menu: string) => item.key === menu) ? <ExpandLess /> : <ExpandMore />}
 					</ListItemButton>
 					<Collapse
-						in={!!clickMenu.find((menu: string) => menu === item.title)}
+						in={!!clickMenu.find((menu: string) => menu === item.key)}
 						className="menu"
 						timeout="auto"
 						component="li"
 						unmountOnExit
 					>
 						<List className="menu-list" disablePadding>
-							{sub_menu_set[item.title] &&
-								sub_menu_set[item.title].map((sub: any, i: number) => (
+							{sub_menu_set[item.key] &&
+								sub_menu_set[item.key].map((sub: any, i: number) => (
 									<Link href={sub.url} shallow={true} replace={true} key={i}>
 										<ListItemButton
 											component="li"
-											className={clickMenu[0] === item.title && clickSubMenu === sub.title ? 'li on' : 'li'}
+											className={clickMenu[0] === item.key && clickSubMenu === sub.title ? 'li on' : 'li'}
 										>
 											<Typography variant={sub.title} component={'span'}>
 												{sub.title}

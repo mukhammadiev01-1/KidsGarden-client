@@ -39,7 +39,7 @@ const withAdminLayout = (Component: ComponentType) => {
 		}, []);
 
 		useEffect(() => {
-			if (!loading && user.memberType !== MemberType.ADMIN) {
+			if (!loading && user.memberType !== MemberType.SUPER_ADMIN) {
 				router.push('/').then();
 			}
 		}, [loading, user, router]);
@@ -58,7 +58,7 @@ const withAdminLayout = (Component: ComponentType) => {
 			router.push('/').then();
 		};
 
-		if (!user || user?.memberType !== MemberType.ADMIN) return null;
+		if (!user || user?.memberType !== MemberType.SUPER_ADMIN) return null;
 
 		return (
 			<main id="pc-wrap" className="admin">

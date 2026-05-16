@@ -121,13 +121,13 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 										/>
 									</Stack>
 									<span>
-										Total {propertyTotal} propert{propertyTotal > 1 ? 'ies' : 'y'} available
+										Total {propertyTotal} kindergarten{propertyTotal > 1 ? 's' : ''} available
 									</span>
 								</>
 							) : (
 								<div className={'no-data'}>
 									<img src="/img/icons/icoAlert.svg" alt="" />
-									<p>No properties found!</p>
+									<p>No kindergartens found!</p>
 								</div>
 							)}
 						</Stack>

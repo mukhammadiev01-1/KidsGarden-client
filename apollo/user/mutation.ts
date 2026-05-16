@@ -19,7 +19,7 @@ export const SIGN_UP = gql`
 			memberDesc
 			memberWarnings
 			memberBlocks
-			memberProperties
+			memberKindergartens
 			memberRank
 			memberArticles
 			memberPoints
@@ -48,7 +48,7 @@ export const LOGIN = gql`
 			memberDesc
 			memberWarnings
 			memberBlocks
-			memberProperties
+			memberKindergartens
 			memberRank
 			memberPoints
 			memberLikes
@@ -74,7 +74,7 @@ export const UPDATE_MEMBER = gql`
 			memberImage
 			memberAddress
 			memberDesc
-			memberProperties
+			memberKindergartens
 			memberRank
 			memberArticles
 			memberPoints
@@ -105,7 +105,7 @@ export const LIKE_TARGET_MEMBER = gql`
 			memberDesc
 			memberWarnings
 			memberBlocks
-			memberProperties
+			memberKindergartens
 			memberRank
 			memberPoints
 			memberLikes
@@ -114,6 +114,373 @@ export const LIKE_TARGET_MEMBER = gql`
 			createdAt
 			updatedAt
 			accessToken
+		}
+	}
+`;
+
+/**************************
+ *      KINDERGARTEN      *
+ *************************/
+
+export const CREATE_KINDERGARTEN = gql`
+	mutation CreateKindergarten($input: KindergartenInput!) {
+		createKindergarten(input: $input) {
+			_id
+			kindergartenType
+			kindergartenStatus
+			kindergartenLocation
+			kindergartenAddress
+			kindergartenTitle
+			kindergartenPrice
+			kindergartenCapacity
+			kindergartenAgeRange
+			kindergartenPrograms
+			kindergartenViews
+			kindergartenLikes
+			kindergartenComments
+			kindergartenRank
+			kindergartenImages
+			kindergartenDesc
+			memberId
+			deletedAt
+			establishedAt
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const UPDATE_KINDERGARTEN = gql`
+	mutation UpdateKindergarten($input: KindergartenUpdate!) {
+		updateKindergarten(input: $input) {
+			_id
+			kindergartenType
+			kindergartenStatus
+			kindergartenLocation
+			kindergartenAddress
+			kindergartenTitle
+			kindergartenPrice
+			kindergartenCapacity
+			kindergartenAgeRange
+			kindergartenPrograms
+			kindergartenViews
+			kindergartenLikes
+			kindergartenComments
+			kindergartenRank
+			kindergartenImages
+			kindergartenDesc
+			memberId
+			deletedAt
+			establishedAt
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const CREATE_KINDERGARTEN_STAFF = gql`
+	mutation CreateKindergartenStaff($input: KindergartenStaffInput!) {
+		createKindergartenStaff(input: $input) {
+			_id
+			kindergartenId
+			memberId
+			staffRole
+			staffStatus
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const UPDATE_KINDERGARTEN_STAFF = gql`
+	mutation UpdateKindergartenStaff($input: KindergartenStaffUpdate!) {
+		updateKindergartenStaff(input: $input) {
+			_id
+			kindergartenId
+			memberId
+			staffRole
+			staffStatus
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const REMOVE_KINDERGARTEN_STAFF = gql`
+	mutation RemoveKindergartenStaff($input: String!) {
+		removeKindergartenStaff(kindergartenStaffId: $input) {
+			_id
+			kindergartenId
+			memberId
+			staffRole
+			staffStatus
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const CREATE_STAFF_APPLICATION = gql`
+	mutation CreateStaffApplication($input: StaffApplicationInput!) {
+		createStaffApplication(input: $input) {
+			_id
+			kindergartenId
+			applicantId
+			requestedRole
+			applicationStatus
+			message
+			reviewedBy
+			reviewedAt
+			rejectReason
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const CANCEL_STAFF_APPLICATION = gql`
+	mutation CancelStaffApplication($applicationId: String!) {
+		cancelStaffApplication(applicationId: $applicationId) {
+			_id
+			kindergartenId
+			applicantId
+			requestedRole
+			applicationStatus
+			message
+			reviewedBy
+			reviewedAt
+			rejectReason
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const APPROVE_STAFF_APPLICATION = gql`
+	mutation ApproveStaffApplication($input: StaffApplicationReviewInput!) {
+		approveStaffApplication(input: $input) {
+			_id
+			kindergartenId
+			applicantId
+			requestedRole
+			applicationStatus
+			message
+			reviewedBy
+			reviewedAt
+			rejectReason
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const REJECT_STAFF_APPLICATION = gql`
+	mutation RejectStaffApplication($input: StaffApplicationReviewInput!) {
+		rejectStaffApplication(input: $input) {
+			_id
+			kindergartenId
+			applicantId
+			requestedRole
+			applicationStatus
+			message
+			reviewedBy
+			reviewedAt
+			rejectReason
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const CREATE_KINDERGARTEN_ADMIN_APPLICATION = gql`
+	mutation CreateKindergartenAdminApplication($input: KindergartenAdminApplicationInput!) {
+		createKindergartenAdminApplication(input: $input) {
+			_id
+			applicantId
+			applicationStatus
+			message
+			kindergartenTitle
+			kindergartenAddress
+			kindergartenPhone
+			businessInfo
+			reviewedBy
+			reviewedAt
+			rejectReason
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const CANCEL_KINDERGARTEN_ADMIN_APPLICATION = gql`
+	mutation CancelKindergartenAdminApplication($applicationId: String!) {
+		cancelKindergartenAdminApplication(applicationId: $applicationId) {
+			_id
+			applicantId
+			applicationStatus
+			message
+			kindergartenTitle
+			kindergartenAddress
+			kindergartenPhone
+			businessInfo
+			reviewedBy
+			reviewedAt
+			rejectReason
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const CREATE_GROUP = gql`
+	mutation CreateGroup($input: GroupInput!) {
+		createGroup(input: $input) {
+			_id
+			kindergartenId
+			groupName
+			groupAgeRange
+			groupCapacity
+			teacherIds
+			groupStatus
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const UPDATE_GROUP = gql`
+	mutation UpdateGroup($input: GroupUpdate!) {
+		updateGroup(input: $input) {
+			_id
+			kindergartenId
+			groupName
+			groupAgeRange
+			groupCapacity
+			teacherIds
+			groupStatus
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const REMOVE_GROUP = gql`
+	mutation RemoveGroup($input: String!) {
+		removeGroup(groupId: $input) {
+			_id
+			kindergartenId
+			groupName
+			groupAgeRange
+			groupCapacity
+			teacherIds
+			groupStatus
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const CREATE_CHILD = gql`
+	mutation CreateChild($input: ChildInput!) {
+		createChild(input: $input) {
+			_id
+			childFullName
+			childBirthDate
+			childGender
+			childImage
+			childStatus
+			parentId
+			kindergartenId
+			groupId
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const UPDATE_CHILD = gql`
+	mutation UpdateChild($input: ChildUpdate!) {
+		updateChild(input: $input) {
+			_id
+			childFullName
+			childBirthDate
+			childGender
+			childImage
+			childStatus
+			parentId
+			kindergartenId
+			groupId
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const REMOVE_CHILD = gql`
+	mutation RemoveChild($input: String!) {
+		removeChild(childId: $input) {
+			_id
+			childFullName
+			childBirthDate
+			childGender
+			childImage
+			childStatus
+			parentId
+			kindergartenId
+			groupId
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const MARK_ATTENDANCE = gql`
+	mutation MarkAttendance($input: AttendanceInput!) {
+		markAttendance(input: $input) {
+			_id
+			childId
+			kindergartenId
+			groupId
+			attendanceDate
+			attendanceStatus
+			markedBy
+			note
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const UPDATE_ATTENDANCE = gql`
+	mutation UpdateAttendance($input: AttendanceUpdate!) {
+		updateAttendance(input: $input) {
+			_id
+			childId
+			kindergartenId
+			groupId
+			attendanceDate
+			attendanceStatus
+			markedBy
+			note
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const REMOVE_ATTENDANCE = gql`
+	mutation RemoveAttendance($input: String!) {
+		removeAttendance(attendanceId: $input) {
+			_id
+			childId
+			kindergartenId
+			groupId
+			attendanceDate
+			attendanceStatus
+			markedBy
+			note
+			createdAt
+			updatedAt
 		}
 	}
 `;
@@ -180,31 +547,35 @@ export const UPDATE_PROPERTY = gql`
 	}
 `;
 
-export const LIKE_TARGET_PROPERTY = gql`
-	mutation LikeTargetProperty($input: String!) {
-		likeTargetProperty(propertyId: $input) {
+export const LIKE_TARGET_KINDERGARTEN = gql`
+	mutation LikeTargetKindergarten($input: String!) {
+		likeTargetKindergarten(kindergartenId: $input) {
 			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
+			kindergartenType
+			kindergartenStatus
+			kindergartenLocation
+			kindergartenAddress
+			kindergartenTitle
+			kindergartenPrice
+			kindergartenCapacity
+			kindergartenAgeRange
+			kindergartenPrograms
+			kindergartenViews
+			kindergartenLikes
+			kindergartenComments
+			kindergartenRank
+			kindergartenImages
+			kindergartenDesc
 			memberId
-			soldAt
 			deletedAt
-			constructedAt
+			establishedAt
 			createdAt
 			updatedAt
+			meLiked {
+				memberId
+				likeRefId
+				myFavorite
+			}
 		}
 	}
 `;

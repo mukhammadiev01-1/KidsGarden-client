@@ -120,7 +120,7 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Property List
+				Kindergarten List
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
@@ -146,14 +146,14 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 									value="SOLD"
 									className={value === 'SOLD' ? 'li on' : 'li'}
 								>
-									Sold
+									Closed
 								</ListItem>
 								<ListItem
 									onClick={(e) => tabChangeHandler(e, 'DELETE')}
 									value="DELETE"
 									className={value === 'DELETE' ? 'li on' : 'li'}
 								>
-									Delete
+									Deleted
 								</ListItem>
 							</List>
 							<Divider />

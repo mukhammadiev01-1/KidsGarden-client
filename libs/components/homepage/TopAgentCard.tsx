@@ -23,7 +23,7 @@ const TopAgentCard = (props: TopAgentProps) => {
 				<img src={agentImage} alt="" />
 
 				<strong>{agent?.memberNick}</strong>
-				<span>{agent?.memberType}</span>
+				<span>Center Admin</span>
 			</Stack>
 		);
 	} else {
@@ -32,7 +32,7 @@ const TopAgentCard = (props: TopAgentProps) => {
 				<img src={agentImage} alt="" />
 
 				<strong>{agent?.memberNick}</strong>
-				<span>{agent?.memberType}</span>
+				<span>Center Admin</span>
 			</Stack>
 		);
 	}

@@ -11,6 +11,7 @@ import { PropertyLocation, PropertyType } from '../../enums/property.enum';
 import { PropertiesInquiry } from '../../types/property/property.input';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
+import { getKindergartenTypeLabel } from '../../utils';
 
 const style = {
 	position: 'absolute' as 'absolute',
@@ -319,6 +320,11 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 	} else {
 		return (
 			<>
+				<Stack className={'hero-copy'}>
+					<span className={'eyebrow'}>KidsGarden finder</span>
+					<h1>Find trusted kindergartens near you</h1>
+					<p>Compare programs, age ranges, capacity, location, and monthly fees in one parent-friendly place.</p>
+				</Stack>
 				<Stack className={'search-box'}>
 					<Stack className={'select-box'}>
 						<Box component={'div'} className={`box ${openLocation ? 'on' : ''}`} onClick={locationStateChangeHandler}>
@@ -326,12 +332,16 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 							<ExpandMoreIcon />
 						</Box>
 						<Box className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
-							<span> {searchFilter?.search?.typeList ? searchFilter?.search?.typeList[0] : t('Property type')} </span>
+							<span>
+								{searchFilter?.search?.typeList
+									? getKindergartenTypeLabel(searchFilter?.search?.typeList[0])
+									: t('Property type')}
+							</span>
 							<ExpandMoreIcon />
 						</Box>
 						<Box className={`box ${openRooms ? 'on' : ''}`} onClick={roomStateChangeHandler}>
 							<span>
-								{searchFilter?.search?.roomsList ? `${searchFilter?.search?.roomsList[0]} rooms}` : t('Rooms')}
+								{searchFilter?.search?.roomsList ? `${searchFilter?.search?.roomsList[0]} programs` : t('Rooms')}
 							</span>
 							<ExpandMoreIcon />
 						</Box>
@@ -366,7 +376,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 									onClick={() => propertyTypeSelectHandler(type)}
 									key={type}
 								>
-									<span>{type}</span>
+									<span>{getKindergartenTypeLabel(type)}</span>
 								</div>
 							);
 						})}
@@ -376,7 +386,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 						{[1, 2, 3, 4, 5].map((room: number) => {
 							return (
 								<span onClick={() => propertyRoomSelectHandler(room)} key={room}>
-									{room} room{room > 1 ? 's' : ''}
+									{room} program{room > 1 ? 's' : ''}
 								</span>
 							);
 						})}
@@ -397,13 +407,13 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 								<CloseIcon />
 							</div>
 							<div className={'top'}>
-								<span>Find your home</span>
+								<span>Find trusted kindergartens</span>
 								<div className={'search-input-box'}>
 									<img src="/img/icons/search.svg" alt="" />
 									<input
 										value={searchFilter?.search?.text ?? ''}
 										type="text"
-										placeholder={'What are you looking for?'}
+										placeholder={'Search by name, program, or neighborhood'}
 										onChange={(e: any) => {
 											setSearchFilter({
 												...searchFilter,
@@ -417,7 +427,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 							<div className={'middle'}>
 								<div className={'row-box'}>
 									<div className={'box'}>
-										<span>bedrooms</span>
+										<span>age range</span>
 										<div className={'inside'}>
 											<div
 												className={`room ${!searchFilter?.search?.bedsList ? 'active' : ''}`}
@@ -437,7 +447,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 										</div>
 									</div>
 									<div className={'box'}>
-										<span>options</span>
+										<span>program focus</span>
 										<div className={'inside'}>
 											<FormControl>
 												<Select
@@ -446,9 +456,9 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 													displayEmpty
 													inputProps={{ 'aria-label': 'Without label' }}
 												>
-													<MenuItem value={'all'}>All Options</MenuItem>
-													<MenuItem value={'propertyBarter'}>Barter</MenuItem>
-													<MenuItem value={'propertyRent'}>Rent</MenuItem>
+													<MenuItem value={'all'}>All Programs</MenuItem>
+													<MenuItem value={'propertyBarter'}>Creative Program</MenuItem>
+													<MenuItem value={'propertyRent'}>Full-day Care</MenuItem>
 												</Select>
 											</FormControl>
 										</div>
@@ -456,7 +466,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 								</div>
 								<div className={'row-box'} style={{ marginTop: '44px' }}>
 									<div className={'box'}>
-										<span>Year Built</span>
+										<span>Established</span>
 										<div className={'inside space-between align-center'}>
 											<FormControl sx={{ width: '122px' }}>
 												<Select
@@ -495,7 +505,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 										</div>
 									</div>
 									<div className={'box'}>
-										<span>square meter</span>
+										<span>capacity</span>
 										<div className={'inside space-between align-center'}>
 											<FormControl sx={{ width: '122px' }}>
 												<Select

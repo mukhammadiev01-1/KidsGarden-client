@@ -5,18 +5,46 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import Link from 'next/link';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
-import PortraitIcon from '@mui/icons-material/Portrait';
-import IconButton from '@mui/material/IconButton';
 import { REACT_APP_API_URL } from '../../config';
 import { logOut } from '../../auth';
-import { sweetConfirmAlert, sweetMixinErrorAlert } from '../../sweetAlert';
+import { sweetConfirmAlert } from '../../sweetAlert';
+import { getMemberTypeLabel, MemberType } from '../../enums/member.enum';
+import { getDashboardRoleHeading } from './dashboardUtils';
 
 const MyMenu = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const pathname = router.query.category ?? 'myProfile';
-	const category: any = router.query?.category ?? 'myProfile';
 	const user = useReactiveVar(userVar);
+	const isKindergartenAdmin = user.memberType === MemberType.KINDERGARTEN_ADMIN;
+	const isTeacher = user.memberType === MemberType.TEACHER;
+	const isParent = user.memberType === MemberType.PARENT;
+	const category: any =
+		router.query?.category ??
+		(isKindergartenAdmin ? 'kindergartenProfile' : isTeacher ? 'teacherGroups' : isParent ? 'parentChildren' : 'myProfile');
+	const pathname = category;
+	const kindergartenAdminMenus = [
+		{ category: 'kindergartenProfile', title: 'My Kindergarten', icon: 'home', activeIcon: 'homeWhite' },
+		{ category: 'staff', title: 'Staff', icon: 'newTab', activeIcon: 'whiteTab' },
+		{ category: 'staffApplications', title: 'Staff Applications', icon: 'newTab', activeIcon: 'whiteTab' },
+		{ category: 'groups', title: 'Groups', icon: 'discovery', activeIcon: 'discoveryWhite' },
+		{ category: 'children', title: 'Children', icon: 'like', activeIcon: 'likeWhite' },
+		{ category: 'attendance', title: 'Attendance', icon: 'search', activeIcon: 'searchWhite' },
+	];
+	const teacherMenus = [
+		{ category: 'teacherGroups', title: 'My Groups', icon: 'discovery', activeIcon: 'discoveryWhite' },
+		{ category: 'teacherAttendance', title: 'Attendance', icon: 'search', activeIcon: 'searchWhite' },
+	];
+	const parentMenus = [
+		{ category: 'parentChildren', title: 'My Children', icon: 'like', activeIcon: 'likeWhite' },
+		{ category: 'parentAttendance', title: 'Attendance', icon: 'search', activeIcon: 'searchWhite' },
+		{ category: 'staffApplications', title: 'Teacher Applications', icon: 'newTab', activeIcon: 'whiteTab' },
+		{
+			category: 'kindergartenAdminApplications',
+			title: 'Admin Application',
+			icon: 'home',
+			activeIcon: 'homeWhite',
+		},
+	];
 
 	/** HANDLERS **/
 	const logoutHandler = async () => {
@@ -45,72 +73,96 @@ const MyMenu = () => {
 							<img src={'/img/icons/call.svg'} alt={'icon'} />
 							<Typography className={'p-number'}>{user?.memberPhone}</Typography>
 						</Box>
-						{user?.memberType === 'ADMIN' ? (
+						{user?.memberType === MemberType.SUPER_ADMIN ? (
 							<a href="/_admin/users" target={'_blank'}>
-								<Typography className={'view-list'}>{user?.memberType}</Typography>
+								<Typography className={'view-list'}>{getMemberTypeLabel(user?.memberType)}</Typography>
 							</a>
 						) : (
-							<Typography className={'view-list'}>{user?.memberType}</Typography>
+							<Typography className={'view-list'}>{getMemberTypeLabel(user?.memberType)}</Typography>
 						)}
 					</Stack>
 				</Stack>
 				<Stack className={'sections'}>
-					<Stack className={'section'} style={{ height: user.memberType === 'AGENT' ? '228px' : '153px' }}>
+					<Stack
+						className={'section'}
+						style={{ height: isKindergartenAdmin ? '386px' : isTeacher ? '170px' : isParent ? '282px' : '153px' }}
+					>
 						<Typography className="title" variant={'h5'}>
-							MANAGE LISTINGS
+							{getDashboardRoleHeading(user.memberType)}
 						</Typography>
 						<List className={'sub-section'}>
-							{user.memberType === 'AGENT' && (
+							{isKindergartenAdmin &&
+								kindergartenAdminMenus.map((menu) => (
+									<ListItem key={menu.category} className={pathname === menu.category ? 'focus' : ''}>
+										<Link
+											href={{
+												pathname: '/mypage',
+												query: { category: menu.category },
+											}}
+											scroll={false}
+										>
+											<div className={'flex-box'}>
+												{category === menu.category ? (
+													<img className={'com-icon'} src={`/img/icons/${menu.activeIcon}.svg`} alt={'com-icon'} />
+												) : (
+													<img className={'com-icon'} src={`/img/icons/${menu.icon}.svg`} alt={'com-icon'} />
+												)}
+												<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
+													{menu.title}
+												</Typography>
+											</div>
+										</Link>
+									</ListItem>
+								))}
+							{isTeacher &&
+								teacherMenus.map((menu) => (
+									<ListItem key={menu.category} className={pathname === menu.category ? 'focus' : ''}>
+										<Link
+											href={{
+												pathname: '/mypage',
+												query: { category: menu.category },
+											}}
+											scroll={false}
+										>
+											<div className={'flex-box'}>
+												{category === menu.category ? (
+													<img className={'com-icon'} src={`/img/icons/${menu.activeIcon}.svg`} alt={'com-icon'} />
+												) : (
+													<img className={'com-icon'} src={`/img/icons/${menu.icon}.svg`} alt={'com-icon'} />
+												)}
+												<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
+													{menu.title}
+												</Typography>
+											</div>
+										</Link>
+									</ListItem>
+								))}
+							{isParent &&
+								parentMenus.map((menu) => (
+									<ListItem key={menu.category} className={pathname === menu.category ? 'focus' : ''}>
+										<Link
+											href={{
+												pathname: '/mypage',
+												query: { category: menu.category },
+											}}
+											scroll={false}
+										>
+											<div className={'flex-box'}>
+												{category === menu.category ? (
+													<img className={'com-icon'} src={`/img/icons/${menu.activeIcon}.svg`} alt={'com-icon'} />
+												) : (
+													<img className={'com-icon'} src={`/img/icons/${menu.icon}.svg`} alt={'com-icon'} />
+												)}
+												<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
+													{menu.title}
+												</Typography>
+											</div>
+										</Link>
+									</ListItem>
+								))}
+							{!isKindergartenAdmin && !isTeacher && !isParent && (
 								<>
-									<ListItem className={pathname === 'addProperty' ? 'focus' : ''}>
-										<Link
-											href={{
-												pathname: '/mypage',
-												query: { category: 'addProperty' },
-											}}
-											scroll={false}
-										>
-											<div className={'flex-box'}>
-												{category === 'addProperty' ? (
-													<img className={'com-icon'} src={'/img/icons/whiteTab.svg'} alt={'com-icon'} />
-												) : (
-													<img className={'com-icon'} src={'/img/icons/newTab.svg'} alt={'com_icon'} />
-												)}
-												<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-													Add Property
-												</Typography>
-												<IconButton aria-label="delete" sx={{ ml: '40px' }}>
-													<PortraitIcon style={{ color: 'red' }} />
-												</IconButton>
-											</div>
-										</Link>
-									</ListItem>
-									<ListItem className={pathname === 'myProperties' ? 'focus' : ''}>
-										<Link
-											href={{
-												pathname: '/mypage',
-												query: { category: 'myProperties' },
-											}}
-											scroll={false}
-										>
-											<div className={'flex-box'}>
-												{category === 'myProperties' ? (
-													<img className={'com-icon'} src={'/img/icons/homeWhite.svg'} alt={'com-icon'} />
-												) : (
-													<img className={'com-icon'} src={'/img/icons/home.svg'} alt={'com-icon'} />
-												)}
-												<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-													My Properties
-												</Typography>
-												<IconButton aria-label="delete" sx={{ ml: '36px' }}>
-													<PortraitIcon style={{ color: 'red' }} />
-												</IconButton>
-											</div>
-										</Link>
-									</ListItem>
-								</>
-							)}
-							<ListItem className={pathname === 'myFavorites' ? 'focus' : ''}>
+									<ListItem className={pathname === 'myFavorites' ? 'focus' : ''}>
 								<Link
 									href={{
 										pathname: '/mypage',
@@ -130,8 +182,8 @@ const MyMenu = () => {
 										</Typography>
 									</div>
 								</Link>
-							</ListItem>
-							<ListItem className={pathname === 'recentlyVisited' ? 'focus' : ''}>
+									</ListItem>
+									<ListItem className={pathname === 'recentlyVisited' ? 'focus' : ''}>
 								<Link
 									href={{
 										pathname: '/mypage',
@@ -151,8 +203,8 @@ const MyMenu = () => {
 										</Typography>
 									</div>
 								</Link>
-							</ListItem>
-							<ListItem className={pathname === 'followers' ? 'focus' : ''}>
+									</ListItem>
+									<ListItem className={pathname === 'followers' ? 'focus' : ''}>
 								<Link
 									href={{
 										pathname: '/mypage',
@@ -198,8 +250,8 @@ const MyMenu = () => {
 										</Typography>
 									</div>
 								</Link>
-							</ListItem>
-							<ListItem className={pathname === 'followings' ? 'focus' : ''}>
+									</ListItem>
+									<ListItem className={pathname === 'followings' ? 'focus' : ''}>
 								<Link
 									href={{
 										pathname: '/mypage',
@@ -246,7 +298,9 @@ const MyMenu = () => {
 										</Typography>
 									</div>
 								</Link>
-							</ListItem>
+									</ListItem>
+								</>
+							)}
 						</List>
 					</Stack>
 					<Stack className={'section'} sx={{ marginTop: '10px' }}>

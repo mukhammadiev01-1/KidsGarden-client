@@ -1,6 +1,6 @@
 #pc-wrap {
 	#my-page {
-		background: #f6f6f6;
+		background: #f7f4ed;
 		.container {
 			.my-page {
 				position: relative;
@@ -15,9 +15,9 @@
 					flex-direction: row;
 					margin: 100px 0 200px 0;
 					border-radius: 12px;
-					border: 1px solid #c4c4c4;
+					border: 1px solid #ece6d9;
 					background: #fff;
-					box-shadow: 0px 1px 4px 0px rgba(24, 26, 32, 0.07);
+					box-shadow: 0px 16px 36px 0px rgba(36, 51, 45, 0.08);
 					.left-config {
 						position: relative;
 						padding: 0 0 0 0;
@@ -25,8 +25,8 @@
 						height: 700px;
 						border-radius: 12px;
 						background: #fff;
-						border: 1px solid rgba(196, 196, 196, 0.79);
-						box-shadow: 0px 1px 4px 0px rgba(24, 26, 32, 0.07);
+						border: 1px solid rgba(236, 230, 217, 0.9);
+						box-shadow: 0px 10px 24px 0px rgba(36, 51, 45, 0.07);
 						margin: 180px 20px 40px 20px;
 						.profile {
 							margin-top: 5px;
@@ -66,8 +66,8 @@
 									}
 								}
 								.view-list {
-									font-weight: bold;
-									color: red;
+									font-weight: 700;
+									color: #4f7c5b;
 								}
 							}
 						}
@@ -99,8 +99,9 @@
 									}
 									.focus {
 										height: 50px;
-										background: #000000;
+										background: #4f7c5b;
 										border-radius: 10px;
+										box-shadow: 0px 8px 18px rgba(79, 124, 91, 0.2);
 										p {
 											font-size: 14px;
 											color: #ffffff;

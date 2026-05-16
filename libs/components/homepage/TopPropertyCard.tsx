@@ -5,20 +5,34 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Property } from '../../types/property/property';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { REACT_APP_API_URL } from '../../config';
+import { getImageUrl } from '../../config';
 import { useRouter } from 'next/router';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
+import { formatMonthlyFee } from '../../utils';
 
 interface TopPropertyCardProps {
 	property: Property;
+	likePropertyHandler?: (user: any, id: string) => Promise<void>;
 }
 
 const TopPropertyCard = (props: TopPropertyCardProps) => {
-	const { property } = props;
+	const { property, likePropertyHandler } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
+	const kindergarten: any = {
+		images: (property as any)?.kindergartenImages || property?.propertyImages || [],
+		price: (property as any)?.kindergartenPrice ?? property?.propertyPrice,
+		title: (property as any)?.kindergartenTitle ?? property?.propertyTitle,
+		address: (property as any)?.kindergartenAddress ?? property?.propertyAddress,
+		ageRange: (property as any)?.kindergartenAgeRange ?? property?.propertyBeds,
+		programs: (property as any)?.kindergartenPrograms ?? property?.propertyRooms,
+		capacity: (property as any)?.kindergartenCapacity ?? property?.propertySquare,
+		views: (property as any)?.kindergartenViews ?? property?.propertyViews,
+		likes: (property as any)?.kindergartenLikes ?? property?.propertyLikes,
+		meLiked: (property as any)?.meLiked,
+	};
 
 	/** HANDLERS **/
 
@@ -28,47 +42,43 @@ const TopPropertyCard = (props: TopPropertyCardProps) => {
 				<Box
 					component={'div'}
 					className={'card-img'}
-					style={{ backgroundImage: `url(${REACT_APP_API_URL}/${property?.propertyImages[0]})` }}
+					style={{ backgroundImage: `url(${getImageUrl(kindergarten.images[0])})` }}
 				>
-					<div>${property?.propertyPrice}</div>
+					<div>{formatMonthlyFee(kindergarten.price)}</div>
 				</Box>
 				<Box component={'div'} className={'info'}>
-					<strong className={'title'}>{property?.propertyTitle}</strong>
-					<p className={'desc'}>{property?.propertyAddress}</p>
+					<strong className={'title'}>{kindergarten.title}</strong>
+					<p className={'desc'}>{kindergarten.address}</p>
 					<div className={'options'}>
 						<div>
 							<img src="/img/icons/bed.svg" alt="" />
-							<span>{property?.propertyBeds} bed</span>
+							<span>Age {kindergarten.ageRange}</span>
 						</div>
 						<div>
 							<img src="/img/icons/room.svg" alt="" />
-							<span>{property?.propertyRooms} rooms</span>
+							<span>{kindergarten.programs} programs</span>
 						</div>
 						<div>
 							<img src="/img/icons/expand.svg" alt="" />
-							<span>{property?.propertySquare} m2</span>
+							<span>{kindergarten.capacity} spots</span>
 						</div>
 					</div>
 					<Divider sx={{ mt: '15px', mb: '17px' }} />
 					<div className={'bott'}>
-						<p>
-							{' '}
-							{property.propertyRent ? 'Rent' : ''} {property.propertyRent && property.propertyBarter && '/'}{' '}
-							{property.propertyBarter ? 'Barter' : ''}
-						</p>
+						<p>Recommended center</p>
 						<div className="view-like-box">
 							<IconButton color={'default'}>
 								<RemoveRedEyeIcon />
 							</IconButton>
-							<Typography className="view-cnt">{property?.propertyViews}</Typography>
-							<IconButton color={'default'}>
-								{property?.meLiked && property?.meLiked[0]?.myFavorite ? (
+							<Typography className="view-cnt">{kindergarten.views}</Typography>
+							<IconButton color={'default'} onClick={() => likePropertyHandler?.(user, property._id)}>
+								{kindergarten?.meLiked && kindergarten?.meLiked[0]?.myFavorite ? (
 									<FavoriteIcon style={{ color: 'red' }} />
 								) : (
 									<FavoriteIcon />
 								)}
 							</IconButton>
-							<Typography className="view-cnt">{property?.propertyLikes}</Typography>
+							<Typography className="view-cnt">{kindergarten.likes}</Typography>
 						</div>
 					</div>
 				</Box>
@@ -80,47 +90,43 @@ const TopPropertyCard = (props: TopPropertyCardProps) => {
 				<Box
 					component={'div'}
 					className={'card-img'}
-					style={{ backgroundImage: `url(${REACT_APP_API_URL}/${property?.propertyImages[0]})` }}
+					style={{ backgroundImage: `url(${getImageUrl(kindergarten.images[0])})` }}
 				>
-					<div>${property?.propertyPrice}</div>
+					<div>{formatMonthlyFee(kindergarten.price)}</div>
 				</Box>
 				<Box component={'div'} className={'info'}>
-					<strong className={'title'}>{property?.propertyTitle}</strong>
-					<p className={'desc'}>{property?.propertyAddress}</p>
+					<strong className={'title'}>{kindergarten.title}</strong>
+					<p className={'desc'}>{kindergarten.address}</p>
 					<div className={'options'}>
 						<div>
 							<img src="/img/icons/bed.svg" alt="" />
-							<span>{property?.propertyBeds} bed</span>
+							<span>Age {kindergarten.ageRange}</span>
 						</div>
 						<div>
 							<img src="/img/icons/room.svg" alt="" />
-							<span>{property?.propertyRooms} rooms</span>
+							<span>{kindergarten.programs} programs</span>
 						</div>
 						<div>
 							<img src="/img/icons/expand.svg" alt="" />
-							<span>{property?.propertySquare} m2</span>
+							<span>{kindergarten.capacity} spots</span>
 						</div>
 					</div>
 					<Divider sx={{ mt: '15px', mb: '17px' }} />
 					<div className={'bott'}>
-						<p>
-							{' '}
-							{property.propertyRent ? 'Rent' : ''} {property.propertyRent && property.propertyBarter && '/'}{' '}
-							{property.propertyBarter ? 'Barter' : ''}
-						</p>
+						<p>Recommended center</p>
 						<div className="view-like-box">
 							<IconButton color={'default'}>
 								<RemoveRedEyeIcon />
 							</IconButton>
-							<Typography className="view-cnt">{property?.propertyViews}</Typography>
-							<IconButton color={'default'}>
-								{property?.meLiked && property?.meLiked[0]?.myFavorite ? (
+							<Typography className="view-cnt">{kindergarten.views}</Typography>
+							<IconButton color={'default'} onClick={() => likePropertyHandler?.(user, property._id)}>
+								{kindergarten?.meLiked && kindergarten?.meLiked[0]?.myFavorite ? (
 									<FavoriteIcon style={{ color: 'red' }} />
 								) : (
 									<FavoriteIcon />
 								)}
 							</IconButton>
-							<Typography className="view-cnt">{property?.propertyLikes}</Typography>
+							<Typography className="view-cnt">{kindergarten.likes}</Typography>
 						</div>
 					</div>
 				</Box>

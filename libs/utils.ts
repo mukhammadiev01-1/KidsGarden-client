@@ -5,6 +5,24 @@ export const formatterStr = (value: number | undefined): string => {
 	return numeral(value).format('0,0') != '0' ? numeral(value).format('0,0') : '';
 };
 
+export const getKindergartenTypeLabel = (type?: string): string => {
+	switch (type) {
+		case 'APARTMENT':
+			return 'Private Kindergarten';
+		case 'VILLA':
+			return 'Public Kindergarten';
+		case 'HOUSE':
+			return 'Daycare Center';
+		default:
+			return type || '';
+	}
+};
+
+export const formatMonthlyFee = (value?: number): string => {
+	const formattedValue = formatterStr(value);
+	return formattedValue ? `$${formattedValue} / mo` : 'Fee on request';
+};
+
 export const likeTargetPropertyHandler = async (likeTargetProperty: any, id: string) => {
 	try {
 		await likeTargetProperty({

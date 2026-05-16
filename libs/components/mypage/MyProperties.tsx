@@ -10,6 +10,7 @@ import { T } from '../../types/common';
 import { PropertyStatus } from '../../enums/property.enum';
 import { userVar } from '../../../apollo/store';
 import { useRouter } from 'next/router';
+import { MemberType } from '../../enums/member.enum';
 
 const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -34,7 +35,7 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 
 	const updatePropertyHandler = async (status: string, id: string) => {};
 
-	if (user?.memberType !== 'AGENT') {
+	if (user?.memberType !== MemberType.KINDERGARTEN_ADMIN) {
 		router.back();
 	}
 

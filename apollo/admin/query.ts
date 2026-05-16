@@ -38,6 +38,31 @@ export const GET_ALL_MEMBERS_BY_ADMIN = gql`
 	}
 `;
 
+export const GET_KINDERGARTEN_ADMIN_APPLICATIONS = gql`
+	query GetKindergartenAdminApplications($input: KindergartenAdminApplicationsInquiry!) {
+		getKindergartenAdminApplications(input: $input) {
+			list {
+				_id
+				applicantId
+				applicationStatus
+				message
+				kindergartenTitle
+				kindergartenAddress
+				kindergartenPhone
+				businessInfo
+				reviewedBy
+				reviewedAt
+				rejectReason
+				createdAt
+				updatedAt
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
 /**************************
  *        PROPERTY        *
  *************************/

@@ -10,29 +10,27 @@ interface EventData {
 }
 const eventsData: EventData[] = [
 	{
-		eventTitle: 'Paradise City Theme Park',
+		eventTitle: 'Open Classroom Day',
 		city: 'Incheon',
-		description:
-			'Experience magic and wonder in Incheon with a visit to the night-themed indoor theme park Wonderbox at Paradise City!',
+		description: 'Visit a center and see how children spend a typical learning day.',
 		imageSrc: '/img/events/INCHEON.webp',
 	},
 	{
-		eventTitle: 'Taebaeksan Snow Festival',
+		eventTitle: 'Parent Orientation',
 		city: 'Seoul',
-		description: 'If you have the opportunity to travel to South Korea, do not miss the Taebaeksan Snow Festival!',
+		description: 'Learn about programs, meals, safety routines, and enrollment steps for your child.',
 		imageSrc: '/img/events/SEOUL.webp',
 	},
 	{
-		eventTitle: 'Suseong Lake Event',
+		eventTitle: 'Family Art Morning',
 		city: 'Daegu',
-		description: 'The Suseong Lake Festival is a culture and arts festival held alongside Suseongmot Lake!',
+		description: 'A gentle weekend activity where families explore creative play together.',
 		imageSrc: '/img/events/DAEGU.webp',
 	},
 	{
-		eventTitle: 'Sand Festival',
+		eventTitle: 'Outdoor Play Week',
 		city: 'Busan',
-		description:
-			'Haeundae Sand Festival, the nation’s largest eco-friendly exhibition on sand, is held at Haeundae Beach!',
+		description: 'Discover centers with active playgrounds, nature walks, and movement-rich programs.',
 		imageSrc: '/img/events/BUSAN.webp',
 	},
 ];
@@ -76,8 +74,8 @@ const Events = () => {
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
 						<Box component={'div'} className={'left'}>
-							<span className={'white'}>Events</span>
-							<p className={'white'}>Events waiting your attention!</p>
+							<span className={'white'}>Family Events</span>
+							<p className={'white'}>Meet centers through open days and parent sessions</p>
 						</Box>
 					</Stack>
 					<Stack className={'card-wrapper'}>

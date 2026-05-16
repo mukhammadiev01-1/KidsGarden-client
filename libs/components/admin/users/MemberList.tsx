@@ -17,7 +17,7 @@ import Typography from '@mui/material/Typography';
 import { Stack } from '@mui/material';
 import { Member } from '../../../types/member/member';
 import { REACT_APP_API_URL } from '../../../config';
-import { MemberStatus, MemberType } from '../../../enums/member.enum';
+import { getMemberTypeLabel, MemberStatus, MemberType } from '../../../enums/member.enum';
 
 interface Data {
 	id: string;
@@ -182,7 +182,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 
 										<TableCell align="center">
 											<Button onClick={(e: any) => menuIconClickHandler(e, index)} className={'badge success'}>
-												{member.memberType}
+												{getMemberTypeLabel(member.memberType)}
 											</Button>
 
 											<Menu
@@ -204,7 +204,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 															key={type}
 														>
 															<Typography variant={'subtitle1'} component={'span'}>
-																{type}
+																{getMemberTypeLabel(type)}
 															</Typography>
 														</MenuItem>
 													))}

@@ -208,14 +208,20 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
 										All
 									</MenuItem>
-									<MenuItem value={'USER'} onClick={() => searchTypeHandler('USER')}>
-										User
+									<MenuItem value={MemberType.PARENT} onClick={() => searchTypeHandler(MemberType.PARENT)}>
+										Parent
 									</MenuItem>
-									<MenuItem value={'AGENT'} onClick={() => searchTypeHandler('AGENT')}>
-										Agent
+									<MenuItem value={MemberType.TEACHER} onClick={() => searchTypeHandler(MemberType.TEACHER)}>
+										Teacher
 									</MenuItem>
-									<MenuItem value={'ADMIN'} onClick={() => searchTypeHandler('ADMIN')}>
-										Admin
+									<MenuItem
+										value={MemberType.KINDERGARTEN_ADMIN}
+										onClick={() => searchTypeHandler(MemberType.KINDERGARTEN_ADMIN)}
+									>
+										Kindergarten Admin
+									</MenuItem>
+									<MenuItem value={MemberType.SUPER_ADMIN} onClick={() => searchTypeHandler(MemberType.SUPER_ADMIN)}>
+										Super Admin
 									</MenuItem>
 								</Select>
 							</Stack>

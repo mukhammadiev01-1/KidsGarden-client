@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { Button, Stack, Typography, Tab, Tabs, IconButton, Backdrop, Pagination } from '@mui/material';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import Moment from 'react-moment';
 import { userVar } from '../../apollo/store';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
@@ -16,11 +15,15 @@ import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineR
 import { CommentsInquiry } from '../../libs/types/comment/comment.input';
 import { Comment } from '../../libs/types/comment/comment';
 import dynamic from 'next/dynamic';
-import { CommentStatus } from '../../libs/enums/comment.enum';
+import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
 import { T } from '../../libs/types/common';
 import EditIcon from '@mui/icons-material/Edit';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { BoardArticle } from '../../libs/types/board-article/board-article';
+import { GET_BOARD_ARTICLE, GET_COMMENTS } from '../../apollo/user/query';
+import { CREATE_COMMENT, LIKE_TARGET_BOARD_ARTICLE, UPDATE_COMMENT } from '../../apollo/user/mutation';
+import { sweetErrorHandling, sweetLoginConfirmAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
 const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -30,12 +33,18 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
-	const device = useDeviceDetect();
 	const router = useRouter();
 	const { query } = router;
 
 	const articleId = query?.id as string;
 	const articleCategory = query?.articleCategory as string;
+	const categoryLabels: Record<string, string> = {
+		FREE: 'Parent Board',
+		RECOMMEND: 'Kindergarten Updates',
+		NEWS: 'News',
+		HUMOR: 'Community',
+	};
+	const visibleCategories = [BoardArticleCategory.FREE, BoardArticleCategory.NEWS];
 
 	const [comment, setComment] = useState<string>('');
 	const [wordsCnt, setWordsCnt] = useState<number>(0);
@@ -57,10 +66,45 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	const [boardArticle, setBoardArticle] = useState<BoardArticle>();
 
 	/** APOLLO REQUESTS **/
+	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
+	const [createComment] = useMutation(CREATE_COMMENT);
+	const [updateComment] = useMutation(UPDATE_COMMENT);
+
+	const {
+		loading: getBoardArticleLoading,
+		error: getBoardArticleError,
+		refetch: getBoardArticleRefetch,
+	} = useQuery(GET_BOARD_ARTICLE, {
+		skip: !articleId,
+		fetchPolicy: 'network-only',
+		variables: { input: articleId },
+		onCompleted: (data: T) => {
+			const targetArticle = data?.getBoardArticle;
+			setBoardArticle(targetArticle || undefined);
+			setMemberImage(getCommentMemberImage(targetArticle?.memberData?.memberImage));
+		},
+		onError: () => setBoardArticle(undefined),
+	});
+
+	const { loading: getCommentsLoading, refetch: getCommentsRefetch } = useQuery(GET_COMMENTS, {
+		skip: !searchFilter?.search?.commentRefId,
+		fetchPolicy: 'network-only',
+		variables: { input: searchFilter },
+		onCompleted: (data: T) => {
+			setComments(data?.getComments?.list ?? []);
+			setTotal(data?.getComments?.metaCounter?.[0]?.total ?? 0);
+		},
+		onError: () => {
+			setComments([]);
+			setTotal(0);
+		},
+	});
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (articleId) setSearchFilter({ ...searchFilter, search: { commentRefId: articleId } });
+		if (articleId) {
+			setSearchFilter((prev) => ({ ...prev, page: 1, search: { commentRefId: articleId } }));
+		}
 	}, [articleId]);
 
 	/** HANDLERS **/
@@ -75,9 +119,60 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		);
 	};
 
-	const creteCommentHandler = async () => {};
+	const creteCommentHandler = async () => {
+		try {
+			if (!articleId || !comment.trim()) return;
+			if (!user?._id) {
+				const confirmed = await sweetLoginConfirmAlert('Please login first');
+				if (confirmed) await router.push('/account/join');
+				return;
+			}
 
-	const updateButtonHandler = async (commentId: string, commentStatus?: CommentStatus.DELETE) => {};
+			await createComment({
+				variables: {
+					input: {
+						commentGroup: CommentGroup.ARTICLE,
+						commentContent: comment.trim(),
+						commentRefId: articleId,
+					},
+				},
+			});
+			setComment('');
+			setWordsCnt(0);
+			await getCommentsRefetch({ input: searchFilter });
+			await getBoardArticleRefetch({ input: articleId });
+			await sweetTopSmallSuccessAlert('Comment submitted');
+		} catch (err: any) {
+			await sweetErrorHandling(err);
+		}
+	};
+
+	const updateButtonHandler = async (commentId: string, commentStatus?: CommentStatus.DELETE) => {
+		try {
+			if (!commentId) return;
+			if (!user?._id) {
+				const confirmed = await sweetLoginConfirmAlert('Please login first');
+				if (confirmed) await router.push('/account/join');
+				return;
+			}
+
+			if (!commentStatus && !updatedComment.trim()) return;
+
+			const input = commentStatus
+				? { _id: commentId, commentStatus }
+				: { _id: commentId, commentContent: updatedComment.trim() };
+
+			await updateComment({ variables: { input } });
+			setOpenBackdrop(false);
+			setUpdatedComment('');
+			setUpdatedCommentWordsCnt(0);
+			await getCommentsRefetch({ input: searchFilter });
+			await getBoardArticleRefetch({ input: articleId });
+			await sweetTopSmallSuccessAlert(commentStatus ? 'Comment removed' : 'Comment updated');
+		} catch (err: any) {
+			await sweetErrorHandling(err);
+		}
+	};
 
 	const getCommentMemberImage = (imageUrl: string | undefined) => {
 		if (imageUrl) return `${process.env.REACT_APP_API_URL}/${imageUrl}`;
@@ -105,10 +200,28 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		setSearchFilter({ ...searchFilter, page: value });
 	};
 
-	if (device === 'mobile') {
-		return <div>COMMUNITY DETAIL PAGE MOBILE</div>;
-	} else {
-		return (
+	const likeBoardArticleHandler = async () => {
+		try {
+			if (!articleId || likeLoading) return;
+			if (!user?._id) {
+				const confirmed = await sweetLoginConfirmAlert('Please login first');
+				if (confirmed) await router.push('/account/join');
+				return;
+			}
+
+			setLikeLoading(true);
+			await likeTargetBoardArticle({ variables: { input: articleId } });
+			await getBoardArticleRefetch({ input: articleId });
+		} catch (err: any) {
+			await sweetErrorHandling(err);
+		} finally {
+			setLikeLoading(false);
+		}
+	};
+
+	const articleLiked = Boolean(boardArticle?.meLiked?.[0]?.myFavorite);
+
+	return (
 			<div id="community-detail-page">
 				<div className="container">
 					<Stack className="main-box">
@@ -116,7 +229,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 							<Stack className={'image-info'}>
 								<img src={'/img/logo/logoText.svg'} />
 								<Stack className={'community-name'}>
-									<Typography className={'name'}>Community Board Article</Typography>
+									<Typography className={'name'}>Community Article</Typography>
 								</Stack>
 							</Stack>
 							<Tabs
@@ -126,36 +239,24 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 									style: { display: 'none' },
 								}}
 								onChange={tabChangeHandler}
-								value={articleCategory}
+								value={visibleCategories.includes(articleCategory as BoardArticleCategory) ? articleCategory : false}
 							>
-								<Tab
-									value={'FREE'}
-									label={'Free Board'}
-									className={`tab-button ${articleCategory === 'FREE' ? 'active' : ''}`}
-								/>
-								<Tab
-									value={'RECOMMEND'}
-									label={'Recommendation'}
-									className={`tab-button ${articleCategory === 'RECOMMEND' ? 'active' : ''}`}
-								/>
-								<Tab
-									value={'NEWS'}
-									label={'News'}
-									className={`tab-button ${articleCategory === 'NEWS' ? 'active' : ''}`}
-								/>
-								<Tab
-									value={'HUMOR'}
-									label={'Humor'}
-									className={`tab-button ${articleCategory === 'HUMOR' ? 'active' : ''}`}
-								/>
+								{visibleCategories.map((category) => (
+									<Tab
+										value={category}
+										label={categoryLabels[category]}
+										className={`tab-button ${articleCategory === category ? 'active' : ''}`}
+										key={category}
+									/>
+								))}
 							</Tabs>
 						</Stack>
 						<div className="community-detail-config">
 							<Stack className="title-box">
 								<Stack className="left">
-									<Typography className="title">{articleCategory} BOARD</Typography>
+									<Typography className="title">{categoryLabels[articleCategory] || 'Community'}</Typography>
 									<Typography className="sub-title">
-										Express your opinions freely here without content restrictions
+										Share questions, experiences, and helpful updates with other KidsGarden families.
 									</Typography>
 								</Stack>
 								<Button
@@ -173,61 +274,78 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 								</Button>
 							</Stack>
 							<div className="config">
-								<Stack className="first-box-config">
-									<Stack className="content-and-info">
-										<Stack className="content">
-											<Typography className="content-data">{boardArticle?.articleTitle}</Typography>
-											<Stack className="member-info">
-												<img
-													src={memberImage}
-													alt=""
-													className="member-img"
-													onClick={() => goMemberPage(boardArticle?.memberData?._id)}
-												/>
-												<Typography className="member-nick" onClick={() => goMemberPage(boardArticle?.memberData?._id)}>
-													{boardArticle?.memberData?.memberNick}
-												</Typography>
+								{getBoardArticleLoading && (
+									<Stack className="first-box-config">
+										<Typography>Loading community article...</Typography>
+									</Stack>
+								)}
+								{!getBoardArticleLoading && getBoardArticleError && (
+									<Stack className="first-box-config">
+										<Typography>Community article could not be loaded.</Typography>
+									</Stack>
+								)}
+								{!getBoardArticleLoading && !getBoardArticleError && !boardArticle && (
+									<Stack className="first-box-config">
+										<Typography>Community article was not found.</Typography>
+									</Stack>
+								)}
+								{!getBoardArticleLoading && !getBoardArticleError && boardArticle && (
+									<Stack className="first-box-config">
+										<Stack className="content-and-info">
+											<Stack className="content">
+												<Typography className="content-data">{boardArticle?.articleTitle}</Typography>
+												<Stack className="member-info">
+													<img
+														src={memberImage}
+														alt=""
+														className="member-img"
+														onClick={() => goMemberPage(boardArticle?.memberData?._id)}
+													/>
+													<Typography className="member-nick" onClick={() => goMemberPage(boardArticle?.memberData?._id)}>
+														{boardArticle?.memberData?.memberNick}
+													</Typography>
+													<Stack className="divider"></Stack>
+													<Moment className={'time-added'} format={'DD.MM.YY HH:mm'}>
+														{boardArticle?.createdAt}
+													</Moment>
+												</Stack>
+											</Stack>
+											<Stack className="info">
+												<Stack className="icon-info">
+													{articleLiked ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
+
+													<Typography className="text">{boardArticle?.articleLikes}</Typography>
+												</Stack>
 												<Stack className="divider"></Stack>
-												<Moment className={'time-added'} format={'DD.MM.YY HH:mm'}>
-													{boardArticle?.createdAt}
-												</Moment>
-											</Stack>
-										</Stack>
-										<Stack className="info">
-											<Stack className="icon-info">
-												{boardArticle?.meLiked ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
+												<Stack className="icon-info">
+													<VisibilityIcon />
+													<Typography className="text">{boardArticle?.articleViews}</Typography>
+												</Stack>
+												<Stack className="divider"></Stack>
+												<Stack className="icon-info">
+													{boardArticle?.articleComments && boardArticle?.articleComments > 0 ? (
+														<ChatIcon />
+													) : (
+														<ChatBubbleOutlineRoundedIcon />
+													)}
 
-												<Typography className="text">{boardArticle?.articleLikes}</Typography>
+													<Typography className="text">{boardArticle?.articleComments}</Typography>
+												</Stack>
 											</Stack>
-											<Stack className="divider"></Stack>
-											<Stack className="icon-info">
-												<VisibilityIcon />
-												<Typography className="text">{boardArticle?.articleViews}</Typography>
-											</Stack>
-											<Stack className="divider"></Stack>
-											<Stack className="icon-info">
-												{boardArticle?.articleComments && boardArticle?.articleComments > 0 ? (
-													<ChatIcon />
-												) : (
-													<ChatBubbleOutlineRoundedIcon />
-												)}
-
-												<Typography className="text">{boardArticle?.articleComments}</Typography>
+										</Stack>
+										<Stack>
+											<ToastViewerComponent markdown={boardArticle?.articleContent} className={'ytb_play'} />
+										</Stack>
+										<Stack className="like-and-dislike">
+											<Stack className="top">
+												<Button onClick={likeBoardArticleHandler} disabled={likeLoading}>
+													{articleLiked ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
+													<Typography className="text">{boardArticle?.articleLikes}</Typography>
+												</Button>
 											</Stack>
 										</Stack>
 									</Stack>
-									<Stack>
-										<ToastViewerComponent markdown={boardArticle?.articleContent} className={'ytb_play'} />
-									</Stack>
-									<Stack className="like-and-dislike">
-										<Stack className="top">
-											<Button>
-												{boardArticle?.meLiked ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
-												<Typography className="text">{boardArticle?.articleLikes}</Typography>
-											</Button>
-										</Stack>
-									</Stack>
-								</Stack>
+								)}
 								<Stack
 									className="second-box-config"
 									sx={{ borderBottom: total > 0 ? 'none' : '1px solid #eee', border: '1px solid #eee' }}
@@ -253,6 +371,16 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 								{total > 0 && (
 									<Stack className="comments">
 										<Typography className="comments-title">Comments</Typography>
+									</Stack>
+								)}
+								{getCommentsLoading && (
+									<Stack className="comments-box">
+										<Typography>Loading comments...</Typography>
+									</Stack>
+								)}
+								{!getCommentsLoading && total === 0 && (
+									<Stack className="comments-box">
+										<Typography>No comments yet.</Typography>
 									</Stack>
 								)}
 								{comments?.map((commentData, index) => {
@@ -387,7 +515,6 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 				</div>
 			</div>
 		);
-	}
 };
 CommunityDetail.defaultProps = {
 	initialInput: {

@@ -30,6 +30,42 @@
 
   }
 
+  .homepage-empty-state {
+    width: 100%;
+    min-height: 220px;
+    padding: 22px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: 1px solid rgba(122, 143, 126, 0.22);
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0px 1px 4px 0px rgba(24, 26, 32, 0.06);
+    text-align: center;
+    p {
+      max-width: 280px;
+      color: #50605a;
+      font-family: $font;
+      font-size: 15px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 24px;
+    }
+    a {
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #24332d;
+      color: #ffffff;
+      font-family: $font;
+      font-size: 13px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: normal;
+    }
+  }
+
   .trend-properties {
     padding: 0px 10px;
     width: 100%;
@@ -738,6 +774,75 @@
                 font-weight: 400;
                 line-height: 28px;
               }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .community-board {
+    padding: 20px 10px;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    .container {
+      width: 100%;
+      flex-direction: column;
+      align-items: center;
+      h1 {
+        color: #181a20;
+        text-align: center;
+        font-family: $font;
+        font-size: 26px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 34px;
+      }
+      .community-main {
+        width: 100%;
+        margin-top: 25px;
+        display: flex;
+        flex-direction: column;
+        .card-wrap {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .horizontal-card {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          cursor: pointer;
+          img {
+            width: 118px;
+            height: 82px;
+            border-radius: 7px;
+            object-fit: cover;
+          }
+          div {
+            margin-left: 14px;
+            display: flex;
+            flex-direction: column;
+            strong {
+              margin-top: 4px;
+              color: #212121;
+              font-family: $font;
+              font-size: 13px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: 20px;
+            }
+            span {
+              margin-top: 4px;
+              color: #717171;
+              font-family: $font;
+              font-size: 12px;
+              font-style: normal;
+              font-weight: 400;
+              line-height: 18px;
             }
           }
         }

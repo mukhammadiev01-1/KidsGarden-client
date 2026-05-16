@@ -4,6 +4,7 @@ import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
 import { sweetMixinErrorAlert } from '../sweetAlert';
 import { LOGIN, SIGN_UP } from '../../apollo/user/mutation';
+import { normalizeMemberType } from '../enums/member.enum';
 
 export function getJwtToken(): any {
 	if (typeof window !== 'undefined') {
@@ -128,9 +129,11 @@ export const updateUserInfo = (jwtToken: any) => {
 	if (!jwtToken) return false;
 
 	const claims = decodeJWT<CustomJwtPayload>(jwtToken);
+	const memberType = normalizeMemberType(claims.memberType);
+
 	userVar({
 		_id: claims._id ?? '',
-		memberType: claims.memberType ?? '',
+		memberType,
 		memberStatus: claims.memberStatus ?? '',
 		memberAuthType: claims.memberAuthType,
 		memberPhone: claims.memberPhone ?? '',
@@ -142,14 +145,14 @@ export const updateUserInfo = (jwtToken: any) => {
 				: `${claims.memberImage}`,
 		memberAddress: claims.memberAddress ?? '',
 		memberDesc: claims.memberDesc ?? '',
-		memberProperties: claims.memberProperties,
-		memberRank: claims.memberRank,
-		memberArticles: claims.memberArticles,
-		memberPoints: claims.memberPoints,
-		memberLikes: claims.memberLikes,
-		memberViews: claims.memberViews,
-		memberWarnings: claims.memberWarnings,
-		memberBlocks: claims.memberBlocks,
+		memberKindergartens: claims.memberKindergartens ?? claims.memberProperties ?? 0,
+		memberRank: claims.memberRank ?? 0,
+		memberArticles: claims.memberArticles ?? 0,
+		memberPoints: claims.memberPoints ?? 0,
+		memberLikes: claims.memberLikes ?? 0,
+		memberViews: claims.memberViews ?? 0,
+		memberWarnings: claims.memberWarnings ?? 0,
+		memberBlocks: claims.memberBlocks ?? 0,
 	});
 };
 
@@ -175,7 +178,7 @@ const deleteUserInfo = () => {
 		memberImage: '',
 		memberAddress: '',
 		memberDesc: '',
-		memberProperties: 0,
+		memberKindergartens: 0,
 		memberRank: 0,
 		memberArticles: 0,
 		memberPoints: 0,

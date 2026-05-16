@@ -38,7 +38,7 @@ const RecentlyVisited: NextPage = () => {
 					) : (
 						<div className={'no-data'}>
 							<img src="/img/icons/icoAlert.svg" alt="" />
-							<p>No Recently Visited Properties found!</p>
+							<p>No recently visited kindergartens found!</p>
 						</div>
 					)}
 				</Stack>
@@ -55,7 +55,7 @@ const RecentlyVisited: NextPage = () => {
 						</Stack>
 						<Stack className="total-result">
 							<Typography>
-								Total {total} recently visited propert{total > 1 ? 'ies' : 'y'}
+								Total {total} recently visited kindergarten{total > 1 ? 's' : ''}
 							</Typography>
 						</Stack>
 					</Stack>

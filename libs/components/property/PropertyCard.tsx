@@ -3,32 +3,48 @@ import { Stack, Typography, Box } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import { Property } from '../../types/property/property';
+import { Kindergarten } from '../../types/kindergarten/kindergarten';
 import Link from 'next/link';
-import { formatterStr } from '../../utils';
-import { REACT_APP_API_URL } from '../../config';
+import { formatMonthlyFee, getKindergartenTypeLabel } from '../../utils';
+import { getImageUrl } from '../../config';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import IconButton from '@mui/material/IconButton';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
 interface PropertyCardType {
-	property: Property;
+	kindergarten?: Kindergarten;
+	property?: any;
+	likeKindergartenHandler?: any;
 	likePropertyHandler?: any;
 	myFavorites?: boolean;
 	recentlyVisited?: boolean;
 }
 
 const PropertyCard = (props: PropertyCardType) => {
-	const { property, likePropertyHandler, myFavorites, recentlyVisited } = props;
+	const { likeKindergartenHandler, likePropertyHandler, myFavorites, recentlyVisited } = props;
+	const kindergarten: any = props.kindergarten || {
+		_id: props.property?._id,
+		kindergartenImages: props.property?.propertyImages || [],
+		kindergartenRank: props.property?.propertyRank,
+		kindergartenPrice: props.property?.propertyPrice,
+		kindergartenTitle: props.property?.propertyTitle,
+		kindergartenAddress: props.property?.propertyAddress,
+		kindergartenLocation: props.property?.propertyLocation,
+		kindergartenAgeRange: props.property?.propertyBeds,
+		kindergartenPrograms: props.property?.propertyRooms,
+		kindergartenCapacity: props.property?.propertySquare,
+		kindergartenType: props.property?.propertyType,
+		kindergartenViews: props.property?.propertyViews,
+		kindergartenLikes: props.property?.propertyLikes,
+		meLiked: props.property?.meLiked,
+	};
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
-	const imagePath: string = property?.propertyImages[0]
-		? `${REACT_APP_API_URL}/${property?.propertyImages[0]}`
-		: '/img/banner/header1.svg';
+	const imagePath: string = getImageUrl(kindergarten?.kindergartenImages?.[0]);
 
 	if (device === 'mobile') {
-		return <div>PROPERTY CARD</div>;
+		return <div>KINDERGARTEN CARD</div>;
 	} else {
 		return (
 			<Stack className="card-config">
@@ -36,19 +52,19 @@ const PropertyCard = (props: PropertyCardType) => {
 					<Link
 						href={{
 							pathname: '/property/detail',
-							query: { id: property?._id },
+							query: { id: kindergarten?._id },
 						}}
 					>
 						<img src={imagePath} alt="" />
 					</Link>
-					{property && property?.propertyRank > 0 && (
+					{kindergarten && kindergarten?.kindergartenRank > 0 && (
 						<Box component={'div'} className={'top-badge'}>
 							<img src="/img/icons/electricity.svg" alt="" />
 							<Typography>TOP</Typography>
 						</Box>
 					)}
 					<Box component={'div'} className={'price-box'}>
-						<Typography>${formatterStr(property?.propertyPrice)}</Typography>
+						<Typography>{formatMonthlyFee(kindergarten?.kindergartenPrice)}</Typography>
 					</Box>
 				</Stack>
 				<Stack className="bottom">
@@ -57,43 +73,34 @@ const PropertyCard = (props: PropertyCardType) => {
 							<Link
 								href={{
 									pathname: '/property/detail',
-									query: { id: property?._id },
+									query: { id: kindergarten?._id },
 								}}
 							>
-								<Typography>{property.propertyTitle}</Typography>
+								<Typography>{kindergarten.kindergartenTitle}</Typography>
 							</Link>
 						</Stack>
 						<Stack className="address">
 							<Typography>
-								{property.propertyAddress}, {property.propertyLocation}
+								{kindergarten.kindergartenAddress}, {kindergarten.kindergartenLocation}
 							</Typography>
 						</Stack>
 					</Stack>
 					<Stack className="options">
 						<Stack className="option">
-							<img src="/img/icons/bed.svg" alt="" /> <Typography>{property.propertyBeds} bed</Typography>
+							<img src="/img/icons/bed.svg" alt="" /> <Typography>Age {kindergarten.kindergartenAgeRange}</Typography>
 						</Stack>
 						<Stack className="option">
-							<img src="/img/icons/room.svg" alt="" /> <Typography>{property.propertyRooms} room</Typography>
+							<img src="/img/icons/room.svg" alt="" /> <Typography>{kindergarten.kindergartenPrograms} programs</Typography>
 						</Stack>
 						<Stack className="option">
-							<img src="/img/icons/expand.svg" alt="" /> <Typography>{property.propertySquare} m2</Typography>
+							<img src="/img/icons/expand.svg" alt="" /> <Typography>{kindergarten.kindergartenCapacity} spots</Typography>
 						</Stack>
 					</Stack>
 					<Stack className="divider"></Stack>
 					<Stack className="type-buttons">
 						<Stack className="type">
-							<Typography
-								sx={{ fontWeight: 500, fontSize: '13px' }}
-								className={property.propertyRent ? '' : 'disabled-type'}
-							>
-								Rent
-							</Typography>
-							<Typography
-								sx={{ fontWeight: 500, fontSize: '13px' }}
-								className={property.propertyBarter ? '' : 'disabled-type'}
-							>
-								Barter
+							<Typography sx={{ fontWeight: 500, fontSize: '13px' }}>
+								{getKindergartenTypeLabel(kindergarten.kindergartenType)}
 							</Typography>
 						</Stack>
 						{!recentlyVisited && (
@@ -101,17 +108,24 @@ const PropertyCard = (props: PropertyCardType) => {
 								<IconButton color={'default'}>
 									<RemoveRedEyeIcon />
 								</IconButton>
-								<Typography className="view-cnt">{property?.propertyViews}</Typography>
-								<IconButton color={'default'} onClick={() => likePropertyHandler(user, property?._id)}>
+								<Typography className="view-cnt">{kindergarten?.kindergartenViews}</Typography>
+								<IconButton
+									color={'default'}
+									onClick={() =>
+										likeKindergartenHandler
+											? likeKindergartenHandler(user, kindergarten?._id)
+											: likePropertyHandler?.(user, kindergarten?._id)
+									}
+								>
 									{myFavorites ? (
 										<FavoriteIcon color="primary" />
-									) : property?.meLiked && property?.meLiked[0]?.myFavorite ? (
+									) : kindergarten?.meLiked && kindergarten?.meLiked[0]?.myFavorite ? (
 										<FavoriteIcon color="primary" />
 									) : (
 										<FavoriteBorderIcon />
 									)}
 								</IconButton>
-								<Typography className="view-cnt">{property?.propertyLikes}</Typography>
+								<Typography className="view-cnt">{kindergarten?.kindergartenLikes}</Typography>
 							</Stack>
 						)}
 					</Stack>

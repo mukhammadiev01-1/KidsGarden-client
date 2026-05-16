@@ -32,6 +32,17 @@ interface Data {
 
 type Order = 'asc' | 'desc';
 
+const getPropertyStatusLabel = (status: string) => {
+	switch (status) {
+		case PropertyStatus.SOLD:
+			return 'Closed';
+		case PropertyStatus.DELETE:
+			return 'Deleted';
+		default:
+			return status;
+	}
+};
+
 interface HeadCell {
 	disablePadding: boolean;
 	id: keyof Data;
@@ -56,13 +67,13 @@ const headCells: readonly HeadCell[] = [
 		id: 'price',
 		numeric: false,
 		disablePadding: false,
-		label: 'PRICE',
+		label: 'MONTHLY PRICE',
 	},
 	{
 		id: 'agent',
 		numeric: false,
 		disablePadding: false,
-		label: 'AGENT',
+		label: 'KINDERGARTEN ADMIN',
 	},
 	{
 		id: 'location',
@@ -178,11 +189,12 @@ export const PropertyPanelList = (props: PropertyPanelListType) => {
 													onClick={() => removePropertyHandler(property._id)}
 												>
 													<DeleteIcon fontSize="small" />
+													{getPropertyStatusLabel(property.propertyStatus)}
 												</Button>
 											)}
 
 											{property.propertyStatus === PropertyStatus.SOLD && (
-												<Button className={'badge warning'}>{property.propertyStatus}</Button>
+												<Button className={'badge warning'}>{getPropertyStatusLabel(property.propertyStatus)}</Button>
 											)}
 
 											{property.propertyStatus === PropertyStatus.ACTIVE && (
@@ -210,7 +222,7 @@ export const PropertyPanelList = (props: PropertyPanelListType) => {
 																	key={status}
 																>
 																	<Typography variant={'subtitle1'} component={'span'}>
-																		{status}
+																		{getPropertyStatusLabel(status)}
 																	</Typography>
 																</MenuItem>
 															))}

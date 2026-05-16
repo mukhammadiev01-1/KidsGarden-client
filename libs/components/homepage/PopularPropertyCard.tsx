@@ -4,10 +4,11 @@ import IconButton from '@mui/material/IconButton';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Property } from '../../types/property/property';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { REACT_APP_API_URL } from '../../config';
+import { getImageUrl } from '../../config';
 import { useRouter } from 'next/router';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
+import { formatMonthlyFee } from '../../utils';
 
 interface PopularPropertyCardProps {
 	property: Property;
@@ -18,6 +19,17 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
+	const kindergarten: any = {
+		images: (property as any)?.kindergartenImages || property?.propertyImages || [],
+		rank: (property as any)?.kindergartenRank ?? property?.propertyRank,
+		price: (property as any)?.kindergartenPrice ?? property?.propertyPrice,
+		title: (property as any)?.kindergartenTitle ?? property?.propertyTitle,
+		address: (property as any)?.kindergartenAddress ?? property?.propertyAddress,
+		ageRange: (property as any)?.kindergartenAgeRange ?? property?.propertyBeds,
+		programs: (property as any)?.kindergartenPrograms ?? property?.propertyRooms,
+		capacity: (property as any)?.kindergartenCapacity ?? property?.propertySquare,
+		views: (property as any)?.kindergartenViews ?? property?.propertyViews,
+	};
 
 	/** HANDLERS **/
 
@@ -27,9 +39,9 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 				<Box
 					component={'div'}
 					className={'card-img'}
-					style={{ backgroundImage: `url(${REACT_APP_API_URL}/${property?.propertyImages[0]})` }}
+					style={{ backgroundImage: `url(${getImageUrl(kindergarten.images[0])})` }}
 				>
-					{property?.propertyRank && property?.propertyRank >= 50 ? (
+					{kindergarten.rank && kindergarten.rank >= 50 ? (
 						<div className={'status'}>
 							<img src="/img/icons/electricity.svg" alt="" />
 							<span>top</span>
@@ -38,33 +50,33 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 						''
 					)}
 
-					<div className={'price'}>${property.propertyPrice}</div>
+					<div className={'price'}>{formatMonthlyFee(kindergarten.price)}</div>
 				</Box>
 				<Box component={'div'} className={'info'}>
-					<strong className={'title'}>{property.propertyTitle}</strong>
-					<p className={'desc'}>{property.propertyAddress}</p>
+					<strong className={'title'}>{kindergarten.title}</strong>
+					<p className={'desc'}>{kindergarten.address}</p>
 					<div className={'options'}>
 						<div>
 							<img src="/img/icons/bed.svg" alt="" />
-							<span>{property?.propertyBeds} bed</span>
+							<span>Age {kindergarten.ageRange}</span>
 						</div>
 						<div>
 							<img src="/img/icons/room.svg" alt="" />
-							<span>{property?.propertyRooms} rooms</span>
+							<span>{kindergarten.programs} programs</span>
 						</div>
 						<div>
 							<img src="/img/icons/expand.svg" alt="" />
-							<span>{property?.propertySquare} m2</span>
+							<span>{kindergarten.capacity} spots</span>
 						</div>
 					</div>
 					<Divider sx={{ mt: '15px', mb: '17px' }} />
 					<div className={'bott'}>
-						<p>{property?.propertyRent ? 'rent' : 'sale'}</p>
+						<p>Popular with parents</p>
 						<div className="view-like-box">
 							<IconButton color={'default'}>
 								<RemoveRedEyeIcon />
 							</IconButton>
-							<Typography className="view-cnt">{property?.propertyViews}</Typography>
+							<Typography className="view-cnt">{kindergarten.views}</Typography>
 						</div>
 					</div>
 				</Box>
@@ -76,9 +88,9 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 				<Box
 					component={'div'}
 					className={'card-img'}
-					style={{ backgroundImage: `url(${REACT_APP_API_URL}/${property?.propertyImages[0]})` }}
+					style={{ backgroundImage: `url(${getImageUrl(kindergarten.images[0])})` }}
 				>
-					{property?.propertyRank && property?.propertyRank >= 50 ? (
+					{kindergarten.rank && kindergarten.rank >= 50 ? (
 						<div className={'status'}>
 							<img src="/img/icons/electricity.svg" alt="" />
 							<span>top</span>
@@ -87,33 +99,33 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 						''
 					)}
 
-					<div className={'price'}>${property.propertyPrice}</div>
+					<div className={'price'}>{formatMonthlyFee(kindergarten.price)}</div>
 				</Box>
 				<Box component={'div'} className={'info'}>
-					<strong className={'title'}>{property.propertyTitle}</strong>
-					<p className={'desc'}>{property.propertyAddress}</p>
+					<strong className={'title'}>{kindergarten.title}</strong>
+					<p className={'desc'}>{kindergarten.address}</p>
 					<div className={'options'}>
 						<div>
 							<img src="/img/icons/bed.svg" alt="" />
-							<span>{property?.propertyBeds} bed</span>
+							<span>Age {kindergarten.ageRange}</span>
 						</div>
 						<div>
 							<img src="/img/icons/room.svg" alt="" />
-							<span>{property?.propertyRooms} rooms</span>
+							<span>{kindergarten.programs} programs</span>
 						</div>
 						<div>
 							<img src="/img/icons/expand.svg" alt="" />
-							<span>{property?.propertySquare} m2</span>
+							<span>{kindergarten.capacity} spots</span>
 						</div>
 					</div>
 					<Divider sx={{ mt: '15px', mb: '17px' }} />
 					<div className={'bott'}>
-						<p>{property?.propertyRent ? 'rent' : 'sale'}</p>
+						<p>Popular with parents</p>
 						<div className="view-like-box">
 							<IconButton color={'default'}>
 								<RemoveRedEyeIcon />
 							</IconButton>
-							<Typography className="view-cnt">{property?.propertyViews}</Typography>
+							<Typography className="view-cnt">{kindergarten.views}</Typography>
 						</div>
 					</div>
 				</Box>

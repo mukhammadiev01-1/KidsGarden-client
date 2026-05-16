@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Stack, Box } from '@mui/material';
+import Link from 'next/link';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import WestIcon from '@mui/icons-material/West';
 import EastIcon from '@mui/icons-material/East';
@@ -8,6 +9,12 @@ import { Autoplay, Navigation, Pagination } from 'swiper';
 import { Property } from '../../types/property/property';
 import { PropertiesInquiry } from '../../types/property/property.input';
 import TrendPropertyCard from './TrendPropertyCard';
+import { useMutation, useQuery } from '@apollo/client';
+import { GET_KINDERGARTENS } from '../../../apollo/user/query';
+import { LIKE_TARGET_KINDERGARTEN } from '../../../apollo/user/mutation';
+import { T } from '../../types/common';
+import { Message } from '../../enums/common.enum';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
 interface TrendPropertiesProps {
 	initialInput: PropertiesInquiry;
@@ -19,23 +26,55 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 	const [trendProperties, setTrendProperties] = useState<Property[]>([]);
 
 	/** APOLLO REQUESTS **/
+	const [likeTargetKindergarten] = useMutation(LIKE_TARGET_KINDERGARTEN);
+	const { loading: getKindergartensLoading, refetch: getKindergartensRefetch } = useQuery(GET_KINDERGARTENS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: initialInput },
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setTrendProperties(data?.getKindergartens?.list ?? []);
+		},
+	});
+
 	/** HANDLERS **/
+	const likeKindergartenHandler = async (user: T, id: string) => {
+		try {
+			if (!id) return;
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			await likeTargetKindergarten({ variables: { input: id } });
+			await getKindergartensRefetch({ input: initialInput });
+			await sweetTopSmallSuccessAlert('success', 800);
+		} catch (err: any) {
+			console.log('ERROR, likeKindergartenHandler:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+		}
+	};
 
 	if (trendProperties) console.log('trendProperties:', trendProperties);
 	if (!trendProperties) return null;
+
+	const renderEmptyState = (message: string) => (
+		<Box component={'div'} className={'homepage-empty-state'}>
+			<p>{message}</p>
+			<Link href={'/property'}>Explore all kindergartens</Link>
+		</Box>
+	);
 
 	if (device === 'mobile') {
 		return (
 			<Stack className={'trend-properties'}>
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
-						<span>Trend Properties</span>
+						<span>Trending Kindergartens</span>
 					</Stack>
 					<Stack className={'card-box'}>
-						{trendProperties.length === 0 ? (
-							<Box component={'div'} className={'empty-list'}>
-								Trends Empty
+						{getKindergartensLoading ? (
+							<Box component={'div'} className={'homepage-empty-state'}>
+								<p>Loading kindergartens...</p>
 							</Box>
+						) : trendProperties.length === 0 ? (
+							renderEmptyState('Trending kindergartens will appear as parents save centers.')
 						) : (
 							<Swiper
 								className={'trend-property-swiper'}
@@ -47,7 +86,7 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 								{trendProperties.map((property: Property) => {
 									return (
 										<SwiperSlide key={property._id} className={'trend-property-slide'}>
-											<TrendPropertyCard property={property} />
+											<TrendPropertyCard property={property} likePropertyHandler={likeKindergartenHandler} />
 										</SwiperSlide>
 									);
 								})}
@@ -63,8 +102,8 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
 						<Box component={'div'} className={'left'}>
-							<span>Trend Properties</span>
-							<p>Trend is based on likes</p>
+							<span>Trending Kindergartens</span>
+							<p>Centers parents are saving and reviewing</p>
 						</Box>
 						<Box component={'div'} className={'right'}>
 							<div className={'pagination-box'}>
@@ -75,10 +114,12 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 						</Box>
 					</Stack>
 					<Stack className={'card-box'}>
-						{trendProperties.length === 0 ? (
-							<Box component={'div'} className={'empty-list'}>
-								Trends Empty
+						{getKindergartensLoading ? (
+							<Box component={'div'} className={'homepage-empty-state'}>
+								<p>Loading kindergartens...</p>
 							</Box>
+						) : trendProperties.length === 0 ? (
+							renderEmptyState('Trending kindergartens will appear as parents save centers.')
 						) : (
 							<Swiper
 								className={'trend-property-swiper'}
@@ -96,7 +137,7 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 								{trendProperties.map((property: Property) => {
 									return (
 										<SwiperSlide key={property._id} className={'trend-property-slide'}>
-											<TrendPropertyCard property={property} />
+											<TrendPropertyCard property={property} likePropertyHandler={likeKindergartenHandler} />
 										</SwiperSlide>
 									);
 								})}
@@ -113,7 +154,7 @@ TrendProperties.defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 8,
-		sort: 'propertyLikes',
+		sort: 'kindergartenLikes',
 		direction: 'DESC',
 		search: {},
 	},

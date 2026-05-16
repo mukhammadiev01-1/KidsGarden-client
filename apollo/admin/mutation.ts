@@ -33,6 +33,46 @@ export const UPDATE_MEMBER_BY_ADMIN = gql`
 	}
 `;
 
+export const APPROVE_KINDERGARTEN_ADMIN_APPLICATION = gql`
+	mutation ApproveKindergartenAdminApplication($input: KindergartenAdminApplicationReviewInput!) {
+		approveKindergartenAdminApplication(input: $input) {
+			_id
+			applicantId
+			applicationStatus
+			message
+			kindergartenTitle
+			kindergartenAddress
+			kindergartenPhone
+			businessInfo
+			reviewedBy
+			reviewedAt
+			rejectReason
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const REJECT_KINDERGARTEN_ADMIN_APPLICATION = gql`
+	mutation RejectKindergartenAdminApplication($input: KindergartenAdminApplicationReviewInput!) {
+		rejectKindergartenAdminApplication(input: $input) {
+			_id
+			applicantId
+			applicationStatus
+			message
+			kindergartenTitle
+			kindergartenAddress
+			kindergartenPhone
+			businessInfo
+			reviewedBy
+			reviewedAt
+			rejectReason
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
 /**************************
  *        PROPERTY        *
  *************************/

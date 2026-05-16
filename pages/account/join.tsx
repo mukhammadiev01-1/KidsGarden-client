@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { logIn, signUp } from '../../libs/auth';
 import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { MemberType } from '../../libs/enums/member.enum';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -17,22 +18,12 @@ export const getStaticProps = async ({ locale }: any) => ({
 const Join: NextPage = () => {
 	const router = useRouter();
 	const device = useDeviceDetect();
-	const [input, setInput] = useState({ nick: '', password: '', phone: '', type: 'USER' });
+	const [input, setInput] = useState({ nick: '', password: '', phone: '', type: MemberType.PARENT });
 	const [loginView, setLoginView] = useState<boolean>(true);
 
 	/** HANDLERS **/
 	const viewChangeHandler = (state: boolean) => {
 		setLoginView(state);
-	};
-
-	const checkUserTypeHandler = (e: any) => {
-		const checked = e.target.checked;
-		if (checked) {
-			const value = e.target.name;
-			handleInput('type', value);
-		} else {
-			handleInput('type', 'USER');
-		}
 	};
 
 	const handleInput = useCallback((name: any, value: any) => {
@@ -54,7 +45,7 @@ const Join: NextPage = () => {
 	const doSignUp = useCallback(async () => {
 		console.warn(input);
 		try {
-			await signUp(input.nick, input.password, input.phone, input.type);
+			await signUp(input.nick, input.password, input.phone, MemberType.PARENT);
 			await router.push(`${router.query.referrer ?? '/'}`);
 		} catch (err: any) {
 			await sweetMixinErrorAlert(err.message);
@@ -129,31 +120,12 @@ const Join: NextPage = () => {
 										<div>
 											<FormGroup>
 												<FormControlLabel
-													control={
-														<Checkbox
-															size="small"
-															name={'USER'}
-															onChange={checkUserTypeHandler}
-															checked={input?.type == 'USER'}
-														/>
-													}
-													label="User"
-												/>
-											</FormGroup>
-											<FormGroup>
-												<FormControlLabel
-													control={
-														<Checkbox
-															size="small"
-															name={'AGENT'}
-															onChange={checkUserTypeHandler}
-															checked={input?.type == 'AGENT'}
-														/>
-													}
-													label="Agent"
+													control={<Checkbox size="small" name={MemberType.PARENT} checked={true} disabled />}
+													label="Parent"
 												/>
 											</FormGroup>
 										</div>
+										<p className={'helper-text'}>Teachers and kindergarten admins must be invited or approved by a center.</p>
 									</div>
 								)}
 

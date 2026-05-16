@@ -23,7 +23,7 @@ const AgentCard = (props: AgentCardProps) => {
 		: '/img/profile/defaultUser.svg';
 
 	if (device === 'mobile') {
-		return <div>AGENT CARD</div>;
+		return <div>CENTER ADMIN CARD</div>;
 	} else {
 		return (
 			<Stack className="agent-general-card">
@@ -43,7 +43,7 @@ const AgentCard = (props: AgentCardProps) => {
 							backgroundRepeat: 'no-repeat',
 						}}
 					>
-						<div>{agent?.memberProperties} properties</div>
+						<div>{agent?.memberKindergartens ?? agent?.memberProperties ?? 0} kindergartens</div>
 					</Box>
 				</Link>
 
@@ -57,7 +57,7 @@ const AgentCard = (props: AgentCardProps) => {
 						>
 							<strong>{agent?.memberFullName ?? agent?.memberNick}</strong>
 						</Link>
-						<span>Agent</span>
+						<span>Center Admin</span>
 					</Box>
 					<Box component={'div'} className={'buttons'}>
 						<IconButton color={'default'}>

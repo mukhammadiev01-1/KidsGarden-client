@@ -1,8 +1,9 @@
 import { JwtPayload } from 'jwt-decode';
+import { LegacyMemberType, MemberType } from '../enums/member.enum';
 
 export interface CustomJwtPayload extends JwtPayload {
 	_id: string;
-	memberType: string;
+	memberType: MemberType | LegacyMemberType | '';
 	memberStatus: string;
 	memberAuthType: string;
 	memberPhone: string;
@@ -11,7 +12,8 @@ export interface CustomJwtPayload extends JwtPayload {
 	memberImage?: string;
 	memberAddress?: string;
 	memberDesc?: string;
-	memberProperties: number;
+	memberProperties?: number;
+	memberKindergartens: number;
 	memberRank: number;
 	memberArticles: number;
 	memberPoints: number;

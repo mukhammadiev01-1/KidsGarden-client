@@ -4,13 +4,14 @@ import { useRouter } from 'next/router';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Stack, Tab, Typography, Button, Pagination } from '@mui/material';
 import CommunityCard from '../../libs/components/common/CommunityCard';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { BoardArticle } from '../../libs/types/board-article/board-article';
 import { T } from '../../libs/types/common';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { BoardArticlesInquiry } from '../../libs/types/board-article/board-article.input';
 import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
+import { useQuery } from '@apollo/client';
+import { GET_BOARD_ARTICLES } from '../../apollo/user/query';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -19,34 +20,75 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 const Community: NextPage = ({ initialInput, ...props }: T) => {
-	const device = useDeviceDetect();
 	const router = useRouter();
 	const { query } = router;
 	const articleCategory = query?.articleCategory as string;
+	const categoryLabels: Record<string, string> = {
+		FREE: 'Parent Board',
+		NEWS: 'News',
+		RECOMMEND: 'Kindergarten Updates',
+		HUMOR: 'Community',
+	};
+	const visibleCategories = [BoardArticleCategory.FREE, BoardArticleCategory.NEWS];
 	const [searchCommunity, setSearchCommunity] = useState<BoardArticlesInquiry>(initialInput);
 	const [boardArticles, setBoardArticles] = useState<BoardArticle[]>([]);
 	const [totalCount, setTotalCount] = useState<number>(0);
-	if (articleCategory) initialInput.search.articleCategory = articleCategory;
 
 	/** APOLLO REQUESTS **/
+	const { loading: getBoardArticlesLoading } = useQuery(GET_BOARD_ARTICLES, {
+		fetchPolicy: 'cache-and-network',
+		notifyOnNetworkStatusChange: true,
+		variables: { input: searchCommunity },
+		onCompleted: (data: T) => {
+			setBoardArticles(data?.getBoardArticles?.list ?? []);
+			setTotalCount(data?.getBoardArticles?.metaCounter?.[0]?.total ?? 0);
+		},
+		onError: () => {
+			setBoardArticles([]);
+			setTotalCount(0);
+		},
+	});
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (!query?.articleCategory)
+		if (!router.isReady) return;
+		if (!query?.articleCategory) {
 			router.push(
 				{
 					pathname: router.pathname,
-					query: { articleCategory: 'FREE' },
+					query: { articleCategory: BoardArticleCategory.FREE },
 				},
 				router.pathname,
 				{ shallow: true },
 			);
-	}, []);
+			return;
+		}
+
+		const nextCategory = visibleCategories.includes(articleCategory as BoardArticleCategory)
+			? (articleCategory as BoardArticleCategory)
+			: BoardArticleCategory.FREE;
+
+		if (nextCategory !== articleCategory) {
+			router.replace(
+				{
+					pathname: router.pathname,
+					query: { articleCategory: nextCategory },
+				},
+				router.pathname,
+				{ shallow: true },
+			);
+			return;
+		}
+
+		setSearchCommunity((prev) => ({
+			...prev,
+			page: 1,
+			search: { articleCategory: nextCategory },
+		}));
+	}, [router.isReady, articleCategory]);
 
 	/** HANDLERS **/
 	const tabChangeHandler = async (e: T, value: string) => {
-		console.log(value);
-
 		setSearchCommunity({ ...searchCommunity, page: 1, search: { articleCategory: value as BoardArticleCategory } });
 		await router.push(
 			{
@@ -62,10 +104,35 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		setSearchCommunity({ ...searchCommunity, page: value });
 	};
 
-	if (device === 'mobile') {
-		return <h1>COMMUNITY PAGE MOBILE</h1>;
-	} else {
-		return (
+	const renderArticleList = () => {
+		if (getBoardArticlesLoading) {
+			return (
+				<Stack className={'no-data'}>
+					<p>Loading community posts...</p>
+				</Stack>
+			);
+		}
+
+		if (!totalCount) {
+			const emptyMessage =
+				searchCommunity.search.articleCategory === BoardArticleCategory.NEWS
+					? 'Kindergarten news will appear here soon.'
+					: 'Parent community posts will appear here soon.';
+
+			return (
+				<Stack className={'no-data'}>
+					<img src="/img/icons/icoAlert.svg" alt="" />
+					<p>{emptyMessage}</p>
+				</Stack>
+			);
+		}
+
+		return boardArticles?.map((boardArticle: BoardArticle) => {
+			return <CommunityCard boardArticle={boardArticle} key={boardArticle?._id} />;
+		});
+	};
+
+	return (
 			<div id="community-list-page">
 				<div className="container">
 					<TabContext value={searchCommunity.search.articleCategory}>
@@ -74,7 +141,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 								<Stack className={'image-info'}>
 									<img src={'/img/logo/logoText.svg'} />
 									<Stack className={'community-name'}>
-										<Typography className={'name'}>Nestar Community</Typography>
+										<Typography className={'name'}>KidsGarden Community</Typography>
 									</Stack>
 								</Stack>
 
@@ -86,35 +153,25 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 									}}
 									onChange={tabChangeHandler}
 								>
-									<Tab
-										value={'FREE'}
-										label={'Free Board'}
-										className={`tab-button ${searchCommunity.search.articleCategory == 'FREE' ? 'active' : ''}`}
-									/>
-									<Tab
-										value={'RECOMMEND'}
-										label={'Recommendation'}
-										className={`tab-button ${searchCommunity.search.articleCategory == 'RECOMMEND' ? 'active' : ''}`}
-									/>
-									<Tab
-										value={'NEWS'}
-										label={'News'}
-										className={`tab-button ${searchCommunity.search.articleCategory == 'NEWS' ? 'active' : ''}`}
-									/>
-									<Tab
-										value={'HUMOR'}
-										label={'Humor'}
-										className={`tab-button ${searchCommunity.search.articleCategory == 'HUMOR' ? 'active' : ''}`}
-									/>
+									{visibleCategories.map((category) => (
+										<Tab
+											value={category}
+											label={categoryLabels[category]}
+											className={`tab-button ${searchCommunity.search.articleCategory == category ? 'active' : ''}`}
+											key={category}
+										/>
+									))}
 								</TabList>
 							</Stack>
 							<Stack className="right-config">
 								<Stack className="panel-config">
 									<Stack className="title-box">
 										<Stack className="left">
-											<Typography className="title">{searchCommunity.search.articleCategory} BOARD</Typography>
+											<Typography className="title">
+												{categoryLabels[searchCommunity.search.articleCategory] || 'Community'}
+											</Typography>
 											<Typography className="sub-title">
-												Express your opinions freely here without content restrictions
+												Share questions, experiences, and helpful updates with other KidsGarden families.
 											</Typography>
 										</Stack>
 										<Button
@@ -132,62 +189,11 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 										</Button>
 									</Stack>
 
-									<TabPanel value="FREE">
-										<Stack className="list-box">
-											{totalCount ? (
-												boardArticles?.map((boardArticle: BoardArticle) => {
-													return <CommunityCard boardArticle={boardArticle} key={boardArticle?._id} />;
-												})
-											) : (
-												<Stack className={'no-data'}>
-													<img src="/img/icons/icoAlert.svg" alt="" />
-													<p>No Article found!</p>
-												</Stack>
-											)}
-										</Stack>
-									</TabPanel>
-									<TabPanel value="RECOMMEND">
-										<Stack className="list-box">
-											{totalCount ? (
-												boardArticles?.map((boardArticle: BoardArticle) => {
-													return <CommunityCard boardArticle={boardArticle} key={boardArticle?._id} />;
-												})
-											) : (
-												<Stack className={'no-data'}>
-													<img src="/img/icons/icoAlert.svg" alt="" />
-													<p>No Article found!</p>
-												</Stack>
-											)}
-										</Stack>
-									</TabPanel>
-									<TabPanel value="NEWS">
-										<Stack className="list-box">
-											{totalCount ? (
-												boardArticles?.map((boardArticle: BoardArticle) => {
-													return <CommunityCard boardArticle={boardArticle} key={boardArticle?._id} />;
-												})
-											) : (
-												<Stack className={'no-data'}>
-													<img src="/img/icons/icoAlert.svg" alt="" />
-													<p>No Article found!</p>
-												</Stack>
-											)}
-										</Stack>
-									</TabPanel>
-									<TabPanel value="HUMOR">
-										<Stack className="list-box">
-											{totalCount ? (
-												boardArticles?.map((boardArticle: BoardArticle) => {
-													return <CommunityCard boardArticle={boardArticle} key={boardArticle?._id} />;
-												})
-											) : (
-												<Stack className={'no-data'}>
-													<img src="/img/icons/icoAlert.svg" alt="" />
-													<p>No Article found!</p>
-												</Stack>
-											)}
-										</Stack>
-									</TabPanel>
+									{visibleCategories.map((category) => (
+										<TabPanel value={category} key={category}>
+											<Stack className="list-box">{renderArticleList()}</Stack>
+										</TabPanel>
+									))}
 								</Stack>
 							</Stack>
 						</Stack>
@@ -214,7 +220,6 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 				</div>
 			</div>
 		);
-	}
 };
 
 Community.defaultProps = {

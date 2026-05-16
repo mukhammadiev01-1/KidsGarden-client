@@ -17,6 +17,7 @@ import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
 import { REACT_APP_API_URL } from '../config';
+import { MemberType } from '../enums/member.enum';
 
 const Top = () => {
 	const device = useDeviceDetect();
@@ -148,9 +149,6 @@ const Top = () => {
 				<Link href={'/property'}>
 					<div>{t('Properties')}</div>
 				</Link>
-				<Link href={'/agent'}>
-					<div> {t('Agents')} </div>
-				</Link>
 				<Link href={'/community?articleCategory=FREE'}>
 					<div> {t('Community')} </div>
 				</Link>
@@ -176,14 +174,11 @@ const Top = () => {
 							<Link href={'/property'}>
 								<div>{t('Properties')}</div>
 							</Link>
-							<Link href={'/agent'}>
-								<div> {t('Agents')} </div>
-							</Link>
 							<Link href={'/community?articleCategory=FREE'}>
 								<div> {t('Community')} </div>
 							</Link>
 							{user?._id && (
-								<Link href={'/mypage'}>
+								<Link href={user.memberType === MemberType.SUPER_ADMIN ? '/_admin' : '/mypage'}>
 									<div> {t('My Page')} </div>
 								</Link>
 							)}

@@ -5,6 +5,7 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import Link from 'next/link';
 import { Member } from '../../types/member/member';
 import { REACT_APP_API_URL } from '../../config';
+import { MemberType } from '../../enums/member.enum';
 
 interface MemberMenuProps {
 	subscribeHandler: any;
@@ -32,15 +33,11 @@ const MemberMenu = (props: MemberMenuProps) => {
 							src={member?.memberImage ? `${REACT_APP_API_URL}/${member?.memberImage}` : '/img/profile/defaultUser.svg'}
 							alt={'member-photo'}
 						/>
-					</Box>
-					<Stack className={'user-info'}>
-						<Typography className={'user-name'}>{member?.memberNick}</Typography>
-						<Box component={'div'} className={'user-phone'}>
-							<img src={'/img/icons/call.svg'} alt={'icon'} />
-							<Typography className={'p-number'}>{member?.memberPhone}</Typography>
 						</Box>
-						<Typography className={'view-list'}>{member?.memberType}</Typography>
-					</Stack>
+						<Stack className={'user-info'}>
+							<Typography className={'user-name'}>{member?.memberNick}</Typography>
+							{member?.memberDesc && <Typography className={'view-list'}>{member.memberDesc}</Typography>}
+						</Stack>
 				</Stack>
 				<Stack className="follow-button-box">
 					{member?.meFollowed && member?.meFollowed[0]?.myFollowing ? (
@@ -70,7 +67,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 							Details
 						</Typography>
 						<List className={'sub-section'}>
-							{member?.memberType === 'AGENT' && (
+							{member?.memberType === MemberType.KINDERGARTEN_ADMIN && (
 								<ListItem className={category === 'properties' ? 'focus' : ''}>
 									<Link
 										href={{
@@ -87,10 +84,10 @@ const MemberMenu = (props: MemberMenuProps) => {
 												<img className={'com-icon'} src={'/img/icons/home.svg'} alt={'com-icon'} />
 											)}
 											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-												Properties
+												Kindergartens
 											</Typography>
 											<Typography className="count-title" variant="subtitle1">
-												{member?.memberProperties}
+												{member?.memberKindergartens}
 											</Typography>
 										</div>
 									</Link>
