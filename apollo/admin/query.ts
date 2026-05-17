@@ -53,6 +53,15 @@ export const GET_KINDERGARTEN_ADMIN_APPLICATIONS = gql`
 				reviewedBy
 				reviewedAt
 				rejectReason
+				applicantData {
+					_id
+					memberNick
+					memberFullName
+					memberImage
+					memberPhone
+					memberType
+					memberStatus
+				}
 				createdAt
 				updatedAt
 			}

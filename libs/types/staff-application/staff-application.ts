@@ -1,6 +1,7 @@
 import { StaffRole } from '../../enums/kindergarten-staff.enum';
 import { StaffApplicationStatus } from '../../enums/staff-application.enum';
 import { TotalCounter } from '../kindergarten/kindergarten';
+import { MemberPreview } from '../member/member';
 
 export interface StaffApplication {
 	_id: string;
@@ -12,6 +13,7 @@ export interface StaffApplication {
 	reviewedBy?: string;
 	reviewedAt?: Date;
 	rejectReason?: string;
+	applicantData?: MemberPreview;
 	createdAt: Date;
 	updatedAt: Date;
 }

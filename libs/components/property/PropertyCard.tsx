@@ -1,6 +1,5 @@
 import React from 'react';
 import { Stack, Typography, Box } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Kindergarten } from '../../types/kindergarten/kindergarten';
@@ -39,70 +38,68 @@ const PropertyCard = (props: PropertyCardType) => {
 		kindergartenLikes: props.property?.propertyLikes,
 		meLiked: props.property?.meLiked,
 	};
-	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const imagePath: string = getImageUrl(kindergarten?.kindergartenImages?.[0]);
 
-	if (device === 'mobile') {
-		return <div>KINDERGARTEN CARD</div>;
-	} else {
-		return (
-			<Stack className="card-config">
-				<Stack className="top">
-					<Link
-						href={{
-							pathname: '/property/detail',
-							query: { id: kindergarten?._id },
-						}}
-					>
-						<img src={imagePath} alt="" />
-					</Link>
-					{kindergarten && kindergarten?.kindergartenRank > 0 && (
-						<Box component={'div'} className={'top-badge'}>
-							<img src="/img/icons/electricity.svg" alt="" />
-							<Typography>TOP</Typography>
-						</Box>
-					)}
-					<Box component={'div'} className={'price-box'}>
-						<Typography>{formatMonthlyFee(kindergarten?.kindergartenPrice)}</Typography>
+	return (
+		<Stack className="card-config">
+			<Stack className="top">
+				<Link
+					href={{
+						pathname: '/property/detail',
+						query: { id: kindergarten?._id },
+					}}
+				>
+					<img src={imagePath} alt="" />
+				</Link>
+				{kindergarten && kindergarten?.kindergartenRank > 0 && (
+					<Box component={'div'} className={'top-badge'}>
+						<Typography>Top choice</Typography>
 					</Box>
+				)}
+				<Box component={'div'} className={'price-box'}>
+					<span>Monthly fee</span>
+					<Typography>{formatMonthlyFee(kindergarten?.kindergartenPrice)}</Typography>
+				</Box>
+			</Stack>
+			<Stack className="bottom">
+				<Stack className="name-address">
+					<Stack className="name">
+						<Link
+							href={{
+								pathname: '/property/detail',
+								query: { id: kindergarten?._id },
+							}}
+						>
+							<Typography>{kindergarten.kindergartenTitle}</Typography>
+						</Link>
+					</Stack>
+					<Stack className="address">
+						<Typography>
+							{kindergarten.kindergartenAddress}
+							{kindergarten.kindergartenLocation ? `, ${kindergarten.kindergartenLocation}` : ''}
+						</Typography>
+					</Stack>
 				</Stack>
-				<Stack className="bottom">
-					<Stack className="name-address">
-						<Stack className="name">
-							<Link
-								href={{
-									pathname: '/property/detail',
-									query: { id: kindergarten?._id },
-								}}
-							>
-								<Typography>{kindergarten.kindergartenTitle}</Typography>
-							</Link>
-						</Stack>
-						<Stack className="address">
-							<Typography>
-								{kindergarten.kindergartenAddress}, {kindergarten.kindergartenLocation}
-							</Typography>
-						</Stack>
+				<Stack className="options">
+					<Stack className="option">
+						<Typography>Age {kindergarten.kindergartenAgeRange}</Typography>
 					</Stack>
-					<Stack className="options">
-						<Stack className="option">
-							<img src="/img/icons/bed.svg" alt="" /> <Typography>Age {kindergarten.kindergartenAgeRange}</Typography>
-						</Stack>
-						<Stack className="option">
-							<img src="/img/icons/room.svg" alt="" /> <Typography>{kindergarten.kindergartenPrograms} programs</Typography>
-						</Stack>
-						<Stack className="option">
-							<img src="/img/icons/expand.svg" alt="" /> <Typography>{kindergarten.kindergartenCapacity} spots</Typography>
-						</Stack>
+					<Stack className="option">
+						<Typography>{kindergarten.kindergartenPrograms} programs</Typography>
 					</Stack>
-					<Stack className="divider"></Stack>
-					<Stack className="type-buttons">
-						<Stack className="type">
-							<Typography sx={{ fontWeight: 500, fontSize: '13px' }}>
-								{getKindergartenTypeLabel(kindergarten.kindergartenType)}
-							</Typography>
-						</Stack>
+					<Stack className="option">
+						<Typography>{kindergarten.kindergartenCapacity} spots</Typography>
+					</Stack>
+				</Stack>
+				<Stack className="divider"></Stack>
+				<Stack className="type-buttons">
+					<Stack className="type">
+						<Typography sx={{ fontWeight: 500, fontSize: '13px' }}>
+							{getKindergartenTypeLabel(kindergarten.kindergartenType)}
+						</Typography>
+					</Stack>
+					<Stack className="card-actions">
 						{!recentlyVisited && (
 							<Stack className="buttons">
 								<IconButton color={'default'}>
@@ -128,11 +125,20 @@ const PropertyCard = (props: PropertyCardType) => {
 								<Typography className="view-cnt">{kindergarten?.kindergartenLikes}</Typography>
 							</Stack>
 						)}
+						<Link
+							className={'details-link'}
+							href={{
+								pathname: '/property/detail',
+								query: { id: kindergarten?._id },
+							}}
+						>
+							View Details
+						</Link>
 					</Stack>
 				</Stack>
 			</Stack>
-		);
-	}
+		</Stack>
+	);
 };
 
 export default PropertyCard;

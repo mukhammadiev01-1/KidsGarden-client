@@ -33,6 +33,20 @@ export const GET_MEMBER = gql(`
 	}
 	`);
 
+export const PREVIEW_KINDERGARTEN_MEMBER = gql`
+	query PreviewKindergartenMember($input: PreviewKindergartenMemberInput!) {
+		previewKindergartenMember(input: $input) {
+			_id
+			memberNick
+			memberFullName
+			memberImage
+			memberPhone
+			memberType
+			memberStatus
+		}
+	}
+`;
+
 /**************************
  *      KINDERGARTEN      *
  *************************/
@@ -228,6 +242,15 @@ export const GET_STAFF_APPLICATIONS = gql`
 				reviewedBy
 				reviewedAt
 				rejectReason
+				applicantData {
+					_id
+					memberNick
+					memberFullName
+					memberImage
+					memberPhone
+					memberType
+					memberStatus
+				}
 				createdAt
 				updatedAt
 			}

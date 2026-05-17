@@ -108,7 +108,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		if (getBoardArticlesLoading) {
 			return (
 				<Stack className={'no-data'}>
-					<p>Loading community posts...</p>
+					<p>Loading parent community posts...</p>
 				</Stack>
 			);
 		}
@@ -138,10 +138,10 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 					<TabContext value={searchCommunity.search.articleCategory}>
 						<Stack className="main-box">
 							<Stack className="left-config">
-								<Stack className={'image-info'}>
+									<Stack className={'image-info'}>
 									<img src={'/img/logo/logoText.svg'} />
 									<Stack className={'community-name'}>
-										<Typography className={'name'}>KidsGarden Community</Typography>
+										<Typography className={'name'}>Parent Community</Typography>
 									</Stack>
 								</Stack>
 
@@ -171,7 +171,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 												{categoryLabels[searchCommunity.search.articleCategory] || 'Community'}
 											</Typography>
 											<Typography className="sub-title">
-												Share questions, experiences, and helpful updates with other KidsGarden families.
+												Ask questions, share experiences, and read KidsGarden updates.
 											</Typography>
 										</Stack>
 										<Button

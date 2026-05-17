@@ -254,9 +254,9 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 						<div className="community-detail-config">
 							<Stack className="title-box">
 								<Stack className="left">
-									<Typography className="title">{categoryLabels[articleCategory] || 'Community'}</Typography>
+									<Typography className="title">Parent Community</Typography>
 									<Typography className="sub-title">
-										Share questions, experiences, and helpful updates with other KidsGarden families.
+										Read family questions, helpful updates, and KidsGarden community conversations.
 									</Typography>
 								</Stack>
 								<Button
@@ -350,11 +350,11 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 									className="second-box-config"
 									sx={{ borderBottom: total > 0 ? 'none' : '1px solid #eee', border: '1px solid #eee' }}
 								>
-									<Typography className="title-text">Comments ({total})</Typography>
+									<Typography className="title-text">Community comments ({total})</Typography>
 									<Stack className="leave-comment">
 										<input
 											type="text"
-											placeholder="Leave a comment"
+											placeholder="Share a helpful comment"
 											value={comment}
 											onChange={(e) => {
 												if (e.target.value.length > 100) return;
@@ -364,13 +364,13 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 										/>
 										<Stack className="button-box">
 											<Typography>{wordsCnt}/100</Typography>
-											<Button onClick={creteCommentHandler}>comment</Button>
+											<Button onClick={creteCommentHandler}>Comment</Button>
 										</Stack>
 									</Stack>
 								</Stack>
 								{total > 0 && (
 									<Stack className="comments">
-										<Typography className="comments-title">Comments</Typography>
+										<Typography className="comments-title">Parent comments</Typography>
 									</Stack>
 								)}
 								{getCommentsLoading && (

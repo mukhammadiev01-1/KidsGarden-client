@@ -19,6 +19,7 @@ import {
 	GET_KINDERGARTEN_STAFFS,
 	GET_MEMBER,
 	GET_OWNER_KINDERGARTENS,
+	PREVIEW_KINDERGARTEN_MEMBER,
 	SEARCH_STAFF_CANDIDATES,
 } from '../../../apollo/user/query';
 import {
@@ -243,14 +244,22 @@ const KindergartenStaff = () => {
 	const previewMemberHandler = async () => {
 		try {
 			const memberId = form.memberId.trim();
+			if (!selectedKindergartenId) throw new Error('Please select a kindergarten first.');
 			if (!memberId) throw new Error('Please enter a member ID.');
 
 			const result = await apolloClient.query({
-				query: GET_MEMBER,
-				variables: { input: memberId },
+				query: PREVIEW_KINDERGARTEN_MEMBER,
+				variables: {
+					input: {
+						kindergartenId: selectedKindergartenId,
+						memberId,
+						purpose: 'STAFF_CANDIDATE',
+						staffRole: form.staffRole,
+					},
+				},
 				fetchPolicy: 'network-only',
 			});
-			const member: Member | null = result.data?.getMember ?? null;
+			const member: StaffSelectableMember | null = result.data?.previewKindergartenMember ?? null;
 			if (!member) throw new Error('Member was not found.');
 
 			setMemberPreview(member);
@@ -507,6 +516,7 @@ const KindergartenStaff = () => {
 							<TableBody>
 								{staffRecords.map((staff) => {
 									const isRemoved = staff.staffStatus === StaffStatus.REMOVED;
+									const isOwner = staff.staffRole === StaffRole.OWNER;
 
 									return (
 										<TableRow key={staff._id} sx={{ opacity: isRemoved ? 0.55 : 1 }}>
@@ -525,7 +535,7 @@ const KindergartenStaff = () => {
 													select
 													size="small"
 													value={staff.staffRole}
-													disabled={isRemoved || staff.staffRole === StaffRole.OWNER}
+													disabled={isRemoved || isOwner}
 													onChange={(event) =>
 														updateStaffHandler({ _id: staff._id, staffRole: event.target.value as StaffRole })
 													}
@@ -546,7 +556,7 @@ const KindergartenStaff = () => {
 													select
 													size="small"
 													value={staff.staffStatus}
-													disabled={isRemoved}
+													disabled={isRemoved || isOwner}
 													onChange={(event) =>
 														updateStaffHandler({ _id: staff._id, staffStatus: event.target.value as StaffStatus })
 													}
@@ -559,13 +569,18 @@ const KindergartenStaff = () => {
 													))}
 													{isRemoved && <MenuItem value={StaffStatus.REMOVED}>{StaffStatus.REMOVED}</MenuItem>}
 												</TextField>
+												{isOwner && (
+													<Typography sx={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+														Owner role is protected
+													</Typography>
+												)}
 											</TableCell>
 											<TableCell>{formatDate(staff.createdAt)}</TableCell>
 											<TableCell align="right">
 												<Button
 													variant="outlined"
 													color="error"
-													disabled={isRemoved || staff.staffRole === StaffRole.OWNER}
+													disabled={isRemoved || isOwner}
 													onClick={() => removeStaffHandler(staff._id)}
 												>
 													{isRemoved ? 'Removed' : 'Remove'}

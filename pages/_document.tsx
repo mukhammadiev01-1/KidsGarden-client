@@ -8,12 +8,10 @@ export default function Document() {
 				<link rel="icon" type="image/png" href="/img/logo/favicon.svg" />
 
 				{/* SEO */}
-				<meta name="keyword" content={'nestar, nestar.uz, devex mern, mern nestjs fullstack'} />
+				<meta name="keyword" content={'KidsGarden, kindergarten search, parent community, early education'} />
 				<meta
 					name={'description'}
-					content={
-						'Discover kindergartens, manage early education centers, and connect parents, teachers, and center admins.'
-					}
+					content={'Discover kindergartens, manage early education centers, and support family-school communication.'}
 				/>
 			</Head>
 			<body>

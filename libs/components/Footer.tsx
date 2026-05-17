@@ -18,16 +18,16 @@ const Footer = () => {
 							<img src="/img/logo/logoWhite.svg" alt="" className={'logo'} />
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>parent support</span>
+							<span>Parent Support</span>
 							<p>+82 10 4867 2909</p>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>support line</span>
+							<span>Help Line</span>
 							<p>+82 10 4867 2909</p>
-							<span>Support?</span>
+							<span>Questions?</span>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<p>follow us on social media</p>
+							<p>Follow KidsGarden</p>
 							<div className={'media-box'}>
 								<FacebookOutlinedIcon />
 								<TelegramIcon />
@@ -39,12 +39,12 @@ const Footer = () => {
 					<Stack className={'right'}>
 						<Box component={'div'} className={'bottom'}>
 							<div>
-								<strong>Popular Search</strong>
+								<strong>Kindergarten Discovery</strong>
 								<span>Kindergartens</span>
 								<span>Parent Resources</span>
 							</div>
 							<div>
-								<strong>Quick Links</strong>
+								<strong>Parent Resources</strong>
 								<span>Terms of Use</span>
 								<span>Privacy Policy</span>
 								<span>Kindergarten Search</span>
@@ -53,7 +53,7 @@ const Footer = () => {
 								<span>FAQs</span>
 							</div>
 							<div>
-								<strong>Discover</strong>
+								<strong>Explore Areas</strong>
 								<span>Seoul</span>
 								<span>Gyeongido</span>
 								<span>Busan</span>
@@ -76,16 +76,16 @@ const Footer = () => {
 							<img src="/img/logo/logoWhite.svg" alt="" className={'logo'} />
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>parent support</span>
+							<span>Parent Support</span>
 							<p>+82 10 4867 2909</p>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>support line</span>
+							<span>Help Line</span>
 							<p>+82 10 4867 2909</p>
-							<span>Support?</span>
+							<span>Questions?</span>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<p>follow us on social media</p>
+							<p>Follow KidsGarden</p>
 							<div className={'media-box'}>
 								<FacebookOutlinedIcon />
 								<TelegramIcon />
@@ -96,20 +96,20 @@ const Footer = () => {
 					</Stack>
 					<Stack className={'right'}>
 						<Box component={'div'} className={'top'}>
-							<strong>keep yourself up to date</strong>
+							<strong>Get KidsGarden updates</strong>
 							<div>
-								<input type="text" placeholder={'Your Email'} />
+								<input type="text" placeholder={'Email address'} />
 								<span>Subscribe</span>
 							</div>
 						</Box>
 						<Box component={'div'} className={'bottom'}>
 							<div>
-								<strong>Popular Search</strong>
+								<strong>Kindergarten Discovery</strong>
 								<span>Kindergartens</span>
 								<span>Parent Resources</span>
 							</div>
 							<div>
-								<strong>Quick Links</strong>
+								<strong>Parent Resources</strong>
 								<span>Terms of Use</span>
 								<span>Privacy Policy</span>
 								<span>Kindergarten Search</span>
@@ -118,7 +118,7 @@ const Footer = () => {
 								<span>FAQs</span>
 							</div>
 							<div>
-								<strong>Discover</strong>
+								<strong>Explore Areas</strong>
 								<span>Seoul</span>
 								<span>Gyeongido</span>
 								<span>Busan</span>

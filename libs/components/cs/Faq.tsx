@@ -3,7 +3,6 @@ import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import { AccordionDetails, Box, Stack, Typography } from '@mui/material';
 import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/AccordionSummary';
 import { styled } from '@mui/material/styles';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 
 const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(
@@ -30,7 +29,6 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
 }));
 
 const Faq = () => {
-	const device = useDeviceDetect();
 	const [category, setCategory] = useState<string>('families');
 	const [expanded, setExpanded] = useState<string | false>('families-1');
 
@@ -115,69 +113,65 @@ const Faq = () => {
 		],
 	};
 
-	if (device === 'mobile') {
-		return <div>FAQ MOBILE</div>;
-	} else {
-		return (
-			<Stack className={'faq-content'}>
-				<Box className={'categories'} component={'div'}>
-					<div
-						className={category === 'families' ? 'active' : ''}
-						onClick={() => {
-							changeCategoryHandler('families');
-						}}
-					>
-						Families
-					</div>
-					<div
-						className={category === 'parents' ? 'active' : ''}
-						onClick={() => {
-							changeCategoryHandler('parents');
-						}}
-					>
-						Parents
-					</div>
-					<div
-						className={category === 'accounts' ? 'active' : ''}
-						onClick={() => {
-							changeCategoryHandler('accounts');
-						}}
-					>
-						Accounts
-					</div>
-					<div
-						className={category === 'community' ? 'active' : ''}
-						onClick={() => {
-							changeCategoryHandler('community');
-						}}
-					>
-						Community
-					</div>
-				</Box>
-				<Box className={'wrap'} component={'div'}>
-					{data[category] &&
-						data[category].map((ele: any) => (
-							<Accordion expanded={expanded === ele?.id} onChange={handleChange(ele?.id)} key={ele?.subject}>
-								<AccordionSummary id="panel1d-header" className="question" aria-controls="panel1d-content">
-									<Typography className="badge" variant={'h4'}>
-										Q
+	return (
+		<Stack className={'faq-content'}>
+			<Box className={'categories'} component={'div'}>
+				<div
+					className={category === 'families' ? 'active' : ''}
+					onClick={() => {
+						changeCategoryHandler('families');
+					}}
+				>
+					Families
+				</div>
+				<div
+					className={category === 'parents' ? 'active' : ''}
+					onClick={() => {
+						changeCategoryHandler('parents');
+					}}
+				>
+					Parents
+				</div>
+				<div
+					className={category === 'accounts' ? 'active' : ''}
+					onClick={() => {
+						changeCategoryHandler('accounts');
+					}}
+				>
+					Accounts
+				</div>
+				<div
+					className={category === 'community' ? 'active' : ''}
+					onClick={() => {
+						changeCategoryHandler('community');
+					}}
+				>
+					Community
+				</div>
+			</Box>
+			<Box className={'wrap'} component={'div'}>
+				{data[category] &&
+					data[category].map((ele: any) => (
+						<Accordion expanded={expanded === ele?.id} onChange={handleChange(ele?.id)} key={ele?.subject}>
+							<AccordionSummary id="panel1d-header" className="question" aria-controls="panel1d-content">
+								<Typography className="badge" variant={'h4'}>
+									Q
+								</Typography>
+								<Typography> {ele?.subject}</Typography>
+							</AccordionSummary>
+							<AccordionDetails>
+								<Stack className={'answer flex-box'}>
+									<Typography className="badge" variant={'h4'} color={'primary'}>
+										A
 									</Typography>
-									<Typography> {ele?.subject}</Typography>
-								</AccordionSummary>
-								<AccordionDetails>
-									<Stack className={'answer flex-box'}>
-										<Typography className="badge" variant={'h4'} color={'primary'}>
-											A
-										</Typography>
-										<Typography> {ele?.content}</Typography>
-									</Stack>
-								</AccordionDetails>
-							</Accordion>
-						))}
-				</Box>
-			</Stack>
-		);
-	}
+									<Typography> {ele?.content}</Typography>
+								</Stack>
+							</AccordionDetails>
+						</Accordion>
+					))}
+			</Box>
+		</Stack>
+	);
 };
 
 export default Faq;

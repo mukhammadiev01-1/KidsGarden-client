@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useApolloClient, useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
 	Button,
 	Chip,
@@ -16,14 +16,13 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { APPROVE_STAFF_APPLICATION, REJECT_STAFF_APPLICATION } from '../../../apollo/user/mutation';
-import { GET_MEMBER, GET_OWNER_KINDERGARTENS, GET_STAFF_APPLICATIONS } from '../../../apollo/user/query';
+import { GET_OWNER_KINDERGARTENS, GET_STAFF_APPLICATIONS } from '../../../apollo/user/query';
 import { userVar } from '../../../apollo/store';
 import { KindergartenStatus } from '../../enums/kindergarten.enum';
 import { MemberType } from '../../enums/member.enum';
 import { StaffApplicationStatus } from '../../enums/staff-application.enum';
 import { StaffApplication } from '../../types/staff-application/staff-application';
 import { Kindergarten } from '../../types/kindergarten/kindergarten';
-import { Member } from '../../types/member/member';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
 import {
 	formatDate,
@@ -34,8 +33,6 @@ import {
 	truncateId,
 } from './dashboardUtils';
 
-type ApplicantPreview = Pick<Member, '_id' | 'memberNick' | 'memberPhone' | 'memberType'>;
-
 const applicationStatusOptions = [
 	StaffApplicationStatus.PENDING,
 	StaffApplicationStatus.APPROVED,
@@ -45,12 +42,10 @@ const applicationStatusOptions = [
 
 const KindergartenStaffApplications = () => {
 	const router = useRouter();
-	const apolloClient = useApolloClient();
 	const user = useReactiveVar(userVar);
 	const [selectedKindergartenId, setSelectedKindergartenId] = useState('');
 	const [statusFilter, setStatusFilter] = useState<StaffApplicationStatus | 'ALL'>(StaffApplicationStatus.PENDING);
 	const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({});
-	const [applicantsById, setApplicantsById] = useState<Record<string, ApplicantPreview | null>>({});
 	const [approveStaffApplication] = useMutation(APPROVE_STAFF_APPLICATION);
 	const [rejectStaffApplication] = useMutation(REJECT_STAFF_APPLICATION);
 
@@ -101,50 +96,12 @@ const KindergartenStaffApplications = () => {
 	const applications: StaffApplication[] = applicationsData?.getStaffApplications?.list ?? [];
 	const hideKindergartenSelector = shouldHideKindergartenSelector(user.memberType, kindergartens);
 	const selectedKindergartenTitle = getSelectedKindergartenTitle(kindergartens, selectedKindergartenId);
-	const applicantIds = useMemo(
-		() => Array.from(new Set(applications.map((application) => application.applicantId).filter(Boolean))),
-		[applications],
-	);
 
 	useEffect(() => {
 		if (!selectedKindergartenId && kindergartens.length > 0) {
 			setSelectedKindergartenId(kindergartens[0]._id);
 		}
 	}, [kindergartens, selectedKindergartenId]);
-
-	useEffect(() => {
-		const missingApplicantIds = applicantIds.filter((applicantId) => !(applicantId in applicantsById));
-		if (!missingApplicantIds.length) return;
-
-		let isMounted = true;
-
-		Promise.all(
-			missingApplicantIds.map(async (applicantId) => {
-				try {
-					const result = await apolloClient.query({
-						query: GET_MEMBER,
-						variables: { input: applicantId },
-						fetchPolicy: 'cache-first',
-					});
-
-					const member: ApplicantPreview | null = result.data?.getMember ?? null;
-					return [applicantId, member] as const;
-				} catch (err) {
-					return [applicantId, null] as const;
-				}
-			}),
-		).then((entries) => {
-			if (!isMounted) return;
-			setApplicantsById((prev) => ({
-				...prev,
-				...Object.fromEntries(entries),
-			}));
-		});
-
-		return () => {
-			isMounted = false;
-		};
-	}, [apolloClient, applicantIds, applicantsById]);
 
 	const approveApplicationHandler = async (applicationId: string) => {
 		try {
@@ -263,7 +220,7 @@ const KindergartenStaffApplications = () => {
 							</TableHead>
 							<TableBody>
 								{applications.map((application) => {
-									const applicant = applicantsById[application.applicantId];
+									const applicant = application.applicantData;
 									const isPending = application.applicationStatus === StaffApplicationStatus.PENDING;
 
 									return (
@@ -271,10 +228,15 @@ const KindergartenStaffApplications = () => {
 											<TableCell sx={{ maxWidth: 220 }}>
 												<Stack spacing={0.25}>
 													<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
-														{applicant?.memberNick || 'Applicant reference'}
+														{applicant?.memberNick
+															? `${applicant.memberNick}${applicant.memberFullName ? ` (${applicant.memberFullName})` : ''}`
+															: applicant?.memberFullName || 'Applicant reference'}
 													</Typography>
 													<Typography sx={{ fontSize: '13px', color: '#6b7280' }}>
-														{applicant?.memberPhone || applicant?.memberType || '-'}
+														{applicant?.memberPhone || 'No phone'}
+													</Typography>
+													<Typography sx={{ fontSize: '12px', color: '#6b7280' }}>
+														{[applicant?.memberType, applicant?.memberStatus].filter(Boolean).join(' · ') || '-'}
 													</Typography>
 													<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
 														{truncateId(application.applicantId)}

@@ -125,104 +125,105 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 		}
 	};
 
-	if (device === 'mobile') {
-		return <h1>KINDERGARTENS MOBILE</h1>;
-	} else {
-		return (
-			<div id="property-list-page" style={{ position: 'relative' }}>
-				<div className="container">
-					<Stack className={'listing-hero'}>
-						<Typography className={'eyebrow'}>Kindergarten search</Typography>
-						<Typography className={'title'}>Explore kindergartens for your child</Typography>
-						<Typography className={'subtitle'}>
-							Filter trusted centers by location, age range, programs, capacity, and monthly fee.
-						</Typography>
+	return (
+		<div id="property-list-page" style={{ position: 'relative' }}>
+			<div className="container">
+				<Stack className={'listing-hero'}>
+					<Typography className={'eyebrow'}>Kindergarten discovery</Typography>
+					<Typography className={'title'}>Find Kindergartens</Typography>
+					<Typography className={'subtitle'}>
+						Explore trusted kindergartens and daycare centers for your child.
+					</Typography>
+				</Stack>
+				<Box component={'div'} className={'right'}>
+					<span>Sort by</span>
+					<div>
+						<Button onClick={sortingClickHandler} endIcon={<KeyboardArrowDownRoundedIcon />}>
+							{filterSortName}
+						</Button>
+						<Menu anchorEl={anchorEl} open={sortingOpen} onClose={sortingCloseHandler} sx={{ paddingTop: '5px' }}>
+							<MenuItem
+								onClick={sortingHandler}
+								id={'new'}
+								disableRipple
+								sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
+							>
+								New
+							</MenuItem>
+							<MenuItem
+								onClick={sortingHandler}
+								id={'lowest'}
+								disableRipple
+								sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
+							>
+								Lowest Fee
+							</MenuItem>
+							<MenuItem
+								onClick={sortingHandler}
+								id={'highest'}
+								disableRipple
+								sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
+							>
+								Highest Fee
+							</MenuItem>
+						</Menu>
+					</div>
+				</Box>
+				<Stack className={'property-page'}>
+					<Stack className={'filter-config'}>
+						{/* @ts-ignore */}
+						<Filter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} />
 					</Stack>
-					<Box component={'div'} className={'right'}>
-						<span>Sort by</span>
-						<div>
-							<Button onClick={sortingClickHandler} endIcon={<KeyboardArrowDownRoundedIcon />}>
-								{filterSortName}
-							</Button>
-							<Menu anchorEl={anchorEl} open={sortingOpen} onClose={sortingCloseHandler} sx={{ paddingTop: '5px' }}>
-								<MenuItem
-									onClick={sortingHandler}
-									id={'new'}
-									disableRipple
-									sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
-								>
-									New
-								</MenuItem>
-								<MenuItem
-									onClick={sortingHandler}
-									id={'lowest'}
-									disableRipple
-									sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
-								>
-									Lowest Fee
-								</MenuItem>
-								<MenuItem
-									onClick={sortingHandler}
-									id={'highest'}
-									disableRipple
-									sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
-								>
-									Highest Fee
-								</MenuItem>
-							</Menu>
-						</div>
-					</Box>
-					<Stack className={'property-page'}>
-						<Stack className={'filter-config'}>
-							{/* @ts-ignore */}
-							<Filter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} />
-						</Stack>
-						<Stack className="main-config" mb={'76px'}>
-							<Stack className={'list-config'}>
-								{kindergartens?.length === 0 && !getKindergartensLoading ? (
-									<div className={'no-data'}>
-										<img src="/img/icons/icoAlert.svg" alt="" />
-										<p>No Kindergartens found!</p>
-									</div>
-								) : (
-									kindergartens.map((kindergarten: Kindergarten) => {
-										return (
-											<PropertyCard
-												kindergarten={kindergarten}
-												key={kindergarten?._id}
-												likeKindergartenHandler={likeKindergartenHandler}
-											/>
-										);
-									})
-								)}
-							</Stack>
-							<Stack className="pagination-config">
-								{kindergartens.length !== 0 && (
-									<Stack className="pagination-box">
-										<Pagination
-											page={currentPage}
-											count={Math.ceil(total / searchFilter.limit)}
-											onChange={handlePaginationChange}
-											shape="circular"
-											color="primary"
+					<Stack className="main-config" mb={device === 'mobile' ? '42px' : '76px'}>
+						<Stack className={'list-config'}>
+							{getKindergartensLoading && kindergartens?.length === 0 ? (
+								<div className={'no-data'}>
+									<p>Loading kindergartens...</p>
+								</div>
+							) : kindergartens?.length === 0 ? (
+								<div className={'no-data'}>
+									<img src="/img/icons/icoAlert.svg" alt="" />
+									<p>No kindergartens found yet.</p>
+									<span>Try adjusting your filters or check back soon.</span>
+								</div>
+							) : (
+								kindergartens.map((kindergarten: Kindergarten) => {
+									return (
+										<PropertyCard
+											kindergarten={kindergarten}
+											key={kindergarten?._id}
+											likeKindergartenHandler={likeKindergartenHandler}
 										/>
-									</Stack>
-								)}
+									);
+								})
+							)}
+						</Stack>
+						<Stack className="pagination-config">
+							{kindergartens.length !== 0 && (
+								<Stack className="pagination-box">
+									<Pagination
+										page={currentPage}
+										count={Math.ceil(total / searchFilter.limit)}
+										onChange={handlePaginationChange}
+										shape="circular"
+										color="primary"
+									/>
+								</Stack>
+							)}
 
-								{kindergartens.length !== 0 && (
-									<Stack className="total-result">
-										<Typography>
-											Total {total} kindergarten{total > 1 ? 's' : ''} available
-										</Typography>
-									</Stack>
-								)}
-							</Stack>
+							{kindergartens.length !== 0 && (
+								<Stack className="total-result">
+									<Typography>
+										Total {total} kindergarten{total > 1 ? 's' : ''} available
+									</Typography>
+								</Stack>
+							)}
 						</Stack>
 					</Stack>
-				</div>
+				</Stack>
 			</div>
-		);
-	}
+		</div>
+	);
 };
 
 PropertyList.defaultProps = {

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Stack, Typography } from '@mui/material';
 import { BoardArticle } from '../../types/board-article/board-article';
 import Moment from 'react-moment';
@@ -19,7 +18,6 @@ interface CommunityCardProps {
 
 const CommunityCard = (props: CommunityCardProps) => {
 	const { boardArticle, size = 'normal' } = props;
-	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const imagePath: string = boardArticle?.articleImage
@@ -43,57 +41,53 @@ const CommunityCard = (props: CommunityCardProps) => {
 		else router.push(`/member?memberId=${id}`);
 	};
 
-	if (device === 'mobile') {
-		return <div>COMMUNITY CARD MOBILE</div>;
-	} else {
-		return (
-			<Stack
-				sx={{ width: size === 'small' ? '285px' : '317px' }}
-				className="community-general-card-config"
-				onClick={(e) => chooseArticleHandler(e, boardArticle)}
-			>
-				<Stack className="image-box">
-					<img src={imagePath} alt="" className="card-img" />
-				</Stack>
-				<Stack className="desc-box" sx={{ marginTop: '-20px' }}>
-					<Stack>
-						<Typography
-							className="desc"
-							onClick={(e) => {
-								e.stopPropagation();
-								goMemberPage(boardArticle?.memberData?._id as string);
-							}}
-						>
-							{boardArticle?.memberData?.memberNick}
-						</Typography>
-						<Typography className="title">{boardArticle?.articleTitle}</Typography>
-					</Stack>
-					<Stack className={'buttons'}>
-						<IconButton color={'default'}>
-							<RemoveRedEyeIcon />
-						</IconButton>
-						<Typography className="view-cnt">{boardArticle?.articleViews}</Typography>
-						<IconButton color={'default'}>
-							{boardArticle?.meLiked && boardArticle?.meLiked[0]?.myFavorite ? (
-								<FavoriteIcon color={'primary'} />
-							) : (
-								<FavoriteBorderIcon />
-							)}
-						</IconButton>
-						<Typography className="view-cnt">{boardArticle?.articleLikes}</Typography>
-					</Stack>
-				</Stack>
-				<Stack className="date-box">
-					<Moment className="month" format={'MMMM'}>
-						{boardArticle?.createdAt}
-					</Moment>
-					<Typography className="day">
-						<Moment format={'DD'}>{boardArticle?.createdAt}</Moment>
+	return (
+		<Stack
+			sx={{ width: size === 'small' ? '285px' : '317px' }}
+			className="community-general-card-config"
+			onClick={(e) => chooseArticleHandler(e, boardArticle)}
+		>
+			<Stack className="image-box">
+				<img src={imagePath} alt="" className="card-img" />
+			</Stack>
+			<Stack className="desc-box" sx={{ marginTop: '-20px' }}>
+				<Stack>
+					<Typography
+						className="desc"
+						onClick={(e) => {
+							e.stopPropagation();
+							goMemberPage(boardArticle?.memberData?._id as string);
+						}}
+					>
+						{boardArticle?.memberData?.memberNick}
 					</Typography>
+					<Typography className="title">{boardArticle?.articleTitle}</Typography>
+				</Stack>
+				<Stack className={'buttons'}>
+					<IconButton color={'default'}>
+						<RemoveRedEyeIcon />
+					</IconButton>
+					<Typography className="view-cnt">{boardArticle?.articleViews}</Typography>
+					<IconButton color={'default'}>
+						{boardArticle?.meLiked && boardArticle?.meLiked[0]?.myFavorite ? (
+							<FavoriteIcon color={'primary'} />
+						) : (
+							<FavoriteBorderIcon />
+						)}
+					</IconButton>
+					<Typography className="view-cnt">{boardArticle?.articleLikes}</Typography>
 				</Stack>
 			</Stack>
-		);
-	}
+			<Stack className="date-box">
+				<Moment className="month" format={'MMMM'}>
+					{boardArticle?.createdAt}
+				</Moment>
+				<Typography className="day">
+					<Moment format={'DD'}>{boardArticle?.createdAt}</Moment>
+				</Typography>
+			</Stack>
+		</Stack>
+	);
 };
 
 export default CommunityCard;

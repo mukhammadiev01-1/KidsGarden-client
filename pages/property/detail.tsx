@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutFull from '../../libs/components/layout/LayoutFull';
 import { NextPage } from 'next';
 import Review from '../../libs/components/property/Review';
@@ -44,7 +43,6 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
-	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [kindergartenId, setKindergartenId] = useState<string | null>(null);
@@ -236,10 +234,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 		}
 	};
 
-	if (device === 'mobile') {
-		return <div>KINDERGARTEN DETAIL PAGE</div>;
-	} else {
-		return (
+	return (
 			<div id={'property-detail-page'}>
 				<div className={'container'}>
 					<Stack className={'property-detail-config'}>
@@ -276,14 +271,13 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 									</Stack>
 									<Stack className={'bottom-box'}>
 										<Stack className="option">
-											<img src="/img/icons/bed.svg" alt="" />{' '}
 											<Typography>Age {kindergarten?.kindergartenAgeRange}</Typography>
 										</Stack>
 										<Stack className="option">
-											<img src="/img/icons/room.svg" alt="" /> <Typography>{kindergarten?.kindergartenPrograms} programs</Typography>
+											<Typography>{kindergarten?.kindergartenPrograms} programs</Typography>
 										</Stack>
 										<Stack className="option">
-											<img src="/img/icons/expand.svg" alt="" /> <Typography>{kindergarten?.kindergartenCapacity} spots</Typography>
+											<Typography>{kindergarten?.kindergartenCapacity} spots</Typography>
 										</Stack>
 									</Stack>
 								</Stack>
@@ -352,9 +346,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 										</Stack>
 									</Stack>
 									<Stack className={'option'}>
-										<Stack className={'svg-box'}>
-											<img src={'/img/icons/room.svg'} />
-										</Stack>
+										<Stack className={'svg-box'}></Stack>
 										<Stack className={'option-includes'}>
 											<Typography className={'title'}>Programs</Typography>
 											<Typography className={'option-data'}>{kindergarten?.kindergartenPrograms}</Typography>
@@ -374,8 +366,8 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 											</svg>
 										</Stack>
 										<Stack className={'option-includes'}>
-											<Typography className={'title'}>Established</Typography>
-											<Typography className={'option-data'}>{moment(kindergarten?.createdAt).format('YYYY')}</Typography>
+											<Typography className={'title'}>Location</Typography>
+											<Typography className={'option-data'}>{kindergarten?.kindergartenLocation}</Typography>
 										</Stack>
 									</Stack>
 									<Stack className={'option'}>
@@ -424,9 +416,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 										</Stack>
 									</Stack>
 									<Stack className={'option'}>
-										<Stack className={'svg-box'}>
-											<Typography>$</Typography>
-										</Stack>
+										<Stack className={'svg-box'}></Stack>
 										<Stack className={'option-includes'}>
 											<Typography className={'title'}>Monthly Fee</Typography>
 											<Typography className={'option-data'}>{formatMonthlyFee(kindergarten?.kindergartenPrice)}</Typography>
@@ -435,11 +425,11 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 								</Stack>
 								<Stack className={'prop-desc-config'}>
 									<Stack className={'top'}>
-										<Typography className={'title'}>Kindergarten Description</Typography>
+									<Typography className={'title'}>About this kindergarten</Typography>
 										<Typography className={'desc'}>{kindergarten?.kindergartenDesc ?? 'No Description!'}</Typography>
 									</Stack>
 									<Stack className={'bottom'}>
-										<Typography className={'title'}>Kindergarten Details</Typography>
+										<Typography className={'title'}>Programs and learning environment</Typography>
 										<Stack className={'info-box'}>
 											<Stack className={'left'}>
 												<Box component={'div'} className={'info'}>
@@ -461,7 +451,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 											</Stack>
 											<Stack className={'right'}>
 												<Box component={'div'} className={'info'}>
-													<Typography className={'title'}>Established</Typography>
+													<Typography className={'title'}>Opened</Typography>
 													<Typography className={'data'}>{moment(kindergarten?.establishedAt || kindergarten?.createdAt).format('YYYY')}</Typography>
 												</Box>
 												<Box component={'div'} className={'info'}>
@@ -543,8 +533,8 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 									</Stack>
 								)}
 								<Stack className={'leave-review-config'}>
-									<Typography className={'main-title'}>Leave A Parent Review</Typography>
-									<Typography className={'review-title'}>Your Review</Typography>
+									<Typography className={'main-title'}>Parent Reviews</Typography>
+									<Typography className={'review-title'}>Share feedback for other families</Typography>
 									<textarea
 										onChange={({ target: { value } }: any) => {
 											setInsertCommentData({ ...insertCommentData, commentContent: value });
@@ -577,7 +567,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 							</Stack>
 								<Stack className={'right-config'}>
 								<Stack className={'info-box'}>
-									<Typography className={'main-title'}>Enrollment Inquiry</Typography>
+									<Typography className={'main-title'}>Enrollment & Contact</Typography>
 									<Stack className={'image-info'}>
 										<img
 											className={'member-image'}
@@ -736,7 +726,6 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 				</div>
 			</div>
 		);
-	}
 };
 
 KindergartenDetail.defaultProps = {

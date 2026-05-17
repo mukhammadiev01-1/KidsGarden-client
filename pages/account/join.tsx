@@ -65,11 +65,11 @@ const Join: NextPage = () => {
 							{/* @ts-ignore */}
 							<Box className={'logo'}>
 								<img src="/img/logo/logoText.svg" alt="" />
-								<span>Nestar</span>
+								<span>KidsGarden</span>
 							</Box>
 							<Box className={'info'}>
 								<span>{loginView ? 'login' : 'signup'}</span>
-								<p>{loginView ? 'Login' : 'Sign'} in with this account across the following sites.</p>
+								<p>{loginView ? 'Log in' : 'Sign up'} to continue with KidsGarden.</p>
 							</Box>
 							<Box className={'input-wrap'}>
 								<div className={'input-box'}>

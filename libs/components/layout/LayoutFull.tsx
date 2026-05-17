@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import Head from 'next/head';
 import Top from '../Top';
@@ -15,7 +14,6 @@ import 'swiper/css/navigation';
 
 const withLayoutFull = (Component: any) => {
 	return (props: any) => {
-		const router = useRouter();
 		const device = useDeviceDetect();
 		const user = useReactiveVar(userVar);
 
@@ -31,8 +29,8 @@ const withLayoutFull = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Nestar</title>
-						<meta name={'title'} content={`Nestar`} />
+						<title>KidsGarden</title>
+						<meta name={'title'} content={`KidsGarden`} />
 					</Head>
 					<Stack id="mobile-wrap">
 						<Stack id={'top'}>
@@ -53,8 +51,8 @@ const withLayoutFull = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Nestar</title>
-						<meta name={'title'} content={`Nestar`} />
+						<title>KidsGarden</title>
+						<meta name={'title'} content={`KidsGarden`} />
 					</Head>
 					<Stack id="pc-wrap">
 						<Stack id={'top'}>

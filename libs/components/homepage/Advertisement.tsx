@@ -1,41 +1,21 @@
 import React from 'react';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { Stack } from '@mui/material';
+import { Stack, Box } from '@mui/material';
+import Link from 'next/link';
 
 const Advertisement = () => {
-	const device = useDeviceDetect();
-
-	if (device == 'mobile') {
-		return (
-			<Stack className={'video-frame'}>
-				<video
-					autoPlay
-					muted
-					loop
-					playsInline
-					preload="auto"
-					style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-				>
-					<source src="/video/ads.mov" type="video/mp4" />
-				</video>
-			</Stack>
-		);
-	} else {
-		return (
-			<Stack className={'video-frame'}>
-				<video
-					autoPlay
-					muted
-					loop
-					playsInline
-					preload="auto"
-					style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-				>
-					<source src="/video/ads.mov" type="video/mp4" />
-				</video>
-			</Stack>
-		);
-	}
+	return (
+		<Stack className={'video-frame'}>
+			<Box component={'div'} className={'family-help-copy'}>
+				<span>For families choosing with care</span>
+				<h2>Keep discovery, updates, and parent questions in one calm place.</h2>
+				<p>Browse kindergartens, save favorites, and use the community when you need a second opinion.</p>
+				<div className={'family-help-actions'}>
+					<Link href={'/property'}>Find Kindergartens</Link>
+					<Link href={'/community'}>Visit Community</Link>
+				</div>
+			</Box>
+		</Stack>
+	);
 };
 
 export default Advertisement;

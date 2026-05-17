@@ -1013,6 +1013,366 @@
 
 #pc-wrap {
 	.header-main {
+		min-height: 790px;
+		background:
+			linear-gradient(115deg, rgba(255, 250, 242, 0.94) 0%, rgba(244, 251, 239, 0.78) 54%, rgba(233, 245, 232, 0.9) 100%),
+			url('/img/fiber/img8.jpg');
+		background-size: cover;
+		background-position: center;
+
+		.threeJSContainer {
+			opacity: 0.18;
+			filter: saturate(0.8) blur(0.2px);
+		}
+
+		.container {
+			.hero-copy {
+				width: 880px;
+
+				h1 {
+					max-width: 860px;
+				}
+
+				p {
+					width: 690px;
+				}
+
+				.hero-actions {
+					margin-top: 8px;
+					display: flex;
+					flex-direction: row;
+					justify-content: center;
+					gap: 12px;
+
+					a {
+						padding: 14px 22px;
+						border-radius: 999px;
+						font-family: $font;
+						font-size: 15px;
+						font-weight: 800;
+						line-height: normal;
+						color: #24332d;
+						background: #ffcf7a;
+						box-shadow: 0 14px 32px rgba(155, 103, 44, 0.18);
+
+						&:last-child {
+							background: #fffaf2;
+							color: #4d7c5b;
+							box-shadow: 0 14px 32px rgba(72, 101, 79, 0.12);
+						}
+					}
+				}
+			}
+
+			.trust-strip {
+				margin-top: 18px;
+				width: 1050px;
+				padding: 14px 18px;
+				display: grid;
+				grid-template-columns: repeat(4, 1fr);
+				gap: 10px;
+				border: 1px solid rgba(255, 255, 255, 0.78);
+				border-radius: 22px;
+				background: rgba(255, 250, 242, 0.72);
+				box-shadow: 0 18px 45px rgba(72, 101, 79, 0.12);
+				backdrop-filter: blur(10px);
+
+				span {
+					padding: 10px 12px;
+					border-radius: 16px;
+					background: rgba(79, 124, 91, 0.08);
+					color: #405346;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 800;
+					line-height: 18px;
+					text-align: center;
+				}
+			}
+		}
+	}
+
+	.home-page {
+		.video-frame {
+			height: auto;
+			padding: 72px 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: #e9f5e8;
+			border-top: 1px solid rgba(79, 124, 91, 0.12);
+			border-bottom: 1px solid rgba(79, 124, 91, 0.12);
+			box-shadow: none;
+
+			.family-help-copy {
+				width: 1040px;
+				padding: 44px 52px;
+				border-radius: 30px;
+				background:
+					linear-gradient(110deg, rgba(255, 250, 242, 0.96), rgba(255, 250, 242, 0.78)),
+					url('/img/events/BUSAN.webp');
+				background-size: cover;
+				background-position: center;
+				box-shadow: 0 22px 58px rgba(72, 101, 79, 0.14);
+
+				span {
+					color: #4d7c5b;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 900;
+					line-height: normal;
+					text-transform: uppercase;
+				}
+
+				h2 {
+					max-width: 680px;
+					margin: 12px 0 0;
+					color: #26382b;
+					font-family: $font;
+					font-size: 34px;
+					font-weight: 900;
+					line-height: 44px;
+				}
+
+				p {
+					max-width: 590px;
+					margin: 12px 0 0;
+					color: #657266;
+					font-family: $font;
+					font-size: 16px;
+					font-weight: 500;
+					line-height: 28px;
+				}
+
+				.family-help-actions {
+					margin-top: 24px;
+					display: flex;
+					flex-direction: row;
+					gap: 12px;
+
+					a {
+						padding: 13px 18px;
+						border-radius: 999px;
+						background: #4f7c5b;
+						color: #fffaf2;
+						font-family: $font;
+						font-size: 14px;
+						font-weight: 800;
+						line-height: normal;
+
+						&:last-child {
+							background: #ffcf7a;
+							color: #24332d;
+						}
+					}
+				}
+			}
+		}
+
+		.community-board {
+			.community-main {
+				.content-top span {
+					color: #4d7c5b;
+					font-weight: 800;
+				}
+
+				.vertical-card,
+				.horizontal-card {
+					border-radius: 18px;
+					background: #ffffff;
+					box-shadow: 0 14px 34px rgba(72, 101, 79, 0.1);
+				}
+
+				.vertical-card {
+					padding: 10px;
+				}
+
+				.horizontal-card {
+					padding: 10px;
+					align-items: center;
+				}
+			}
+		}
+	}
+}
+
+#pc-wrap {
+	.header-main {
+		min-height: 790px;
+
+		.container {
+			.hero-copy {
+				width: 880px;
+
+				h1 {
+					max-width: 860px;
+				}
+
+				p {
+					width: 690px;
+				}
+
+				.hero-actions {
+					margin-top: 8px;
+					display: flex;
+					flex-direction: row;
+					justify-content: center;
+					gap: 12px;
+
+					a {
+						padding: 14px 22px;
+						border-radius: 999px;
+						font-family: $font;
+						font-size: 15px;
+						font-weight: 800;
+						line-height: normal;
+						color: #24332d;
+						background: #ffcf7a;
+						box-shadow: 0 14px 32px rgba(155, 103, 44, 0.18);
+
+						&:last-child {
+							background: #fffaf2;
+							color: #4d7c5b;
+							box-shadow: 0 14px 32px rgba(72, 101, 79, 0.12);
+						}
+					}
+				}
+			}
+
+			.trust-strip {
+				margin-top: 18px;
+				width: 1050px;
+				padding: 14px 18px;
+				display: grid;
+				grid-template-columns: repeat(4, 1fr);
+				gap: 10px;
+				border: 1px solid rgba(255, 255, 255, 0.78);
+				border-radius: 22px;
+				background: rgba(255, 250, 242, 0.72);
+				box-shadow: 0 18px 45px rgba(72, 101, 79, 0.12);
+				backdrop-filter: blur(10px);
+
+				span {
+					padding: 10px 12px;
+					border-radius: 16px;
+					background: rgba(79, 124, 91, 0.08);
+					color: #405346;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 800;
+					line-height: 18px;
+					text-align: center;
+				}
+			}
+		}
+	}
+
+	.home-page {
+		.video-frame {
+			height: auto;
+			padding: 72px 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: #e9f5e8;
+			border-top: 1px solid rgba(79, 124, 91, 0.12);
+			border-bottom: 1px solid rgba(79, 124, 91, 0.12);
+			box-shadow: none;
+
+			.family-help-copy {
+				width: 1040px;
+				padding: 44px 52px;
+				border-radius: 30px;
+				background:
+					linear-gradient(110deg, rgba(255, 250, 242, 0.96), rgba(255, 250, 242, 0.78)),
+					url('/img/events/BUSAN.webp');
+				background-size: cover;
+				background-position: center;
+				box-shadow: 0 22px 58px rgba(72, 101, 79, 0.14);
+
+				span {
+					color: #4d7c5b;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 900;
+					line-height: normal;
+					text-transform: uppercase;
+				}
+
+				h2 {
+					max-width: 680px;
+					margin: 12px 0 0;
+					color: #26382b;
+					font-family: $font;
+					font-size: 34px;
+					font-weight: 900;
+					line-height: 44px;
+				}
+
+				p {
+					max-width: 590px;
+					margin: 12px 0 0;
+					color: #657266;
+					font-family: $font;
+					font-size: 16px;
+					font-weight: 500;
+					line-height: 28px;
+				}
+
+				.family-help-actions {
+					margin-top: 24px;
+					display: flex;
+					flex-direction: row;
+					gap: 12px;
+
+					a {
+						padding: 13px 18px;
+						border-radius: 999px;
+						background: #4f7c5b;
+						color: #fffaf2;
+						font-family: $font;
+						font-size: 14px;
+						font-weight: 800;
+						line-height: normal;
+
+						&:last-child {
+							background: #ffcf7a;
+							color: #24332d;
+						}
+					}
+				}
+			}
+		}
+
+		.community-board {
+			.community-main {
+				.content-top span {
+					color: #4d7c5b;
+					font-weight: 800;
+				}
+
+				.vertical-card,
+				.horizontal-card {
+					border-radius: 18px;
+					background: #ffffff;
+					box-shadow: 0 14px 34px rgba(72, 101, 79, 0.1);
+				}
+
+				.vertical-card {
+					padding: 10px;
+				}
+
+				.horizontal-card {
+					padding: 10px;
+					align-items: center;
+				}
+			}
+		}
+	}
+}
+
+#pc-wrap {
+	.header-main {
 		height: 760px;
 		overflow: hidden;
 		background:
@@ -1410,6 +1770,191 @@
 				font-family: $font;
 				font-size: 34px;
 				font-weight: 800;
+			}
+		}
+	}
+}
+
+#pc-wrap {
+	.header-main {
+		min-height: 790px;
+		background:
+			linear-gradient(115deg, rgba(255, 250, 242, 0.94) 0%, rgba(244, 251, 239, 0.78) 54%, rgba(233, 245, 232, 0.9) 100%),
+			url('/img/fiber/img8.jpg');
+		background-size: cover;
+		background-position: center;
+
+		.threeJSContainer {
+			opacity: 0.18;
+			filter: saturate(0.8) blur(0.2px);
+		}
+
+		.container {
+			.hero-copy {
+				width: 880px;
+
+				h1 {
+					max-width: 860px;
+				}
+
+				p {
+					width: 690px;
+				}
+
+				.hero-actions {
+					margin-top: 8px;
+					display: flex;
+					flex-direction: row;
+					justify-content: center;
+					gap: 12px;
+
+					a {
+						padding: 14px 22px;
+						border-radius: 999px;
+						font-family: $font;
+						font-size: 15px;
+						font-weight: 800;
+						line-height: normal;
+						color: #24332d;
+						background: #ffcf7a;
+						box-shadow: 0 14px 32px rgba(155, 103, 44, 0.18);
+
+						&:last-child {
+							background: #fffaf2;
+							color: #4d7c5b;
+							box-shadow: 0 14px 32px rgba(72, 101, 79, 0.12);
+						}
+					}
+				}
+			}
+
+			.trust-strip {
+				margin-top: 18px;
+				width: 1050px;
+				padding: 14px 18px;
+				display: grid;
+				grid-template-columns: repeat(4, 1fr);
+				gap: 10px;
+				border: 1px solid rgba(255, 255, 255, 0.78);
+				border-radius: 22px;
+				background: rgba(255, 250, 242, 0.72);
+				box-shadow: 0 18px 45px rgba(72, 101, 79, 0.12);
+				backdrop-filter: blur(10px);
+
+				span {
+					padding: 10px 12px;
+					border-radius: 16px;
+					background: rgba(79, 124, 91, 0.08);
+					color: #405346;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 800;
+					line-height: 18px;
+					text-align: center;
+				}
+			}
+		}
+	}
+
+	.home-page {
+		.video-frame {
+			height: auto;
+			padding: 72px 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: #e9f5e8;
+			border-top: 1px solid rgba(79, 124, 91, 0.12);
+			border-bottom: 1px solid rgba(79, 124, 91, 0.12);
+			box-shadow: none;
+
+			.family-help-copy {
+				width: 1040px;
+				padding: 44px 52px;
+				border-radius: 30px;
+				background:
+					linear-gradient(110deg, rgba(255, 250, 242, 0.96), rgba(255, 250, 242, 0.78)),
+					url('/img/events/BUSAN.webp');
+				background-size: cover;
+				background-position: center;
+				box-shadow: 0 22px 58px rgba(72, 101, 79, 0.14);
+
+				span {
+					color: #4d7c5b;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 900;
+					line-height: normal;
+					text-transform: uppercase;
+				}
+
+				h2 {
+					max-width: 680px;
+					margin: 12px 0 0;
+					color: #26382b;
+					font-family: $font;
+					font-size: 34px;
+					font-weight: 900;
+					line-height: 44px;
+				}
+
+				p {
+					max-width: 590px;
+					margin: 12px 0 0;
+					color: #657266;
+					font-family: $font;
+					font-size: 16px;
+					font-weight: 500;
+					line-height: 28px;
+				}
+
+				.family-help-actions {
+					margin-top: 24px;
+					display: flex;
+					flex-direction: row;
+					gap: 12px;
+
+					a {
+						padding: 13px 18px;
+						border-radius: 999px;
+						background: #4f7c5b;
+						color: #fffaf2;
+						font-family: $font;
+						font-size: 14px;
+						font-weight: 800;
+						line-height: normal;
+
+						&:last-child {
+							background: #ffcf7a;
+							color: #24332d;
+						}
+					}
+				}
+			}
+		}
+
+		.community-board {
+			.community-main {
+				.content-top span {
+					color: #4d7c5b;
+					font-weight: 800;
+				}
+
+				.vertical-card,
+				.horizontal-card {
+					border-radius: 18px;
+					background: #ffffff;
+					box-shadow: 0 14px 34px rgba(72, 101, 79, 0.1);
+				}
+
+				.vertical-card {
+					padding: 10px;
+				}
+
+				.horizontal-card {
+					padding: 10px;
+					align-items: center;
+				}
 			}
 		}
 	}

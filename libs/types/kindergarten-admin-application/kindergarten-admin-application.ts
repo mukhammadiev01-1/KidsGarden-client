@@ -1,5 +1,6 @@
 import { KindergartenAdminApplicationStatus } from '../../enums/kindergarten-admin-application.enum';
 import { TotalCounter } from '../kindergarten/kindergarten';
+import { MemberPreview } from '../member/member';
 
 export interface KindergartenAdminApplication {
 	_id: string;
@@ -13,6 +14,7 @@ export interface KindergartenAdminApplication {
 	reviewedBy?: string;
 	reviewedAt?: Date;
 	rejectReason?: string;
+	applicantData?: MemberPreview;
 	createdAt: Date;
 	updatedAt: Date;
 }

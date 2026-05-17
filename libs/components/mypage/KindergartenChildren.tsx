@@ -16,7 +16,13 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { userVar } from '../../../apollo/store';
-import { GET_CHILDREN, GET_GROUPS, GET_MEMBER, GET_OWNER_KINDERGARTENS } from '../../../apollo/user/query';
+import {
+	GET_CHILDREN,
+	GET_GROUPS,
+	GET_MEMBER,
+	GET_OWNER_KINDERGARTENS,
+	PREVIEW_KINDERGARTEN_MEMBER,
+} from '../../../apollo/user/query';
 import { CREATE_CHILD, REMOVE_CHILD, UPDATE_CHILD } from '../../../apollo/user/mutation';
 import { Kindergarten } from '../../types/kindergarten/kindergarten';
 import { KindergartenStatus } from '../../enums/kindergarten.enum';
@@ -40,6 +46,7 @@ import {
 
 const childGenderOptions = [ChildGender.BOY, ChildGender.GIRL];
 const childStatusOptions = [ChildStatus.ACTIVE, ChildStatus.INACTIVE, ChildStatus.GRADUATED, ChildStatus.TRANSFERRED];
+type ParentPreview = Pick<Member, '_id' | 'memberNick' | 'memberPhone' | 'memberType' | 'memberStatus' | 'memberImage'>;
 
 const emptyForm: ChildInput = {
 	childFullName: '',
@@ -59,7 +66,7 @@ const KindergartenChildren = () => {
 	const [selectedChildId, setSelectedChildId] = useState('');
 	const [selectedGroupFilter, setSelectedGroupFilter] = useState('');
 	const [form, setForm] = useState<ChildInput>(emptyForm);
-	const [parentPreview, setParentPreview] = useState<Member | null>(null);
+	const [parentPreview, setParentPreview] = useState<ParentPreview | null>(null);
 	const [parentPreviewError, setParentPreviewError] = useState('');
 	const [parentNames, setParentNames] = useState<Record<string, string>>({});
 
@@ -217,14 +224,21 @@ const KindergartenChildren = () => {
 	const previewParentHandler = async () => {
 		try {
 			const parentId = form.parentId.trim();
+			if (!selectedKindergartenId) throw new Error('Please select a kindergarten first.');
 			if (!parentId) throw new Error('Please enter a parent member ID.');
 
 			const result = await apolloClient.query({
-				query: GET_MEMBER,
-				variables: { input: parentId },
+				query: PREVIEW_KINDERGARTEN_MEMBER,
+				variables: {
+					input: {
+						kindergartenId: selectedKindergartenId,
+						memberId: parentId,
+						purpose: 'PARENT_CANDIDATE',
+					},
+				},
 				fetchPolicy: 'network-only',
 			});
-			const member: Member | null = result.data?.getMember ?? null;
+			const member: ParentPreview | null = result.data?.previewKindergartenMember ?? null;
 
 			if (!member) throw new Error('Parent member was not found.');
 

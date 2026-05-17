@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import type { NextPage } from 'next';
-import { useApolloClient, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
 	Box,
 	Button,
@@ -26,15 +26,11 @@ import {
 	REJECT_KINDERGARTEN_ADMIN_APPLICATION,
 } from '../../../apollo/admin/mutation';
 import { GET_KINDERGARTEN_ADMIN_APPLICATIONS } from '../../../apollo/admin/query';
-import { GET_MEMBER } from '../../../apollo/user/query';
 import { KindergartenAdminApplicationStatus } from '../../../libs/enums/kindergarten-admin-application.enum';
 import { KindergartenAdminApplication } from '../../../libs/types/kindergarten-admin-application/kindergarten-admin-application';
 import { KindergartenAdminApplicationsInquiry } from '../../../libs/types/kindergarten-admin-application/kindergarten-admin-application.input';
-import { Member } from '../../../libs/types/member/member';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
 import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from '../../../libs/components/mypage/dashboardUtils';
-
-type ApplicantPreview = Pick<Member, '_id' | 'memberNick' | 'memberPhone' | 'memberType'>;
 
 const statusTabs = [
 	'ALL',
@@ -45,12 +41,10 @@ const statusTabs = [
 ];
 
 const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) => {
-	const apolloClient = useApolloClient();
 	const [applicationsInquiry, setApplicationsInquiry] =
 		useState<KindergartenAdminApplicationsInquiry>(initialInquiry);
 	const [value, setValue] = useState<string>(KindergartenAdminApplicationStatus.PENDING);
 	const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({});
-	const [applicantsById, setApplicantsById] = useState<Record<string, ApplicantPreview | null>>({});
 	const [approveKindergartenAdminApplication] = useMutation(APPROVE_KINDERGARTEN_ADMIN_APPLICATION);
 	const [rejectKindergartenAdminApplication] = useMutation(REJECT_KINDERGARTEN_ADMIN_APPLICATION);
 
@@ -62,44 +56,6 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 
 	const applications: KindergartenAdminApplication[] = data?.getKindergartenAdminApplications?.list ?? [];
 	const total = data?.getKindergartenAdminApplications?.metaCounter?.[0]?.total ?? 0;
-	const applicantIds = useMemo(
-		() => Array.from(new Set(applications.map((application) => application.applicantId).filter(Boolean))),
-		[applications],
-	);
-
-	useEffect(() => {
-		const missingApplicantIds = applicantIds.filter((applicantId) => !(applicantId in applicantsById));
-		if (!missingApplicantIds.length) return;
-
-		let isMounted = true;
-
-		Promise.all(
-			missingApplicantIds.map(async (applicantId) => {
-				try {
-					const result = await apolloClient.query({
-						query: GET_MEMBER,
-						variables: { input: applicantId },
-						fetchPolicy: 'cache-first',
-					});
-
-					const member: ApplicantPreview | null = result.data?.getMember ?? null;
-					return [applicantId, member] as const;
-				} catch (err) {
-					return [applicantId, null] as const;
-				}
-			}),
-		).then((entries) => {
-			if (!isMounted) return;
-			setApplicantsById((prev) => ({
-				...prev,
-				...Object.fromEntries(entries),
-			}));
-		});
-
-		return () => {
-			isMounted = false;
-		};
-	}, [apolloClient, applicantIds, applicantsById]);
 
 	const tabChangeHandler = (event: any, newValue: string) => {
 		setValue(newValue);
@@ -205,7 +161,7 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 										</TableRow>
 									)}
 									{applications.map((application) => {
-										const applicant = applicantsById[application.applicantId];
+										const applicant = application.applicantData;
 										const isPending = application.applicationStatus === KindergartenAdminApplicationStatus.PENDING;
 
 										return (
@@ -213,10 +169,15 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 												<TableCell sx={{ maxWidth: 220 }}>
 													<Stack spacing={0.25}>
 														<Typography sx={{ fontWeight: 700 }}>
-															{applicant?.memberNick || 'Applicant reference'}
+															{applicant?.memberNick
+																? `${applicant.memberNick}${applicant.memberFullName ? ` (${applicant.memberFullName})` : ''}`
+																: applicant?.memberFullName || 'Applicant reference'}
 														</Typography>
 														<Typography sx={{ fontSize: '13px', color: '#6b7280' }}>
-															{applicant?.memberPhone || applicant?.memberType || '-'}
+															{applicant?.memberPhone || 'No phone'}
+														</Typography>
+														<Typography sx={{ fontSize: '12px', color: '#6b7280' }}>
+															{[applicant?.memberType, applicant?.memberStatus].filter(Boolean).join(' · ') || '-'}
 														</Typography>
 														<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
 															{truncateId(application.applicantId)}

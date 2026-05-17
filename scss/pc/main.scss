@@ -58,7 +58,8 @@ body::-webkit-scrollbar {
 				align-items: center;
 				border-top: 1px solid rgba(255, 255, 255, 0.07);
 				&.transparent {
-					background-color: #181a209e;
+					background-color: rgba(36, 51, 45, 0.94);
+					box-shadow: 0 10px 28px rgba(36, 51, 45, 0.18);
 				}
 				.container {
 					flex-direction: row;
@@ -72,13 +73,13 @@ body::-webkit-scrollbar {
 					}
 					.router-box {
 						position: relative;
-						width: 617px;
+						width: 540px;
 						display: flex;
 						flex-direction: row;
 						justify-content: space-between;
 						div {
 							position: relative;
-							color: #eeeeeeed;
+							color: #fffaf2;
 							font-family: $font;
 							font-size: 15px;
 							font-style: normal;
@@ -114,16 +115,25 @@ body::-webkit-scrollbar {
 						flex-direction: row;
 						justify-content: flex-end;
 						.join-box {
-							width: 184px;
+							width: 164px;
 							height: 47px;
 							display: flex;
 							align-items: center;
 							justify-content: center;
 							border-radius: 60px;
-							border: 1px solid #ffffff;
+							border: 1px solid rgba(255, 250, 242, 0.86);
+							background: rgba(255, 250, 242, 0.1);
 							cursor: pointer;
+							transition: all 0.2s ease;
+							&:hover {
+								background: #fffaf2;
+								svg,
+								span {
+									color: #24332d;
+								}
+							}
 							svg {
-								color: #ffffff;
+								color: #fffaf2;
 								margin-right: 10px;
 							}
 							span {
@@ -132,7 +142,7 @@ body::-webkit-scrollbar {
 								font-style: normal;
 								font-weight: 600;
 								line-height: normal;
-								color: #ffffff;
+								color: #fffaf2;
 							}
 						}
 						.login-user {
@@ -149,7 +159,7 @@ body::-webkit-scrollbar {
 						display: flex;
 						align-items: center;
 						.notification-icon {
-							color: white;
+							color: #fffaf2;
 						}
 						.btn-lang {
 							border-radius: 4px;
@@ -651,7 +661,7 @@ body::-webkit-scrollbar {
 		height: auto;
 		display: flex;
 		flex-direction: row;
-		background: #181a20;
+		background: #24332d;
 		.footer-container {
 			width: 1300px;
 			height: auto;
@@ -674,7 +684,7 @@ body::-webkit-scrollbar {
 							cursor: pointer;
 						}
 						span {
-							color: #bebdbd;
+							color: #cfd8cf;
 							font-family: $font;
 							font-size: 14px;
 							font-style: normal;
@@ -682,7 +692,7 @@ body::-webkit-scrollbar {
 							text-transform: capitalize;
 						}
 						p {
-							color: #fff;
+							color: #fffaf2;
 							font-family: $font;
 							font-size: 15px;
 							font-style: normal;
@@ -692,7 +702,7 @@ body::-webkit-scrollbar {
 						}
 						.media-box {
 							margin-top: 12px;
-							color: #929495;
+							color: #d8e6d8;
 							svg {
 								font-size: 32px;
 								margin-right: 22px;
@@ -708,7 +718,7 @@ body::-webkit-scrollbar {
 						display: flex;
 						flex-direction: column;
 						strong {
-							color: #fff;
+							color: #fffaf2;
 							font-family: $font;
 							font-size: 15px;
 							font-style: normal;
@@ -726,7 +736,7 @@ body::-webkit-scrollbar {
 							align-items: center;
 							box-sizing: border-box;
 							border-radius: 12px;
-							background: #212329;
+							background: rgba(255, 250, 242, 0.1);
 							input {
 								margin-right: 10px;
 								width: 85%;
@@ -761,7 +771,7 @@ body::-webkit-scrollbar {
 							flex-direction: column;
 							strong {
 								margin-bottom: 3px;
-								color: #fff;
+								color: #fffaf2;
 								font-family: $font;
 								font-size: 15px;
 								font-style: normal;
@@ -771,7 +781,7 @@ body::-webkit-scrollbar {
 							}
 							span {
 								margin-top: 25px;
-								color: #bebdbd;
+								color: #cfd8cf;
 								font-family: $font;
 								font-size: 14px;
 								font-style: normal;
@@ -789,13 +799,13 @@ body::-webkit-scrollbar {
 			.second {
 				margin-top: 60px;
 				height: 45px;
-				border-top: 1px solid #212329;
+				border-top: 1px solid rgba(255, 250, 242, 0.14);
 				display: flex;
 				flex-direction: row;
 				justify-content: space-between;
 				align-items: flex-end;
 				span {
-					color: #bebdbd;
+					color: #cfd8cf;
 					font-family: $font;
 					font-size: 14px;
 					font-style: normal;

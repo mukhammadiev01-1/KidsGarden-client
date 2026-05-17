@@ -949,7 +949,7 @@
 
 					.options-config {
 						display: grid;
-						grid-template-columns: repeat(5, minmax(0, 1fr));
+						grid-template-columns: repeat(3, minmax(0, 1fr));
 						gap: 14px;
 
 						.option {
@@ -961,10 +961,6 @@
 							border-radius: 24px;
 							background: #fff;
 							box-shadow: 0 14px 34px rgba(80, 96, 76, 0.1);
-
-							&:nth-child(3) {
-								display: none;
-							}
 
 							.svg-box {
 								width: 44px;
@@ -1001,12 +997,20 @@
 								content: 'Play';
 							}
 
+							&:nth-child(3) .svg-box::before {
+								content: 'Loc';
+							}
+
 							&:nth-child(4) .svg-box::before {
 								content: 'Cap';
 							}
 
 							&:nth-child(5) .svg-box::before {
 								content: 'Type';
+							}
+
+							&:nth-child(6) .svg-box::before {
+								content: 'Fee';
 							}
 
 							.option-includes {

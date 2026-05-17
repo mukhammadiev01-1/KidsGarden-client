@@ -17,7 +17,7 @@ import 'swiper/css/navigation';
 const withLayoutBasic = (Component: any) => {
 	return (props: any) => {
 		const router = useRouter();
-		const { t, i18n } = useTranslation('common');
+		const { t } = useTranslation('common');
 		const device = useDeviceDetect();
 		const [authHeader, setAuthHeader] = useState<boolean>(false);
 		const user = useReactiveVar(userVar);
@@ -29,49 +29,49 @@ const withLayoutBasic = (Component: any) => {
 
 			switch (router.pathname) {
 				case '/property':
-					title = 'Property Search';
-					desc = 'We are glad to see you again!';
+					title = 'Find Kindergartens';
+					desc = 'Browse trusted centers for your family.';
 					bgImage = '/img/banner/properties.png';
 					break;
 				case '/agent':
-					title = 'Agents';
-					desc = 'Home / For Rent';
+					title = 'KidsGarden';
+					desc = 'Home';
 					bgImage = '/img/banner/agents.webp';
 					break;
 				case '/agent/detail':
-					title = 'Agent Page';
-					desc = 'Home / For Rent';
+					title = 'KidsGarden';
+					desc = 'Home';
 					bgImage = '/img/banner/header2.svg';
 					break;
 				case '/mypage':
-					title = 'my page';
-					desc = 'Home / For Rent';
+					title = 'My Page';
+					desc = 'Your KidsGarden dashboard.';
 					bgImage = '/img/banner/header1.svg';
 					break;
 				case '/community':
 					title = 'Community';
-					desc = 'Home / For Rent';
+					desc = 'Parent stories, questions, and kindergarten news.';
 					bgImage = '/img/banner/header2.svg';
 					break;
 				case '/community/detail':
-					title = 'Community Detail';
-					desc = 'Home / For Rent';
+					title = 'Community Article';
+					desc = 'Parent stories, questions, and kindergarten news.';
 					bgImage = '/img/banner/header2.svg';
 					break;
 				case '/cs':
-					title = 'CS';
-					desc = 'We are glad to see you again!';
+					title = 'Help Center';
+					desc = 'Find answers and notices for KidsGarden families.';
 					bgImage = '/img/banner/header2.svg';
 					break;
 				case '/account/join':
-					title = 'Login/Signup';
-					desc = 'Authentication Process';
+					title = 'Login / Join';
+					desc = 'Access your KidsGarden account.';
 					bgImage = '/img/banner/header2.svg';
 					setAuthHeader(true);
 					break;
 				case '/member':
-					title = 'Member Page';
-					desc = 'Home / For Rent';
+					title = 'Member Profile';
+					desc = 'KidsGarden community profile.';
 					bgImage = '/img/banner/header1.svg';
 					break;
 				default:
@@ -93,8 +93,8 @@ const withLayoutBasic = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Nestar</title>
-						<meta name={'title'} content={`Nestar`} />
+						<title>KidsGarden</title>
+						<meta name={'title'} content={`KidsGarden`} />
 					</Head>
 					<Stack id="mobile-wrap">
 						<Stack id={'top'}>
@@ -115,8 +115,8 @@ const withLayoutBasic = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Nestar</title>
-						<meta name={'title'} content={`Nestar`} />
+						<title>KidsGarden</title>
+						<meta name={'title'} content={`KidsGarden`} />
 					</Head>
 					<Stack id="pc-wrap">
 						<Stack id={'top'}>
@@ -128,7 +128,7 @@ const withLayoutBasic = (Component: any) => {
 							style={{
 								backgroundImage: `url(${memoizedValues.bgImage})`,
 								backgroundSize: 'cover',
-								boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
+								boxShadow: 'inset 0 0 0 1000px rgba(36, 51, 45, 0.58)',
 							}}
 						>
 							<Stack className={'container'}>

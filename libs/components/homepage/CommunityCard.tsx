@@ -24,39 +24,33 @@ const CommunityCard = (props: CommunityCardProps) => {
 		HUMOR: 'Community',
 	};
 
-	if (device === 'mobile') {
-		return <div>COMMUNITY CARD (MOBILE)</div>;
-	} else {
-		if (vertical) {
-			return (
-				<Link href={`/community/detail?articleCategory=${article?.articleCategory}&id=${article?._id}`}>
-					<Box component={'div'} className={'vertical-card'}>
-						<div className={'community-img'} style={{ backgroundImage: `url(${articleImage})` }}>
-							<div>{index + 1}</div>
-						</div>
-						<strong>{article?.articleTitle}</strong>
-						<span>{categoryLabels[article?.articleCategory] || 'Community'}</span>
-					</Box>
-				</Link>
-			);
-		} else {
-			return (
-				<>
-					<Link href={`/community/detail?articleCategory=${article?.articleCategory}&id=${article?._id}`}>
-						<Box component={'div'} className="horizontal-card">
-							<img src={articleImage} alt="" />
-							<div>
-								<strong>{article.articleTitle}</strong>
-								<span>
-									<Moment format="DD.MM.YY">{article?.createdAt}</Moment>
-								</span>
-							</div>
-						</Box>
-					</Link>
-				</>
-			);
-		}
+	if (device === 'mobile' || !vertical) {
+		return (
+			<Link href={`/community/detail?articleCategory=${article?.articleCategory}&id=${article?._id}`}>
+				<Box component={'div'} className="horizontal-card">
+					<img src={articleImage} alt="" />
+					<div>
+						<strong>{article.articleTitle}</strong>
+						<span>
+							{categoryLabels[article?.articleCategory] || 'Community'} · <Moment format="DD.MM.YY">{article?.createdAt}</Moment>
+						</span>
+					</div>
+				</Box>
+			</Link>
+		);
 	}
+
+	return (
+		<Link href={`/community/detail?articleCategory=${article?.articleCategory}&id=${article?._id}`}>
+			<Box component={'div'} className={'vertical-card'}>
+				<div className={'community-img'} style={{ backgroundImage: `url(${articleImage})` }}>
+					<div>{index + 1}</div>
+				</div>
+				<strong>{article?.articleTitle}</strong>
+				<span>{categoryLabels[article?.articleCategory] || 'Community'}</span>
+			</Box>
+		</Link>
+	);
 };
 
 export default CommunityCard;

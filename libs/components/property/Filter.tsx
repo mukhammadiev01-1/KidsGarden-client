@@ -403,13 +403,10 @@ const Filter = (props: FilterType) => {
 		}
 	};
 
-	if (device === 'mobile') {
-		return <div>KINDERGARTENS FILTER</div>;
-	} else {
-		return (
+	return (
 			<Stack className={'filter-main'}>
 				<Stack className={'find-your-home'} mb={'40px'}>
-					<Typography className={'title-main'}>Find Trusted Kindergartens</Typography>
+					<Typography className={'title-main'}>Filter Kindergartens</Typography>
 					<Stack className={'input-box'}>
 						<OutlinedInput
 							value={searchText}
@@ -448,12 +445,10 @@ const Filter = (props: FilterType) => {
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<p className={'title'} style={{ textShadow: '0px 3px 4px #b9b9b9' }}>
-						Location
-					</p>
+					<p className={'title'}>Location</p>
 					<Stack
 						className={`property-location`}
-						style={{ height: showMore ? '253px' : '115px' }}
+						style={{ height: showMore || device === 'mobile' ? 'auto' : '115px' }}
 						onMouseEnter={() => setShowMore(true)}
 						onMouseLeave={() => {
 							if (!searchFilter?.search?.locationList) {
@@ -506,7 +501,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: '12px 0 0 12px',
-								border: !searchFilter?.search?.programsList ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: !searchFilter?.search?.programsList ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 							}}
 							onClick={() => kindergartenProgramSelectHandler(0)}
 						>
@@ -515,7 +510,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: 0,
-								border: searchFilter?.search?.programsList?.includes(1) ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: searchFilter?.search?.programsList?.includes(1) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 								borderLeft: searchFilter?.search?.programsList?.includes(1) ? undefined : 'none',
 							}}
 							onClick={() => kindergartenProgramSelectHandler(1)}
@@ -525,7 +520,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: 0,
-								border: searchFilter?.search?.programsList?.includes(2) ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: searchFilter?.search?.programsList?.includes(2) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 								borderLeft: searchFilter?.search?.programsList?.includes(2) ? undefined : 'none',
 							}}
 							onClick={() => kindergartenProgramSelectHandler(2)}
@@ -535,7 +530,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: 0,
-								border: searchFilter?.search?.programsList?.includes(3) ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: searchFilter?.search?.programsList?.includes(3) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 								borderLeft: searchFilter?.search?.programsList?.includes(3) ? undefined : 'none',
 							}}
 							onClick={() => kindergartenProgramSelectHandler(3)}
@@ -545,7 +540,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: 0,
-								border: searchFilter?.search?.programsList?.includes(4) ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: searchFilter?.search?.programsList?.includes(4) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 								borderLeft: searchFilter?.search?.programsList?.includes(4) ? undefined : 'none',
 								borderRight: searchFilter?.search?.programsList?.includes(4) ? undefined : 'none',
 							}}
@@ -556,7 +551,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: '0 12px 12px 0',
-								border: searchFilter?.search?.programsList?.includes(5) ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: searchFilter?.search?.programsList?.includes(5) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 							}}
 							onClick={() => kindergartenProgramSelectHandler(5)}
 						>
@@ -570,7 +565,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: '12px 0 0 12px',
-								border: !searchFilter?.search?.ageRangeList ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: !searchFilter?.search?.ageRangeList ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 							}}
 							onClick={() => kindergartenAgeRangeSelectHandler(0)}
 						>
@@ -579,7 +574,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: 0,
-								border: searchFilter?.search?.ageRangeList?.includes(1) ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: searchFilter?.search?.ageRangeList?.includes(1) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 								borderLeft: searchFilter?.search?.ageRangeList?.includes(1) ? undefined : 'none',
 							}}
 							onClick={() => kindergartenAgeRangeSelectHandler(1)}
@@ -589,7 +584,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: 0,
-								border: searchFilter?.search?.ageRangeList?.includes(2) ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: searchFilter?.search?.ageRangeList?.includes(2) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 								borderLeft: searchFilter?.search?.ageRangeList?.includes(2) ? undefined : 'none',
 							}}
 							onClick={() => kindergartenAgeRangeSelectHandler(2)}
@@ -599,7 +594,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: 0,
-								border: searchFilter?.search?.ageRangeList?.includes(3) ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: searchFilter?.search?.ageRangeList?.includes(3) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 								borderLeft: searchFilter?.search?.ageRangeList?.includes(3) ? undefined : 'none',
 							}}
 							onClick={() => kindergartenAgeRangeSelectHandler(3)}
@@ -609,7 +604,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: 0,
-								border: searchFilter?.search?.ageRangeList?.includes(4) ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: searchFilter?.search?.ageRangeList?.includes(4) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 								borderLeft: searchFilter?.search?.ageRangeList?.includes(4) ? undefined : 'none',
 								// borderRight: false ? undefined : 'none',
 							}}
@@ -620,7 +615,7 @@ const Filter = (props: FilterType) => {
 						<Button
 							sx={{
 								borderRadius: '0 12px 12px 0',
-								border: searchFilter?.search?.ageRangeList?.includes(5) ? '2px solid #181A20' : '1px solid #b9b9b9',
+								border: searchFilter?.search?.ageRangeList?.includes(5) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
 								borderLeft: searchFilter?.search?.ageRangeList?.includes(5) ? undefined : 'none',
 							}}
 							onClick={() => kindergartenAgeRangeSelectHandler(5)}
@@ -682,7 +677,7 @@ const Filter = (props: FilterType) => {
 					<Stack className="square-year-input">
 						<input
 							type="number"
-							placeholder="$ min / mo"
+							placeholder="Min fee"
 							min={0}
 							value={searchFilter?.search?.pricesRange?.start ?? 0}
 							onChange={(e: any) => {
@@ -694,7 +689,7 @@ const Filter = (props: FilterType) => {
 						<div className="central-divider"></div>
 						<input
 							type="number"
-							placeholder="$ max / mo"
+							placeholder="Max fee"
 							value={searchFilter?.search?.pricesRange?.end ?? 0}
 							onChange={(e: any) => {
 								if (e.target.value >= 0) {
@@ -706,7 +701,6 @@ const Filter = (props: FilterType) => {
 				</Stack>
 			</Stack>
 		);
-	}
 };
 
 export default Filter;

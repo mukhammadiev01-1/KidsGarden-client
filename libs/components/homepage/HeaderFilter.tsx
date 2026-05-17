@@ -12,6 +12,7 @@ import { PropertiesInquiry } from '../../types/property/property.input';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { getKindergartenTypeLabel } from '../../utils';
+import Link from 'next/link';
 
 const style = {
 	position: 'absolute' as 'absolute',
@@ -316,14 +317,36 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 	};
 
 	if (device === 'mobile') {
-		return <div>HEADER FILTER MOBILE</div>;
+		return (
+			<Stack className={'mobile-hero'}>
+				<Stack className={'hero-copy'}>
+					<span className={'eyebrow'}>KidsGarden finder</span>
+					<h1>Find a kindergarten where your child can grow with confidence</h1>
+					<p>Explore trusted centers, follow updates, and stay connected with your child’s early learning journey.</p>
+				</Stack>
+				<Stack className={'hero-actions'}>
+					<Link href={'/property'}>Find Kindergartens</Link>
+					<Link href={'/community'}>Visit Community</Link>
+				</Stack>
+				<Stack className={'trust-strip'}>
+					<span>Safe kindergarten discovery</span>
+					<span>Parent community</span>
+					<span>Attendance visibility</span>
+					<span>Role-based privacy</span>
+				</Stack>
+			</Stack>
+		);
 	} else {
 		return (
 			<>
 				<Stack className={'hero-copy'}>
 					<span className={'eyebrow'}>KidsGarden finder</span>
-					<h1>Find trusted kindergartens near you</h1>
-					<p>Compare programs, age ranges, capacity, location, and monthly fees in one parent-friendly place.</p>
+					<h1>Find a kindergarten where your child can grow with confidence</h1>
+					<p>Explore trusted centers, follow updates, and stay connected with your child’s early learning journey.</p>
+					<Stack className={'hero-actions'}>
+						<Link href={'/property'}>Find Kindergartens</Link>
+						<Link href={'/community'}>Visit Community</Link>
+					</Stack>
 				</Stack>
 				<Stack className={'search-box'}>
 					<Stack className={'select-box'}>
@@ -391,6 +414,12 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 							);
 						})}
 					</div>
+				</Stack>
+				<Stack className={'trust-strip'}>
+					<span>Safe kindergarten discovery</span>
+					<span>Parent community</span>
+					<span>Attendance visibility</span>
+					<span>Role-based privacy</span>
 				</Stack>
 
 				{/* ADVANCED FILTER MODAL */}

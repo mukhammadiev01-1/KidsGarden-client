@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useState } from 'react';
 import { useRouter, withRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -22,17 +22,17 @@ import { MemberType } from '../enums/member.enum';
 const Top = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
-	const { t, i18n } = useTranslation('common');
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
 	const [lang, setLang] = useState<string | null>('en');
 	const drop = Boolean(anchorEl2);
 	const [colorChange, setColorChange] = useState(false);
-	const [anchorEl, setAnchorEl] = React.useState<any | HTMLElement>(null);
-	let open = Boolean(anchorEl);
 	const [bgColor, setBgColor] = useState<boolean>(false);
 	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null);
 	const logoutOpen = Boolean(logoutAnchor);
+	const accountHref = user.memberType === MemberType.SUPER_ADMIN ? '/_admin' : '/mypage';
+	const accountLabel = user.memberType === MemberType.SUPER_ADMIN ? 'Admin' : t('My Page');
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -78,25 +78,15 @@ const Top = () => {
 		[router],
 	);
 
-	const changeNavbarColor = () => {
-		if (window.scrollY >= 50) {
-			setColorChange(true);
-		} else {
-			setColorChange(false);
-		}
-	};
+	useEffect(() => {
+		const changeNavbarColor = () => {
+			setColorChange(window.scrollY >= 50);
+		};
 
-	const handleClose = () => {
-		setAnchorEl(null);
-	};
-
-	const handleHover = (event: any) => {
-		if (anchorEl !== event.currentTarget) {
-			setAnchorEl(event.currentTarget);
-		} else {
-			setAnchorEl(null);
-		}
-	};
+		changeNavbarColor();
+		window.addEventListener('scroll', changeNavbarColor);
+		return () => window.removeEventListener('scroll', changeNavbarColor);
+	}, []);
 
 	const StyledMenu = styled((props: MenuProps) => (
 		<Menu
@@ -136,10 +126,6 @@ const Top = () => {
 		},
 	}));
 
-	if (typeof window !== 'undefined') {
-		window.addEventListener('scroll', changeNavbarColor);
-	}
-
 	if (device == 'mobile') {
 		return (
 			<Stack className={'top'}>
@@ -153,7 +139,10 @@ const Top = () => {
 					<div> {t('Community')} </div>
 				</Link>
 				<Link href={'/cs'}>
-					<div> {t('CS')} </div>
+					<div>{t('CS')}</div>
+				</Link>
+				<Link href={user?._id ? accountHref : '/account/join'}>
+					<div>{user?._id ? accountLabel : t('Login')}</div>
 				</Link>
 			</Stack>
 		);
@@ -178,12 +167,12 @@ const Top = () => {
 								<div> {t('Community')} </div>
 							</Link>
 							{user?._id && (
-								<Link href={user.memberType === MemberType.SUPER_ADMIN ? '/_admin' : '/mypage'}>
-									<div> {t('My Page')} </div>
+								<Link href={accountHref}>
+									<div>{accountLabel}</div>
 								</Link>
 							)}
 							<Link href={'/cs'}>
-								<div> {t('CS')} </div>
+								<div>{t('CS')}</div>
 							</Link>
 						</Box>
 						<Box component={'div'} className={'user-box'}>

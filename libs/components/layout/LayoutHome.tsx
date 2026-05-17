@@ -31,12 +31,22 @@ const withLayoutMain = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Nestar</title>
-						<meta name={'title'} content={`Nestar`} />
+						<title>KidsGarden</title>
+						<meta name={'title'} content={`KidsGarden`} />
+						<meta
+							name={'description'}
+							content={'Discover kindergartens, compare programs, and stay connected with KidsGarden families.'}
+						/>
 					</Head>
 					<Stack id="mobile-wrap">
 						<Stack id={'top'}>
 							<Top />
+						</Stack>
+
+						<Stack className={'header-main'}>
+							<Stack className={'container'}>
+								<HeaderFilter />
+							</Stack>
 						</Stack>
 
 						<Stack id={'main'}>
@@ -53,8 +63,12 @@ const withLayoutMain = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Nestar</title>
-						<meta name={'title'} content={`Nestar`} />
+						<title>KidsGarden</title>
+						<meta name={'title'} content={`KidsGarden`} />
+						<meta
+							name={'description'}
+							content={'Discover kindergartens, compare programs, and stay connected with KidsGarden families.'}
+						/>
 					</Head>
 					<Stack id="pc-wrap">
 						<Stack id={'top'}>

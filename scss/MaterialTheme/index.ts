@@ -9,19 +9,19 @@ export const light = {
 	palette: {
 		type: 'light',
 		background: {
-			default: '#f4f6f8',
+			default: '#f7f4ed',
 			paper: common.white,
 		},
 		primary: {
 			contrastText: '#ffffff',
-			main: '#E92C28',
+			main: '#4F7C5B',
 		},
 		secondary: {
-			main: '#1646C1',
+			main: '#FFB86B',
 		},
 		text: {
-			primary: '#212121',
-			secondary: '#616161',
+			primary: '#24332D',
+			secondary: '#6B766D',
 			dark: common.black,
 		},
 	},
@@ -111,12 +111,12 @@ export const light = {
 		MuiButton: {
 			styleOverrides: {
 				root: {
-					color: '#212121',
+					color: '#24332D',
 					minWidth: 'auto',
 					lineHeight: '1.2',
 					boxShadow: 'none',
 					ButtonText: {
-						color: '#212121',
+						color: '#24332D',
 					},
 				},
 			},

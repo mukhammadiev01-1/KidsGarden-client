@@ -439,3 +439,323 @@
 		}
 	}
 }
+
+#pc-wrap {
+	#community-detail-page {
+		min-height: 100vh;
+		padding-bottom: 90px;
+		background:
+			radial-gradient(circle at 8% 2%, rgba(255, 220, 171, 0.42), transparent 28%),
+			linear-gradient(180deg, #fffaf2 0%, #f4f9ef 100%);
+
+		.container {
+			padding-top: 126px;
+
+			.main-box {
+				align-items: flex-start;
+				gap: 28px;
+
+				.left-config {
+					position: sticky;
+					top: 110px;
+					width: 270px;
+					margin: 0;
+					padding: 24px;
+					gap: 22px;
+					border: 1px solid #e4ecd9;
+					border-radius: 28px;
+					background: rgba(255, 255, 255, 0.9);
+					box-shadow: 0 18px 45px rgba(80, 96, 76, 0.1);
+
+					.image-info {
+						align-items: center;
+
+						img {
+							width: 58px;
+							height: 58px;
+							padding: 8px;
+							border-radius: 18px;
+							background: #e6f4df;
+						}
+
+						.community-name .name {
+							margin-top: 0;
+							color: #24332d;
+							font-size: 19px;
+							font-weight: 900;
+							line-height: 24px;
+						}
+					}
+
+					.tab-button,
+					.tab-button.active {
+						width: 100%;
+						height: 44px;
+						border-radius: 999px;
+						font-size: 14px;
+						font-weight: 800;
+						letter-spacing: 0;
+						text-transform: none;
+					}
+
+					.tab-button {
+						border: 1px solid #e4ecd9;
+						background: #fffaf2;
+						color: #4d654f;
+					}
+
+					.tab-button.active {
+						border: 1px solid #4f7c5b;
+						background: #4f7c5b;
+						color: #fffaf2;
+						box-shadow: 0 12px 26px rgba(79, 124, 91, 0.18);
+					}
+				}
+
+				.community-detail-config {
+					width: 100%;
+
+					.title-box {
+						margin-bottom: 30px;
+						padding: 30px;
+						border: 1px solid #e4ecd9;
+						border-radius: 30px;
+						background: rgba(255, 255, 255, 0.82);
+						box-shadow: 0 18px 45px rgba(80, 96, 76, 0.1);
+
+						.left {
+							gap: 8px;
+
+							.title {
+								color: #24332d;
+								font-size: 32px;
+								font-weight: 900;
+								letter-spacing: 0;
+							}
+
+							.sub-title {
+								color: #5f6f63;
+								font-size: 15px;
+								font-weight: 700;
+								line-height: 24px;
+								letter-spacing: 0;
+							}
+						}
+
+						.right {
+							width: auto;
+							height: 46px;
+							padding: 0 20px;
+							border-radius: 999px;
+							background: #ffcf7a;
+							color: #24332d;
+							font-size: 14px;
+							font-weight: 900;
+							letter-spacing: 0;
+						}
+					}
+
+					.config {
+						.first-box-config,
+						.second-box-config,
+						.comments,
+						.comments-box {
+							width: 100%;
+							border-color: #e4ecd9 !important;
+							background: rgba(255, 255, 255, 0.9);
+							box-shadow: none;
+						}
+
+						.first-box-config {
+							min-height: 360px;
+							overflow: hidden;
+							border-radius: 28px 28px 0 0;
+
+							> p {
+								padding: 34px;
+								color: #4d654f;
+								font-size: 16px;
+								font-weight: 800;
+							}
+
+							.content-and-info {
+								height: auto;
+								padding: 30px;
+								align-items: flex-start;
+								border-bottom: 1px solid #e4ecd9;
+
+								.content {
+									gap: 14px;
+
+									.content-data {
+										color: #24332d;
+										font-size: 28px;
+										font-weight: 900;
+										line-height: 36px;
+									}
+
+									.member-info {
+										gap: 10px;
+
+										.member-img {
+											width: 38px;
+											height: 38px;
+											border-radius: 50%;
+											object-fit: cover;
+										}
+
+										.member-nick {
+											color: #4d654f;
+											font-size: 14px;
+											font-weight: 900;
+										}
+
+										.time-added {
+											color: #7a887b;
+											font-size: 13px;
+											font-weight: 700;
+										}
+									}
+								}
+
+								.info {
+									align-items: center;
+									padding: 9px 12px;
+									border-radius: 999px;
+									background: #f3f8ef;
+
+									.icon-info {
+										svg {
+											color: #4d7c5b;
+										}
+
+										.text {
+											color: #4d654f;
+											font-weight: 900;
+										}
+									}
+								}
+							}
+
+							.ytb_play {
+								padding: 34px;
+								color: #3f4f44;
+								font-family: $font;
+								font-size: 16px;
+								line-height: 28px;
+							}
+
+							.like-and-dislike {
+								padding: 28px;
+
+								.top button {
+									width: auto;
+									min-width: 120px;
+									height: 46px;
+									padding: 0 18px;
+									border: 0;
+									border-radius: 999px;
+									background: #4f7c5b;
+									color: #fffaf2;
+
+									svg,
+									p {
+										color: #fffaf2;
+									}
+								}
+							}
+						}
+
+						.second-box-config {
+							padding: 28px;
+
+							.title-text {
+								color: #24332d;
+								font-size: 20px;
+								font-weight: 900;
+							}
+
+							.leave-comment {
+								overflow: hidden;
+								border: 1px solid #e4ecd9;
+								border-radius: 20px;
+								background: #fffaf2;
+
+								input {
+									border: 0;
+									background: transparent;
+									color: #24332d;
+								}
+
+								.button-box {
+									border: 0;
+									border-top: 1px solid #e4ecd9;
+
+									p {
+										color: #7a887b;
+										font-weight: 800;
+									}
+
+									button {
+										width: auto;
+										padding: 0 20px;
+										border-radius: 0;
+										background: #4f7c5b;
+										color: #fffaf2;
+										font-weight: 900;
+									}
+								}
+							}
+						}
+
+						.comments {
+							.comments-title {
+								width: auto;
+								padding: 16px 24px;
+								border-bottom: 3px solid #4f7c5b;
+								color: #4f7c5b;
+								font-weight: 900;
+							}
+						}
+
+						.comments-box {
+							.main-comment {
+								padding: 22px 28px;
+								border-color: #e4ecd9;
+
+								.member-info {
+									.name-date {
+										img {
+											width: 46px;
+											height: 46px;
+											border-radius: 50%;
+											object-fit: cover;
+										}
+
+										.name-date-column {
+											.name {
+												color: #24332d;
+												font-weight: 900;
+											}
+
+											.date {
+												color: #7a887b;
+												font-weight: 700;
+											}
+										}
+									}
+								}
+
+								.content p {
+									color: #4d654f;
+									font-size: 15px;
+									line-height: 24px;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
