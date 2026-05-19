@@ -118,8 +118,8 @@ const ParentKindergartenAdminApplications = () => {
 	}
 
 	return (
-		<Stack spacing={3} sx={{ width: '100%' }}>
-			<Stack spacing={1}>
+		<Stack className="parent-dashboard-screen parent-admin-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
+			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>
 					Kindergarten Admin Application
 				</Typography>
@@ -128,11 +128,18 @@ const ParentKindergartenAdminApplications = () => {
 				</Typography>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Apply to manage a kindergarten</Typography>
-				{pendingApplication && <Typography sx={{ color: '#92400e', fontWeight: 700 }}>Application pending</Typography>}
+			<Stack className="dashboard-panel parent-application-form-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Apply to manage a kindergarten</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Share the basic center information a super admin should review.
+						</Typography>
+					</Stack>
+					{pendingApplication && <Chip label="Application pending" size="small" className="dashboard-warning-chip" />}
+				</Stack>
 				{approvedApplication && (
-					<Stack spacing={1.5} sx={{ padding: '16px 18px', borderRadius: '12px', background: '#ecfdf5' }}>
+					<Stack className="dashboard-approved-notice" spacing={1.5} sx={{ padding: '16px 18px', borderRadius: '12px', background: '#ecfdf5' }}>
 						<Typography sx={{ color: '#166534', fontWeight: 700 }}>
 							Approved. Please log out and sign in again to access the kindergarten admin dashboard.
 						</Typography>
@@ -141,7 +148,7 @@ const ParentKindergartenAdminApplications = () => {
 						</Button>
 					</Stack>
 				)}
-				<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+				<Stack className="dashboard-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						label="Kindergarten title"
@@ -192,14 +199,22 @@ const ParentKindergartenAdminApplications = () => {
 				</Button>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Application history</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Application history</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Review status, feedback, and submitted kindergarten draft details.
+						</Typography>
+					</Stack>
+					<Chip label={`${applications.length} total`} size="small" className="dashboard-count-chip" />
+				</Stack>
 				{loading && <Typography sx={{ color: '#6b7280' }}>Loading your applications...</Typography>}
 				{!loading && applications.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>No kindergarten admin applications yet.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>No kindergarten admin applications yet.</Typography>
 				)}
 				{applications.length > 0 && (
-					<TableContainer>
+					<TableContainer className="dashboard-table-container parent-applications-table">
 						<Table size="small">
 							<TableHead>
 								<TableRow>
@@ -235,12 +250,16 @@ const ParentKindergartenAdminApplications = () => {
 												sx={getStatusChipSx(application.applicationStatus)}
 											/>
 										</TableCell>
-										<TableCell sx={{ maxWidth: 220 }}>{application.businessInfo || '-'}</TableCell>
-										<TableCell sx={{ maxWidth: 220 }}>{application.message || '-'}</TableCell>
+										<TableCell sx={{ maxWidth: 220 }}>
+											<Typography className="dashboard-note-text">{application.businessInfo || '-'}</Typography>
+										</TableCell>
+										<TableCell sx={{ maxWidth: 220 }}>
+											<Typography className="dashboard-note-text">{application.message || '-'}</Typography>
+										</TableCell>
 										<TableCell sx={{ maxWidth: 220 }}>
 											<Stack spacing={0.25}>
-												<Typography sx={{ fontSize: '13px' }}>{application.rejectReason || '-'}</Typography>
-												<Typography sx={{ fontSize: '12px', color: '#9ca3af' }}>
+												<Typography className="dashboard-note-text">{application.rejectReason || '-'}</Typography>
+												<Typography className="dashboard-muted-text">
 													{formatDate(application.reviewedAt)}
 												</Typography>
 											</Stack>

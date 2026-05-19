@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
 import { Stack } from '@mui/material';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import MyFavorites from '../../libs/components/mypage/MyFavorites';
 import RecentlyVisited from '../../libs/components/mypage/RecentlyVisited';
@@ -37,7 +36,6 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 const MyPage: NextPage = () => {
-	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
 	const isKindergartenAdmin = user.memberType === MemberType.KINDERGARTEN_ADMIN;
@@ -101,60 +99,56 @@ const MyPage: NextPage = () => {
 		}
 	};
 
-	if (device === 'mobile') {
-		return <div>MY PAGE</div>;
-	} else {
-		return (
-			<div id="my-page" style={{ position: 'relative' }}>
-				<div className="container">
-					<Stack className={'my-page'}>
-						<Stack className={'back-frame'}>
-							<Stack className={'left-config'}>
-								<MyMenu />
-							</Stack>
-							<Stack className="main-config" mb={'76px'}>
-								<Stack className={'list-config'}>
-									{dashboardCategory === 'kindergartenProfile' && <MyKindergarten />}
-									{dashboardCategory === 'staff' && <KindergartenStaff />}
-									{dashboardCategory === 'staffApplications' && isKindergartenAdmin && <KindergartenStaffApplications />}
-									{dashboardCategory === 'groups' && <KindergartenGroups />}
-									{dashboardCategory === 'children' && <KindergartenChildren />}
-									{dashboardCategory === 'attendance' && <KindergartenAttendance />}
-									{dashboardCategory === 'teacherGroups' && <TeacherGroups />}
-									{dashboardCategory === 'teacherAttendance' && <TeacherAttendance />}
-									{dashboardCategory === 'parentChildren' && <ParentChildren />}
-									{dashboardCategory === 'parentAttendance' && <ParentAttendance />}
-									{dashboardCategory === 'staffApplications' && isParent && <ParentStaffApplications />}
-									{dashboardCategory === 'kindergartenAdminApplications' && isParent && (
-										<ParentKindergartenAdminApplications />
-									)}
-									{dashboardCategory === 'myFavorites' && <MyFavorites />}
-									{dashboardCategory === 'recentlyVisited' && <RecentlyVisited />}
-									{dashboardCategory === 'myArticles' && <MyArticles />}
-									{dashboardCategory === 'writeArticle' && <WriteArticle />}
-									{dashboardCategory === 'myProfile' && <MyProfile />}
-									{dashboardCategory === 'followers' && (
-										<MemberFollowers
-											subscribeHandler={subscribeHandler}
-											unsubscribeHandler={unsubscribeHandler}
-											redirectToMemberPageHandler={redirectToMemberPageHandler}
-										/>
-									)}
-									{dashboardCategory === 'followings' && (
-										<MemberFollowings
-											subscribeHandler={subscribeHandler}
-											unsubscribeHandler={unsubscribeHandler}
-											redirectToMemberPageHandler={redirectToMemberPageHandler}
-										/>
-									)}
-								</Stack>
+	return (
+		<div id="my-page">
+			<div className="container">
+				<Stack className={'my-page'}>
+					<Stack className={'back-frame'}>
+						<Stack className={'left-config'}>
+							<MyMenu />
+						</Stack>
+						<Stack className="main-config">
+							<Stack className={'list-config'}>
+								{dashboardCategory === 'kindergartenProfile' && <MyKindergarten />}
+								{dashboardCategory === 'staff' && <KindergartenStaff />}
+								{dashboardCategory === 'staffApplications' && isKindergartenAdmin && <KindergartenStaffApplications />}
+								{dashboardCategory === 'groups' && <KindergartenGroups />}
+								{dashboardCategory === 'children' && <KindergartenChildren />}
+								{dashboardCategory === 'attendance' && <KindergartenAttendance />}
+								{dashboardCategory === 'teacherGroups' && <TeacherGroups />}
+								{dashboardCategory === 'teacherAttendance' && <TeacherAttendance />}
+								{dashboardCategory === 'parentChildren' && <ParentChildren />}
+								{dashboardCategory === 'parentAttendance' && <ParentAttendance />}
+								{dashboardCategory === 'staffApplications' && isParent && <ParentStaffApplications />}
+								{dashboardCategory === 'kindergartenAdminApplications' && isParent && (
+									<ParentKindergartenAdminApplications />
+								)}
+								{dashboardCategory === 'myFavorites' && <MyFavorites />}
+								{dashboardCategory === 'recentlyVisited' && <RecentlyVisited />}
+								{dashboardCategory === 'myArticles' && <MyArticles />}
+								{dashboardCategory === 'writeArticle' && <WriteArticle />}
+								{dashboardCategory === 'myProfile' && <MyProfile />}
+								{dashboardCategory === 'followers' && (
+									<MemberFollowers
+										subscribeHandler={subscribeHandler}
+										unsubscribeHandler={unsubscribeHandler}
+										redirectToMemberPageHandler={redirectToMemberPageHandler}
+									/>
+								)}
+								{dashboardCategory === 'followings' && (
+									<MemberFollowings
+										subscribeHandler={subscribeHandler}
+										unsubscribeHandler={unsubscribeHandler}
+										redirectToMemberPageHandler={redirectToMemberPageHandler}
+									/>
+								)}
 							</Stack>
 						</Stack>
 					</Stack>
-				</div>
+				</Stack>
 			</div>
-		);
-	}
+		</div>
+	);
 };
 
 export default withLayoutBasic(MyPage);

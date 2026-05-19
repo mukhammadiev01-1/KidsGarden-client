@@ -58,6 +58,23 @@ const emptyForm: ChildInput = {
 	groupId: '',
 };
 
+const getAge = (birthDate?: Date | string) => {
+	if (!birthDate) return '-';
+
+	const parsedBirthDate = new Date(birthDate);
+	if (Number.isNaN(parsedBirthDate.getTime())) return '-';
+
+	const today = new Date();
+	let age = today.getFullYear() - parsedBirthDate.getFullYear();
+	const monthDiff = today.getMonth() - parsedBirthDate.getMonth();
+
+	if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < parsedBirthDate.getDate())) {
+		age -= 1;
+	}
+
+	return age >= 0 ? `${age}` : '-';
+};
+
 const KindergartenChildren = () => {
 	const router = useRouter();
 	const apolloClient = useApolloClient();
@@ -332,22 +349,27 @@ const KindergartenChildren = () => {
 	}
 
 	return (
-		<Stack spacing={3} sx={{ width: '100%' }}>
-			<Stack spacing={1}>
+		<Stack className="admin-dashboard-screen admin-children-dashboard" spacing={3} sx={{ width: '100%' }}>
+			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Children</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
 					Manage enrolled children by group. Parent IDs are entered manually in this first version.
 				</Typography>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select kindergarten</Typography>
+			<Stack className="dashboard-panel" spacing={2}>
+				<Stack className="dashboard-panel-header" spacing={0.5}>
+					<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select kindergarten</Typography>
+					<Typography className="dashboard-panel-subtitle">
+						Child records are scoped to the selected kindergarten.
+					</Typography>
+				</Stack>
 				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>Loading your kindergartens...</Typography>}
 				{!ownerLoading && kindergartens.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>Create a kindergarten profile before managing children.</Typography>
+					<Typography className="dashboard-empty-state">Create a kindergarten profile before managing children.</Typography>
 				)}
 				{hideKindergartenSelector && (
-					<Stack sx={{ padding: '14px', border: '1px solid #e5e7eb', borderRadius: '8px', background: '#f9fafb' }}>
+					<Stack className="admin-selector-card admin-readonly-selector">
 						<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
 							Kindergarten: {selectedKindergartenTitle}
 						</Typography>
@@ -370,11 +392,16 @@ const KindergartenChildren = () => {
 				)}
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
-					<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>
-						{selectedChildId ? 'Edit child' : 'Create child'}
-					</Typography>
+			<Stack className="dashboard-panel admin-children-form-panel" spacing={2}>
+				<Stack className="dashboard-panel-header" direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
+					<Stack spacing={0.5}>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>
+							{selectedChildId ? 'Edit child' : 'Create child'}
+						</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Link a child to a group and a verified parent account.
+						</Typography>
+					</Stack>
 					{selectedChildId && (
 						<Button variant="text" onClick={resetForm}>
 							Cancel edit
@@ -383,9 +410,10 @@ const KindergartenChildren = () => {
 				</Stack>
 				{groupsLoading && <Typography sx={{ color: '#6b7280' }}>Loading groups...</Typography>}
 				{!groupsLoading && selectedKindergartenId && selectableGroups.length === 0 && (
-					<Typography sx={{ color: '#9ca3af' }}>Create an active group before adding children.</Typography>
+					<Typography className="dashboard-empty-state">Create an active group before adding children.</Typography>
 				)}
-				<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+				<Typography className="admin-form-section-title">Child details</Typography>
+				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						label="Child full name"
@@ -401,7 +429,7 @@ const KindergartenChildren = () => {
 						InputLabelProps={{ shrink: true }}
 					/>
 				</Stack>
-				<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						select
@@ -429,7 +457,8 @@ const KindergartenChildren = () => {
 						))}
 					</TextField>
 				</Stack>
-				<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+				<Typography className="admin-form-section-title">Enrollment and parent</Typography>
+				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						select
@@ -454,11 +483,14 @@ const KindergartenChildren = () => {
 					</Button>
 				</Stack>
 				{parentPreview && (
-					<Stack spacing={0.5} sx={{ padding: '12px', borderRadius: '12px', background: '#fbfcf8' }}>
-						<Typography sx={{ fontWeight: 700 }}>{parentPreview.memberNick || 'Unnamed parent'}</Typography>
-						<Typography sx={{ color: '#6b7280', fontSize: '14px' }}>
-							{parentPreview.memberPhone || 'No phone'} · {parentPreview.memberType}
-						</Typography>
+					<Stack className="admin-candidate-card admin-selected-member-card" spacing={0.5}>
+						<Typography className="admin-form-section-title">Parent preview</Typography>
+						<Typography className="dashboard-primary-text">{parentPreview.memberNick || 'Unnamed parent'}</Typography>
+						<Typography className="dashboard-muted-text">{parentPreview.memberPhone || 'No phone'}</Typography>
+						<Stack className="admin-chip-row">
+							<Chip label={getStatusLabel(parentPreview.memberType)} size="small" className="admin-info-chip" />
+							<Chip label={getStatusLabel(parentPreview.memberStatus)} size="small" sx={getStatusChipSx(parentPreview.memberStatus)} />
+						</Stack>
 					</Stack>
 				)}
 				{parentPreviewError && <Typography sx={{ color: '#dc2626' }}>{parentPreviewError}</Typography>}
@@ -472,9 +504,14 @@ const KindergartenChildren = () => {
 				</Button>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+			<Stack className="dashboard-panel" spacing={2}>
 				<Stack direction={{ xs: 'column', md: 'row' }} justifyContent={'space-between'} spacing={2}>
-					<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Children list</Typography>
+					<Stack className="dashboard-panel-header" spacing={0.5}>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Children list</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Review enrollment status, parent links, and group assignments.
+						</Typography>
+					</Stack>
 					<TextField
 						select
 						label="Group filter"
@@ -492,15 +529,17 @@ const KindergartenChildren = () => {
 				</Stack>
 				{childrenLoading && <Typography sx={{ color: '#6b7280' }}>Loading children...</Typography>}
 				{!childrenLoading && selectedKindergartenId && children.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>No children found for this kindergarten.</Typography>
+					<Typography className="dashboard-empty-state">No children found for this kindergarten.</Typography>
 				)}
 				{children.length > 0 && (
-					<TableContainer>
+					<TableContainer className="dashboard-table-container admin-children-table">
 						<Table size="small">
 							<TableHead>
 								<TableRow>
 									<TableCell>Name</TableCell>
+									<TableCell>Kindergarten</TableCell>
 									<TableCell>Birth date</TableCell>
+									<TableCell>Age</TableCell>
 									<TableCell>Gender</TableCell>
 									<TableCell>Status</TableCell>
 									<TableCell>Parent</TableCell>
@@ -509,32 +548,51 @@ const KindergartenChildren = () => {
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{children.map((child) => {
-									const isInactive = child.childStatus === ChildStatus.INACTIVE;
+									{children.map((child) => {
+										const isInactive = child.childStatus === ChildStatus.INACTIVE;
 
-									return (
-										<TableRow key={child._id} sx={{ opacity: isInactive ? 0.55 : 1 }}>
-											<TableCell>{child.childFullName}</TableCell>
-											<TableCell>{formatDate(child.childBirthDate)}</TableCell>
-											<TableCell>{child.childGender}</TableCell>
-											<TableCell>
-												<Chip label={getStatusLabel(child.childStatus)} size="small" sx={getStatusChipSx(child.childStatus)} />
-											</TableCell>
-											<TableCell sx={{ maxWidth: 220 }}>
-												<Stack>
-													<Typography sx={{ fontWeight: 700, color: '#24332d', fontSize: '13px' }}>
-														{parentNames[child.parentId] || truncateId(child.parentId)}
-													</Typography>
-													<Typography sx={{ color: '#9ca3af', fontSize: '11px', wordBreak: 'break-all' }}>
-														{truncateId(child.parentId)}
-													</Typography>
-												</Stack>
-											</TableCell>
-											<TableCell>{groupNameById[child.groupId] || truncateId(child.groupId)}</TableCell>
-											<TableCell align="right">
-												<Stack direction={'row'} spacing={1} justifyContent={'flex-end'}>
-													<Button variant="outlined" onClick={() => editChildHandler(child)}>
-														Edit
+										return (
+											<TableRow key={child._id} sx={{ opacity: isInactive ? 0.55 : 1 }}>
+												<TableCell>
+													<Stack spacing={0.25}>
+														<Typography className="dashboard-primary-text">{child.childFullName}</Typography>
+														<Typography className="dashboard-muted-text">Child ID {truncateId(child._id)}</Typography>
+													</Stack>
+												</TableCell>
+												<TableCell>
+													<Stack spacing={0.25}>
+														<Typography className="dashboard-primary-text">{selectedKindergartenTitle}</Typography>
+														<Typography className="dashboard-muted-text">{truncateId(child.kindergartenId)}</Typography>
+													</Stack>
+												</TableCell>
+												<TableCell>{formatDate(child.childBirthDate)}</TableCell>
+												<TableCell>{getAge(child.childBirthDate)}</TableCell>
+												<TableCell>{child.childGender}</TableCell>
+												<TableCell>
+													<Chip label={getStatusLabel(child.childStatus)} size="small" sx={getStatusChipSx(child.childStatus)} />
+												</TableCell>
+												<TableCell sx={{ maxWidth: 220 }}>
+													<Stack>
+														<Typography className="dashboard-primary-text">
+															{parentNames[child.parentId] || truncateId(child.parentId)}
+														</Typography>
+														<Typography className="dashboard-muted-text">
+															{truncateId(child.parentId)}
+														</Typography>
+													</Stack>
+												</TableCell>
+												<TableCell>
+													<Stack spacing={0.25}>
+														<Typography className="dashboard-primary-text">
+															{groupNameById[child.groupId] || 'Group reference'}
+														</Typography>
+														<Typography className="dashboard-muted-text">{truncateId(child.groupId)}</Typography>
+													</Stack>
+												</TableCell>
+												<TableCell align="right">
+													<Stack className="admin-danger-actions" direction={'row'} spacing={1} justifyContent={'flex-end'}>
+														<Button variant="outlined" onClick={() => editChildHandler(child)}>
+															Edit
 													</Button>
 													<Button
 														variant="outlined"

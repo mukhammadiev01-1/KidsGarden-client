@@ -128,24 +128,32 @@ const ParentChildren = () => {
 	}
 
 	return (
-		<Stack spacing={3} sx={{ width: '100%' }}>
-			<Stack spacing={1}>
+		<Stack className="parent-dashboard-screen parent-children-dashboard" spacing={3} sx={{ width: '100%' }}>
+			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>My Children</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
 					View your enrolled children and their kindergarten details.
 				</Typography>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Children</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Children</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Enrollment, classroom, and center details linked to your parent account.
+						</Typography>
+					</Stack>
+					<Chip label={`${children.length} linked`} size="small" className="dashboard-count-chip" />
+				</Stack>
 				{loading && <Typography sx={{ color: '#6b7280' }}>Loading your children...</Typography>}
 				{!loading && children.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
 						No children are linked to your parent account yet. Please contact your kindergarten center.
 					</Typography>
 				)}
 				{children.length > 0 && (
-					<TableContainer>
+					<TableContainer className="dashboard-table-container parent-children-table">
 						<Table size="small">
 							<TableHead>
 								<TableRow>
@@ -161,20 +169,37 @@ const ParentChildren = () => {
 							<TableBody>
 								{children.map((child) => (
 									<TableRow key={child._id}>
-										<TableCell>{child.childFullName}</TableCell>
+										<TableCell>
+											<Stack spacing={0.25}>
+												<Typography className="dashboard-primary-text">{child.childFullName}</Typography>
+												<Typography className="dashboard-muted-text">Child ID {truncateId(child._id)}</Typography>
+											</Stack>
+										</TableCell>
 										<TableCell>{formatDate(child.childBirthDate)}</TableCell>
 										<TableCell>{getAge(child.childBirthDate)}</TableCell>
 										<TableCell>{child.childGender}</TableCell>
 										<TableCell>
 											<Chip label={getStatusLabel(child.childStatus)} size="small" sx={getStatusChipSx(child.childStatus)} />
 										</TableCell>
-										<TableCell>{kindergartenNames[child.kindergartenId] || child.kindergartenId}</TableCell>
+										<TableCell>
+											<Stack spacing={0.25}>
+												<Typography className="dashboard-primary-text">
+													{kindergartenNames[child.kindergartenId] || 'Kindergarten reference'}
+												</Typography>
+												<Typography className="dashboard-muted-text">{truncateId(child.kindergartenId)}</Typography>
+											</Stack>
+										</TableCell>
 										<TableCell sx={{ maxWidth: 220 }}>
 											<Stack spacing={0.25}>
-												<Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
+												<Typography className="dashboard-primary-text">
 													{groupsById[child.groupId]?.groupName || 'Group reference'}
 												</Typography>
-												<Typography sx={{ fontSize: '12px', color: '#6b7280', wordBreak: 'break-all' }}>
+												{groupsById[child.groupId]?.groupAgeRange && (
+													<Typography className="dashboard-muted-text">
+														Age range {groupsById[child.groupId]?.groupAgeRange}
+													</Typography>
+												)}
+												<Typography sx={{ wordBreak: 'break-all' }} className="dashboard-muted-text">
 													{truncateId(child.groupId)}
 												</Typography>
 											</Stack>

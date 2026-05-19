@@ -100,8 +100,8 @@ const ParentStaffApplications = () => {
 	}
 
 	return (
-		<Stack spacing={3} sx={{ width: '100%' }}>
-			<Stack spacing={1}>
+		<Stack className="parent-dashboard-screen parent-staff-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
+			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Teacher Applications</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
 					Track your applications to teach at kindergartens and cancel pending requests.
@@ -109,7 +109,7 @@ const ParentStaffApplications = () => {
 			</Stack>
 
 			{approvedApplication && (
-				<Stack spacing={1.5} sx={{ padding: '20px 24px', borderRadius: '16px', background: '#ecfdf5' }}>
+				<Stack className="dashboard-approved-notice" spacing={1.5} sx={{ padding: '20px 24px', borderRadius: '16px', background: '#ecfdf5' }}>
 					<Typography sx={{ color: '#166534', fontWeight: 700 }}>
 						Approved. Please log out and sign in again to access the teacher dashboard.
 					</Typography>
@@ -119,16 +119,24 @@ const ParentStaffApplications = () => {
 				</Stack>
 			)}
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Applications</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Applications</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Requests you have sent from kindergarten detail pages.
+						</Typography>
+					</Stack>
+					<Chip label={`${applications.length} total`} size="small" className="dashboard-count-chip" />
+				</Stack>
 				{loading && <Typography sx={{ color: '#6b7280' }}>Loading your applications...</Typography>}
 				{!loading && applications.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
 						No teacher applications yet. Open a kindergarten detail page to apply.
 					</Typography>
 				)}
 				{applications.length > 0 && (
-					<TableContainer>
+					<TableContainer className="dashboard-table-container parent-applications-table">
 						<Table size="small">
 							<TableHead>
 								<TableRow>
@@ -162,11 +170,13 @@ const ParentStaffApplications = () => {
 												sx={getStatusChipSx(application.applicationStatus)}
 											/>
 										</TableCell>
-										<TableCell sx={{ maxWidth: 220 }}>{application.message || '-'}</TableCell>
+										<TableCell sx={{ maxWidth: 220 }}>
+											<Typography className="dashboard-note-text">{application.message || '-'}</Typography>
+										</TableCell>
 										<TableCell sx={{ maxWidth: 220 }}>
 											<Stack spacing={0.25}>
-												<Typography sx={{ fontSize: '13px' }}>{application.rejectReason || '-'}</Typography>
-												<Typography sx={{ fontSize: '12px', color: '#9ca3af' }}>
+												<Typography className="dashboard-note-text">{application.rejectReason || '-'}</Typography>
+												<Typography className="dashboard-muted-text">
 													{formatDate(application.reviewedAt)}
 												</Typography>
 											</Stack>

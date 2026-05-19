@@ -61,29 +61,35 @@ const withAdminLayout = (Component: ComponentType) => {
 		if (!user || user?.memberType !== MemberType.SUPER_ADMIN) return null;
 
 		return (
-			<main id="pc-wrap" className="admin">
-				<Box component={'div'} sx={{ display: 'flex' }}>
-					<AppBar
-						position="fixed"
-						sx={{
-							width: `calc(100% - ${drawerWidth}px)`,
-							ml: `${drawerWidth}px`,
-							boxShadow: 'rgb(100 116 139 / 12%) 0px 1px 4px',
-							background: 'none',
-						}}
-					>
-						<Toolbar>
-							<Tooltip title="Open settings">
-								<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-									<Avatar
-										src={
-											user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
-										}
-									/>
-								</IconButton>
-							</Tooltip>
-							<Menu
-								sx={{ mt: '45px' }}
+				<main id="pc-wrap" className="admin">
+					<Box component={'div'} className="admin-shell" sx={{ display: 'flex' }}>
+						<AppBar
+							position="fixed"
+							className="admin-appbar"
+							sx={{
+								width: `calc(100% - ${drawerWidth}px)`,
+								ml: `${drawerWidth}px`,
+							}}
+						>
+							<Toolbar className="admin-topbar">
+								<Stack className="admin-topbar-copy">
+									<Typography className="admin-topbar-kicker">KidsGarden Platform</Typography>
+									<Typography className="admin-topbar-title">Super Admin Dashboard</Typography>
+								</Stack>
+								<Stack className="admin-topbar-actions" direction={'row'} alignItems={'center'} spacing={1.5}>
+									<Typography className="admin-topbar-user">{user?.memberNick}</Typography>
+									<Tooltip title="Open account menu">
+										<IconButton onClick={handleOpenUserMenu} className="admin-avatar-button">
+											<Avatar
+												src={
+													user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
+												}
+											/>
+										</IconButton>
+									</Tooltip>
+								</Stack>
+								<Menu
+									sx={{ mt: '45px' }}
 								id="menu-appbar"
 								className={'pop-menu'}
 								anchorEl={anchorElUser}
@@ -135,36 +141,32 @@ const withAdminLayout = (Component: ComponentType) => {
 								width: drawerWidth,
 								boxSizing: 'border-box',
 							},
-						}}
-						variant="permanent"
-						anchor="left"
-						className="aside"
-					>
-						<Toolbar sx={{ flexDirection: 'column', alignItems: 'flexStart' }}>
-							<Stack className={'logo-box'}>
-								<img src={'/img/logo/logoText.svg'} alt={'logo'} />
-							</Stack>
+							}}
+							variant="permanent"
+							anchor="left"
+							className="aside admin-sidebar"
+						>
+							<Toolbar className="admin-sidebar-header">
+								<Stack className={'logo-box'}>
+									<img src={'/img/logo/logoText.svg'} alt={'logo'} />
+								</Stack>
 
-							<Stack
-								className="user"
-								direction={'row'}
-								alignItems={'center'}
-								sx={{
-									bgcolor: openMenu ? 'rgba(255, 255, 255, 0.04)' : 'none',
-									borderRadius: '8px',
-									px: '24px',
-									py: '11px',
-								}}
-							>
-								<Avatar
-									src={user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'}
-								/>
-								<Typography variant={'body2'} p={1} ml={1}>
-									{user?.memberNick} <br />
-									{user?.memberPhone}
-								</Typography>
-							</Stack>
-						</Toolbar>
+								<Stack
+									className="user admin-user-card"
+									direction={'row'}
+									alignItems={'center'}
+								>
+									<Avatar
+										className="admin-user-avatar"
+										src={user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'}
+									/>
+									<Stack className="admin-user-meta">
+										<Typography className="admin-user-name">{user?.memberNick}</Typography>
+										<Typography className="admin-user-phone">{user?.memberPhone}</Typography>
+										<Typography className="admin-role-badge">SUPER ADMIN</Typography>
+									</Stack>
+								</Stack>
+							</Toolbar>
 
 						<Divider />
 

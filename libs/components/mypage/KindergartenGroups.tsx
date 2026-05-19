@@ -282,22 +282,31 @@ const KindergartenGroups = () => {
 	}
 
 	return (
-		<Stack spacing={3} sx={{ width: '100%' }}>
-			<Stack spacing={1}>
+		<Stack className="admin-dashboard-screen admin-groups-dashboard" spacing={3} sx={{ width: '100%' }}>
+			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Groups</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
 					Create class groups for a selected kindergarten. Teacher IDs must already be ACTIVE TEACHER staff records.
 				</Typography>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select kindergarten</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select kindergarten</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Group changes apply only to the selected kindergarten.
+						</Typography>
+					</Stack>
+				</Stack>
 				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>Loading your kindergartens...</Typography>}
 				{!ownerLoading && kindergartens.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>Create a kindergarten profile before managing groups.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
+						Create a kindergarten profile before managing groups.
+					</Typography>
 				)}
 				{hideKindergartenSelector && (
-					<Stack sx={{ padding: '14px', border: '1px solid #e5e7eb', borderRadius: '8px', background: '#f9fafb' }}>
+					<Stack className="admin-selector-card admin-readonly-selector">
 						<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
 							Kindergarten: {selectedKindergartenTitle}
 						</Typography>
@@ -320,18 +329,24 @@ const KindergartenGroups = () => {
 				)}
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
-					<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>
-						{selectedGroupId ? 'Edit group' : 'Create group'}
-					</Typography>
+			<Stack className="dashboard-panel admin-groups-form-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>
+							{selectedGroupId ? 'Edit group' : 'Create group'}
+						</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Set the class details and assign active teacher staff.
+						</Typography>
+					</Stack>
 					{selectedGroupId && (
 						<Button variant="text" onClick={resetForm}>
 							Cancel edit
 						</Button>
 					)}
 				</Stack>
-				<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+				<Typography className="admin-form-section-title">Group details</Typography>
+				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						label="Group name"
@@ -346,7 +361,7 @@ const KindergartenGroups = () => {
 						onChange={(event) => setForm((prev) => ({ ...prev, groupAgeRange: event.target.value }))}
 					/>
 				</Stack>
-				<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						label="Capacity"
@@ -368,20 +383,23 @@ const KindergartenGroups = () => {
 						))}
 					</TextField>
 				</Stack>
-				<Stack spacing={1}>
-					<Typography sx={{ fontWeight: 700, color: '#24332d' }}>Assign teachers</Typography>
-					<Typography sx={{ color: '#6b7280', fontSize: '14px' }}>
+				<Stack className="admin-teacher-assignment" spacing={1}>
+					<Typography className="admin-form-section-title">Assign teachers</Typography>
+					<Typography className="dashboard-panel-subtitle">
 						Only ACTIVE TEACHER staff can be assigned to groups.
 					</Typography>
 					{staffLoading && <Typography sx={{ color: '#6b7280' }}>Loading active teachers...</Typography>}
 					{!staffLoading && activeTeacherStaff.length === 0 && (
-						<Typography sx={{ color: '#9ca3af' }}>No active teachers yet. Add teachers in Staff first.</Typography>
+						<Typography className="dashboard-empty-state" sx={{ color: '#9ca3af' }}>
+							No active teachers yet. Add teachers in Staff first.
+						</Typography>
 					)}
 					{activeTeacherStaff.length > 0 && (
-						<Stack spacing={1} sx={{ padding: '12px', borderRadius: '12px', background: '#fbfcf8' }}>
+						<Stack className="admin-teacher-list" spacing={1}>
 							{activeTeacherStaff.map((staff) => (
 								<FormControlLabel
 									key={staff._id}
+									className="admin-teacher-option"
 									control={
 										<Checkbox
 											checked={selectedTeacherIds.includes(staff.memberId)}
@@ -390,11 +408,11 @@ const KindergartenGroups = () => {
 									}
 									label={
 										<Stack>
-											<Typography sx={{ fontSize: '14px', fontWeight: 700, color: '#24332d' }}>
+											<Typography className="dashboard-primary-text">
 												{teacherNames[staff.memberId] || staff.memberId}
 											</Typography>
-											<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
-												{staff.memberId}
+											<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
+												{truncateId(staff.memberId)}
 											</Typography>
 										</Stack>
 									}
@@ -416,14 +434,24 @@ const KindergartenGroups = () => {
 				</Button>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Group list</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Group list</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Review class groups, assigned teachers, and status.
+						</Typography>
+					</Stack>
+					<Chip label={`${groups.length} groups`} size="small" className="dashboard-count-chip" />
+				</Stack>
 				{groupsLoading && <Typography sx={{ color: '#6b7280' }}>Loading groups...</Typography>}
 				{!groupsLoading && selectedKindergartenId && groups.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>No groups found for this kindergarten.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
+						No groups found for this kindergarten.
+					</Typography>
 				)}
 				{groups.length > 0 && (
-					<TableContainer>
+					<TableContainer className="dashboard-table-container admin-groups-table">
 						<Table size="small">
 							<TableHead>
 								<TableRow>
@@ -442,17 +470,22 @@ const KindergartenGroups = () => {
 
 									return (
 										<TableRow key={group._id} sx={{ opacity: isArchived ? 0.55 : 1 }}>
-											<TableCell>{group.groupName}</TableCell>
+											<TableCell>
+												<Stack spacing={0.25}>
+													<Typography className="dashboard-primary-text">{group.groupName}</Typography>
+													<Typography className="dashboard-muted-text">Group ID {truncateId(group._id)}</Typography>
+												</Stack>
+											</TableCell>
 											<TableCell>{group.groupAgeRange}</TableCell>
-											<TableCell>{group.groupCapacity}</TableCell>
+											<TableCell>{group.groupCapacity} children</TableCell>
 											<TableCell sx={{ maxWidth: 280 }}>
 												{group.teacherIds?.length
 													? group.teacherIds.map((teacherId) => (
 															<Stack key={teacherId} sx={{ mb: 0.5 }}>
-																<Typography sx={{ fontWeight: 700, color: '#24332d', fontSize: '13px' }}>
+																<Typography className="dashboard-primary-text">
 																	{teacherNames[teacherId] || truncateId(teacherId)}
 																</Typography>
-																<Typography sx={{ color: '#9ca3af', fontSize: '11px', wordBreak: 'break-all' }}>
+																<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
 																	{truncateId(teacherId)}
 																</Typography>
 															</Stack>
@@ -464,7 +497,7 @@ const KindergartenGroups = () => {
 											</TableCell>
 											<TableCell>{formatDate(group.createdAt)}</TableCell>
 											<TableCell align="right">
-												<Stack direction={'row'} spacing={1} justifyContent={'flex-end'}>
+												<Stack className="admin-danger-actions" direction={'row'} spacing={1} justifyContent={'flex-end'}>
 													<Button variant="outlined" disabled={isArchived} onClick={() => editGroupHandler(group)}>
 														Edit
 													</Button>

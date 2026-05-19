@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useApolloClient, useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
 	Button,
+	Chip,
 	MenuItem,
 	Stack,
 	Table,
@@ -36,7 +37,14 @@ import { KindergartenStaffUpdate } from '../../types/kindergarten-staff/kinderga
 import { MemberType } from '../../enums/member.enum';
 import { Member } from '../../types/member/member';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
-import { formatDate, getSelectedKindergartenTitle, shouldHideKindergartenSelector, truncateId } from './dashboardUtils';
+import {
+	formatDate,
+	getSelectedKindergartenTitle,
+	getStatusChipSx,
+	getStatusLabel,
+	shouldHideKindergartenSelector,
+	truncateId,
+} from './dashboardUtils';
 
 const staffRoleOptions = [StaffRole.ADMIN, StaffRole.TEACHER];
 const staffStatusOptions = [StaffStatus.ACTIVE, StaffStatus.PENDING, StaffStatus.BLOCKED];
@@ -334,22 +342,31 @@ const KindergartenStaff = () => {
 	}
 
 	return (
-		<Stack spacing={3} sx={{ width: '100%' }}>
-			<Stack spacing={1}>
+		<Stack className="admin-dashboard-screen admin-staff-dashboard" spacing={3} sx={{ width: '100%' }}>
+			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Staff</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
 					Search existing teacher or kindergarten admin accounts and add them to your center.
 				</Typography>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select kindergarten</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select kindergarten</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Staff changes apply only to the selected kindergarten.
+						</Typography>
+					</Stack>
+				</Stack>
 				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>Loading your kindergartens...</Typography>}
 				{!ownerLoading && kindergartens.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>Create a kindergarten profile before managing staff.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
+						Create a kindergarten profile before managing staff.
+					</Typography>
 				)}
 				{hideKindergartenSelector && (
-					<Stack sx={{ padding: '14px', border: '1px solid #e5e7eb', borderRadius: '8px', background: '#f9fafb' }}>
+					<Stack className="admin-selector-card admin-readonly-selector">
 						<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
 							Kindergarten: {selectedKindergartenTitle}
 						</Typography>
@@ -372,12 +389,16 @@ const KindergartenStaff = () => {
 				)}
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Add staff member</Typography>
-				<Typography sx={{ color: '#6b7280' }}>
-					Choose a role, search by nickname or phone, then select a candidate before adding.
-				</Typography>
-				<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+			<Stack className="dashboard-panel admin-staff-create-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Add staff member</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Choose a role, search by nickname or phone, then select a candidate before adding.
+						</Typography>
+					</Stack>
+				</Stack>
+				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						select
@@ -421,26 +442,29 @@ const KindergartenStaff = () => {
 				</Stack>
 				{candidateSearchError && <Typography sx={{ color: '#dc2626' }}>{candidateSearchError}</Typography>}
 				{hasSearchedCandidates && !searchingCandidates && candidates.length === 0 && !candidateSearchError && (
-					<Typography sx={{ color: '#6b7280' }}>No available candidates found.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>No available candidates found.</Typography>
 				)}
 				{candidates.length > 0 && (
-					<Stack spacing={1.25}>
+					<Stack className="admin-candidate-list" spacing={1.25}>
 						{candidates.map((candidate) => (
 							<Stack
 								key={candidate._id}
+								className="admin-candidate-card"
 								direction={{ xs: 'column', md: 'row' }}
 								spacing={1.5}
 								alignItems={{ xs: 'flex-start', md: 'center' }}
 								justifyContent="space-between"
-								sx={{ padding: '14px', border: '1px solid #e5e7eb', borderRadius: '8px' }}
 							>
 								<Stack spacing={0.25}>
-									<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
+									<Typography className="dashboard-primary-text">
 										{candidate.memberNick || 'Unnamed member'}
 									</Typography>
-									<Typography sx={{ color: '#6b7280' }}>{candidate.memberPhone || 'No phone'}</Typography>
-									<Typography sx={{ color: '#6b7280' }}>{candidate.memberType}</Typography>
-									<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
+									<Typography className="dashboard-muted-text">{candidate.memberPhone || 'No phone'}</Typography>
+									<Stack className="admin-chip-row">
+										<Chip label={getStatusLabel(candidate.memberType)} size="small" className="admin-info-chip" />
+										<Chip label={getStatusLabel(candidate.memberStatus)} size="small" sx={getStatusChipSx(candidate.memberStatus)} />
+									</Stack>
+									<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
 										{truncateId(candidate._id)}
 									</Typography>
 								</Stack>
@@ -452,14 +476,17 @@ const KindergartenStaff = () => {
 					</Stack>
 				)}
 				{memberPreview && (
-					<Stack spacing={0.75} sx={{ padding: '16px', borderRadius: '8px', background: '#f9fafb' }}>
-						<Typography sx={{ fontSize: '13px', fontWeight: 700, color: '#6b7280' }}>Selected member</Typography>
-						<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
+					<Stack className="admin-candidate-card admin-selected-member-card" spacing={0.75}>
+						<Typography className="admin-form-section-title">Selected member</Typography>
+						<Typography className="dashboard-primary-text">
 							{memberPreview.memberNick || 'Unnamed member'}
 						</Typography>
-						<Typography sx={{ color: '#6b7280' }}>{memberPreview.memberPhone || 'No phone'}</Typography>
-						<Typography sx={{ color: '#6b7280' }}>{memberPreview.memberType}</Typography>
-						<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
+						<Typography className="dashboard-muted-text">{memberPreview.memberPhone || 'No phone'}</Typography>
+						<Stack className="admin-chip-row">
+							<Chip label={getStatusLabel(memberPreview.memberType)} size="small" className="admin-info-chip" />
+							<Chip label={getStatusLabel(memberPreview.memberStatus)} size="small" sx={getStatusChipSx(memberPreview.memberStatus)} />
+						</Stack>
+						<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
 							{truncateId(memberPreview._id)}
 						</Typography>
 					</Stack>
@@ -473,7 +500,7 @@ const KindergartenStaff = () => {
 					{showManualFallback ? 'Hide advanced member ID entry' : 'Advanced: enter member ID manually'}
 				</Button>
 				{showManualFallback && (
-					<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+					<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 						<TextField
 							fullWidth
 							label="Member ID"
@@ -495,14 +522,24 @@ const KindergartenStaff = () => {
 				</Button>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Staff list</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Staff list</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Review roles and statuses. Owner records are protected.
+						</Typography>
+					</Stack>
+					<Chip label={`${staffRecords.length} records`} size="small" className="dashboard-count-chip" />
+				</Stack>
 				{staffLoading && <Typography sx={{ color: '#6b7280' }}>Loading staff records...</Typography>}
 				{!staffLoading && selectedKindergartenId && staffRecords.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>No staff records found for this kindergarten.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
+						No staff records found for this kindergarten.
+					</Typography>
 				)}
 				{staffRecords.length > 0 && (
-					<TableContainer>
+					<TableContainer className="dashboard-table-container admin-staff-table">
 						<Table size="small">
 							<TableHead>
 								<TableRow>
@@ -522,10 +559,10 @@ const KindergartenStaff = () => {
 										<TableRow key={staff._id} sx={{ opacity: isRemoved ? 0.55 : 1 }}>
 											<TableCell sx={{ maxWidth: 230 }}>
 												<Stack>
-													<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
+													<Typography className="dashboard-primary-text">
 														{memberNames[staff.memberId] || truncateId(staff.memberId)}
 													</Typography>
-													<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
+													<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
 														{truncateId(staff.memberId)}
 													</Typography>
 												</Stack>
@@ -570,21 +607,21 @@ const KindergartenStaff = () => {
 													{isRemoved && <MenuItem value={StaffStatus.REMOVED}>{StaffStatus.REMOVED}</MenuItem>}
 												</TextField>
 												{isOwner && (
-													<Typography sx={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-														Owner role is protected
-													</Typography>
+													<Chip label="Protected Owner" size="small" className="admin-protected-badge" />
 												)}
 											</TableCell>
 											<TableCell>{formatDate(staff.createdAt)}</TableCell>
 											<TableCell align="right">
-												<Button
-													variant="outlined"
-													color="error"
-													disabled={isRemoved || isOwner}
-													onClick={() => removeStaffHandler(staff._id)}
-												>
-													{isRemoved ? 'Removed' : 'Remove'}
-												</Button>
+												<Stack className="admin-danger-actions">
+													<Button
+														variant="outlined"
+														color="error"
+														disabled={isRemoved || isOwner}
+														onClick={() => removeStaffHandler(staff._id)}
+													>
+														{isRemoved ? 'Removed' : 'Remove'}
+													</Button>
+												</Stack>
 											</TableCell>
 										</TableRow>
 									);

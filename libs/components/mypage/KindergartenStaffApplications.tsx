@@ -134,33 +134,33 @@ const KindergartenStaffApplications = () => {
 	}
 
 	return (
-		<Stack spacing={3} sx={{ width: '100%' }}>
-			<Stack spacing={1}>
+		<Stack className="admin-dashboard-screen admin-staff-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
+			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Staff Applications</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
 					Review teacher applications submitted to your kindergarten.
 				</Typography>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Filters</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Filters</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Review applications for the selected kindergarten and status.
+						</Typography>
+					</Stack>
+				</Stack>
 				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>Loading your kindergartens...</Typography>}
 				{!ownerLoading && kindergartens.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>Create a kindergarten profile before reviewing applications.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
+						Create a kindergarten profile before reviewing applications.
+					</Typography>
 				)}
 				{kindergartens.length > 0 && (
-					<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+					<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 						{hideKindergartenSelector ? (
-							<Stack
-								sx={{
-									flex: 1,
-									padding: '14px',
-									border: '1px solid #e5e7eb',
-									borderRadius: '8px',
-									background: '#f9fafb',
-									justifyContent: 'center',
-								}}
-							>
+							<Stack className="admin-selector-card admin-readonly-selector">
 								<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
 									Kindergarten: {selectedKindergartenTitle}
 								</Typography>
@@ -198,14 +198,24 @@ const KindergartenStaffApplications = () => {
 				)}
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Applications</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Applications</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Applicant details are shown only in this guarded review screen.
+						</Typography>
+					</Stack>
+					<Chip label={`${applications.length} found`} size="small" className="dashboard-count-chip" />
+				</Stack>
 				{applicationsLoading && <Typography sx={{ color: '#6b7280' }}>Loading applications...</Typography>}
 				{!applicationsLoading && selectedKindergartenId && applications.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>No applications found for this filter.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
+						No applications found for this filter.
+					</Typography>
 				)}
 				{applications.length > 0 && (
-					<TableContainer>
+					<TableContainer className="dashboard-table-container admin-applications-table">
 						<Table size="small">
 							<TableHead>
 								<TableRow>
@@ -227,18 +237,27 @@ const KindergartenStaffApplications = () => {
 										<TableRow key={application._id}>
 											<TableCell sx={{ maxWidth: 220 }}>
 												<Stack spacing={0.25}>
-													<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
+													<Typography className="dashboard-primary-text">
 														{applicant?.memberNick
 															? `${applicant.memberNick}${applicant.memberFullName ? ` (${applicant.memberFullName})` : ''}`
 															: applicant?.memberFullName || 'Applicant reference'}
 													</Typography>
-													<Typography sx={{ fontSize: '13px', color: '#6b7280' }}>
+													<Typography className="dashboard-muted-text">
 														{applicant?.memberPhone || 'No phone'}
 													</Typography>
-													<Typography sx={{ fontSize: '12px', color: '#6b7280' }}>
-														{[applicant?.memberType, applicant?.memberStatus].filter(Boolean).join(' · ') || '-'}
-													</Typography>
-													<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
+													<Stack className="admin-chip-row">
+														{applicant?.memberType && (
+															<Chip label={getStatusLabel(applicant.memberType)} size="small" className="admin-info-chip" />
+														)}
+														{applicant?.memberStatus && (
+															<Chip
+																label={getStatusLabel(applicant.memberStatus)}
+																size="small"
+																sx={getStatusChipSx(applicant.memberStatus)}
+															/>
+														)}
+													</Stack>
+													<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
 														{truncateId(application.applicantId)}
 													</Typography>
 												</Stack>
@@ -251,7 +270,9 @@ const KindergartenStaffApplications = () => {
 													sx={getStatusChipSx(application.applicationStatus)}
 												/>
 											</TableCell>
-											<TableCell sx={{ maxWidth: 220 }}>{application.message || '-'}</TableCell>
+											<TableCell sx={{ maxWidth: 220 }}>
+												<Typography className="dashboard-note-text">{application.message || '-'}</Typography>
+											</TableCell>
 											<TableCell>{formatDate(application.createdAt)}</TableCell>
 											<TableCell sx={{ minWidth: 220 }}>
 												{isPending ? (
@@ -269,15 +290,15 @@ const KindergartenStaffApplications = () => {
 													/>
 												) : (
 													<Stack spacing={0.25}>
-														<Typography sx={{ fontSize: '13px' }}>{application.rejectReason || '-'}</Typography>
-														<Typography sx={{ fontSize: '12px', color: '#9ca3af' }}>
+														<Typography className="dashboard-note-text">{application.rejectReason || '-'}</Typography>
+														<Typography className="dashboard-muted-text">
 															{formatDate(application.reviewedAt)}
 														</Typography>
 													</Stack>
 												)}
 											</TableCell>
 											<TableCell align="right">
-												<Stack direction="row" spacing={1} justifyContent="flex-end">
+												<Stack className="admin-review-actions" direction="row" spacing={1} justifyContent="flex-end">
 													<Button
 														variant="contained"
 														disabled={!isPending}

@@ -28,7 +28,7 @@ import { AttendanceUpdate } from '../../types/attendance/attendance.update';
 import { Child } from '../../types/child/child';
 import { Group } from '../../types/group/group';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../sweetAlert';
-import { getStatusChipSx } from './dashboardUtils';
+import { getStatusChipSx, getStatusLabel, truncateId } from './dashboardUtils';
 
 interface AttendanceDraft {
 	attendanceStatus: AttendanceStatus;
@@ -258,19 +258,29 @@ const TeacherAttendance = () => {
 	}
 
 	return (
-		<Stack spacing={3} sx={{ width: '100%' }}>
-			<Stack spacing={1}>
+		<Stack className="teacher-dashboard-screen teacher-attendance-dashboard" spacing={3} sx={{ width: '100%' }}>
+			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Attendance</Typography>
 				<Typography sx={{ color: '#6b7280' }}>Mark attendance for the groups assigned to you.</Typography>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select group and date</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select group and date</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Choose the active group and attendance day before marking children.
+						</Typography>
+					</Stack>
+					<Chip label={`${groups.length} groups`} size="small" className="dashboard-count-chip" />
+				</Stack>
 				{groupsLoading && <Typography sx={{ color: '#6b7280' }}>Loading your groups...</Typography>}
 				{!groupsLoading && groups.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>No active groups are assigned to you yet.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
+						No active groups are assigned to you yet.
+					</Typography>
 				)}
-				<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+				<Stack className="dashboard-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						select
@@ -300,24 +310,39 @@ const TeacherAttendance = () => {
 						InputLabelProps={{ shrink: true }}
 					/>
 				</Stack>
-				<Typography sx={{ color: '#9ca3af', fontSize: '13px' }}>
-					Selected date is saved as the attendance day for the chosen group.
-				</Typography>
+				{selectedGroup && (
+					<Stack className="dashboard-context-card">
+						<Typography className="dashboard-primary-text">
+							{selectedGroup.groupName} for {selectedDate}
+						</Typography>
+						<Typography className="dashboard-muted-text">
+							Age range {selectedGroup.groupAgeRange} · Capacity {selectedGroup.groupCapacity} · Group ID{' '}
+							{truncateId(selectedGroup._id)}
+						</Typography>
+					</Stack>
+				)}
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Daily attendance</Typography>
-				<Typography sx={{ color: '#6b7280' }}>
-					Choose a status for each child, add an optional note, then click Mark or Update.
-				</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Daily attendance</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Choose a status for each child, add an optional note, then click Mark or Update.
+						</Typography>
+					</Stack>
+					<Chip label={`${children.length} children`} size="small" className="dashboard-count-chip" />
+				</Stack>
 				{(childrenLoading || attendancesLoading) && (
 					<Typography sx={{ color: '#6b7280' }}>Loading attendance records...</Typography>
 				)}
 				{!childrenLoading && selectedGroupId && children.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>No active children found in this group.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
+						No active children found in this group.
+					</Typography>
 				)}
 				{children.length > 0 && (
-					<TableContainer>
+					<TableContainer className="dashboard-table-container teacher-attendance-table">
 						<Table size="small">
 							<TableHead>
 								<TableRow>
@@ -339,7 +364,12 @@ const TeacherAttendance = () => {
 
 									return (
 										<TableRow key={child._id}>
-											<TableCell>{child.childFullName}</TableCell>
+											<TableCell>
+												<Stack spacing={0.25}>
+													<Typography className="dashboard-primary-text">{child.childFullName}</Typography>
+													<Typography className="dashboard-muted-text">Child ID {truncateId(child._id)}</Typography>
+												</Stack>
+											</TableCell>
 											<TableCell>
 												<TextField
 													select
@@ -368,7 +398,11 @@ const TeacherAttendance = () => {
 											</TableCell>
 											<TableCell>
 												{hasExistingRecord ? (
-													<Chip label="Already marked" size="small" sx={getStatusChipSx('PRESENT')} />
+													<Chip
+														label={`Saved: ${getStatusLabel(attendance?.attendanceStatus)}`}
+														size="small"
+														sx={getStatusChipSx(attendance?.attendanceStatus)}
+													/>
 												) : (
 													<Chip label="Not marked yet" size="small" sx={getStatusChipSx('INACTIVE')} />
 												)}

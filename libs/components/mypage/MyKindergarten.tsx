@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import { Button, Stack, TextField, Typography } from '@mui/material';
+import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { CREATE_KINDERGARTEN, UPDATE_KINDERGARTEN } from '../../../apollo/user/mutation';
 import { GET_OWNER_KINDERGARTENS } from '../../../apollo/user/query';
@@ -12,6 +12,7 @@ import { KindergartenLocation, KindergartenStatus, KindergartenType } from '../.
 import { MemberType } from '../../enums/member.enum';
 import { getImageUrl } from '../../config';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
+import { getStatusChipSx, getStatusLabel, truncateId } from './dashboardUtils';
 
 const emptyForm: KindergartenInput = {
 	kindergartenType: KindergartenType.APARTMENT,
@@ -115,45 +116,73 @@ const MyKindergarten = () => {
 	}
 
 	return (
-		<Stack spacing={3} sx={{ width: '100%' }}>
-			<Stack spacing={1}>
+		<Stack className="admin-dashboard-screen admin-kindergarten-profile-dashboard" spacing={3} sx={{ width: '100%' }}>
+			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>My Kindergarten</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Manage your center profile. Staff, groups, children, and attendance tools are staged as separate dashboard
-					areas.
+					Manage your kindergarten profile and basic center information.
 				</Typography>
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Owned centers</Typography>
+			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Owned centers</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Select a kindergarten to edit its public profile information.
+						</Typography>
+					</Stack>
+					<Chip label={`${kindergartens.length} profile${kindergartens.length === 1 ? '' : 's'}`} size="small" className="dashboard-count-chip" />
+				</Stack>
 				{loading && <Typography sx={{ color: '#6b7280' }}>Loading your kindergartens...</Typography>}
 				{!loading && kindergartens.length === 0 && (
-					<Typography sx={{ color: '#6b7280' }}>No kindergarten profile yet. Create the first center below.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
+						No kindergarten profile yet. Create the first center below.
+					</Typography>
 				)}
 				{kindergartens.map((kindergarten) => (
 					<Stack
 						key={kindergarten._id}
+						className={`admin-selector-card ${selectedId === kindergarten._id ? 'is-selected' : ''}`}
 						direction={'row'}
 						spacing={2}
 						alignItems={'center'}
-						sx={{
-							padding: '14px',
-							borderRadius: '14px',
-							border: selectedId === kindergarten._id ? '1px solid #f59e0b' : '1px solid #eef0ea',
-							background: selectedId === kindergarten._id ? '#fff7ed' : '#fbfcf8',
-						}}
 					>
 						<img
 							src={getImageUrl(kindergarten.kindergartenImages?.[0])}
 							alt={kindergarten.kindergartenTitle}
-							style={{ width: 86, height: 64, objectFit: 'cover', borderRadius: 12 }}
+							className="admin-selector-card-image"
 						/>
-						<Stack sx={{ flex: 1 }}>
-							<Typography sx={{ fontWeight: 700, color: '#24332d' }}>{kindergarten.kindergartenTitle}</Typography>
-							<Typography sx={{ color: '#6b7280', fontSize: '14px' }}>
-								{typeLabels[kindergarten.kindergartenType]} · {kindergarten.kindergartenLocation} · Capacity{' '}
-								{kindergarten.kindergartenCapacity}
+						<Stack className="admin-selector-card-content">
+							<Stack className="admin-selector-card-title-row">
+								<Stack>
+									<Typography className="dashboard-primary-text">{kindergarten.kindergartenTitle}</Typography>
+									<Typography className="dashboard-muted-text">Profile ID {truncateId(kindergarten._id)}</Typography>
+								</Stack>
+								<Chip
+									label={getStatusLabel(kindergarten.kindergartenStatus)}
+									size="small"
+									sx={getStatusChipSx(kindergarten.kindergartenStatus)}
+								/>
+							</Stack>
+							<Typography className="dashboard-muted-text">
+								{typeLabels[kindergarten.kindergartenType]} · {kindergarten.kindergartenLocation}
 							</Typography>
+							<Typography className="dashboard-muted-text">{kindergarten.kindergartenAddress}</Typography>
+							<Stack className="admin-center-card-details">
+								<Stack className="admin-meta-item">
+									<Typography className="admin-meta-label">Capacity</Typography>
+									<Typography className="admin-meta-value">{kindergarten.kindergartenCapacity}</Typography>
+								</Stack>
+								<Stack className="admin-meta-item">
+									<Typography className="admin-meta-label">Age range</Typography>
+									<Typography className="admin-meta-value">{kindergarten.kindergartenAgeRange}</Typography>
+								</Stack>
+								<Stack className="admin-meta-item">
+									<Typography className="admin-meta-label">Programs</Typography>
+									<Typography className="admin-meta-value">{kindergarten.kindergartenPrograms}</Typography>
+								</Stack>
+							</Stack>
 						</Stack>
 						<Button variant="outlined" onClick={() => selectKindergarten(kindergarten)}>
 							Edit
@@ -162,11 +191,16 @@ const MyKindergarten = () => {
 				))}
 			</Stack>
 
-			<Stack spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
-				<Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
-					<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>
-						{selectedId ? 'Edit kindergarten profile' : 'Create kindergarten profile'}
-					</Typography>
+			<Stack className="dashboard-panel admin-profile-form-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
+				<Stack className="dashboard-panel-header">
+					<Stack>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>
+							{selectedId ? 'Edit kindergarten profile' : 'Create kindergarten profile'}
+						</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Keep family-facing details current for discovery and review.
+						</Typography>
+					</Stack>
 					{selectedId && (
 						<Button variant="text" onClick={resetForm}>
 							New profile
@@ -174,7 +208,8 @@ const MyKindergarten = () => {
 					)}
 				</Stack>
 
-				<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+				<Typography className="admin-form-section-title">Basic information</Typography>
+				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						label="Kindergarten name"
@@ -190,7 +225,7 @@ const MyKindergarten = () => {
 					/>
 				</Stack>
 
-				<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						select
@@ -228,7 +263,8 @@ const MyKindergarten = () => {
 					onChange={(e) => updateForm('kindergartenAddress', e.target.value)}
 				/>
 
-				<Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+				<Typography className="admin-form-section-title">Center details</Typography>
+				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						label="Capacity"
@@ -261,9 +297,11 @@ const MyKindergarten = () => {
 					onChange={(e) => updateForm('kindergartenDesc', e.target.value)}
 				/>
 
-				<Button variant="contained" onClick={submitKindergarten} sx={{ width: 'fit-content' }}>
-					{selectedId ? 'Update Kindergarten' : 'Create Kindergarten'}
-				</Button>
+				<Stack className="admin-form-actions">
+					<Button variant="contained" onClick={submitKindergarten} sx={{ width: 'fit-content' }}>
+						{selectedId ? 'Update Kindergarten' : 'Create Kindergarten'}
+					</Button>
+				</Stack>
 			</Stack>
 		</Stack>
 	);

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { Stack, Typography, Box, List, ListItem } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
 import Link from 'next/link';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
@@ -12,7 +11,6 @@ import { getMemberTypeLabel, MemberType } from '../../enums/member.enum';
 import { getDashboardRoleHeading } from './dashboardUtils';
 
 const MyMenu = () => {
-	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const isKindergartenAdmin = user.memberType === MemberType.KINDERGARTEN_ADMIN;
@@ -55,11 +53,8 @@ const MyMenu = () => {
 		}
 	};
 
-	if (device === 'mobile') {
-		return <div>MY MENU</div>;
-	} else {
-		return (
-			<Stack width={'100%'} padding={'30px 24px'}>
+	return (
+		<Stack className={'my-menu'}>
 				<Stack className={'profile'}>
 					<Box component={'div'} className={'profile-img'}>
 						<img
@@ -83,10 +78,7 @@ const MyMenu = () => {
 					</Stack>
 				</Stack>
 				<Stack className={'sections'}>
-					<Stack
-						className={'section'}
-						style={{ height: isKindergartenAdmin ? '386px' : isTeacher ? '170px' : isParent ? '282px' : '153px' }}
-					>
+					<Stack className={'section'}>
 						<Typography className="title" variant={'h5'}>
 							{getDashboardRoleHeading(user.memberType)}
 						</Typography>
@@ -389,9 +381,8 @@ const MyMenu = () => {
 						</List>
 					</Stack>
 				</Stack>
-			</Stack>
-		);
-	}
+		</Stack>
+	);
 };
 
 export default MyMenu;
