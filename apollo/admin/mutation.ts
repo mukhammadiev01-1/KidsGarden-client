@@ -10,25 +10,14 @@ export const UPDATE_MEMBER_BY_ADMIN = gql`
 			_id
 			memberType
 			memberStatus
-			memberAuthType
 			memberPhone
 			memberNick
 			memberFullName
 			memberImage
-			memberAddress
-			memberDesc
-			memberProperties
-			memberRank
-			memberArticles
-			memberPoints
-			memberLikes
-			memberViews
 			memberWarnings
 			memberBlocks
-			deletedAt
 			createdAt
 			updatedAt
-			accessToken
 		}
 	}
 `;
@@ -73,62 +62,64 @@ export const REJECT_KINDERGARTEN_ADMIN_APPLICATION = gql`
 	}
 `;
 
-/**************************
- *        PROPERTY        *
- *************************/
-
-export const UPDATE_PROPERTY_BY_ADMIN = gql`
-	mutation UpdatePropertyByAdmin($input: PropertyUpdate!) {
-		updatePropertyByAdmin(input: $input) {
+export const APPROVE_STAFF_APPLICATION = gql`
+	mutation ApproveStaffApplication($input: StaffApplicationReviewInput!) {
+		approveStaffApplication(input: $input) {
 			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
-			memberId
-			soldAt
-			deletedAt
-			constructedAt
+			kindergartenId
+			applicantId
+			requestedRole
+			applicationStatus
+			message
+			reviewedBy
+			reviewedAt
+			rejectReason
 			createdAt
 			updatedAt
 		}
 	}
 `;
 
-export const REMOVE_PROPERTY_BY_ADMIN = gql`
-	mutation RemovePropertyByAdmin($input: String!) {
-		removePropertyByAdmin(propertyId: $input) {
+export const REJECT_STAFF_APPLICATION = gql`
+	mutation RejectStaffApplication($input: StaffApplicationReviewInput!) {
+		rejectStaffApplication(input: $input) {
 			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
+			kindergartenId
+			applicantId
+			requestedRole
+			applicationStatus
+			message
+			reviewedBy
+			reviewedAt
+			rejectReason
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+/**************************
+ *      KINDERGARTEN      *
+ *************************/
+
+export const UPDATE_KINDERGARTEN_BY_ADMIN = gql`
+	mutation UpdateKindergartenByAdmin($input: KindergartenUpdate!) {
+		updateKindergartenByAdmin(input: $input) {
+			_id
+			kindergartenType
+			kindergartenStatus
+			kindergartenLocation
+			kindergartenAddress
+			kindergartenTitle
+			kindergartenPrice
+			kindergartenCapacity
+			kindergartenAgeRange
+			kindergartenPrograms
+			kindergartenImages
+			kindergartenViews
+			kindergartenLikes
+			kindergartenComments
 			memberId
-			soldAt
-			deletedAt
-			constructedAt
 			createdAt
 			updatedAt
 		}
@@ -150,6 +141,7 @@ export const UPDATE_BOARD_ARTICLE_BY_ADMIN = gql`
 			articleImage
 			articleViews
 			articleLikes
+			articleComments
 			memberId
 			createdAt
 			updatedAt
@@ -178,6 +170,21 @@ export const REMOVE_BOARD_ARTICLE_BY_ADMIN = gql`
 /**************************
  *         COMMENT        *
  *************************/
+
+export const UPDATE_COMMENT_BY_ADMIN = gql`
+	mutation UpdateCommentByAdmin($input: CommentAdminUpdate!) {
+		updateCommentByAdmin(input: $input) {
+			_id
+			commentStatus
+			commentGroup
+			commentContent
+			commentRefId
+			memberId
+			createdAt
+			updatedAt
+		}
+	}
+`;
 
 export const REMOVE_COMMENT_BY_ADMIN = gql`
 	mutation RemoveCommentByAdmin($input: String!) {

@@ -5,3 +5,8 @@ export interface CommentUpdate {
 	commentStatus?: CommentStatus;
 	commentContent?: string;
 }
+
+export interface CommentAdminUpdate {
+	_id: string;
+	commentStatus: CommentStatus;
+}

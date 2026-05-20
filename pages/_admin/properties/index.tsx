@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { NextPage } from 'next';
+import { useMutation, useQuery } from '@apollo/client';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import { Box, List, ListItem, Stack } from '@mui/material';
 import Typography from '@mui/material/Typography';
@@ -9,37 +10,47 @@ import MenuItem from '@mui/material/MenuItem';
 import { TabContext } from '@mui/lab';
 import TablePagination from '@mui/material/TablePagination';
 import { PropertyPanelList } from '../../../libs/components/admin/properties/PropertyList';
-import { AllPropertiesInquiry } from '../../../libs/types/property/property.input';
-import { Property } from '../../../libs/types/property/property';
-import { PropertyLocation, PropertyStatus } from '../../../libs/enums/property.enum';
-import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
-import { PropertyUpdate } from '../../../libs/types/property/property.update';
+import { AllKindergartensInquiry } from '../../../libs/types/kindergarten/kindergarten.input';
+import { Kindergarten } from '../../../libs/types/kindergarten/kindergarten';
+import { KindergartenLocation, KindergartenStatus } from '../../../libs/enums/kindergarten.enum';
+import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
+import { KindergartenUpdate } from '../../../libs/types/kindergarten/kindergarten.update';
+import { GET_ALL_KINDERGARTENS_BY_ADMIN } from '../../../apollo/admin/query';
+import { UPDATE_KINDERGARTEN_BY_ADMIN } from '../../../apollo/admin/mutation';
 
 const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
-	const [propertiesInquiry, setPropertiesInquiry] = useState<AllPropertiesInquiry>(initialInquiry);
-	const [properties, setProperties] = useState<Property[]>([]);
-	const [propertiesTotal, setPropertiesTotal] = useState<number>(0);
+	const [kindergartensInquiry, setKindergartensInquiry] = useState<AllKindergartensInquiry>(initialInquiry);
+	const [kindergartens, setKindergartens] = useState<Kindergarten[]>([]);
+	const [kindergartensTotal, setKindergartensTotal] = useState<number>(0);
 	const [value, setValue] = useState(
-		propertiesInquiry?.search?.propertyStatus ? propertiesInquiry?.search?.propertyStatus : 'ALL',
+		kindergartensInquiry?.search?.kindergartenStatus ? kindergartensInquiry?.search?.kindergartenStatus : 'ALL',
 	);
 	const [searchType, setSearchType] = useState('ALL');
 
 	/** APOLLO REQUESTS **/
-
-	/** LIFECYCLES **/
-	useEffect(() => {}, [propertiesInquiry]);
+	const [updateKindergartenByAdmin] = useMutation(UPDATE_KINDERGARTEN_BY_ADMIN);
+	const { loading, refetch } = useQuery(GET_ALL_KINDERGARTENS_BY_ADMIN, {
+		variables: { input: kindergartensInquiry },
+		fetchPolicy: 'network-only',
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data) => {
+			setKindergartens(data?.getAllKindergartensByAdmin?.list ?? []);
+			setKindergartensTotal(data?.getAllKindergartensByAdmin?.metaCounter?.[0]?.total ?? 0);
+		},
+		onError: (err) => sweetErrorHandling(err).then(),
+	});
 
 	/** HANDLERS **/
 	const changePageHandler = async (event: unknown, newPage: number) => {
-		propertiesInquiry.page = newPage + 1;
-		setPropertiesInquiry({ ...propertiesInquiry });
+		kindergartensInquiry.page = newPage + 1;
+		setKindergartensInquiry({ ...kindergartensInquiry });
 	};
 
 	const changeRowsPerPageHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		propertiesInquiry.limit = parseInt(event.target.value, 10);
-		propertiesInquiry.page = 1;
-		setPropertiesInquiry({ ...propertiesInquiry });
+		kindergartensInquiry.limit = parseInt(event.target.value, 10);
+		kindergartensInquiry.page = 1;
+		setKindergartensInquiry({ ...kindergartensInquiry });
 	};
 
 	const menuIconClickHandler = (e: any, index: number) => {
@@ -54,63 +65,64 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	const tabChangeHandler = async (event: any, newValue: string) => {
 		setValue(newValue);
-
-		setPropertiesInquiry({ ...propertiesInquiry, page: 1, sort: 'createdAt' });
+		const nextSearch = { ...kindergartensInquiry.search };
 
 		switch (newValue) {
 			case 'ACTIVE':
-				setPropertiesInquiry({ ...propertiesInquiry, search: { propertyStatus: PropertyStatus.ACTIVE } });
+				nextSearch.kindergartenStatus = KindergartenStatus.ACTIVE;
 				break;
 			case 'SOLD':
-				setPropertiesInquiry({ ...propertiesInquiry, search: { propertyStatus: PropertyStatus.SOLD } });
+				nextSearch.kindergartenStatus = KindergartenStatus.SOLD;
 				break;
 			case 'DELETE':
-				setPropertiesInquiry({ ...propertiesInquiry, search: { propertyStatus: PropertyStatus.DELETE } });
+				nextSearch.kindergartenStatus = KindergartenStatus.DELETE;
 				break;
 			default:
-				delete propertiesInquiry?.search?.propertyStatus;
-				setPropertiesInquiry({ ...propertiesInquiry });
+				delete nextSearch.kindergartenStatus;
 				break;
 		}
-	};
 
-	const removePropertyHandler = async (id: string) => {
-		try {
-			if (await sweetConfirmAlert('Are you sure to remove?')) {
-			}
-			menuIconCloseHandler();
-		} catch (err: any) {
-			sweetErrorHandling(err).then();
-		}
+		setKindergartensInquiry({ ...kindergartensInquiry, page: 1, sort: 'createdAt', search: nextSearch });
 	};
 
 	const searchTypeHandler = async (newValue: string) => {
 		try {
 			setSearchType(newValue);
+			const nextSearch = { ...kindergartensInquiry.search };
 
 			if (newValue !== 'ALL') {
-				setPropertiesInquiry({
-					...propertiesInquiry,
-					page: 1,
-					sort: 'createdAt',
-					search: {
-						...propertiesInquiry.search,
-						propertyLocationList: [newValue as PropertyLocation],
-					},
-				});
+				nextSearch.kindergartenLocationList = [newValue as KindergartenLocation];
 			} else {
-				delete propertiesInquiry?.search?.propertyLocationList;
-				setPropertiesInquiry({ ...propertiesInquiry });
+				delete nextSearch.kindergartenLocationList;
 			}
+
+			setKindergartensInquiry({
+				...kindergartensInquiry,
+				page: 1,
+				sort: 'createdAt',
+				search: nextSearch,
+			});
 		} catch (err: any) {
 			console.log('searchTypeHandler: ', err.message);
 		}
 	};
 
-	const updatePropertyHandler = async (updateData: PropertyUpdate) => {
+	const updateKindergartenHandler = async (updateData: KindergartenUpdate) => {
 		try {
-			console.log('+updateData: ', updateData);
+			if (!updateData.kindergartenStatus) throw new Error('Only kindergarten status updates are available.');
+			await updateKindergartenByAdmin({
+				variables: {
+					input: {
+						_id: updateData._id,
+						kindergartenStatus: updateData.kindergartenStatus,
+					},
+				},
+			});
+			const refreshed = await refetch();
+			setKindergartens(refreshed?.data?.getAllKindergartensByAdmin?.list ?? []);
+			setKindergartensTotal(refreshed?.data?.getAllKindergartensByAdmin?.metaCounter?.[0]?.total ?? 0);
 			menuIconCloseHandler();
+			await sweetMixinSuccessAlert('Kindergarten status updated');
 		} catch (err: any) {
 			menuIconCloseHandler();
 			sweetErrorHandling(err).then();
@@ -158,11 +170,11 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 							</List>
 							<Divider />
 							<Stack className={'search-area'} sx={{ m: '24px' }}>
-								<Select sx={{ width: '160px', mr: '20px' }} value={searchType}>
+								<Select sx={{ width: '180px', mr: '20px' }} value={searchType}>
 									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										ALL
+										All Locations
 									</MenuItem>
-									{Object.values(PropertyLocation).map((location: string) => (
+									{Object.values(KindergartenLocation).map((location: string) => (
 										<MenuItem value={location} onClick={() => searchTypeHandler(location)} key={location}>
 											{location}
 										</MenuItem>
@@ -172,20 +184,20 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 							<Divider />
 						</Box>
 						<PropertyPanelList
-							properties={properties}
+							kindergartens={kindergartens}
+							loading={loading}
 							anchorEl={anchorEl}
 							menuIconClickHandler={menuIconClickHandler}
 							menuIconCloseHandler={menuIconCloseHandler}
-							updatePropertyHandler={updatePropertyHandler}
-							removePropertyHandler={removePropertyHandler}
+							updateKindergartenHandler={updateKindergartenHandler}
 						/>
 
 						<TablePagination
 							rowsPerPageOptions={[10, 20, 40, 60]}
 							component="div"
-							count={propertiesTotal}
-							rowsPerPage={propertiesInquiry?.limit}
-							page={propertiesInquiry?.page - 1}
+							count={kindergartensTotal}
+							rowsPerPage={kindergartensInquiry?.limit}
+							page={kindergartensInquiry?.page - 1}
 							onPageChange={changePageHandler}
 							onRowsPerPageChange={changeRowsPerPageHandler}
 						/>

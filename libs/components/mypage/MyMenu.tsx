@@ -322,26 +322,28 @@ const MyMenu = () => {
 										</div>
 									</Link>
 								</ListItem>
-								<ListItem className={pathname === 'writeArticle' ? 'focus' : ''}>
-									<Link
-										href={{
-											pathname: '/mypage',
-											query: { category: 'writeArticle' },
-										}}
-										scroll={false}
-									>
-										<div className={'flex-box'}>
-											{category === 'writeArticle' ? (
-												<img className={'com-icon'} src={'/img/icons/whiteTab.svg'} alt={'com-icon'} />
-											) : (
-												<img className={'com-icon'} src={'/img/icons/newTab.svg'} alt={'com_icon'} />
-											)}
-											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-												Write Article
-											</Typography>
-										</div>
-									</Link>
-								</ListItem>
+								{isParent && (
+									<ListItem className={pathname === 'writeArticle' ? 'focus' : ''}>
+										<Link
+											href={{
+												pathname: '/mypage',
+												query: { category: 'writeArticle' },
+											}}
+											scroll={false}
+										>
+											<div className={'flex-box'}>
+												{category === 'writeArticle' ? (
+													<img className={'com-icon'} src={'/img/icons/whiteTab.svg'} alt={'com-icon'} />
+												) : (
+													<img className={'com-icon'} src={'/img/icons/newTab.svg'} alt={'com_icon'} />
+												)}
+												<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
+													Write Article
+												</Typography>
+											</div>
+										</Link>
+									</ListItem>
+								)}
 							</List>
 						</div>
 					</Stack>

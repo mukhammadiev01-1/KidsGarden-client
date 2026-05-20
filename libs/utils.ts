@@ -48,16 +48,3 @@ export const likeTargetBoardArticleHandler = async (likeTargetBoardArticle: any,
 		sweetMixinErrorAlert(err.message).then();
 	}
 };
-
-export const likeTargetMemberHandler = async (likeTargetMember: any, id: string) => {
-	try {
-		await likeTargetMember({
-			variables: {
-				input: id,
-			},
-		});
-	} catch (err: any) {
-		console.log('ERROR, likeTargetMemberHandler:', err.message);
-		sweetMixinErrorAlert(err.message).then();
-	}
-};

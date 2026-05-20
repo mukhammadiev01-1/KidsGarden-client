@@ -11,25 +11,14 @@ export const GET_ALL_MEMBERS_BY_ADMIN = gql`
 				_id
 				memberType
 				memberStatus
-				memberAuthType
 				memberPhone
 				memberNick
 				memberFullName
 				memberImage
-				memberAddress
-				memberDesc
 				memberWarnings
 				memberBlocks
-				memberProperties
-				memberRank
-				memberArticles
-				memberPoints
-				memberLikes
-				memberViews
-				deletedAt
 				createdAt
 				updatedAt
-				accessToken
 			}
 			metaCounter {
 				total
@@ -72,58 +61,69 @@ export const GET_KINDERGARTEN_ADMIN_APPLICATIONS = gql`
 	}
 `;
 
-/**************************
- *        PROPERTY        *
- *************************/
-
-export const GET_ALL_PROPERTIES_BY_ADMIN = gql`
-	query GetAllPropertiesByAdmin($input: AllPropertiesInquiry!) {
-		getAllPropertiesByAdmin(input: $input) {
+export const GET_STAFF_APPLICATIONS = gql`
+	query GetStaffApplications($input: StaffApplicationsInquiry!) {
+		getStaffApplications(input: $input) {
 			list {
 				_id
-				propertyType
-				propertyStatus
-				propertyLocation
-				propertyAddress
-				propertyTitle
-				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
-				propertyViews
-				propertyLikes
-				propertyImages
-				propertyDesc
-				propertyBarter
-				propertyRent
+				kindergartenId
+				applicantId
+				requestedRole
+				applicationStatus
+				message
+				reviewedBy
+				reviewedAt
+				rejectReason
+				createdAt
+				updatedAt
+				applicantData {
+					_id
+					memberNick
+					memberFullName
+					memberImage
+					memberPhone
+					memberType
+					memberStatus
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+/**************************
+ *      KINDERGARTEN      *
+ *************************/
+
+export const GET_ALL_KINDERGARTENS_BY_ADMIN = gql`
+	query GetAllKindergartensByAdmin($input: AllKindergartensInquiry!) {
+		getAllKindergartensByAdmin(input: $input) {
+			list {
+				_id
+				kindergartenType
+				kindergartenStatus
+				kindergartenLocation
+				kindergartenAddress
+				kindergartenTitle
+				kindergartenPrice
+				kindergartenCapacity
+				kindergartenAgeRange
+				kindergartenPrograms
+				kindergartenImages
+				kindergartenViews
+				kindergartenLikes
+				kindergartenComments
 				memberId
-				soldAt
-				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
 				memberData {
 					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
 					memberNick
 					memberFullName
 					memberImage
-					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
-					memberProperties
-					memberRank
-					memberPoints
-					memberLikes
-					memberViews
-					deletedAt
-					createdAt
-					updatedAt
-					accessToken
 				}
 			}
 			metaCounter {
@@ -149,31 +149,16 @@ export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`
 				articleImage
 				articleViews
 				articleLikes
+				articleComments
 				memberId
 				createdAt
 				updatedAt
 				memberData {
 					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
 					memberNick
 					memberFullName
 					memberImage
-					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
-					memberProperties
-					memberRank
-					memberPoints
-					memberLikes
-					memberViews
-					deletedAt
-					createdAt
-					updatedAt
-					accessToken
 				}
 			}
 			metaCounter {
@@ -187,9 +172,9 @@ export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`
  *         COMMENT        *
  *************************/
 
-export const GET_COMMENTS = gql`
-	query GetComments($input: CommentsInquiry!) {
-		getComments(input: $input) {
+export const GET_ALL_COMMENTS_BY_ADMIN = gql`
+	query GetAllCommentsByAdmin($input: AdminCommentsInquiry!) {
+		getAllCommentsByAdmin(input: $input) {
 			list {
 				_id
 				commentStatus
@@ -201,26 +186,10 @@ export const GET_COMMENTS = gql`
 				updatedAt
 				memberData {
 					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
 					memberNick
 					memberFullName
 					memberImage
-					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
-					memberProperties
-					memberRank
-					memberPoints
-					memberLikes
-					memberViews
-					deletedAt
-					createdAt
-					updatedAt
-					accessToken
 				}
 			}
 			metaCounter {

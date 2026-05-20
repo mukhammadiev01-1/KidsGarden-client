@@ -24,6 +24,7 @@ import { GET_BOARD_ARTICLE, GET_COMMENTS } from '../../apollo/user/query';
 import { CREATE_COMMENT, LIKE_TARGET_BOARD_ARTICLE, UPDATE_COMMENT } from '../../apollo/user/mutation';
 import { sweetErrorHandling, sweetLoginConfirmAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
+import { MemberType } from '../../libs/enums/member.enum';
 const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -64,6 +65,8 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	const [updatedCommentId, setUpdatedCommentId] = useState<string>('');
 	const [likeLoading, setLikeLoading] = useState<boolean>(false);
 	const [boardArticle, setBoardArticle] = useState<BoardArticle>();
+	const isParent = user.memberType === MemberType.PARENT;
+	const isLoggedIn = Boolean(user?._id);
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
@@ -200,6 +203,22 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		setSearchFilter({ ...searchFilter, page: value });
 	};
 
+	const writeButtonHandler = async () => {
+		if (!isLoggedIn) {
+			const confirmed = await sweetLoginConfirmAlert('Please login first');
+			if (confirmed) await router.push('/account/join');
+			return;
+		}
+
+		if (!isParent) return;
+		await router.push({
+			pathname: '/mypage',
+			query: {
+				category: 'writeArticle',
+			},
+		});
+	};
+
 	const likeBoardArticleHandler = async () => {
 		try {
 			if (!articleId || likeLoading) return;
@@ -259,19 +278,16 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 										Read family questions, helpful updates, and KidsGarden community conversations.
 									</Typography>
 								</Stack>
-								<Button
-									onClick={() =>
-										router.push({
-											pathname: '/mypage',
-											query: {
-												category: 'writeArticle',
-											},
-										})
-									}
-									className="right"
-								>
-									Write
-								</Button>
+								{isParent && (
+									<Button onClick={writeButtonHandler} className="right">
+										Write
+									</Button>
+								)}
+								{!isLoggedIn && (
+									<Button onClick={writeButtonHandler} className="right">
+										Join to Write
+									</Button>
+								)}
 							</Stack>
 							<div className="config">
 								{getBoardArticleLoading && (

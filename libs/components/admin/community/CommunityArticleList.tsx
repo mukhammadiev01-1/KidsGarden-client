@@ -2,10 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import {
 	Box,
-	Button,
-	Fade,
-	Menu,
 	MenuItem,
+	Select,
 	Table,
 	TableBody,
 	TableCell,
@@ -21,17 +19,18 @@ import OpenInBrowserRoundedIcon from '@mui/icons-material/OpenInBrowserRounded';
 import Moment from 'react-moment';
 import { BoardArticle } from '../../../types/board-article/board-article';
 import { REACT_APP_API_URL } from '../../../config';
-import DeleteIcon from '@mui/icons-material/Delete';
 import Typography from '@mui/material/Typography';
-import { BoardArticleStatus } from '../../../enums/board-article.enum';
+import { BoardArticleCategory, BoardArticleStatus } from '../../../enums/board-article.enum';
 
 interface Data {
 	category: string;
 	title: string;
 	writer: string;
+	content: string;
 	register: string;
 	view: number;
 	like: number;
+	comment: number;
 	status: string;
 	article_id: string;
 }
@@ -66,19 +65,31 @@ const headCells: readonly HeadCell[] = [
 		id: 'writer',
 		numeric: true,
 		disablePadding: false,
-		label: 'WRITER',
+		label: 'AUTHOR',
+	},
+	{
+		id: 'content',
+		numeric: true,
+		disablePadding: false,
+		label: 'PREVIEW',
 	},
 	{
 		id: 'view',
 		numeric: false,
 		disablePadding: false,
-		label: 'VIEW',
+		label: 'VIEWS',
 	},
 	{
 		id: 'like',
 		numeric: false,
 		disablePadding: false,
-		label: 'LIKE',
+		label: 'LIKES',
+	},
+	{
+		id: 'comment',
+		numeric: false,
+		disablePadding: false,
+		label: 'COMMENTS',
 	},
 	{
 		id: 'register',
@@ -121,16 +132,28 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 interface CommunityArticleListProps {
 	articles: BoardArticle[];
-	anchorEl: any;
-	menuIconClickHandler: any;
-	menuIconCloseHandler: any;
 	updateArticleHandler: any;
-	removeArticleHandler: any;
+	loading?: boolean;
+	error?: any;
 }
 
 const CommunityArticleList = (props: CommunityArticleListProps) => {
-	const { articles, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateArticleHandler, removeArticleHandler } =
-		props;
+	const { articles, updateArticleHandler, loading, error } = props;
+
+	const categoryLabel = (category: BoardArticleCategory) => {
+		switch (category) {
+			case BoardArticleCategory.FREE:
+				return 'Parent Board';
+			case BoardArticleCategory.NEWS:
+				return 'News';
+			default:
+				return `Legacy: ${category}`;
+		}
+	};
+
+	const stripHtml = (value?: string) => {
+		return value?.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim() || '';
+	};
 
 	return (
 		<Stack>
@@ -139,21 +162,43 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 					{/*@ts-ignore*/}
 					<EnhancedTableHead />
 					<TableBody>
-						{articles.length === 0 && (
+						{loading && (
 							<TableRow>
-								<TableCell align="center" colSpan={8}>
-									<span className={'no-data'}>data not found!</span>
+								<TableCell align="center" colSpan={10}>
+									<span className={'no-data'}>Loading community articles...</span>
+								</TableCell>
+							</TableRow>
+						)}
+						{!loading && error && (
+							<TableRow>
+								<TableCell align="center" colSpan={10}>
+									<span className={'no-data'}>Community articles could not be loaded.</span>
+								</TableCell>
+							</TableRow>
+						)}
+						{!loading && !error && articles.length === 0 && (
+							<TableRow>
+								<TableCell align="center" colSpan={10}>
+									<span className={'no-data'}>No community articles found.</span>
 								</TableCell>
 							</TableRow>
 						)}
 
-						{articles.length !== 0 &&
-							articles.map((article: BoardArticle, index: number) => (
+						{!loading &&
+							!error &&
+							articles.length !== 0 &&
+							articles.map((article: BoardArticle) => (
 								<TableRow hover key={article._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-									<TableCell align="left">{article._id}</TableCell>
 									<TableCell align="left">
-										<Box component={'div'}>
-											{article.articleTitle}
+										<Typography title={article._id} sx={{ maxWidth: 120 }} noWrap>
+											{article._id}
+										</Typography>
+									</TableCell>
+									<TableCell align="left">
+										<Box component={'div'} sx={{ display: 'flex', alignItems: 'center', gap: '8px', maxWidth: 240 }}>
+											<Typography sx={{ fontWeight: 600 }} noWrap title={article.articleTitle}>
+												{article.articleTitle}
+											</Typography>
 											<Link
 												href={`/community/detail?articleCategory=${article.articleCategory}&id=${article._id}`}
 												className={'img_box'}
@@ -166,11 +211,11 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 											</Link>
 										</Box>
 									</TableCell>
-									<TableCell align="left">{article.articleCategory}</TableCell>
+									<TableCell align="left">{categoryLabel(article.articleCategory)}</TableCell>
 									<TableCell align="left" className={'name'}>
 										<Link href={`/member?memberId=${article?.memberData?._id}`}>
 											<Avatar
-												alt="Remy Sharp"
+												alt={article?.memberData?.memberNick || 'Author'}
 												src={
 													article?.memberData?.memberImage
 														? `${REACT_APP_API_URL}/${article?.memberData?.memberImage}`
@@ -178,55 +223,39 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 												}
 												sx={{ ml: '2px', mr: '10px' }}
 											/>
-											{article?.memberData?.memberNick}
+											{article?.memberData?.memberFullName || article?.memberData?.memberNick || 'Unknown author'}
 										</Link>
+									</TableCell>
+									<TableCell align="left">
+										<Typography sx={{ maxWidth: 260, color: '#59675f' }} noWrap title={stripHtml(article.articleContent)}>
+											{stripHtml(article.articleContent) || '-'}
+										</Typography>
 									</TableCell>
 									<TableCell align="center">{article?.articleViews}</TableCell>
 									<TableCell align="center">{article?.articleLikes}</TableCell>
+									<TableCell align="center">{article?.articleComments}</TableCell>
 									<TableCell align="left">
 										<Moment format={'DD.MM.YY HH:mm'}>{article?.createdAt}</Moment>
 									</TableCell>
 									<TableCell align="center">
-										{article.articleStatus === 'DELETE' ? (
-											<Button
-												variant="outlined"
-												sx={{ p: '3px', border: 'none', ':hover': { border: '1px solid #000000' } }}
-												onClick={() => removeArticleHandler(article._id)}
-											>
-												<DeleteIcon fontSize="small" />
-											</Button>
-										) : (
-											<>
-												<Button onClick={(e: any) => menuIconClickHandler(e, index)} className={'badge success'}>
-													{article.articleStatus}
-												</Button>
-
-												<Menu
-													className={'menu-modal'}
-													MenuListProps={{
-														'aria-labelledby': 'fade-button',
-													}}
-													anchorEl={anchorEl[index]}
-													open={Boolean(anchorEl[index])}
-													onClose={menuIconCloseHandler}
-													TransitionComponent={Fade}
-													sx={{ p: 1 }}
-												>
-													{Object.values(BoardArticleStatus)
-														.filter((ele) => ele !== article.articleStatus)
-														.map((status: string) => (
-															<MenuItem
-																onClick={() => updateArticleHandler({ _id: article._id, articleStatus: status })}
-																key={status}
-															>
-																<Typography variant={'subtitle1'} component={'span'}>
-																	{status}
-																</Typography>
-															</MenuItem>
-														))}
-												</Menu>
-											</>
-										)}
+										<Select
+											size="small"
+											value={article.articleStatus}
+											disabled={article.articleStatus === BoardArticleStatus.DELETE}
+											onChange={(event) =>
+												updateArticleHandler({
+													_id: article._id,
+													articleStatus: event.target.value as BoardArticleStatus,
+												})
+											}
+											sx={{ minWidth: 120 }}
+										>
+											{Object.values(BoardArticleStatus).map((status: BoardArticleStatus) => (
+												<MenuItem value={status} key={status}>
+													{status === BoardArticleStatus.DELETE ? 'DELETED' : status}
+												</MenuItem>
+											))}
+										</Select>
 									</TableCell>
 								</TableRow>
 							))}

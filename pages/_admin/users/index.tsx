@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import type { NextPage } from 'next';
+import { useMutation, useQuery } from '@apollo/client';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import { MemberPanelList } from '../../../libs/components/admin/users/MemberList';
 import { Box, InputAdornment, List, ListItem, Stack } from '@mui/material';
@@ -14,8 +15,10 @@ import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { MembersInquiry } from '../../../libs/types/member/member.input';
 import { Member } from '../../../libs/types/member/member';
 import { MemberStatus, MemberType } from '../../../libs/enums/member.enum';
-import { sweetErrorHandling } from '../../../libs/sweetAlert';
+import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
 import { MemberUpdate } from '../../../libs/types/member/member.update';
+import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
+import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
 
 const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
@@ -29,9 +32,17 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [searchType, setSearchType] = useState('ALL');
 
 	/** APOLLO REQUESTS **/
-
-	/** LIFECYCLES **/
-	useEffect(() => {}, [membersInquiry]);
+	const [updateMemberByAdmin] = useMutation(UPDATE_MEMBER_BY_ADMIN);
+	const { loading, refetch } = useQuery(GET_ALL_MEMBERS_BY_ADMIN, {
+		variables: { input: membersInquiry },
+		fetchPolicy: 'network-only',
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data) => {
+			setMembers(data?.getAllMembersByAdmin?.list ?? []);
+			setMembersTotal(data?.getAllMembersByAdmin?.metaCounter?.[0]?.total ?? 0);
+		},
+		onError: (err) => sweetErrorHandling(err).then(),
+	});
 
 	/** HANDLERS **/
 	const changePageHandler = async (event: unknown, newPage: number) => {
@@ -59,28 +70,42 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 		setValue(newValue);
 		setSearchText('');
 
-		setMembersInquiry({ ...membersInquiry, page: 1, sort: 'createdAt' });
+		const nextSearch = { ...membersInquiry.search, text: '' };
 
 		switch (newValue) {
 			case 'ACTIVE':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.ACTIVE } });
+				nextSearch.memberStatus = MemberStatus.ACTIVE;
 				break;
 			case 'BLOCK':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.BLOCK } });
+				nextSearch.memberStatus = MemberStatus.BLOCK;
 				break;
 			case 'DELETE':
-				setMembersInquiry({ ...membersInquiry, search: { memberStatus: MemberStatus.DELETE } });
+				nextSearch.memberStatus = MemberStatus.DELETE;
 				break;
 			default:
-				delete membersInquiry?.search?.memberStatus;
-				setMembersInquiry({ ...membersInquiry });
+				delete nextSearch.memberStatus;
 				break;
 		}
+
+		setMembersInquiry({ ...membersInquiry, page: 1, sort: 'createdAt', search: nextSearch });
 	};
 
 	const updateMemberHandler = async (updateData: MemberUpdate) => {
 		try {
+			if (!updateData.memberStatus) throw new Error('Only member status updates are available.');
+			await updateMemberByAdmin({
+				variables: {
+					input: {
+						_id: updateData._id,
+						memberStatus: updateData.memberStatus,
+					},
+				},
+			});
+			const refreshed = await refetch();
+			setMembers(refreshed?.data?.getAllMembersByAdmin?.list ?? []);
+			setMembersTotal(refreshed?.data?.getAllMembersByAdmin?.metaCounter?.[0]?.total ?? 0);
 			menuIconCloseHandler();
+			await sweetMixinSuccessAlert('Member status updated');
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -98,6 +123,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 		try {
 			setMembersInquiry({
 				...membersInquiry,
+				page: 1,
 				search: {
 					...membersInquiry.search,
 					text: searchText,
@@ -123,8 +149,9 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 					},
 				});
 			} else {
-				delete membersInquiry?.search?.memberType;
-				setMembersInquiry({ ...membersInquiry });
+				const nextSearch = { ...membersInquiry.search };
+				delete nextSearch.memberType;
+				setMembersInquiry({ ...membersInquiry, page: 1, search: nextSearch });
 			}
 		} catch (err: any) {
 			console.log('searchTypeHandler: ', err.message);
@@ -229,6 +256,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 						</Box>
 						<MemberPanelList
 							members={members}
+							loading={loading}
 							anchorEl={anchorEl}
 							menuIconClickHandler={menuIconClickHandler}
 							menuIconCloseHandler={menuIconCloseHandler}

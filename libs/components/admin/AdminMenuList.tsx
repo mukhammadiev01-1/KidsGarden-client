@@ -1,167 +1,3 @@
-<<<<<<< ours
-import React, { useEffect, useState } from 'react';
-import { useRouter, withRouter } from 'next/router';
-import Link from 'next/link';
-import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import Collapse from '@mui/material/Collapse';
-import Typography from '@mui/material/Typography';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import { User, UserCircleGear } from 'phosphor-react';
-import cookies from 'js-cookie';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-
-const AdminMenuList = (props: any) => {
-	const router = useRouter();
-	const device = useDeviceDetect();
-	const [mobileLayout, setMobileLayout] = useState(false);
-	const [openSubMenu, setOpenSubMenu] = useState('Users');
-	const [openMenu, setOpenMenu] = useState(typeof window === 'object' ? cookies.get('admin_menu') === 'true' : false);
-	const [clickMenu, setClickMenu] = useState<any>([]);
-	const [clickSubMenu, setClickSubMenu] = useState('');
-
-	const {
-		router: { pathname },
-	} = props;
-
-	const pathnames = pathname.split('/').filter((x: any) => x);
-
-	/** LIFECYCLES **/
-	useEffect(() => {
-		if (device === 'mobile') setMobileLayout(true);
-
-		switch (pathnames[1]) {
-			case 'properties':
-				setClickMenu(['kindergartens']);
-				break;
-			case 'community':
-				setClickMenu(['community']);
-				break;
-			case 'cs':
-				setClickMenu(['cs']);
-				break;
-			default:
-				setClickMenu(['members']);
-				break;
-		}
-
-		switch (pathnames[2]) {
-			case 'logs':
-				setClickSubMenu('Logs');
-				break;
-			case 'kindergarten-admin-applications':
-				setClickSubMenu('Admin Applications');
-				break;
-			case 'inquiry':
-				setClickSubMenu('1:1 Inquiry');
-				break;
-			case 'notice':
-				setClickSubMenu('Notice');
-				break;
-			case 'faq':
-				setClickSubMenu('FAQ');
-				break;
-			case 'board_create':
-				setClickSubMenu('Board Create');
-				break;
-			default:
-				setClickSubMenu('List');
-				break;
-		}
-	}, []);
-
-	/** HANDLERS **/
-	const subMenuChangeHandler = (target: string) => {
-		if (clickMenu.find((item: string) => item === target)) {
-			// setOpenSubMenu('');
-			setClickMenu(clickMenu.filter((menu: string) => target !== menu));
-		} else {
-			// setOpenSubMenu(target);
-			setClickMenu([...clickMenu, target]);
-		}
-	};
-
-	const menu_set = [
-		{
-			key: 'members',
-			title: 'Members',
-			icon: <User size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('members'),
-		},
-		{
-			key: 'kindergartens',
-			title: 'Kindergartens',
-			icon: <UserCircleGear size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('kindergartens'),
-		},
-	];
-
-	const sub_menu_set: any = {
-		members: [
-			{ title: 'List', url: '/_admin/users' },
-			{ title: 'Admin Applications', url: '/_admin/users/kindergarten-admin-applications' },
-		],
-		kindergartens: [{ title: 'List', url: '/_admin/properties' }],
-		community: [{ title: 'List', url: '/_admin/community' }],
-		cs: [
-			{ title: 'FAQ', url: '/_admin/cs/faq' },
-			{ title: 'Notice', url: '/_admin/cs/notice' },
-		],
-	};
-
-	return (
-		<>
-			{menu_set.map((item, index) => (
-				<List className={'menu_wrap'} key={index} disablePadding>
-					<ListItemButton
-						onClick={item.on_click}
-						component={'li'}
-						className={clickMenu[0] === item.key ? 'menu on' : 'menu'}
-						sx={{
-							minHeight: 48,
-							justifyContent: openMenu ? 'initial' : 'center',
-							px: 2.5,
-						}}
-					>
-						<ListItemIcon
-							sx={{
-								minWidth: 0,
-								mr: openMenu ? 3 : 'auto',
-								justifyContent: 'center',
-							}}
-						>
-							{item.icon}
-						</ListItemIcon>
-						<ListItemText>{item.title}</ListItemText>
-						{clickMenu.find((menu: string) => item.key === menu) ? <ExpandLess /> : <ExpandMore />}
-					</ListItemButton>
-					<Collapse
-						in={!!clickMenu.find((menu: string) => menu === item.key)}
-						className="menu"
-						timeout="auto"
-						component="li"
-						unmountOnExit
-					>
-						<List className="menu-list" disablePadding>
-							{sub_menu_set[item.key] &&
-								sub_menu_set[item.key].map((sub: any, i: number) => (
-									<Link href={sub.url} shallow={true} replace={true} key={i}>
-										<ListItemButton
-											component="li"
-											className={clickMenu[0] === item.key && clickSubMenu === sub.title ? 'li on' : 'li'}
-										>
-											<Typography variant={sub.title} component={'span'}>
-												{sub.title}
-											</Typography>
-										</ListItemButton>
-									</Link>
-								))}
-						</List>
-					</Collapse>
-				</List>
-			))}
-		</>
-=======
 import React from 'react';
 import Link from 'next/link';
 import { withRouter } from 'next/router';
@@ -222,16 +58,16 @@ const menuSections: { title: string; items: AdminMenuItem[] }[] = [
 		items: [
 			{
 				key: 'kindergarten-admin-applications',
-				title: 'Admin Applications',
-				description: 'Kindergarten admin approvals',
+				title: 'Kindergarten Admin Applications',
+				description: 'Approval requests',
 				url: '/_admin/users/kindergarten-admin-applications',
 				icon: <AssignmentTurnedInRoundedIcon />,
 			},
 			{
 				key: 'staff-applications',
 				title: 'Staff Applications',
-				description: 'Teacher applications later',
-				disabled: true,
+				description: 'Teacher approval requests',
+				url: '/_admin/users/staff-applications',
 				icon: <WorkRoundedIcon />,
 			},
 		],
@@ -276,14 +112,14 @@ const menuSections: { title: string; items: AdminMenuItem[] }[] = [
 				key: 'articles',
 				title: 'Articles',
 				description: 'Community moderation',
-				disabled: true,
+				url: '/_admin/community',
 				icon: <ArticleRoundedIcon />,
 			},
 			{
 				key: 'comments',
 				title: 'Comments',
 				description: 'Comment moderation',
-				disabled: true,
+				url: '/_admin/community/comments',
 				icon: <CommentRoundedIcon />,
 			},
 		],
@@ -326,9 +162,14 @@ const AdminMenuList = (props: any) => {
 
 	const renderItem = (item: AdminMenuItem) => {
 		const active = isActive(item.url);
-		const button = (
+		const linkProps =
+			item.disabled || !item.url
+				? { component: 'li' as const }
+				: { component: Link as any, href: item.url, shallow: true, replace: true };
+
+		return (
 			<ListItemButton
-				component="li"
+				{...linkProps}
 				disabled={item.disabled}
 				className={`admin-menu-item${active ? ' is-active' : ''}${item.disabled ? ' is-disabled' : ''}`}
 			>
@@ -343,14 +184,6 @@ const AdminMenuList = (props: any) => {
 				/>
 				{item.disabled && <Typography className="admin-menu-status">Later</Typography>}
 			</ListItemButton>
-		);
-
-		if (item.disabled || !item.url) return button;
-
-		return (
-			<Link href={item.url} shallow={true} replace={true} key={item.key}>
-				{button}
-			</Link>
 		);
 	};
 
@@ -367,7 +200,6 @@ const AdminMenuList = (props: any) => {
 				</Stack>
 			))}
 		</Stack>
->>>>>>> theirs
 	);
 };
 

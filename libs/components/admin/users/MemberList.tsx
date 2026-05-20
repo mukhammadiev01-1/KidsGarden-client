@@ -17,7 +17,7 @@ import Typography from '@mui/material/Typography';
 import { Stack } from '@mui/material';
 import { Member } from '../../../types/member/member';
 import { REACT_APP_API_URL } from '../../../config';
-import { getMemberTypeLabel, MemberStatus, MemberType } from '../../../enums/member.enum';
+import { getMemberTypeLabel, MemberStatus } from '../../../enums/member.enum';
 
 interface Data {
 	id: string;
@@ -131,6 +131,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 interface MemberPanelListType {
 	members: Member[];
+	loading?: boolean;
 	anchorEl: any;
 	menuIconClickHandler: any;
 	menuIconCloseHandler: any;
@@ -138,7 +139,7 @@ interface MemberPanelListType {
 }
 
 export const MemberPanelList = (props: MemberPanelListType) => {
-	const { members, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateMemberHandler } = props;
+	const { members, loading, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateMemberHandler } = props;
 
 	return (
 		<Stack>
@@ -147,7 +148,15 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 					{/*@ts-ignore*/}
 					<EnhancedTableHead />
 					<TableBody>
-						{members.length === 0 && (
+						{loading && (
+							<TableRow>
+								<TableCell align="center" colSpan={8}>
+									<span className={'no-data'}>Loading members...</span>
+								</TableCell>
+							</TableRow>
+						)}
+
+						{!loading && members.length === 0 && (
 							<TableRow>
 								<TableCell align="center" colSpan={8}>
 									<span className={'no-data'}>data not found!</span>
@@ -155,7 +164,8 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 							</TableRow>
 						)}
 
-						{members.length !== 0 &&
+						{!loading &&
+							members.length !== 0 &&
 							members.map((member: Member, index: number) => {
 								const member_image = member.memberImage
 									? `${REACT_APP_API_URL}/${member.memberImage}`
@@ -181,34 +191,9 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 										<TableCell align="left">{member.memberPhone}</TableCell>
 
 										<TableCell align="center">
-											<Button onClick={(e: any) => menuIconClickHandler(e, index)} className={'badge success'}>
+											<Typography component={'span'} className={'badge success'}>
 												{getMemberTypeLabel(member.memberType)}
-											</Button>
-
-											<Menu
-												className={'menu-modal'}
-												MenuListProps={{
-													'aria-labelledby': 'fade-button',
-												}}
-												anchorEl={anchorEl[index]}
-												open={Boolean(anchorEl[index])}
-												onClose={menuIconCloseHandler}
-												TransitionComponent={Fade}
-												sx={{ p: 1 }}
-											>
-												{Object.values(MemberType)
-													.filter((ele) => ele !== member?.memberType)
-													.map((type: string) => (
-														<MenuItem
-															onClick={() => updateMemberHandler({ _id: member._id, memberType: type })}
-															key={type}
-														>
-															<Typography variant={'subtitle1'} component={'span'}>
-																{getMemberTypeLabel(type)}
-															</Typography>
-														</MenuItem>
-													))}
-											</Menu>
+											</Typography>
 										</TableCell>
 
 										<TableCell align="center">{member.memberWarnings}</TableCell>

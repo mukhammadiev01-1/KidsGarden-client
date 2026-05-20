@@ -10,8 +10,11 @@ import { T } from '../../libs/types/common';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { BoardArticlesInquiry } from '../../libs/types/board-article/board-article.input';
 import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
-import { useQuery } from '@apollo/client';
+import { useQuery, useReactiveVar } from '@apollo/client';
 import { GET_BOARD_ARTICLES } from '../../apollo/user/query';
+import { userVar } from '../../apollo/store';
+import { MemberType } from '../../libs/enums/member.enum';
+import { sweetLoginConfirmAlert } from '../../libs/sweetAlert';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -33,6 +36,9 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	const [searchCommunity, setSearchCommunity] = useState<BoardArticlesInquiry>(initialInput);
 	const [boardArticles, setBoardArticles] = useState<BoardArticle[]>([]);
 	const [totalCount, setTotalCount] = useState<number>(0);
+	const user = useReactiveVar(userVar);
+	const isParent = user.memberType === MemberType.PARENT;
+	const isLoggedIn = Boolean(user?._id);
 
 	/** APOLLO REQUESTS **/
 	const { loading: getBoardArticlesLoading } = useQuery(GET_BOARD_ARTICLES, {
@@ -102,6 +108,22 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 
 	const paginationHandler = (e: T, value: number) => {
 		setSearchCommunity({ ...searchCommunity, page: value });
+	};
+
+	const writeButtonHandler = async () => {
+		if (!isLoggedIn) {
+			const confirmed = await sweetLoginConfirmAlert('Please login first');
+			if (confirmed) await router.push('/account/join');
+			return;
+		}
+
+		if (!isParent) return;
+		await router.push({
+			pathname: '/mypage',
+			query: {
+				category: 'writeArticle',
+			},
+		});
 	};
 
 	const renderArticleList = () => {
@@ -174,19 +196,16 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 												Ask questions, share experiences, and read KidsGarden updates.
 											</Typography>
 										</Stack>
-										<Button
-											onClick={() =>
-												router.push({
-													pathname: '/mypage',
-													query: {
-														category: 'writeArticle',
-													},
-												})
-											}
-											className="right"
-										>
-											Write
-										</Button>
+										{isParent && (
+											<Button onClick={writeButtonHandler} className="right">
+												Write
+											</Button>
+										)}
+										{!isLoggedIn && (
+											<Button onClick={writeButtonHandler} className="right">
+												Join to Write
+											</Button>
+										)}
 									</Stack>
 
 									{visibleCategories.map((category) => (

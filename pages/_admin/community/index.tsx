@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { NextPage } from 'next';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import { Box, Stack, MenuItem } from '@mui/material';
@@ -8,15 +8,17 @@ import Divider from '@mui/material/Divider';
 import Select from '@mui/material/Select';
 import { TabContext } from '@mui/lab';
 import TablePagination from '@mui/material/TablePagination';
+import { useMutation, useQuery } from '@apollo/client';
 import CommunityArticleList from '../../../libs/components/admin/community/CommunityArticleList';
 import { AllBoardArticlesInquiry } from '../../../libs/types/board-article/board-article.input';
 import { BoardArticle } from '../../../libs/types/board-article/board-article';
 import { BoardArticleCategory, BoardArticleStatus } from '../../../libs/enums/board-article.enum';
-import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
+import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
 import { BoardArticleUpdate } from '../../../libs/types/board-article/board-article.update';
+import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '../../../apollo/admin/query';
+import { UPDATE_BOARD_ARTICLE_BY_ADMIN } from '../../../apollo/admin/mutation';
 
 const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
-	const [anchorEl, setAnchorEl] = useState<any>([]);
 	const [communityInquiry, setCommunityInquiry] = useState<AllBoardArticlesInquiry>(initialInquiry);
 	const [articles, setArticles] = useState<BoardArticle[]>([]);
 	const [articleTotal, setArticleTotal] = useState<number>(0);
@@ -26,47 +28,52 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [searchType, setSearchType] = useState('ALL');
 
 	/** APOLLO REQUESTS **/
-
-	/** LIFECYCLES **/
-	useEffect(() => {}, [communityInquiry]);
+	const { loading, error, refetch } = useQuery(GET_ALL_BOARD_ARTICLES_BY_ADMIN, {
+		fetchPolicy: 'cache-and-network',
+		notifyOnNetworkStatusChange: true,
+		variables: { input: communityInquiry },
+		onCompleted: (data: any) => {
+			setArticles(data?.getAllBoardArticlesByAdmin?.list ?? []);
+			setArticleTotal(data?.getAllBoardArticlesByAdmin?.metaCounter?.[0]?.total ?? 0);
+		},
+		onError: () => {
+			setArticles([]);
+			setArticleTotal(0);
+		},
+	});
+	const [updateBoardArticleByAdmin] = useMutation(UPDATE_BOARD_ARTICLE_BY_ADMIN);
 
 	/** HANDLERS **/
 	const changePageHandler = async (event: unknown, newPage: number) => {
-		communityInquiry.page = newPage + 1;
-		setCommunityInquiry({ ...communityInquiry });
+		setCommunityInquiry({ ...communityInquiry, page: newPage + 1 });
 	};
 
 	const changeRowsPerPageHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		communityInquiry.limit = parseInt(event.target.value, 10);
-		communityInquiry.page = 1;
-		setCommunityInquiry({ ...communityInquiry });
-	};
-
-	const menuIconClickHandler = (e: any, index: number) => {
-		const tempAnchor = anchorEl.slice();
-		tempAnchor[index] = e.currentTarget;
-		setAnchorEl(tempAnchor);
-	};
-
-	const menuIconCloseHandler = () => {
-		setAnchorEl([]);
+		setCommunityInquiry({ ...communityInquiry, limit: parseInt(event.target.value, 10), page: 1 });
 	};
 
 	const tabChangeHandler = async (event: any, newValue: string) => {
 		setValue(newValue);
 
-		setCommunityInquiry({ ...communityInquiry, page: 1, sort: 'createdAt' });
-
 		switch (newValue) {
 			case 'ACTIVE':
-				setCommunityInquiry({ ...communityInquiry, search: { articleStatus: BoardArticleStatus.ACTIVE } });
+				setCommunityInquiry({
+					...communityInquiry,
+					page: 1,
+					search: { ...communityInquiry.search, articleStatus: BoardArticleStatus.ACTIVE },
+				});
 				break;
 			case 'DELETE':
-				setCommunityInquiry({ ...communityInquiry, search: { articleStatus: BoardArticleStatus.DELETE } });
+				setCommunityInquiry({
+					...communityInquiry,
+					page: 1,
+					search: { ...communityInquiry.search, articleStatus: BoardArticleStatus.DELETE },
+				});
 				break;
 			default:
-				delete communityInquiry?.search?.articleStatus;
-				setCommunityInquiry({ ...communityInquiry });
+				const nextSearch = { ...communityInquiry.search };
+				delete nextSearch.articleStatus;
+				setCommunityInquiry({ ...communityInquiry, page: 1, search: nextSearch });
 				break;
 		}
 	};
@@ -86,8 +93,9 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 					},
 				});
 			} else {
-				delete communityInquiry?.search?.articleCategory;
-				setCommunityInquiry({ ...communityInquiry });
+				const nextSearch = { ...communityInquiry.search };
+				delete nextSearch.articleCategory;
+				setCommunityInquiry({ ...communityInquiry, page: 1, search: nextSearch });
 			}
 		} catch (err: any) {
 			console.log('searchTypeHandler: ', err.message);
@@ -96,31 +104,28 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	const updateArticleHandler = async (updateData: BoardArticleUpdate) => {
 		try {
-			console.log('+updateData: ', updateData);
-
-			menuIconCloseHandler();
-		} catch (err: any) {
-			menuIconCloseHandler();
-			sweetErrorHandling(err).then();
-		}
-	};
-
-	const removeArticleHandler = async (id: string) => {
-		try {
-			if (await sweetConfirmAlert('are you sure to remove?')) {
-			}
+			await updateBoardArticleByAdmin({
+				variables: {
+					input: {
+						_id: updateData._id,
+						articleStatus: updateData.articleStatus,
+					},
+				},
+			});
+			await refetch({ input: communityInquiry });
+			await sweetMixinSuccessAlert('Article status updated');
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
 	};
-
-	console.log('+communityInquiry', communityInquiry);
-	console.log('+articles', articles);
 
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Arricle List
+				Community Articles
+			</Typography>
+			<Typography sx={{ mb: '24px', color: '#64746b' }}>
+				Moderate Parent Board and News posts.
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
@@ -146,7 +151,7 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 									value="DELETE"
 									className={value === 'DELETE' ? 'li on' : 'li'}
 								>
-									Delete
+									Deleted
 								</ListItem>
 							</List>
 							<Divider />
@@ -157,7 +162,11 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 									</MenuItem>
 									{Object.values(BoardArticleCategory).map((category: string) => (
 										<MenuItem value={category} onClick={() => searchTypeHandler(category)} key={category}>
-											{category}
+											{category === BoardArticleCategory.FREE
+												? 'Parent Board'
+												: category === BoardArticleCategory.NEWS
+												? 'News'
+												: `Legacy: ${category}`}
 										</MenuItem>
 									))}
 								</Select>
@@ -166,11 +175,9 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 						</Box>
 						<CommunityArticleList
 							articles={articles}
-							anchorEl={anchorEl}
-							menuIconClickHandler={menuIconClickHandler}
-							menuIconCloseHandler={menuIconCloseHandler}
 							updateArticleHandler={updateArticleHandler}
-							removeArticleHandler={removeArticleHandler}
+							loading={loading}
+							error={error}
 						/>
 
 						<TablePagination
@@ -195,7 +202,7 @@ AdminCommunity.defaultProps = {
 		limit: 10,
 		sort: 'createdAt',
 		direction: 'DESC',
-		search: {},
+		search: { articleStatus: BoardArticleStatus.ACTIVE },
 	},
 };
 
