@@ -182,11 +182,6 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		else return '/img/community/articleImg.png';
 	};
 
-	const goMemberPage = (id: any) => {
-		if (id === user?._id) router.push('/mypage');
-		else router.push(`/member?memberId=${id}`);
-	};
-
 	const cancelButtonHandler = () => {
 		setOpenBackdrop(false);
 		setUpdatedComment('');
@@ -315,9 +310,8 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 														src={memberImage}
 														alt=""
 														className="member-img"
-														onClick={() => goMemberPage(boardArticle?.memberData?._id)}
 													/>
-													<Typography className="member-nick" onClick={() => goMemberPage(boardArticle?.memberData?._id)}>
+													<Typography className="member-nick">
 														{boardArticle?.memberData?.memberNick}
 													</Typography>
 													<Stack className="divider"></Stack>
@@ -404,10 +398,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 										<Stack className="comments-box" key={commentData?._id}>
 											<Stack className="main-comment">
 												<Stack className="member-info">
-													<Stack
-														className="name-date"
-														onClick={() => goMemberPage(commentData?.memberData?._id as string)}
-													>
+													<Stack className="name-date">
 														<img src={getCommentMemberImage(commentData?.memberData?.memberImage)} alt="" />
 														<Stack className="name-date-column">
 															<Typography className="name">{commentData?.memberData?.memberNick}</Typography>

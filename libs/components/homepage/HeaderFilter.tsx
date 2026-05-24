@@ -13,6 +13,13 @@ import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { getKindergartenTypeLabel } from '../../utils';
 import Link from 'next/link';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import RocketLaunchRoundedIcon from '@mui/icons-material/RocketLaunchRounded';
+import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
+import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
+import EventAvailableOutlinedIcon from '@mui/icons-material/EventAvailableOutlined';
+import TrendingUpRoundedIcon from '@mui/icons-material/TrendingUpRounded';
 
 const style = {
 	position: 'absolute' as 'absolute',
@@ -316,36 +323,108 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 		}
 	};
 
+	const heroFeatureCards = (
+		<Stack className={'hero-feature-cards'}>
+			<Box component={'article'} className={'hero-feature-card safe-card'}>
+				<Box component={'div'} className={'feature-icon'}>
+					<ShieldOutlinedIcon />
+				</Box>
+				<Box component={'div'} className={'feature-copy'}>
+					<strong>Safe &amp; Secure</strong>
+					<span>Your data is always protected</span>
+				</Box>
+			</Box>
+			<Box component={'article'} className={'hero-feature-card communication-card'}>
+				<Box component={'div'} className={'feature-icon'}>
+					<GroupsOutlinedIcon />
+				</Box>
+				<Box component={'div'} className={'feature-copy'}>
+					<strong>Better Communication</strong>
+					<span>Parents and teachers stay connected</span>
+				</Box>
+			</Box>
+			<Box component={'article'} className={'hero-feature-card management-card'}>
+				<Box component={'div'} className={'feature-icon'}>
+					<EventAvailableOutlinedIcon />
+				</Box>
+				<Box component={'div'} className={'feature-copy'}>
+					<strong>Smart Management</strong>
+					<span>Save time and focus on what matters</span>
+				</Box>
+			</Box>
+			<Box component={'article'} className={'hero-feature-card growth-card'}>
+				<Box component={'div'} className={'feature-icon'}>
+					<TrendingUpRoundedIcon />
+				</Box>
+				<Box component={'div'} className={'feature-copy'}>
+					<strong>Grow Together</strong>
+					<span>Tools to help every child thrive</span>
+				</Box>
+			</Box>
+		</Stack>
+	);
+
 	if (device === 'mobile') {
 		return (
 			<Stack className={'mobile-hero'}>
 				<Stack className={'hero-copy'}>
-					<span className={'eyebrow'}>KidsGarden finder</span>
-					<h1>Find a kindergarten where your child can grow with confidence</h1>
-					<p>Explore trusted centers, follow updates, and stay connected with your child’s early learning journey.</p>
+					<span className={'eyebrow'}>
+						<AutoAwesomeRoundedIcon />
+						All-in-One Early Learning Platform
+					</span>
+					<h1>
+						Everything your kindergarten needs, <span>in one place</span>
+					</h1>
+					<p>
+						Manage applications, attendance, communication, schedules, and more &mdash; so teachers can teach and
+						children can grow.
+					</p>
 				</Stack>
 				<Stack className={'hero-actions'}>
-					<Link href={'/property'}>Find Kindergartens</Link>
-					<Link href={'/community'}>Visit Community</Link>
+					<Link href={'/property'}>
+						<span>
+							<RocketLaunchRoundedIcon />
+							Explore Kindergartens
+						</span>
+					</Link>
+					<Link href={'/cs'}>
+						<span>
+							<PlayCircleFilledRoundedIcon />
+							See How It Works
+						</span>
+					</Link>
 				</Stack>
-				<Stack className={'trust-strip'}>
-					<span>Safe kindergarten discovery</span>
-					<span>Parent community</span>
-					<span>Attendance visibility</span>
-					<span>Role-based privacy</span>
-				</Stack>
+				{heroFeatureCards}
 			</Stack>
 		);
 	} else {
 		return (
 			<>
 				<Stack className={'hero-copy'}>
-					<span className={'eyebrow'}>KidsGarden finder</span>
-					<h1>Find a kindergarten where your child can grow with confidence</h1>
-					<p>Explore trusted centers, follow updates, and stay connected with your child’s early learning journey.</p>
+					<span className={'eyebrow'}>
+						<AutoAwesomeRoundedIcon />
+						All-in-One Early Learning Platform
+					</span>
+					<h1>
+						Everything your kindergarten needs, <span>in one place</span>
+					</h1>
+					<p>
+						Manage applications, attendance, communication, schedules, and more &mdash; so teachers can teach and
+						children can grow.
+					</p>
 					<Stack className={'hero-actions'}>
-						<Link href={'/property'}>Find Kindergartens</Link>
-						<Link href={'/community'}>Visit Community</Link>
+						<Link href={'/property'}>
+							<span>
+								<RocketLaunchRoundedIcon />
+								Explore Kindergartens
+							</span>
+						</Link>
+						<Link href={'/cs'}>
+							<span>
+								<PlayCircleFilledRoundedIcon />
+								See How It Works
+							</span>
+						</Link>
 					</Stack>
 				</Stack>
 				<Stack className={'search-box'}>
@@ -358,13 +437,13 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 							<span>
 								{searchFilter?.search?.typeList
 									? getKindergartenTypeLabel(searchFilter?.search?.typeList[0])
-									: t('Property type')}
+									: 'Center Type'}
 							</span>
 							<ExpandMoreIcon />
 						</Box>
 						<Box className={`box ${openRooms ? 'on' : ''}`} onClick={roomStateChangeHandler}>
 							<span>
-								{searchFilter?.search?.roomsList ? `${searchFilter?.search?.roomsList[0]} programs` : t('Rooms')}
+								{searchFilter?.search?.roomsList ? `${searchFilter?.search?.roomsList[0]} programs` : 'Programs'}
 							</span>
 							<ExpandMoreIcon />
 						</Box>
@@ -415,12 +494,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 						})}
 					</div>
 				</Stack>
-				<Stack className={'trust-strip'}>
-					<span>Safe kindergarten discovery</span>
-					<span>Parent community</span>
-					<span>Attendance visibility</span>
-					<span>Role-based privacy</span>
-				</Stack>
+				{heroFeatureCards}
 
 				{/* ADVANCED FILTER MODAL */}
 				<Modal

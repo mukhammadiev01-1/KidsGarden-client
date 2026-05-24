@@ -1,0 +1,9 @@
+<svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+	<title id="title">KidsGarden mark</title>
+	<desc id="desc">A protected garden sprout mark for KidsGarden</desc>
+	<rect width="56" height="56" rx="18" fill="#FFFAF2"/>
+	<path d="M28 41V24" stroke="#4F7C5B" stroke-width="4" stroke-linecap="round"/>
+	<path d="M28 28C22.9 19.7 16.8 17.9 11.8 18.5C11.2 25.4 16.2 31.1 28 28Z" fill="#F0B84A"/>
+	<path d="M28 28C33.8 19.2 41 16.9 46.3 17.7C46.8 25.8 40.5 32.1 28 28Z" fill="#4F7C5B"/>
+	<path d="M12 43C16.8 38.7 22.1 36.6 28 36.6C33.9 36.6 39.2 38.7 44 43" stroke="#DDEBC8" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import type { NextPage } from 'next';
-import Link from 'next/link';
 import { useMutation, useQuery } from '@apollo/client';
 import {
 	Avatar,
@@ -192,21 +191,19 @@ const AdminCommunityComments: NextPage = ({ initialInquiry, ...props }: any) => 
 					<Typography title={comment.commentRefId}>{truncateId(comment.commentRefId)}</Typography>
 				</TableCell>
 				<TableCell align="left" className="name">
-					<Link href={`/member?memberId=${comment?.memberData?._id || comment.memberId}`}>
-						<Stack direction="row" alignItems="center" gap="8px">
-							<Avatar
-								alt={comment?.memberData?.memberNick || 'Author'}
-								src={
-									comment?.memberData?.memberImage
-										? `${REACT_APP_API_URL}/${comment.memberData.memberImage}`
-										: '/img/profile/defaultUser.svg'
-								}
-							/>
-							<Typography sx={{ maxWidth: 160 }} noWrap>
-								{comment?.memberData?.memberFullName || comment?.memberData?.memberNick || 'Unknown author'}
-							</Typography>
-						</Stack>
-					</Link>
+					<Stack direction="row" alignItems="center" gap="8px">
+						<Avatar
+							alt={comment?.memberData?.memberNick || 'Author'}
+							src={
+								comment?.memberData?.memberImage
+									? `${REACT_APP_API_URL}/${comment.memberData.memberImage}`
+									: '/img/profile/defaultUser.svg'
+							}
+						/>
+						<Typography sx={{ maxWidth: 160 }} noWrap>
+							{comment?.memberData?.memberFullName || comment?.memberData?.memberNick || 'Unknown author'}
+						</Typography>
+					</Stack>
 				</TableCell>
 				<TableCell align="left">
 					<Typography title={comment.memberId}>{truncateId(comment.memberId)}</Typography>

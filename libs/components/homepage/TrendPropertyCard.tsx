@@ -35,10 +35,17 @@ const TrendPropertyCard = (props: TrendPropertyCardProps) => {
 	};
 
 	/** HANDLERS **/
+	const moveToKindergartenDetail = () => {
+		if (!property?._id) return;
+		void router.push({
+			pathname: '/property/detail',
+			query: { kindergartenId: property._id },
+		});
+	};
 
 	if (device === 'mobile') {
 		return (
-			<Stack className="trend-card-box" key={property._id}>
+			<Stack className="trend-card-box clickable-kindergarten-card" key={property._id} onClick={moveToKindergartenDetail}>
 				<Box
 					component={'div'}
 					className={'card-img'}
@@ -63,13 +70,13 @@ const TrendPropertyCard = (props: TrendPropertyCardProps) => {
 							<span>{kindergarten.capacity} spots</span>
 						</div>
 					</div>
-					<Divider sx={{ mt: '15px', mb: '17px' }} />
-					<div className={'bott'}>
-						<p>Parent favorite</p>
-						<div className="view-like-box">
-							<IconButton color={'default'}>
-								<RemoveRedEyeIcon />
-							</IconButton>
+				<Divider sx={{ mt: '15px', mb: '17px' }} />
+				<div className={'bott'}>
+					<p>Parent favorite</p>
+					<div className="view-like-box" onClick={(event) => event.stopPropagation()}>
+						<IconButton color={'default'}>
+							<RemoveRedEyeIcon />
+						</IconButton>
 							<Typography className="view-cnt">{kindergarten.views}</Typography>
 							<IconButton color={'default'} onClick={() => likePropertyHandler?.(user, property._id)}>
 								{kindergarten?.meLiked && kindergarten?.meLiked[0]?.myFavorite ? (
@@ -84,12 +91,12 @@ const TrendPropertyCard = (props: TrendPropertyCardProps) => {
 				</Box>
 			</Stack>
 		);
-	} else {
-		return (
-			<Stack className="trend-card-box" key={property._id}>
-				<Box
-					component={'div'}
-					className={'card-img'}
+		} else {
+			return (
+				<Stack className="trend-card-box clickable-kindergarten-card" key={property._id} onClick={moveToKindergartenDetail}>
+					<Box
+						component={'div'}
+						className={'card-img'}
 					style={{ backgroundImage: `url(${getImageUrl(kindergarten.images[0])})` }}
 				>
 					<div>{formatMonthlyFee(kindergarten.price)}</div>
@@ -111,13 +118,13 @@ const TrendPropertyCard = (props: TrendPropertyCardProps) => {
 							<span>{kindergarten.capacity} spots</span>
 						</div>
 					</div>
-					<Divider sx={{ mt: '15px', mb: '17px' }} />
-					<div className={'bott'}>
-						<p>Parent favorite</p>
-						<div className="view-like-box">
-							<IconButton color={'default'}>
-								<RemoveRedEyeIcon />
-							</IconButton>
+				<Divider sx={{ mt: '15px', mb: '17px' }} />
+				<div className={'bott'}>
+					<p>Parent favorite</p>
+					<div className="view-like-box" onClick={(event) => event.stopPropagation()}>
+						<IconButton color={'default'}>
+							<RemoveRedEyeIcon />
+						</IconButton>
 							<Typography className="view-cnt">{kindergarten.views}</Typography>
 							<IconButton color={'default'} onClick={() => likePropertyHandler?.(user, property._id)}>
 								{kindergarten?.meLiked && kindergarten?.meLiked[0]?.myFavorite ? (

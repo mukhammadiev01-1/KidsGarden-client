@@ -42,6 +42,8 @@ const attendanceStatusOptions = [
 	AttendanceStatus.EXCUSED,
 ];
 
+const attendancePageLimit = 100;
+
 const today = () => new Date().toISOString().slice(0, 10);
 
 const toAttendanceDate = (selectedDate: string) => new Date(`${selectedDate}T00:00:00.000Z`).toISOString();
@@ -77,12 +79,33 @@ const findAttendanceForChild = (attendances: Attendance[], childId: string, sele
 	);
 };
 
+const mergeAttendancePages = (previousResult: any, { fetchMoreResult }: any) => {
+	if (!fetchMoreResult?.getAttendances) return previousResult;
+
+	const previousList = previousResult?.getAttendances?.list ?? [];
+	const nextList = fetchMoreResult.getAttendances.list ?? [];
+	const mergedById = new Map<string, Attendance>();
+
+	previousList.forEach((attendance: Attendance) => mergedById.set(attendance._id, attendance));
+	nextList.forEach((attendance: Attendance) => mergedById.set(attendance._id, attendance));
+
+	return {
+		...previousResult,
+		getAttendances: {
+			...previousResult.getAttendances,
+			list: Array.from(mergedById.values()),
+			metaCounter: fetchMoreResult.getAttendances.metaCounter ?? previousResult.getAttendances.metaCounter,
+		},
+	};
+};
+
 const TeacherAttendance = () => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [selectedGroupId, setSelectedGroupId] = useState('');
 	const [selectedDate, setSelectedDate] = useState(today());
 	const [drafts, setDrafts] = useState<Record<string, AttendanceDraft>>({});
+	const [fetchingMoreAttendances, setFetchingMoreAttendances] = useState(false);
 
 	const [markAttendance] = useMutation(MARK_ATTENDANCE);
 	const [updateAttendance] = useMutation(UPDATE_ATTENDANCE);
@@ -115,7 +138,7 @@ const TeacherAttendance = () => {
 	const attendancesInput = useMemo(
 		() => ({
 			page: 1,
-			limit: 200,
+			limit: attendancePageLimit,
 			sort: 'createdAt',
 			search: {
 				groupId: selectedGroupId,
@@ -141,6 +164,7 @@ const TeacherAttendance = () => {
 	const {
 		data: attendancesData,
 		loading: attendancesLoading,
+		fetchMore: fetchMoreAttendances,
 		refetch: refetchAttendances,
 	} = useQuery(GET_ATTENDANCES, {
 		variables: { input: attendancesInput },
@@ -152,6 +176,7 @@ const TeacherAttendance = () => {
 	const groups: Group[] = groupsData?.getGroups?.list ?? [];
 	const children: Child[] = childrenData?.getChildren?.list ?? [];
 	const attendances: Attendance[] = attendancesData?.getAttendances?.list ?? [];
+	const attendanceTotal = attendancesData?.getAttendances?.metaCounter?.[0]?.total ?? 0;
 	const selectedGroup = groups.find((group) => group._id === selectedGroupId);
 	const attendanceByChildId = useMemo(() => {
 		return attendances.reduce<Record<string, Attendance>>((acc, attendance) => {
@@ -182,6 +207,37 @@ const TeacherAttendance = () => {
 			return next;
 		});
 	}, [attendanceByChildId, children]);
+
+	useEffect(() => {
+		if (!selectedGroupId || fetchingMoreAttendances || attendanceTotal <= attendances.length) return;
+
+		const nextPage = Math.ceil(attendances.length / attendancePageLimit) + 1;
+		const totalPages = Math.ceil(attendanceTotal / attendancePageLimit);
+		if (nextPage > totalPages) return;
+
+		setFetchingMoreAttendances(true);
+		fetchMoreAttendances({
+			variables: {
+				input: {
+					...attendancesInput,
+					page: nextPage,
+					limit: attendancePageLimit,
+				},
+			},
+			updateQuery: mergeAttendancePages,
+		})
+			.catch((err) => sweetErrorHandling(err).then())
+			.finally(() => {
+				setFetchingMoreAttendances(false);
+			});
+	}, [
+		attendanceTotal,
+		attendances.length,
+		attendancesInput,
+		fetchingMoreAttendances,
+		fetchMoreAttendances,
+		selectedGroupId,
+	]);
 
 	const updateDraft = (childId: string, patch: Partial<AttendanceDraft>) => {
 		setDrafts((prev) => ({
@@ -333,7 +389,7 @@ const TeacherAttendance = () => {
 					</Stack>
 					<Chip label={`${children.length} children`} size="small" className="dashboard-count-chip" />
 				</Stack>
-				{(childrenLoading || attendancesLoading) && (
+				{(childrenLoading || attendancesLoading || fetchingMoreAttendances) && (
 					<Typography sx={{ color: '#6b7280' }}>Loading attendance records...</Typography>
 				)}
 				{!childrenLoading && selectedGroupId && children.length === 0 && (

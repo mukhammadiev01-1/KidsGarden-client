@@ -4,8 +4,6 @@ import { Stack, Typography } from '@mui/material';
 import { BoardArticle } from '../../types/board-article/board-article';
 import Moment from 'react-moment';
 import { REACT_APP_API_URL } from '../../config';
-import { useReactiveVar } from '@apollo/client';
-import { userVar } from '../../../apollo/store';
 import IconButton from '@mui/material/IconButton';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -19,7 +17,6 @@ interface CommunityCardProps {
 const CommunityCard = (props: CommunityCardProps) => {
 	const { boardArticle, size = 'normal' } = props;
 	const router = useRouter();
-	const user = useReactiveVar(userVar);
 	const imagePath: string = boardArticle?.articleImage
 		? `${REACT_APP_API_URL}/${boardArticle?.articleImage}`
 		: '/img/community/communityImg.png';
@@ -36,11 +33,6 @@ const CommunityCard = (props: CommunityCardProps) => {
 		);
 	};
 
-	const goMemberPage = (id: string) => {
-		if (id === user?._id) router.push('/mypage');
-		else router.push(`/member?memberId=${id}`);
-	};
-
 	return (
 		<Stack
 			sx={{ width: size === 'small' ? '285px' : '317px' }}
@@ -52,13 +44,7 @@ const CommunityCard = (props: CommunityCardProps) => {
 			</Stack>
 			<Stack className="desc-box" sx={{ marginTop: '-20px' }}>
 				<Stack>
-					<Typography
-						className="desc"
-						onClick={(e) => {
-							e.stopPropagation();
-							goMemberPage(boardArticle?.memberData?._id as string);
-						}}
-					>
+					<Typography className="desc">
 						{boardArticle?.memberData?.memberNick}
 					</Typography>
 					<Typography className="title">{boardArticle?.articleTitle}</Typography>

@@ -150,7 +150,7 @@ const Join: NextPage = () => {
 								) : (
 									<Button
 										variant="contained"
-										disabled={input.nick == '' || input.password == '' || input.phone == '' || input.type == ''}
+										disabled={input.nick == '' || input.password == '' || input.phone == ''}
 										onClick={doSignUp}
 										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
 									>

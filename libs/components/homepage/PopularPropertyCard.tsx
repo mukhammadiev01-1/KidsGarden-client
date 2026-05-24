@@ -32,10 +32,17 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 	};
 
 	/** HANDLERS **/
+	const moveToKindergartenDetail = () => {
+		if (!property?._id) return;
+		void router.push({
+			pathname: '/property/detail',
+			query: { kindergartenId: property._id },
+		});
+	};
 
 	if (device === 'mobile') {
 		return (
-			<Stack className="popular-card-box">
+			<Stack className="popular-card-box clickable-kindergarten-card" onClick={moveToKindergartenDetail}>
 				<Box
 					component={'div'}
 					className={'card-img'}
@@ -69,25 +76,25 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 							<span>{kindergarten.capacity} spots</span>
 						</div>
 					</div>
-					<Divider sx={{ mt: '15px', mb: '17px' }} />
-					<div className={'bott'}>
-						<p>Popular with parents</p>
-						<div className="view-like-box">
-							<IconButton color={'default'}>
-								<RemoveRedEyeIcon />
-							</IconButton>
+				<Divider sx={{ mt: '15px', mb: '17px' }} />
+				<div className={'bott'}>
+					<p>Popular with parents</p>
+					<div className="view-like-box" onClick={(event) => event.stopPropagation()}>
+						<IconButton color={'default'}>
+							<RemoveRedEyeIcon />
+						</IconButton>
 							<Typography className="view-cnt">{kindergarten.views}</Typography>
 						</div>
 					</div>
 				</Box>
 			</Stack>
 		);
-	} else {
-		return (
-			<Stack className="popular-card-box">
-				<Box
-					component={'div'}
-					className={'card-img'}
+		} else {
+			return (
+				<Stack className="popular-card-box clickable-kindergarten-card" onClick={moveToKindergartenDetail}>
+					<Box
+						component={'div'}
+						className={'card-img'}
 					style={{ backgroundImage: `url(${getImageUrl(kindergarten.images[0])})` }}
 				>
 					{kindergarten.rank && kindergarten.rank >= 50 ? (
@@ -118,13 +125,13 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 							<span>{kindergarten.capacity} spots</span>
 						</div>
 					</div>
-					<Divider sx={{ mt: '15px', mb: '17px' }} />
-					<div className={'bott'}>
-						<p>Popular with parents</p>
-						<div className="view-like-box">
-							<IconButton color={'default'}>
-								<RemoveRedEyeIcon />
-							</IconButton>
+				<Divider sx={{ mt: '15px', mb: '17px' }} />
+				<div className={'bott'}>
+					<p>Popular with parents</p>
+					<div className="view-like-box" onClick={(event) => event.stopPropagation()}>
+						<IconButton color={'default'}>
+							<RemoveRedEyeIcon />
+						</IconButton>
 							<Typography className="view-cnt">{kindergarten.views}</Typography>
 						</div>
 					</div>

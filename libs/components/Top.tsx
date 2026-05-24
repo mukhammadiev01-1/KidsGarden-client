@@ -130,6 +130,11 @@ const Top = () => {
 		return (
 			<Stack className={'top'}>
 				<Link href={'/'}>
+					<div className={'mobile-logo'}>
+						<img src={'/img/logo/kidsgarden-logo.svg'} alt={'KidsGarden Early Learning Platform'} />
+					</div>
+				</Link>
+				<Link href={'/'}>
 					<div>{t('Home')}</div>
 				</Link>
 				<Link href={'/property'}>
@@ -151,11 +156,13 @@ const Top = () => {
 			<Stack className={'navbar'}>
 				<Stack className={`navbar-main ${colorChange ? 'transparent' : ''} ${bgColor ? 'transparent' : ''}`}>
 					<Stack className={'container'}>
-						<Box component={'div'} className={'logo-box'}>
-							<Link href={'/'}>
-								<img src="/img/logo/logoWhite.svg" alt="" />
-							</Link>
-						</Box>
+							<Box component={'div'} className={'logo-box'}>
+								<Link href={'/'}>
+									<div className={'kids-brand'}>
+										<img src={'/img/logo/kidsgarden-logo.svg'} alt={'KidsGarden Early Learning Platform'} />
+									</div>
+								</Link>
+							</Box>
 						<Box component={'div'} className={'router-box'}>
 							<Link href={'/'}>
 								<div>{t('Home')}</div>

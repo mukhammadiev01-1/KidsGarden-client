@@ -8,6 +8,9 @@ import TrendProperties from '../libs/components/homepage/TrendProperties';
 import TopProperties from '../libs/components/homepage/TopProperties';
 import { Stack } from '@mui/material';
 import Advertisement from '../libs/components/homepage/Advertisement';
+import PlatformShowcase from '../libs/components/homepage/PlatformShowcase';
+import FeaturedKindergartensIntro from '../libs/components/homepage/FeaturedKindergartensIntro';
+import FinalCta from '../libs/components/homepage/FinalCta';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -22,23 +25,29 @@ const Home: NextPage = () => {
 	if (device === 'mobile') {
 		return (
 			<Stack className={'home-page'}>
+				<PlatformShowcase />
+				<FeaturedKindergartensIntro />
 				<TrendProperties />
 				<PopularProperties />
-				<Advertisement />
 				<TopProperties />
 				<Events />
+				<Advertisement />
 				<CommunityBoards />
+				<FinalCta />
 			</Stack>
 		);
 	} else {
 		return (
 			<Stack className={'home-page'}>
+				<PlatformShowcase />
+				<FeaturedKindergartensIntro />
 				<TrendProperties />
 				<PopularProperties />
-				<Advertisement />
 				<TopProperties />
 				<Events />
+				<Advertisement />
 				<CommunityBoards />
+				<FinalCta />
 			</Stack>
 		);
 	}

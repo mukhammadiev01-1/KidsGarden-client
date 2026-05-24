@@ -16,6 +16,8 @@ const MyMenu = () => {
 	const isKindergartenAdmin = user.memberType === MemberType.KINDERGARTEN_ADMIN;
 	const isTeacher = user.memberType === MemberType.TEACHER;
 	const isParent = user.memberType === MemberType.PARENT;
+	const isKnownDashboardRole = isKindergartenAdmin || isTeacher || isParent;
+	const showFallbackMenus = !isKnownDashboardRole;
 	const category: any =
 		router.query?.category ??
 		(isKindergartenAdmin ? 'kindergartenProfile' : isTeacher ? 'teacherGroups' : isParent ? 'parentChildren' : 'myProfile');
@@ -152,7 +154,7 @@ const MyMenu = () => {
 										</Link>
 									</ListItem>
 								))}
-							{!isKindergartenAdmin && !isTeacher && !isParent && (
+								{showFallbackMenus && (
 								<>
 									<ListItem className={pathname === 'myFavorites' ? 'focus' : ''}>
 								<Link
@@ -295,91 +297,96 @@ const MyMenu = () => {
 							)}
 						</List>
 					</Stack>
-					<Stack className={'section'} sx={{ marginTop: '10px' }}>
-						<div>
+						{(isParent || showFallbackMenus) && (
+							<Stack className={'section'} sx={{ marginTop: '10px' }}>
+								<div>
+									<Typography className="title" variant={'h5'}>
+										Community
+									</Typography>
+									<List className={'sub-section'}>
+										{showFallbackMenus && (
+											<ListItem className={pathname === 'myArticles' ? 'focus' : ''}>
+												<Link
+													href={{
+														pathname: '/mypage',
+														query: { category: 'myArticles' },
+													}}
+													scroll={false}
+												>
+													<div className={'flex-box'}>
+														{category === 'myArticles' ? (
+															<img className={'com-icon'} src={'/img/icons/discoveryWhite.svg'} alt={'com-icon'} />
+														) : (
+															<img className={'com-icon'} src={'/img/icons/discovery.svg'} alt={'com-icon'} />
+														)}
+														<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
+															Articles
+														</Typography>
+													</div>
+												</Link>
+											</ListItem>
+										)}
+										{isParent && (
+											<ListItem className={pathname === 'writeArticle' ? 'focus' : ''}>
+												<Link
+													href={{
+														pathname: '/mypage',
+														query: { category: 'writeArticle' },
+													}}
+													scroll={false}
+												>
+													<div className={'flex-box'}>
+														{category === 'writeArticle' ? (
+															<img className={'com-icon'} src={'/img/icons/whiteTab.svg'} alt={'com-icon'} />
+														) : (
+															<img className={'com-icon'} src={'/img/icons/newTab.svg'} alt={'com_icon'} />
+														)}
+														<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
+															Write Article
+														</Typography>
+													</div>
+												</Link>
+											</ListItem>
+										)}
+									</List>
+								</div>
+							</Stack>
+						)}
+						<Stack className={'section'} sx={{ marginTop: '30px' }}>
 							<Typography className="title" variant={'h5'}>
-								Community
+								MANAGE ACCOUNT
 							</Typography>
 							<List className={'sub-section'}>
-								<ListItem className={pathname === 'myArticles' ? 'focus' : ''}>
-									<Link
-										href={{
-											pathname: '/mypage',
-											query: { category: 'myArticles' },
-										}}
-										scroll={false}
-									>
-										<div className={'flex-box'}>
-											{category === 'myArticles' ? (
-												<img className={'com-icon'} src={'/img/icons/discoveryWhite.svg'} alt={'com-icon'} />
-											) : (
-												<img className={'com-icon'} src={'/img/icons/discovery.svg'} alt={'com-icon'} />
-											)}
-
-											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-												Articles
-											</Typography>
-										</div>
-									</Link>
-								</ListItem>
-								{isParent && (
-									<ListItem className={pathname === 'writeArticle' ? 'focus' : ''}>
+								{showFallbackMenus && (
+									<ListItem className={pathname === 'myProfile' ? 'focus' : ''}>
 										<Link
 											href={{
 												pathname: '/mypage',
-												query: { category: 'writeArticle' },
+												query: { category: 'myProfile' },
 											}}
 											scroll={false}
 										>
 											<div className={'flex-box'}>
-												{category === 'writeArticle' ? (
-													<img className={'com-icon'} src={'/img/icons/whiteTab.svg'} alt={'com-icon'} />
+												{category === 'myProfile' ? (
+													<img className={'com-icon'} src={'/img/icons/userWhite.svg'} alt={'com-icon'} />
 												) : (
-													<img className={'com-icon'} src={'/img/icons/newTab.svg'} alt={'com_icon'} />
+													<img className={'com-icon'} src={'/img/icons/user.svg'} alt={'com-icon'} />
 												)}
 												<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-													Write Article
+													My Profile
 												</Typography>
 											</div>
 										</Link>
 									</ListItem>
 								)}
-							</List>
-						</div>
-					</Stack>
-					<Stack className={'section'} sx={{ marginTop: '30px' }}>
-						<Typography className="title" variant={'h5'}>
-							MANAGE ACCOUNT
-						</Typography>
-						<List className={'sub-section'}>
-							<ListItem className={pathname === 'myProfile' ? 'focus' : ''}>
-								<Link
-									href={{
-										pathname: '/mypage',
-										query: { category: 'myProfile' },
-									}}
-									scroll={false}
-								>
+								<ListItem onClick={logoutHandler}>
 									<div className={'flex-box'}>
-										{category === 'myProfile' ? (
-											<img className={'com-icon'} src={'/img/icons/userWhite.svg'} alt={'com-icon'} />
-										) : (
-											<img className={'com-icon'} src={'/img/icons/user.svg'} alt={'com-icon'} />
-										)}
+										<img className={'com-icon'} src={'/img/icons/logout.svg'} alt={'com-icon'} />
 										<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-											My Profile
+											Logout
 										</Typography>
 									</div>
-								</Link>
-							</ListItem>
-							<ListItem onClick={logoutHandler}>
-								<div className={'flex-box'}>
-									<img className={'com-icon'} src={'/img/icons/logout.svg'} alt={'com-icon'} />
-									<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-										Logout
-									</Typography>
-								</div>
-							</ListItem>
+								</ListItem>
 						</List>
 					</Stack>
 				</Stack>

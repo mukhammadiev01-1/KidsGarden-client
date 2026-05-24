@@ -34,7 +34,7 @@ const menuSections: { title: string; items: AdminMenuItem[] }[] = [
 				key: 'overview',
 				title: 'Overview',
 				description: 'Dashboard summary',
-				disabled: true,
+				url: '/_admin',
 				icon: <DashboardRoundedIcon />,
 			},
 			{
@@ -73,40 +73,40 @@ const menuSections: { title: string; items: AdminMenuItem[] }[] = [
 		],
 	},
 	{
-		title: 'Operations later',
+		title: 'Operations',
 		items: [
 			{
 				key: 'staff',
 				title: 'Staff',
 				description: 'Staff oversight',
-				disabled: true,
+				url: '/_admin/operations/staff',
 				icon: <GroupsRoundedIcon />,
 			},
 			{
 				key: 'groups',
 				title: 'Groups',
 				description: 'Class groups',
-				disabled: true,
+				url: '/_admin/operations/groups',
 				icon: <GroupsRoundedIcon />,
 			},
 			{
 				key: 'children',
 				title: 'Children',
 				description: 'Child records',
-				disabled: true,
+				url: '/_admin/operations/children',
 				icon: <ChildCareRoundedIcon />,
 			},
 			{
 				key: 'attendance',
 				title: 'Attendance',
 				description: 'Attendance records',
-				disabled: true,
+				url: '/_admin/operations/attendance',
 				icon: <EventAvailableRoundedIcon />,
 			},
 		],
 	},
 	{
-		title: 'Community later',
+		title: 'Community',
 		items: [
 			{
 				key: 'articles',

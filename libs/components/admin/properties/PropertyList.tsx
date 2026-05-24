@@ -1,6 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
-import { TableCell, TableHead, TableBody, TableRow, Table, TableContainer, Button, Menu, Fade, MenuItem } from '@mui/material';
+import {
+	TableCell,
+	TableHead,
+	TableBody,
+	TableRow,
+	Table,
+	TableContainer,
+	Button,
+	Menu,
+	Fade,
+	MenuItem,
+} from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import { Stack } from '@mui/material';
 import Typography from '@mui/material/Typography';
@@ -171,7 +182,8 @@ interface PropertyPanelListType {
 }
 
 export const PropertyPanelList = (props: PropertyPanelListType) => {
-	const { kindergartens, loading, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateKindergartenHandler } = props;
+	const { kindergartens, loading, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateKindergartenHandler } =
+		props;
 
 	return (
 		<Stack>
@@ -211,25 +223,25 @@ export const PropertyPanelList = (props: PropertyPanelListType) => {
 									<TableRow hover key={kindergarten?._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
 										<TableCell align="left">{truncateId(kindergarten._id)}</TableCell>
 										<TableCell align="left" className={'name'}>
-											<Stack direction={'row'} alignItems={'center'}>
-												<Link href={`/property/detail?id=${kindergarten?._id}`}>
-													<div>
-														<Avatar
-															alt={kindergarten.kindergartenTitle}
-															src={kindergartenImage}
-															sx={{ ml: '2px', mr: '10px' }}
-														/>
-													</div>
-												</Link>
-												<Stack>
+											{kindergarten.kindergartenStatus === KindergartenStatus.ACTIVE ? (
+												<Stack direction={'row'}>
+													<Link href={`/property/detail?id=${kindergarten?._id}`}>
+														<div>
+															<Avatar alt="Remy Sharp" src={kindergartenImage} sx={{ ml: '2px', mr: '10px' }} />
+														</div>
+													</Link>
 													<Link href={`/property/detail?id=${kindergarten?._id}`}>
 														<div>{kindergarten.kindergartenTitle}</div>
 													</Link>
-													<Typography component={'span'} sx={{ fontSize: '12px', color: '#7d8790' }}>
-														{kindergarten.kindergartenAddress}
-													</Typography>
 												</Stack>
-											</Stack>
+											) : (
+												<Stack direction={'row'}>
+													<div>
+														<Avatar alt="Remy Sharp" src={kindergartenImage} sx={{ ml: '2px', mr: '10px' }} />
+													</div>
+													<div style={{ marginTop: '10px' }}>{kindergarten.kindergartenTitle}</div>
+												</Stack>
+											)}
 										</TableCell>
 										<TableCell align="center">{formatMonthlyFee(kindergarten.kindergartenPrice)}</TableCell>
 										<TableCell align="center">{ownerName}</TableCell>

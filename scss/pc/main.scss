@@ -65,12 +65,24 @@ body::-webkit-scrollbar {
 					flex-direction: row;
 					align-items: center;
 					justify-content: space-between;
-					.logo-box {
-						img {
-							width: 150px;
-							cursor: pointer;
+						.logo-box {
+							.kids-brand {
+								display: flex;
+								align-items: center;
+								cursor: pointer;
+
+								img {
+									width: 174px;
+									height: auto;
+									display: block;
+								}
+							}
+
+							img {
+								width: 150px;
+								cursor: pointer;
+							}
 						}
-					}
 					.router-box {
 						position: relative;
 						width: 540px;
@@ -185,8 +197,11 @@ body::-webkit-scrollbar {
 		position: relative;
 		width: 100%;
 		height: 860px;
-		background-image: url('/img/banner/header1.svg');
+		background-image:
+			linear-gradient(115deg, rgba(255, 250, 242, 0.88) 0%, rgba(244, 251, 239, 0.62) 48%, rgba(36, 51, 45, 0.14) 100%),
+			url('/img/homepage/kidsgarden-hero-classroom.png');
 		background-size: cover;
+		background-position: center;
 		.container {
 			position: relative;
 			margin-top: 20px;
@@ -675,14 +690,26 @@ body::-webkit-scrollbar {
 					display: flex;
 					flex-direction: column;
 					justify-content: space-between;
-					.footer-box {
-						display: flex;
-						flex-direction: column;
-						.logo {
-							width: 128px;
-							height: 52px;
-							cursor: pointer;
-						}
+						.footer-box {
+							display: flex;
+							flex-direction: column;
+							.footer-brand {
+								display: flex;
+								align-items: center;
+								cursor: pointer;
+
+								img {
+									width: 190px;
+									height: auto;
+									display: block;
+								}
+							}
+
+							.logo {
+								width: 128px;
+								height: 52px;
+								cursor: pointer;
+							}
 						span {
 							color: #cfd8cf;
 							font-family: $font;
@@ -779,19 +806,21 @@ body::-webkit-scrollbar {
 								line-height: normal;
 								text-transform: capitalize;
 							}
-							span {
-								margin-top: 25px;
-								color: #cfd8cf;
-								font-family: $font;
-								font-size: 14px;
-								font-style: normal;
-								font-weight: 400;
-								cursor: pointer;
-								&:hover {
-									color: #ffffff;
-									text-decoration-line: underline;
+								span,
+								a {
+									margin-top: 25px;
+									color: #cfd8cf;
+									font-family: $font;
+									font-size: 14px;
+									font-style: normal;
+									font-weight: 400;
+									cursor: pointer;
+									text-decoration: none;
+									&:hover {
+										color: #ffffff;
+										text-decoration-line: underline;
+									}
 								}
-							}
 						}
 					}
 				}
@@ -811,6 +840,62 @@ body::-webkit-scrollbar {
 					font-style: normal;
 					font-weight: 400;
 					line-height: normal;
+				}
+			}
+		}
+	}
+
+	@media (min-width: 768px) and (max-width: 1024px) {
+		#pc-wrap {
+			#top {
+				.navbar {
+					.navbar-main {
+						.container {
+							width: 100%;
+							padding: 0 24px;
+							box-sizing: border-box;
+							gap: 22px;
+
+							.logo-box {
+								flex-shrink: 0;
+							}
+
+							.router-box {
+								width: auto;
+								flex: 1;
+								justify-content: center;
+								gap: 28px;
+							}
+
+							.user-box {
+								width: auto;
+								flex-shrink: 0;
+							}
+						}
+					}
+				}
+			}
+
+			#footer {
+				.footer-container {
+					width: 100%;
+					padding: 0 24px;
+					box-sizing: border-box;
+
+					.main {
+						gap: 48px;
+
+						.right {
+							min-width: 0;
+							flex: 1;
+
+							.top {
+								div {
+									width: 100%;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -1034,6 +1119,256 @@ body::-webkit-scrollbar {
 	}
 }
 
+/* Hero Design 2A: glass public header */
+body #pc-wrap {
+	#top {
+		.navbar {
+			.navbar-main {
+				padding: 18px 0;
+				height: 92px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.54);
+				background: rgba(255, 250, 242, 0.78);
+				box-shadow: 0 14px 34px rgba(36, 51, 45, 0.08);
+				backdrop-filter: blur(16px);
+
+				&.transparent {
+					background: rgba(255, 250, 242, 0.94);
+					box-shadow: 0 14px 34px rgba(36, 51, 45, 0.12);
+				}
+
+				.container {
+					width: min(1420px, calc(100% - 96px));
+					gap: 28px;
+
+					.logo-box {
+						flex-shrink: 0;
+
+						.kids-brand img {
+							width: 178px;
+						}
+					}
+
+					.router-box {
+						width: auto;
+						flex: 1;
+						justify-content: center;
+						gap: 44px;
+
+						div {
+							color: #10233a;
+							font-size: 16px;
+							font-weight: 900;
+							transition: color 0.18s ease;
+
+							&:hover {
+								color: #16863c;
+							}
+						}
+					}
+
+					.user-box {
+						width: auto;
+						gap: 12px;
+
+						.join-box {
+							width: auto;
+							min-width: 158px;
+							height: 52px;
+							padding: 0 22px;
+							border: 1px solid rgba(255, 255, 255, 0.84);
+							background: #ffffff;
+							box-shadow: 0 12px 28px rgba(36, 51, 45, 0.1);
+
+							svg,
+							span {
+								color: #10233a;
+							}
+
+							&:hover {
+								background: #13833a;
+
+								svg,
+								span {
+									color: #ffffff;
+								}
+							}
+						}
+
+						.lan-box {
+							margin-left: 0;
+							padding: 0 8px;
+							height: 52px;
+							border-radius: 999px;
+							background: rgba(255, 255, 255, 0.86);
+							box-shadow: 0 12px 28px rgba(36, 51, 45, 0.08);
+
+							.notification-icon {
+								color: #10233a;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@media (min-width: 768px) and (max-width: 1024px) {
+		#top {
+			.navbar {
+				.navbar-main {
+					.container {
+						width: calc(100% - 48px);
+						padding: 0;
+						gap: 18px;
+
+						.logo-box .kids-brand img {
+							width: 156px;
+						}
+
+						.router-box {
+							gap: 18px;
+
+							div {
+								font-size: 14px;
+							}
+						}
+
+						.user-box {
+							.join-box {
+								min-width: 132px;
+								height: 46px;
+								padding: 0 16px;
+
+								span {
+									font-size: 13px;
+								}
+							}
+
+							.lan-box {
+								display: none;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+/* Homepage Full Design 1B: compact KidsGarden footer */
+body #pc-wrap {
+	#footer {
+		background: #f7f3e8;
+
+		.footer-container {
+			width: 100%;
+			height: auto;
+			padding: 34px 72px 22px;
+			box-sizing: border-box;
+			background: #fffaf2;
+			border-top: 1px solid rgba(47, 125, 74, 0.12);
+
+			.main {
+				width: min(1180px, 100%);
+				height: auto;
+				margin: 0 auto;
+				display: grid;
+				grid-template-columns: 1.05fr 2fr;
+				gap: 72px;
+				align-items: start;
+				border: 0;
+			}
+
+			.footer-brand-column {
+				display: flex;
+				flex-direction: column;
+				gap: 14px;
+
+				.footer-brand img {
+					width: 178px;
+					height: auto;
+					display: block;
+				}
+
+				p {
+					max-width: 295px;
+					margin: 0;
+					color: #657466;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 650;
+					line-height: 21px;
+				}
+
+				.media-box {
+					display: flex;
+					gap: 10px;
+
+					svg {
+						width: 20px;
+						height: 20px;
+						color: #2f7d4a;
+					}
+				}
+			}
+
+			.footer-link-grid {
+				display: grid;
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+				gap: 34px;
+
+				div {
+					display: flex;
+					flex-direction: column;
+					gap: 9px;
+				}
+
+				strong {
+					margin-bottom: 2px;
+					color: #203328;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 900;
+					line-height: 18px;
+				}
+
+				a,
+				span {
+					color: #657466;
+					font-family: $font;
+					font-size: 12px;
+					font-weight: 650;
+					line-height: 18px;
+					text-decoration: none;
+				}
+
+				a:hover {
+					color: #2f7d4a;
+				}
+			}
+
+			.second {
+				width: min(1180px, 100%);
+				height: auto;
+				margin: 26px auto 0;
+				padding-top: 18px;
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				border-top: 1px solid rgba(47, 125, 74, 0.1);
+
+				span {
+					color: #657466;
+					font-family: $font;
+					font-size: 12px;
+					font-weight: 650;
+					line-height: 18px;
+				}
+			}
+		}
+	}
+}
+
 .no-data {
 	padding: 30px 20px;
 	width: 100%;
@@ -1055,4 +1390,917 @@ body::-webkit-scrollbar {
 	height: 17px;
 	border-radius: 2px;
 	margin-right: 8px;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+	body #pc-wrap {
+		#top {
+			.navbar {
+				.navbar-main {
+					.container {
+						width: 100%;
+						padding: 0 24px;
+						box-sizing: border-box;
+						gap: 22px;
+
+						.logo-box {
+							flex-shrink: 0;
+						}
+
+						.router-box {
+							width: auto;
+							flex: 1;
+							justify-content: center;
+							gap: 20px;
+						}
+
+						.user-box {
+							width: auto;
+							flex-shrink: 0;
+
+							.join-box {
+								width: 148px;
+								height: 44px;
+
+								span {
+									font-size: 13px;
+								}
+							}
+
+							.lan-box {
+								display: none;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		#footer {
+			.footer-container {
+				width: 100%;
+				padding: 0 24px;
+				box-sizing: border-box;
+
+				.main {
+					gap: 48px;
+
+					.right {
+						min-width: 0;
+						flex: 1;
+
+						.top {
+							div {
+								width: 100%;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+/* Hero Design 2B: spacing-only correction after final PC overrides */
+body #pc-wrap {
+	.header-main {
+		height: 920px;
+		min-height: 920px;
+	}
+
+	.header-main .threeJSContainer {
+		position: absolute;
+		inset: 0;
+		width: 100% !important;
+		height: 100% !important;
+		margin-top: 0 !important;
+		pointer-events: none;
+	}
+
+	.header-main .container {
+		width: min(1420px, calc(100% - 96px));
+		height: 100%;
+		margin: 0 auto;
+		padding-top: 146px;
+		box-sizing: border-box;
+		align-items: flex-start;
+	}
+
+	.header-main .container .hero-copy {
+		width: min(610px, 47vw);
+		align-items: flex-start;
+		text-align: left;
+		gap: 16px;
+	}
+
+	.header-main .container .hero-copy h1 {
+		max-width: 610px;
+		font-size: 68px;
+		line-height: 1.04;
+	}
+
+	.header-main .container .hero-copy p {
+		max-width: 540px;
+		width: auto;
+		font-size: 18px;
+		line-height: 29px;
+	}
+
+	.header-main .container .hero-copy .hero-actions {
+		margin-top: 4px;
+		justify-content: flex-start;
+	}
+
+	.header-main .container .hero-feature-cards {
+		position: absolute;
+		left: 50%;
+		bottom: 32px;
+		width: min(1360px, calc(100vw - 96px));
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		transform: translateX(-50%);
+	}
+
+	.header-main .container .hero-feature-card {
+		min-height: 108px;
+		padding: 18px 20px;
+		gap: 14px;
+	}
+
+	.header-main .container .hero-feature-card .feature-icon {
+		width: 56px;
+		height: 56px;
+	}
+
+	.header-main .container .hero-feature-card .feature-icon svg {
+		width: 28px;
+		height: 28px;
+	}
+
+	.header-main .container .hero-feature-card .feature-copy strong {
+		font-size: 17px;
+		line-height: 21px;
+	}
+
+	.header-main .container .hero-feature-card .feature-copy span {
+		font-size: 14px;
+		line-height: 21px;
+	}
+
+	@media (min-width: 768px) and (max-width: 1024px) {
+		.header-main {
+			height: auto;
+			min-height: 0;
+			padding-bottom: 44px;
+			background-position: 58% center;
+		}
+
+		.header-main .container {
+			width: calc(100% - 48px);
+			height: auto;
+			padding: 132px 0 0;
+		}
+
+		.header-main .container .hero-copy {
+			width: 100%;
+			max-width: 660px;
+		}
+
+		.header-main .container .hero-copy h1 {
+			max-width: 660px;
+			font-size: 46px;
+			line-height: 1.08;
+		}
+
+		.header-main .container .hero-copy p {
+			max-width: 600px;
+			font-size: 16px;
+			line-height: 26px;
+		}
+
+		.header-main .container .search-box {
+			width: 100%;
+			max-width: 760px;
+			margin-top: 22px;
+			box-sizing: border-box;
+		}
+
+		.header-main .container .hero-feature-cards {
+			position: relative;
+			left: auto;
+			bottom: auto;
+			width: 100%;
+			margin-top: 32px;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			transform: none;
+		}
+	}
+}
+
+/* Homepage Full Design 1B: section overrides loaded after homepage.scss */
+body #pc-wrap .home-page {
+	background: #f7f3e8;
+
+	.sprout-accent {
+		position: relative;
+		width: 20px;
+		height: 20px;
+		display: inline-block;
+		vertical-align: middle;
+
+		&::before,
+		&::after {
+			content: '';
+			position: absolute;
+			width: 10px;
+			height: 15px;
+			border-radius: 10px 10px 10px 2px;
+			background: #4eae51;
+			transform-origin: bottom center;
+		}
+
+		&::before {
+			left: 1px;
+			top: 4px;
+			transform: rotate(-35deg);
+		}
+
+		&::after {
+			right: 1px;
+			top: 1px;
+			transform: rotate(35deg);
+		}
+	}
+
+	.platform-showcase {
+		padding: 46px 0 38px !important;
+		background: #f7f3e8 !important;
+
+		.platform-container {
+			width: min(1180px, calc(100% - 72px)) !important;
+			margin: 0 auto;
+			gap: 34px !important;
+		}
+
+		.platform-section-heading {
+			align-items: center;
+			text-align: center;
+			gap: 8px;
+
+			> span {
+				display: none;
+			}
+
+			h2 {
+				max-width: 840px;
+				margin: 0;
+				color: #203328;
+				font-family: $font;
+				font-size: 34px;
+				font-weight: 900;
+				line-height: 42px;
+				letter-spacing: 0;
+			}
+
+			p {
+				max-width: 640px;
+				margin: 0;
+				color: #657466;
+				font-family: $font;
+				font-size: 15px;
+				font-weight: 600;
+				line-height: 24px;
+			}
+		}
+
+		.platform-roles-section {
+			gap: 26px;
+		}
+
+		.platform-role-grid {
+			display: grid !important;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 26px;
+		}
+
+		.platform-role-card {
+			min-height: 0;
+			padding: 18px !important;
+			display: flex;
+			flex-direction: column;
+			gap: 18px;
+			border: 1px solid rgba(47, 125, 74, 0.12) !important;
+			border-radius: 18px !important;
+			background: rgba(255, 255, 255, 0.94) !important;
+			box-shadow: 0 16px 42px rgba(31, 81, 50, 0.08) !important;
+
+			.role-card-top {
+				display: grid;
+				grid-template-columns: 52px 1fr;
+				gap: 14px;
+				align-items: start;
+			}
+
+			.role-icon {
+				width: 52px;
+				height: 52px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 50%;
+				background: #51b865;
+				color: #ffffff;
+
+				svg {
+					width: 29px;
+					height: 29px;
+				}
+			}
+
+			&.teachers .role-icon {
+				background: #f6b84b;
+			}
+
+			&.kindergartens .role-icon {
+				background: #58a7f4;
+			}
+
+			h3 {
+				margin: 2px 0 5px;
+				color: #203328;
+				font-family: $font;
+				font-size: 20px;
+				font-weight: 900;
+				line-height: 24px;
+			}
+
+			p {
+				margin: 0;
+				color: #657466;
+				font-family: $font;
+				font-size: 13px;
+				font-weight: 650;
+				line-height: 19px;
+			}
+
+			.role-image {
+				height: 175px;
+				border-radius: 14px;
+				background-size: cover;
+				background-position: center;
+			}
+		}
+
+		.platform-feature-grid {
+			padding: 28px 34px 32px !important;
+			display: flex !important;
+			flex-direction: column !important;
+			gap: 24px;
+			border: 1px solid rgba(47, 125, 74, 0.12) !important;
+			border-radius: 22px !important;
+			background: rgba(255, 255, 255, 0.96) !important;
+			box-shadow: 0 18px 48px rgba(31, 81, 50, 0.08) !important;
+		}
+
+		.feature-grid-list {
+			display: grid !important;
+			grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+			gap: 18px;
+		}
+
+		.feature-card {
+			min-height: 116px;
+			padding: 20px !important;
+			display: grid;
+			grid-template-columns: 56px 1fr;
+			gap: 15px;
+			align-items: center;
+			border: 1px solid rgba(47, 125, 74, 0.12) !important;
+			border-radius: 16px !important;
+			background: #ffffff !important;
+			box-shadow: 0 10px 28px rgba(31, 81, 50, 0.06) !important;
+
+			strong {
+				display: none;
+			}
+
+			.feature-icon {
+				width: 56px;
+				height: 56px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 15px;
+				background: #38a96b;
+				color: #ffffff;
+			}
+
+			&.lime .feature-icon {
+				background: #75bd33;
+			}
+
+			&.blue .feature-icon {
+				background: #6f80f6;
+			}
+
+			&.mint .feature-icon {
+				background: #299b58;
+			}
+
+			&.pink .feature-icon {
+				background: #f55f87;
+			}
+		}
+
+		.platform-privacy-section {
+			padding: 34px 42px !important;
+			display: grid !important;
+			grid-template-columns: 0.85fr 1.6fr;
+			gap: 34px;
+			align-items: center;
+			border: 1px solid rgba(246, 184, 75, 0.55) !important;
+			border-radius: 22px !important;
+			background: linear-gradient(105deg, #fff8ea 0%, #fff4d8 100%) !important;
+			box-shadow: 0 18px 46px rgba(112, 92, 47, 0.08) !important;
+		}
+
+		.privacy-illustration {
+			min-height: 210px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			position: relative;
+
+			.shield {
+				width: 168px;
+				height: 168px;
+				color: #2f7d4a;
+			}
+
+			.lock {
+				position: absolute;
+				width: 52px;
+				height: 52px;
+				padding: 12px;
+				right: 54px;
+				bottom: 38px;
+				border-radius: 18px;
+				background: #f6b84b;
+				color: #ffffff;
+			}
+		}
+
+		.privacy-copy h2 {
+			max-width: 520px;
+			margin: 0 0 22px;
+			color: #203328;
+			font-family: $font;
+			font-size: 32px;
+			font-weight: 900;
+			line-height: 39px;
+		}
+
+		.privacy-list {
+			display: grid !important;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 18px;
+		}
+	}
+
+	.events.communication-roadmap {
+		height: auto;
+		padding: 46px 0 32px;
+		background: #f7f3e8;
+
+		.container {
+			width: min(1180px, calc(100% - 72px));
+			height: auto;
+			margin: 0 auto;
+		}
+
+		.info-box {
+			margin-bottom: 24px;
+			align-items: center;
+			text-align: center;
+
+			.left {
+				align-items: center;
+			}
+
+			span {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+				color: #203328;
+				font-family: $font;
+				font-size: 30px;
+				font-weight: 900;
+				line-height: 38px;
+			}
+
+			p {
+				margin-top: 6px;
+				color: #657466;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 650;
+				line-height: 22px;
+			}
+		}
+
+		.card-wrapper {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: 22px;
+		}
+
+		.event-card {
+			min-height: 206px;
+			padding: 22px;
+			align-items: flex-start;
+			border: 1px solid rgba(47, 125, 74, 0.12);
+			border-radius: 16px;
+			background: #ffffff;
+			box-shadow: 0 14px 34px rgba(31, 81, 50, 0.06);
+
+			&.green {
+				background: #f7fff5;
+			}
+
+			&.purple {
+				background: #faf8ff;
+			}
+
+			&.blue {
+				background: #f5fbff;
+			}
+
+			&.pink {
+				background: #fff7fa;
+			}
+		}
+	}
+
+	.video-frame.kg-store-section {
+		height: auto;
+		padding: 30px 0 58px;
+		background: #f7f3e8;
+		border: 0;
+		box-shadow: none;
+
+		.store-heading {
+			align-items: center;
+			text-align: center;
+			gap: 6px;
+		}
+
+		.store-container {
+			width: min(1180px, calc(100% - 72px));
+			margin: 24px auto 0;
+			display: grid;
+			grid-template-columns: 1.25fr 1.75fr;
+			gap: 20px;
+		}
+
+		.store-feature-card {
+			min-height: 220px;
+			padding: 28px;
+			display: grid;
+			grid-template-columns: 1fr 160px;
+			gap: 18px;
+			align-items: center;
+			border: 1px solid rgba(47, 125, 74, 0.12);
+			border-radius: 16px;
+			background:
+				radial-gradient(circle at 76% 58%, rgba(246, 184, 75, 0.22), transparent 36%),
+				linear-gradient(135deg, #fffdf4, #fff6df);
+			box-shadow: 0 14px 34px rgba(31, 81, 50, 0.06);
+		}
+
+		.store-product-grid {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: 14px;
+		}
+
+		.store-product-card {
+			padding: 18px 15px;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			border: 1px solid rgba(47, 125, 74, 0.12);
+			border-radius: 16px;
+			background: #ffffff;
+			box-shadow: 0 14px 34px rgba(31, 81, 50, 0.06);
+		}
+	}
+
+	.final-cta-section {
+		width: min(1180px, calc(100% - 72px));
+		min-height: 210px;
+		margin: 10px auto 58px;
+		padding: 34px 34px 34px 42px;
+		display: grid;
+		grid-template-columns: 1.2fr 1fr 260px;
+		gap: 26px;
+		align-items: center;
+		border: 1px solid rgba(47, 125, 74, 0.12);
+		border-radius: 18px;
+		background:
+			linear-gradient(105deg, rgba(240, 250, 232, 0.94), rgba(255, 248, 234, 0.84)),
+			url('/img/homepage/kidsgarden-hero-classroom.png');
+		background-size: cover;
+		background-position: center 58%;
+		box-shadow: 0 18px 46px rgba(31, 81, 50, 0.08);
+	}
+}
+
+@media (max-width: 767px) {
+	body #pc-wrap {
+		overflow-x: hidden;
+
+		#top {
+			.navbar .navbar-main .container {
+				width: 100%;
+				padding: 0 16px;
+				box-sizing: border-box;
+				gap: 12px;
+			}
+
+			.router-box {
+				overflow-x: auto;
+				justify-content: flex-start;
+				gap: 18px;
+			}
+
+			.user-box {
+				display: none;
+			}
+		}
+
+		.header-main {
+			height: auto;
+			min-height: 0;
+			padding-bottom: 30px;
+			background-position: 60% center;
+		}
+
+		.header-main .container {
+			width: calc(100% - 32px);
+			height: auto;
+			padding-top: 92px;
+			align-items: flex-start;
+		}
+
+		.header-main .container .hero-copy {
+			width: 100%;
+			max-width: 100%;
+		}
+
+		.header-main .container .hero-copy h1 {
+			max-width: 100%;
+			font-size: 42px;
+			line-height: 1.08;
+		}
+
+		.header-main .container .hero-copy p {
+			max-width: 100%;
+			font-size: 14px;
+			line-height: 23px;
+		}
+
+		.header-main .container .hero-copy .hero-actions {
+			width: 100%;
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 10px;
+		}
+
+		.header-main .container .hero-feature-cards {
+			position: relative;
+			left: auto;
+			bottom: auto;
+			width: 100%;
+			margin-top: 24px;
+			display: grid;
+			grid-template-columns: 1fr;
+			transform: none;
+		}
+
+		.header-main .container .search-box {
+			width: 100%;
+			max-width: 100%;
+			box-sizing: border-box;
+			overflow: hidden;
+		}
+
+		.home-page {
+			.platform-showcase .platform-container,
+			.events.communication-roadmap .container,
+			.video-frame.kg-store-section .store-container,
+			.final-cta-section {
+				width: calc(100% - 32px) !important;
+			}
+
+			.platform-showcase {
+				.platform-role-grid,
+				.feature-grid-list,
+				.privacy-list {
+					grid-template-columns: 1fr !important;
+				}
+
+				.platform-role-card .role-image {
+					height: 156px;
+				}
+
+				.platform-privacy-section {
+					grid-template-columns: 1fr !important;
+					padding: 22px 18px !important;
+				}
+
+				.privacy-copy h2 {
+					font-size: 24px;
+					line-height: 31px;
+					text-align: center;
+				}
+			}
+
+			.events.communication-roadmap .card-wrapper,
+			.video-frame.kg-store-section .store-container,
+			.video-frame.kg-store-section .store-product-grid,
+			.final-cta-section {
+				grid-template-columns: 1fr !important;
+			}
+
+			.final-cta-section {
+				margin-bottom: 34px;
+				padding: 22px 18px;
+			}
+		}
+	}
+}
+
+@media (max-width: 600px) {
+	body,
+	body #pc-wrap {
+		max-width: 100%;
+		overflow-x: hidden;
+	}
+
+	body #pc-wrap {
+		* {
+			box-sizing: border-box;
+			min-width: 0;
+		}
+
+		#top {
+			.navbar .navbar-main .container {
+				width: 100%;
+				max-width: 100%;
+				padding: 0 14px;
+				overflow: hidden;
+			}
+
+			.router-box {
+				display: none;
+			}
+
+			.user-box {
+				display: none;
+			}
+		}
+
+		.header-main {
+			width: 100%;
+			max-width: 100%;
+			overflow: hidden;
+		}
+
+		.header-main .container {
+			width: calc(100% - 28px);
+			max-width: calc(100% - 28px);
+			padding-top: 86px;
+		}
+
+		.header-main .container .hero-copy,
+		.header-main .container .hero-copy h1,
+		.header-main .container .hero-copy p,
+		.header-main .container .hero-copy .hero-actions,
+		.header-main .container .search-box,
+		.header-main .container .hero-feature-cards {
+			width: 100%;
+			max-width: 100%;
+		}
+
+		.header-main .container .hero-copy h1 {
+			font-size: 40px;
+			line-height: 1.08;
+			overflow-wrap: anywhere;
+		}
+
+		.header-main .container .search-box {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 10px;
+			padding: 10px;
+			overflow: visible;
+		}
+
+		.header-main .container .search-box .select-box,
+		.header-main .container .search-box .search-box-other {
+			width: 100%;
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 10px;
+		}
+
+		.header-main .container .search-box .box,
+		.header-main .container .search-box .advanced-filter,
+		.header-main .container .search-box .search-btn {
+			width: 100%;
+			max-width: 100%;
+		}
+
+		.home-page {
+			width: 100%;
+			max-width: 100%;
+			overflow-x: hidden;
+
+			.platform-showcase,
+			.events.communication-roadmap,
+			.video-frame.kg-store-section,
+			.trend-properties,
+			.popular-properties,
+			.top-properties,
+			.community-board {
+				width: 100%;
+				max-width: 100%;
+				overflow-x: hidden;
+			}
+
+			.platform-showcase .platform-container,
+			.trend-properties .container,
+			.popular-properties .container,
+			.top-properties .container,
+			.community-board .container,
+			.events.communication-roadmap .container,
+			.video-frame.kg-store-section .store-container,
+			.final-cta-section {
+				width: calc(100% - 28px) !important;
+				max-width: calc(100% - 28px) !important;
+				margin-left: auto !important;
+				margin-right: auto !important;
+			}
+
+			.platform-showcase .platform-role-grid,
+			.platform-showcase .feature-grid-list,
+			.platform-showcase .privacy-list,
+			.events.communication-roadmap .card-wrapper,
+			.video-frame.kg-store-section .store-container,
+			.video-frame.kg-store-section .store-product-grid,
+			.final-cta-section {
+				display: grid !important;
+				grid-template-columns: 1fr !important;
+			}
+
+			.platform-showcase .platform-role-card,
+			.platform-showcase .feature-card,
+			.platform-showcase .platform-privacy-section,
+			.events.communication-roadmap .event-card,
+			.video-frame.kg-store-section .store-feature-card,
+			.video-frame.kg-store-section .store-product-card,
+			.final-cta-section {
+				width: 100%;
+				max-width: 100%;
+				overflow: hidden;
+			}
+
+			.platform-showcase h2,
+			.platform-showcase h3,
+			.platform-showcase p,
+			.events h3,
+			.events p,
+			.video-frame h2,
+			.video-frame h3,
+			.video-frame p,
+			.final-cta-section h2,
+			.final-cta-section p {
+				max-width: 100%;
+				overflow-wrap: anywhere;
+			}
+
+			.platform-showcase .platform-privacy-section {
+				grid-template-columns: 1fr !important;
+				padding: 22px 16px !important;
+			}
+
+			.platform-showcase .privacy-copy h2 {
+				text-align: center;
+			}
+
+			.final-cta-section {
+				padding: 22px 16px;
+			}
+		}
+	}
 }

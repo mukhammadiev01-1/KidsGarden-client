@@ -1,0 +1,13 @@
+<svg width="214" height="56" viewBox="0 0 214 56" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+	<title id="title">KidsGarden</title>
+	<desc id="desc">KidsGarden early learning platform logo</desc>
+	<rect width="214" height="56" rx="28" fill="#FFFAF2"/>
+	<rect x="8" y="8" width="40" height="40" rx="20" fill="#4F7C5B"/>
+	<path d="M28 34V22" stroke="#FFFAF2" stroke-width="3.4" stroke-linecap="round"/>
+	<path d="M28 25C24.4 19.2 20 17.9 16.5 18.3C16.1 23.2 19.6 27.2 28 25Z" fill="#F0B84A"/>
+	<path d="M28 25C32.1 18.7 37.2 17 41 17.6C41.4 23.4 36.8 27.9 28 25Z" fill="#DDEBC8"/>
+	<text x="58" y="25" fill="#24332D" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="800" letter-spacing="0">Kids<tspan fill="#4F7C5B">Garden</tspan></text>
+	<text x="59" y="40" fill="#7A8F7E" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="700" letter-spacing="1.1">
+		EARLY LEARNING PLATFORM
+	</text>
+</svg>

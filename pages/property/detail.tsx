@@ -21,7 +21,6 @@ import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.
 import { Comment } from '../../libs/types/comment/comment';
 import { CommentGroup } from '../../libs/enums/comment.enum';
 import { Pagination as MuiPagination } from '@mui/material';
-import Link from 'next/link';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import 'swiper/css';
@@ -143,17 +142,20 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (router.query.id) {
-			setKindergartenId(router.query.id as string);
+		const queryKindergartenId = router.query.kindergartenId || router.query.id;
+		const targetKindergartenId = Array.isArray(queryKindergartenId) ? queryKindergartenId[0] : queryKindergartenId;
+
+		if (targetKindergartenId) {
+			setKindergartenId(targetKindergartenId);
 			setCommentInquiry({
 				...commentInquiry,
 				search: {
-					commentRefId: router.query.id as string,
+					commentRefId: targetKindergartenId,
 				},
 			});
 			setInsertCommentData({
 				...insertCommentData,
-				commentRefId: router.query.id as string,
+				commentRefId: targetKindergartenId,
 			});
 		}
 	}, [router]);
@@ -564,13 +566,13 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 										</Button>
 									</Box>
 								</Stack>
-							</Stack>
+								</Stack>
 								<Stack className={'right-config'}>
-								<Stack className={'info-box'}>
-									<Typography className={'main-title'}>Enrollment & Contact</Typography>
-									<Stack className={'image-info'}>
-										<img
-											className={'member-image'}
+									<Stack className={'info-box'}>
+										<Typography className={'main-title'}>Enrollment & Contact</Typography>
+										<Stack className={'image-info'}>
+											<img
+												className={'member-image'}
 											src={
 												kindergarten?.memberData?.memberImage
 													? getImageUrl(kindergarten?.memberData?.memberImage, '/img/profile/defaultUser.svg')
@@ -578,11 +580,13 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 											}
 										/>
 										<Stack className={'name-phone-listings'}>
-											<Link href={`/member?memberId=${kindergarten?.memberData?._id}`}>
-												<Typography className={'name'}>{kindergarten?.memberData?.memberNick}</Typography>
-											</Link>
-												<Typography className={'listings'}>Contact the kindergarten through official inquiry channels.</Typography>
-											<Typography className={'listings'}>Kindergarten Admin</Typography>
+											<Typography className={'name'}>
+												{kindergarten?.memberData?.memberNick || 'KidsGarden center'}
+											</Typography>
+											<Typography className={'listings'}>
+												Contact the kindergarten through official inquiry channels.
+											</Typography>
+											<Typography className={'listings'}>Verified center information</Typography>
 										</Stack>
 									</Stack>
 								</Stack>

@@ -213,7 +213,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 									</TableCell>
 									<TableCell align="left">{categoryLabel(article.articleCategory)}</TableCell>
 									<TableCell align="left" className={'name'}>
-										<Link href={`/member?memberId=${article?.memberData?._id}`}>
+										<Stack direction="row" alignItems="center">
 											<Avatar
 												alt={article?.memberData?.memberNick || 'Author'}
 												src={
@@ -223,8 +223,10 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 												}
 												sx={{ ml: '2px', mr: '10px' }}
 											/>
-											{article?.memberData?.memberFullName || article?.memberData?.memberNick || 'Unknown author'}
-										</Link>
+											<Typography sx={{ maxWidth: 180 }} noWrap>
+												{article?.memberData?.memberFullName || article?.memberData?.memberNick || 'Unknown author'}
+											</Typography>
+										</Stack>
 									</TableCell>
 									<TableCell align="left">
 										<Typography sx={{ maxWidth: 260, color: '#59675f' }} noWrap title={stripHtml(article.articleContent)}>

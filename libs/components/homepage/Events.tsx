@@ -1,102 +1,84 @@
 import React from 'react';
 import { Stack, Box } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
+import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
+import TranslateRoundedIcon from '@mui/icons-material/TranslateRounded';
+import CallRoundedIcon from '@mui/icons-material/CallRounded';
+import CollectionsRoundedIcon from '@mui/icons-material/CollectionsRounded';
 
 interface EventData {
 	eventTitle: string;
-	city: string;
+	label: string;
 	description: string;
-	imageSrc: string;
+	tone: string;
+	icon: React.ElementType;
 }
+
 const eventsData: EventData[] = [
 	{
-		eventTitle: 'Open Classroom Day',
-		city: 'Incheon',
-		description: 'Visit a center and see how children spend a typical learning day.',
-		imageSrc: '/img/events/INCHEON.webp',
+		eventTitle: 'Private Chat',
+		label: 'Coming Soon',
+		description: 'One-on-one messages when you need them.',
+		tone: 'green',
+		icon: ForumRoundedIcon,
 	},
 	{
-		eventTitle: 'Parent Orientation',
-		city: 'Seoul',
-		description: 'Learn about programs, meals, safety routines, and enrollment steps for your child.',
-		imageSrc: '/img/events/SEOUL.webp',
+		eventTitle: 'Auto Translation',
+		label: 'Coming Soon',
+		description: 'Break language barriers with instant translation.',
+		tone: 'purple',
+		icon: TranslateRoundedIcon,
 	},
 	{
-		eventTitle: 'Family Art Morning',
-		city: 'Daegu',
-		description: 'A gentle weekend activity where families explore creative play together.',
-		imageSrc: '/img/events/DAEGU.webp',
+		eventTitle: 'In-app Calls',
+		label: 'Coming Soon',
+		description: 'Talk directly without leaving the app.',
+		tone: 'blue',
+		icon: CallRoundedIcon,
 	},
 	{
-		eventTitle: 'Outdoor Play Week',
-		city: 'Busan',
-		description: 'Discover centers with active playgrounds, nature walks, and movement-rich programs.',
-		imageSrc: '/img/events/BUSAN.webp',
+		eventTitle: 'Daily Reports & Albums',
+		label: 'Coming Soon',
+		description: 'Capture and celebrate every special moment.',
+		tone: 'pink',
+		icon: CollectionsRoundedIcon,
 	},
 ];
 
 const EventCard = ({ event }: { event: EventData }) => {
+	const Icon = event.icon;
+
 	return (
-		<Stack
-			className="event-card"
-			style={{
-				backgroundImage: `url(${event?.imageSrc})`,
-				backgroundSize: 'cover',
-				backgroundPosition: 'center',
-				backgroundRepeat: 'no-repeat',
-			}}
-		>
-			<Box component={'div'} className={'info'}>
-				<strong>{event?.city}</strong>
-				<span>{event?.eventTitle}</span>
-			</Box>
-			<Box component={'div'} className={'more'}>
-				<span>{event?.description}</span>
-			</Box>
+		<Stack className={`event-card roadmap-card ${event.tone}`}>
+			<strong>{event.label}</strong>
+			<span className={'roadmap-icon'}>
+				<Icon />
+			</span>
+			<h3>{event.eventTitle}</h3>
+			<p>{event.description}</p>
 		</Stack>
 	);
 };
 
 const Events = () => {
-	const device = useDeviceDetect();
-
-	if (device === 'mobile') {
-		return (
-			<Stack className={'events'}>
-				<Stack className={'container'}>
-					<Stack className={'info-box'}>
-						<Box component={'div'} className={'left'}>
-							<span>Family Events</span>
-							<p>Open days and parent sessions for exploring kindergarten life</p>
-						</Box>
-					</Stack>
-					<Stack className={'card-wrapper'}>
-						{eventsData.map((event: EventData) => {
-							return <EventCard event={event} key={event?.eventTitle} />;
-						})}
-					</Stack>
+	return (
+		<Stack className={'events communication-roadmap'}>
+			<Stack className={'container'}>
+				<Stack className={'info-box'}>
+					<Box component={'div'} className={'left'}>
+						<span>
+							Communication Roadmap <em className={'sprout-accent'} aria-hidden />
+						</span>
+						<p>Exciting features coming soon to bring us even closer together.</p>
+					</Box>
+				</Stack>
+				<Stack className={'card-wrapper'}>
+					{eventsData.map((event: EventData) => {
+						return <EventCard event={event} key={event.eventTitle} />;
+					})}
 				</Stack>
 			</Stack>
-		);
-	} else {
-		return (
-			<Stack className={'events'}>
-				<Stack className={'container'}>
-					<Stack className={'info-box'}>
-						<Box component={'div'} className={'left'}>
-							<span className={'white'}>Family Events</span>
-							<p className={'white'}>Meet centers through open days and parent sessions</p>
-						</Box>
-					</Stack>
-					<Stack className={'card-wrapper'}>
-						{eventsData.map((event: EventData) => {
-							return <EventCard event={event} key={event?.eventTitle} />;
-						})}
-					</Stack>
-				</Stack>
-			</Stack>
-		);
-	}
+		</Stack>
+	);
 };
 
 export default Events;

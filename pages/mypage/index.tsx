@@ -46,7 +46,13 @@ const MyPage: NextPage = () => {
 	const legacyPropertyCategories = ['addProperty', 'myProperties'];
 	const kindergartenAdminCategories = ['kindergartenProfile', 'staff', 'staffApplications', 'groups', 'children', 'attendance'];
 	const teacherCategories = ['teacherGroups', 'teacherAttendance'];
-	const parentCategories = ['parentChildren', 'parentAttendance', 'staffApplications', 'kindergartenAdminApplications'];
+	const parentCategories = [
+		'parentChildren',
+		'parentAttendance',
+		'staffApplications',
+		'kindergartenAdminApplications',
+		'writeArticle',
+	];
 	const fallbackCategories = ['myFavorites', 'recentlyVisited', 'myArticles', 'writeArticle', 'myProfile', 'followers', 'followings'];
 	const category: any =
 		rawCategory ??
