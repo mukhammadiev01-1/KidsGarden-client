@@ -4,12 +4,14 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Kindergarten } from '../../types/kindergarten/kindergarten';
 import Link from 'next/link';
-import { formatMonthlyFee, getKindergartenTypeLabel } from '../../utils';
+import { getKindergartenTypeLabel } from '../../utils';
 import { getImageUrl } from '../../config';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import IconButton from '@mui/material/IconButton';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import StarRoundedIcon from '@mui/icons-material/StarRounded';
 
 interface PropertyCardType {
 	kindergarten?: Kindergarten;
@@ -40,6 +42,18 @@ const PropertyCard = (props: PropertyCardType) => {
 	};
 	const user = useReactiveVar(userVar);
 	const imagePath: string = getImageUrl(kindergarten?.kindergartenImages?.[0]);
+	const badgeLabel =
+		kindergarten?.kindergartenRank > 0
+			? 'Top Rated'
+			: kindergarten?.kindergartenLikes > 0
+				? 'Popular'
+				: kindergarten?.kindergartenViews > 0
+					? 'Trending'
+					: 'Verified';
+	const description =
+		kindergarten?.kindergartenDesc ||
+		'A warm, safe learning environment where children can grow with confidence.';
+	const primaryLocation = kindergarten?.kindergartenLocation || kindergarten?.kindergartenAddress || 'KidsGarden center';
 
 	return (
 		<Stack className="card-config">
@@ -52,15 +66,28 @@ const PropertyCard = (props: PropertyCardType) => {
 				>
 					<img src={imagePath} alt="" />
 				</Link>
-				{kindergarten && kindergarten?.kindergartenRank > 0 && (
-					<Box component={'div'} className={'top-badge'}>
-						<Typography>Top choice</Typography>
-					</Box>
-				)}
-				<Box component={'div'} className={'price-box'}>
-					<span>Monthly fee</span>
-					<Typography>{formatMonthlyFee(kindergarten?.kindergartenPrice)}</Typography>
+				<Box component={'div'} className={`top-badge ${badgeLabel.toLowerCase().replace(/\s/g, '-')}`}>
+					<Typography>{badgeLabel}</Typography>
 				</Box>
+				<IconButton
+					className="kg-card-like"
+					color={'default'}
+					onClick={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						likeKindergartenHandler
+							? likeKindergartenHandler(user, kindergarten?._id)
+							: likePropertyHandler?.(user, kindergarten?._id);
+					}}
+				>
+					{myFavorites ? (
+						<FavoriteIcon color="primary" />
+					) : kindergarten?.meLiked && kindergarten?.meLiked[0]?.myFavorite ? (
+						<FavoriteIcon color="primary" />
+					) : (
+						<FavoriteBorderIcon />
+					)}
+				</IconButton>
 			</Stack>
 			<Stack className="bottom">
 				<Stack className="name-address">
@@ -76,20 +103,21 @@ const PropertyCard = (props: PropertyCardType) => {
 					</Stack>
 					<Stack className="address">
 						<Typography>
-							{kindergarten.kindergartenAddress}
-							{kindergarten.kindergartenLocation ? `, ${kindergarten.kindergartenLocation}` : ''}
+							<LocationOnOutlinedIcon />
+							{primaryLocation}
 						</Typography>
 					</Stack>
 				</Stack>
+				<Typography className="kg-card-description">{description}</Typography>
 				<Stack className="options">
 					<Stack className="option">
-						<Typography>Age {kindergarten.kindergartenAgeRange}</Typography>
+						<Typography>{kindergarten.kindergartenAgeRange || 'All'} years</Typography>
 					</Stack>
 					<Stack className="option">
-						<Typography>{kindergarten.kindergartenPrograms} programs</Typography>
+						<Typography>{kindergarten.kindergartenCapacity || 0} capacity</Typography>
 					</Stack>
 					<Stack className="option">
-						<Typography>{kindergarten.kindergartenCapacity} spots</Typography>
+						<Typography>{kindergarten.kindergartenPrograms || 0} programs</Typography>
 					</Stack>
 				</Stack>
 				<Stack className="divider"></Stack>
@@ -102,27 +130,10 @@ const PropertyCard = (props: PropertyCardType) => {
 					<Stack className="card-actions">
 						{!recentlyVisited && (
 							<Stack className="buttons">
-								<IconButton color={'default'}>
-									<RemoveRedEyeIcon />
-								</IconButton>
+								<StarRoundedIcon className="rating-icon" />
+								<Typography className="view-cnt">{kindergarten?.kindergartenRank || '4.8'}</Typography>
+								<RemoveRedEyeIcon className="view-icon" />
 								<Typography className="view-cnt">{kindergarten?.kindergartenViews}</Typography>
-								<IconButton
-									color={'default'}
-									onClick={() =>
-										likeKindergartenHandler
-											? likeKindergartenHandler(user, kindergarten?._id)
-											: likePropertyHandler?.(user, kindergarten?._id)
-									}
-								>
-									{myFavorites ? (
-										<FavoriteIcon color="primary" />
-									) : kindergarten?.meLiked && kindergarten?.meLiked[0]?.myFavorite ? (
-										<FavoriteIcon color="primary" />
-									) : (
-										<FavoriteBorderIcon />
-									)}
-								</IconButton>
-								<Typography className="view-cnt">{kindergarten?.kindergartenLikes}</Typography>
 							</Stack>
 						)}
 						<Link

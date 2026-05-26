@@ -1006,6 +1006,851 @@
   }
 }
 
+/* /property mobile React path guard. Some desktop-UA narrow checks use #mobile-wrap without matching CSS media queries. */
+#mobile-wrap {
+  #property-list-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box !important;
+      max-width: 100% !important;
+    }
+
+    .kg-property-hero,
+    .container.kg-property-container,
+    .kg-search-panel,
+    .kg-map-preview,
+    .property-page.kg-listing-area,
+    .kg-top-kindergartens {
+      width: calc(100vw - 24px) !important;
+      max-width: calc(100vw - 24px) !important;
+      min-width: 0 !important;
+    }
+
+    .kg-property-hero-inner {
+      width: calc(100vw - 24px) !important;
+      max-width: calc(100vw - 24px) !important;
+      padding: 30px 12px 26px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 18px !important;
+    }
+
+    .kg-property-hero-copy,
+    .kg-property-hero-copy h1,
+    .kg-property-hero-copy .kg-property-hero-subtitle,
+    .kg-property-hero-copy .kg-trust-chips,
+    .kg-property-hero-visual {
+      width: calc(100vw - 48px) !important;
+      max-width: calc(100vw - 48px) !important;
+      min-width: 0 !important;
+    }
+
+    .kg-property-hero-copy h1,
+    .kg-property-hero-copy .kg-property-hero-subtitle {
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+    }
+
+    .kg-property-hero-copy h1 {
+      font-size: 30px !important;
+      line-height: 1.12 !important;
+    }
+
+    .kg-property-hero-copy .kg-trust-chips {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+    }
+
+    .kg-property-hero-copy .kg-trust-chips span {
+      width: 100% !important;
+      white-space: normal !important;
+    }
+
+    .kg-property-hero-visual {
+      height: 180px !important;
+      flex: 0 0 auto !important;
+      border-radius: 20px !important;
+    }
+
+    .container.kg-property-container {
+      margin: 0 12px !important;
+      padding: 0 !important;
+      display: block !important;
+    }
+
+    .kg-search-panel {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 10px !important;
+      margin: 0 !important;
+    }
+
+    .kg-search-panel .kg-search-field,
+    .kg-search-panel .kg-search-button {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .kg-map-preview {
+      height: 250px !important;
+      margin: 12px 0 18px !important;
+      overflow: hidden !important;
+    }
+
+    .kg-map-preview .kg-map-tabs {
+      left: 10px !important;
+      right: 10px !important;
+      width: auto !important;
+      transform: none !important;
+      overflow-x: auto !important;
+    }
+
+    .property-page.kg-listing-area {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    .property-page.kg-listing-area .filter-config,
+    .property-page.kg-listing-area .main-config,
+    .property-page.kg-listing-area .list-config,
+    .property-page.kg-listing-area .card-config,
+    .kg-top-kindergartens .kg-top-strip-list,
+    .kg-top-kindergartens .kg-top-mini-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+    }
+
+    .property-page.kg-listing-area .list-config,
+    .kg-top-kindergartens .kg-top-strip-list {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+    }
+
+    .filter-main .find-your-home .square-year-input {
+      flex-direction: column !important;
+      align-items: stretch !important;
+    }
+
+    .filter-main .find-your-home .square-year-input .central-divider {
+      display: none !important;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  #pc-wrap,
+  #mobile-wrap {
+    #property-list-page {
+      .property-page.kg-listing-area .filter-main {
+        .find-your-home {
+          .kg-filter-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+
+            button {
+              max-width: 45%;
+              border: 0;
+              background: transparent;
+              color: #2f7d4a;
+              font-size: 12px;
+              font-weight: 700;
+              white-space: normal;
+            }
+          }
+
+          .kg-filter-chip-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 100%;
+            min-width: 0;
+          }
+
+          .kg-filter-chip {
+            max-width: 100%;
+            min-width: 0;
+            min-height: 34px;
+            padding: 7px 10px;
+            border: 1px solid #dce9d7;
+            border-radius: 999px;
+            background: #fff;
+            color: #203328;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.25;
+            white-space: normal;
+            overflow-wrap: anywhere;
+
+            &.active {
+              border-color: #2f7d4a;
+              background: #edf8ef;
+              color: #1f5132;
+            }
+
+            .property-checkbox {
+              width: 18px;
+              height: 18px;
+              margin-right: 5px;
+              padding: 0;
+            }
+          }
+
+          .kg-range-filter {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            padding: 12px 13px 10px;
+            border: 1px solid #dce9d7;
+            border-radius: 14px;
+            background: #fbfff8;
+            box-sizing: border-box;
+          }
+
+          .kg-range-value {
+            color: #405443;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.3;
+            overflow-wrap: anywhere;
+          }
+
+          .kg-slider {
+            width: calc(100% - 8px);
+            max-width: calc(100% - 8px);
+            margin: 0 4px;
+            color: #2f7d4a;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* /property mobile containment loaded after legacy mobile rules. */
+@media (max-width: 600px) {
+  #mobile-wrap,
+  #pc-wrap {
+    #property-list-page {
+      overflow-x: hidden !important;
+
+      .kg-property-hero,
+      .container.kg-property-container,
+      .kg-search-panel,
+      .kg-map-preview,
+      .property-page.kg-listing-area,
+      .kg-top-kindergartens {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      .kg-property-hero-inner {
+        width: 100% !important;
+        max-width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 18px !important;
+        padding: 30px 14px 26px !important;
+        box-sizing: border-box !important;
+      }
+
+      .kg-property-hero-copy {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 auto !important;
+
+        h1 {
+          width: 100% !important;
+          max-width: 100% !important;
+          white-space: normal !important;
+          overflow-wrap: anywhere !important;
+          font-size: 30px !important;
+          line-height: 1.12 !important;
+        }
+
+        .kg-property-hero-subtitle {
+          width: 100% !important;
+          max-width: 100% !important;
+          white-space: normal !important;
+          overflow-wrap: anywhere !important;
+        }
+
+        .kg-trust-chips {
+          width: 100% !important;
+          max-width: 100% !important;
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+          overflow: visible !important;
+
+          span {
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+        }
+      }
+
+      .kg-property-hero-visual {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 auto !important;
+        height: 180px !important;
+        border-radius: 20px !important;
+      }
+
+      .container.kg-property-container {
+        display: block !important;
+        padding: 0 12px !important;
+        margin: 0 !important;
+      }
+
+      .kg-search-panel {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+        margin: 0 !important;
+
+        .kg-search-field,
+        .kg-search-button {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+      }
+
+      .kg-map-preview {
+        height: 250px !important;
+        margin: 12px 0 18px !important;
+        overflow: hidden !important;
+
+        .kg-map-tabs {
+          left: 10px !important;
+          right: 10px !important;
+          width: auto !important;
+          transform: none !important;
+          overflow-x: auto !important;
+        }
+      }
+
+      .property-page.kg-listing-area {
+        display: flex !important;
+        flex-direction: column !important;
+
+        .filter-config,
+        .main-config {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+        }
+
+        .list-config {
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+        }
+      }
+    }
+  }
+}
+
+/* /property mobile React path guard. Some desktop-UA narrow checks use #mobile-wrap without matching CSS media queries. */
+#mobile-wrap {
+  #property-list-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box !important;
+      max-width: 100% !important;
+    }
+
+    .kg-property-hero,
+    .container.kg-property-container,
+    .kg-search-panel,
+    .kg-map-preview,
+    .property-page.kg-listing-area,
+    .kg-top-kindergartens {
+      width: calc(100vw - 24px) !important;
+      max-width: calc(100vw - 24px) !important;
+      min-width: 0 !important;
+    }
+
+    .kg-property-hero-inner {
+      width: calc(100vw - 24px) !important;
+      max-width: calc(100vw - 24px) !important;
+      padding: 30px 12px 26px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 18px !important;
+    }
+
+    .kg-property-hero-copy,
+    .kg-property-hero-copy h1,
+    .kg-property-hero-copy .kg-property-hero-subtitle,
+    .kg-property-hero-copy .kg-trust-chips,
+    .kg-property-hero-visual {
+      width: calc(100vw - 48px) !important;
+      max-width: calc(100vw - 48px) !important;
+      min-width: 0 !important;
+    }
+
+    .kg-property-hero-copy h1,
+    .kg-property-hero-copy .kg-property-hero-subtitle {
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+    }
+
+    .kg-property-hero-copy h1 {
+      font-size: 30px !important;
+      line-height: 1.12 !important;
+    }
+
+    .kg-property-hero-copy .kg-trust-chips {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+    }
+
+    .kg-property-hero-copy .kg-trust-chips span {
+      width: 100% !important;
+      white-space: normal !important;
+    }
+
+    .kg-property-hero-visual {
+      height: 180px !important;
+      flex: 0 0 auto !important;
+      border-radius: 20px !important;
+    }
+
+    .container.kg-property-container {
+      margin: 0 12px !important;
+      padding: 0 !important;
+      display: block !important;
+    }
+
+    .kg-search-panel {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 10px !important;
+      margin: 0 !important;
+    }
+
+    .kg-search-panel .kg-search-field,
+    .kg-search-panel .kg-search-button {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .kg-map-preview {
+      height: 250px !important;
+      margin: 12px 0 18px !important;
+      overflow: hidden !important;
+    }
+
+    .kg-map-preview .kg-map-tabs {
+      left: 10px !important;
+      right: 10px !important;
+      width: auto !important;
+      transform: none !important;
+      overflow-x: auto !important;
+    }
+
+    .property-page.kg-listing-area {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    .property-page.kg-listing-area .filter-config,
+    .property-page.kg-listing-area .main-config,
+    .property-page.kg-listing-area .list-config,
+    .property-page.kg-listing-area .card-config,
+    .kg-top-kindergartens .kg-top-strip-list,
+    .kg-top-kindergartens .kg-top-mini-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+    }
+
+    .property-page.kg-listing-area .list-config,
+    .kg-top-kindergartens .kg-top-strip-list {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+    }
+
+    .filter-main .find-your-home .square-year-input {
+      flex-direction: column !important;
+      align-items: stretch !important;
+    }
+
+    .filter-main .find-your-home .square-year-input .central-divider {
+      display: none !important;
+    }
+  }
+}
+
+/* Homepage 1B-M final guard: actual EOF override for desktop-UA 390px screenshots. */
+@media (max-width: 600px) {
+  html,
+  body,
+  #__next,
+  #pc-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  #pc-wrap {
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box !important;
+      min-width: 0 !important;
+    }
+
+    #top .navbar-main,
+    #top .navbar-main .container {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      min-height: 64px !important;
+      overflow: hidden !important;
+    }
+
+    #top .navbar-main .container {
+      padding: 10px 12px !important;
+      justify-content: flex-start !important;
+    }
+
+    #top .logo-box,
+    #top .kids-brand {
+      max-width: 150px !important;
+      flex: 0 0 150px !important;
+    }
+
+    #top .kids-brand img {
+      width: 145px !important;
+      max-width: 100% !important;
+    }
+
+    #top .router-box,
+    #top .user-box {
+      display: none !important;
+    }
+
+    .header-main,
+    .home-page,
+    .home-page > *,
+    .home-page .platform-showcase,
+    .home-page .events.communication-roadmap,
+    .home-page .video-frame.kg-store-section,
+    .home-page .trend-properties,
+    .home-page .popular-properties,
+    .home-page .top-properties,
+    .home-page .community-board {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
+    }
+
+    .header-main .container,
+    .home-page .platform-showcase .platform-container,
+    .home-page .events.communication-roadmap .container,
+    .home-page .video-frame.kg-store-section .store-container,
+    .home-page .trend-properties .container,
+    .home-page .popular-properties .container,
+    .home-page .top-properties .container,
+    .home-page .community-board .container,
+    .home-page .final-cta-section {
+      width: calc(100% - 24px) !important;
+      max-width: calc(100% - 24px) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .home-page .platform-showcase,
+    .home-page .events.communication-roadmap,
+    .home-page .video-frame.kg-store-section,
+    .home-page .trend-properties,
+    .home-page .popular-properties,
+    .home-page .top-properties,
+    .home-page .community-board {
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+    }
+
+    .header-main .container .search-box,
+    .header-main .container .search-box .select-box,
+    .header-main .container .search-box .search-box-other,
+    .header-main .container .hero-feature-cards,
+    .home-page .platform-showcase .platform-role-grid,
+    .home-page .platform-showcase .feature-grid-list,
+    .home-page .platform-showcase .privacy-list,
+    .home-page .events.communication-roadmap .card-wrapper,
+    .home-page .video-frame.kg-store-section .store-product-grid,
+    .home-page .final-cta-section {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+    }
+
+    .header-main .container .hero-copy,
+    .header-main .container .hero-copy h1,
+    .header-main .container .hero-copy p,
+    .header-main .container .hero-copy .hero-actions,
+    .header-main .container .search-box,
+    .header-main .container .search-box .select-box,
+    .header-main .container .search-box .search-box-other,
+    .header-main .container .search-box .box,
+    .header-main .container .search-box .advanced-filter,
+    .header-main .container .search-box .search-btn,
+    .home-page .platform-showcase .platform-role-card,
+    .home-page .platform-showcase .feature-card,
+    .home-page .platform-showcase .platform-privacy-section,
+    .home-page .platform-showcase .privacy-card,
+    .home-page .events.communication-roadmap .event-card,
+    .home-page .video-frame.kg-store-section .store-feature-card,
+    .home-page .video-frame.kg-store-section .store-product-card {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .home-page .platform-showcase .platform-role-card .role-card-top,
+    .home-page .platform-showcase .feature-card,
+    .home-page .platform-showcase .privacy-card {
+      display: grid !important;
+      grid-template-columns: 44px minmax(0, 1fr) !important;
+      gap: 12px !important;
+      align-items: center !important;
+    }
+
+    .home-page .platform-showcase .platform-role-card .role-card-top > div,
+    .home-page .platform-showcase .feature-card > div,
+    .home-page .platform-showcase .privacy-card > div {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      display: block !important;
+      overflow: visible !important;
+    }
+
+    .home-page .platform-showcase .platform-role-card h3,
+    .home-page .platform-showcase .platform-role-card p,
+    .home-page .platform-showcase .feature-card h3,
+    .home-page .platform-showcase .feature-card p,
+    .home-page .platform-showcase .privacy-card h3,
+    .home-page .platform-showcase .privacy-card p {
+      width: 100% !important;
+      max-width: 100% !important;
+      display: block !important;
+    }
+
+    .home-page .platform-showcase .platform-section-heading h2,
+    .home-page .platform-showcase .platform-feature-grid h2,
+    .home-page .events.communication-roadmap h2,
+    .home-page .video-frame.kg-store-section h2,
+    .home-page .final-cta-section h2 {
+      font-size: 28px !important;
+      line-height: 34px !important;
+    }
+
+    .home-page h1,
+    .home-page h2,
+    .home-page h3,
+    .home-page p,
+    .home-page span,
+    .home-page strong,
+    .header-main h1,
+    .header-main p,
+    .header-main span {
+      max-width: 100% !important;
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+      word-break: normal !important;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  body,
+  #__next,
+  #pc-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  #pc-wrap {
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      min-width: 0;
+    }
+
+    #top {
+      .navbar .navbar-main .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        padding: 10px 12px !important;
+        overflow: hidden;
+      }
+
+      .logo-box,
+      .kids-brand {
+        max-width: 150px !important;
+      }
+
+      .kids-brand img {
+        width: 146px !important;
+        max-width: 100% !important;
+      }
+
+      .router-box {
+        display: none !important;
+      }
+
+      .user-box {
+        flex: 0 1 auto !important;
+        max-width: calc(100% - 160px) !important;
+        gap: 6px !important;
+        overflow: hidden;
+      }
+
+      .join-box {
+        min-width: 0 !important;
+        max-width: 116px !important;
+        padding: 9px 12px !important;
+
+        span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+
+      .lan-box {
+        display: none !important;
+      }
+    }
+
+    .header-main,
+    .home-page,
+    .home-page .platform-showcase,
+    .home-page .events.communication-roadmap,
+    .home-page .video-frame.kg-store-section,
+    .home-page .trend-properties,
+    .home-page .popular-properties,
+    .home-page .top-properties,
+    .home-page .community-board {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
+    }
+
+    .header-main .container,
+    .home-page .platform-showcase .platform-container,
+    .home-page .trend-properties .container,
+    .home-page .popular-properties .container,
+    .home-page .top-properties .container,
+    .home-page .community-board .container,
+    .home-page .events.communication-roadmap .container,
+    .home-page .video-frame.kg-store-section .store-container,
+    .home-page .final-cta-section {
+      width: calc(100% - 28px) !important;
+      max-width: calc(100% - 28px) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .header-main .container .hero-copy,
+    .header-main .container .hero-copy h1,
+    .header-main .container .hero-copy p,
+    .header-main .container .hero-copy .hero-actions,
+    .header-main .container .search-box,
+    .header-main .container .hero-feature-cards {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .header-main .container .hero-copy h1 {
+      font-size: 40px !important;
+      line-height: 1.08 !important;
+    }
+
+    .header-main .container .search-box,
+    .home-page .platform-showcase .platform-role-grid,
+    .home-page .platform-showcase .feature-grid-list,
+    .home-page .platform-showcase .privacy-list,
+    .home-page .events.communication-roadmap .card-wrapper,
+    .home-page .video-frame.kg-store-section .store-container,
+    .home-page .video-frame.kg-store-section .store-product-grid,
+    .home-page .final-cta-section {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+    }
+
+    .header-main .container .search-box {
+      gap: 10px !important;
+      padding: 10px !important;
+    }
+
+    .header-main .container .search-box .select-box,
+    .header-main .container .search-box .search-box-other,
+    .header-main .container .search-box .box,
+    .header-main .container .search-box .advanced-filter,
+    .header-main .container .search-box .search-btn,
+    .home-page .platform-showcase .platform-role-card,
+    .home-page .platform-showcase .feature-card,
+    .home-page .platform-showcase .platform-privacy-section,
+    .home-page .events.communication-roadmap .event-card,
+    .home-page .video-frame.kg-store-section .store-feature-card,
+    .home-page .video-frame.kg-store-section .store-product-card {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .home-page .platform-showcase,
+    .home-page .events.communication-roadmap,
+    .home-page .video-frame.kg-store-section {
+      padding-left: 14px !important;
+      padding-right: 14px !important;
+    }
+
+    .home-page .platform-showcase .platform-role-card .role-card-top,
+    .home-page .platform-showcase .feature-card {
+      grid-template-columns: 48px 1fr !important;
+    }
+
+    .home-page .platform-showcase .platform-privacy-section {
+      grid-template-columns: 1fr !important;
+    }
+
+    .home-page h1,
+    .home-page h2,
+    .home-page h3,
+    .home-page p,
+    .home-page span,
+    .header-main h1,
+    .header-main p {
+      max-width: 100% !important;
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+    }
+  }
+}
+
 /* Homepage Full Design 1B: mobile section and footer overrides */
 #mobile-wrap {
   .home-page {
@@ -1448,6 +2293,456 @@
   }
 }
 
+/* Homepage 1B-M final guard: loaded last for desktop-UA 390px screenshots. */
+@media (max-width: 600px) {
+  html,
+  body,
+  #__next,
+  #pc-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  #pc-wrap {
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box !important;
+      min-width: 0 !important;
+    }
+
+    #top .navbar-main,
+    #top .navbar-main .container {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      min-height: 64px !important;
+      overflow: hidden !important;
+    }
+
+    #top .navbar-main .container {
+      padding: 10px 12px !important;
+      justify-content: flex-start !important;
+    }
+
+    #top .logo-box,
+    #top .kids-brand {
+      max-width: 150px !important;
+      flex: 0 0 150px !important;
+    }
+
+    #top .kids-brand img {
+      width: 145px !important;
+      max-width: 100% !important;
+    }
+
+    #top .router-box,
+    #top .user-box {
+      display: none !important;
+    }
+
+    .header-main,
+    .home-page,
+    .home-page > *,
+    .home-page .platform-showcase,
+    .home-page .events.communication-roadmap,
+    .home-page .video-frame.kg-store-section,
+    .home-page .trend-properties,
+    .home-page .popular-properties,
+    .home-page .top-properties,
+    .home-page .community-board {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
+    }
+
+    .header-main .container,
+    .home-page .platform-showcase .platform-container,
+    .home-page .events.communication-roadmap .container,
+    .home-page .video-frame.kg-store-section .store-container,
+    .home-page .trend-properties .container,
+    .home-page .popular-properties .container,
+    .home-page .top-properties .container,
+    .home-page .community-board .container,
+    .home-page .final-cta-section {
+      width: calc(100% - 24px) !important;
+      max-width: calc(100% - 24px) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .home-page .platform-showcase,
+    .home-page .events.communication-roadmap,
+    .home-page .video-frame.kg-store-section,
+    .home-page .trend-properties,
+    .home-page .popular-properties,
+    .home-page .top-properties,
+    .home-page .community-board {
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+    }
+
+    .header-main .container .search-box,
+    .header-main .container .search-box .select-box,
+    .header-main .container .search-box .search-box-other,
+    .header-main .container .hero-feature-cards,
+    .home-page .platform-showcase .platform-role-grid,
+    .home-page .platform-showcase .feature-grid-list,
+    .home-page .platform-showcase .privacy-list,
+    .home-page .events.communication-roadmap .card-wrapper,
+    .home-page .video-frame.kg-store-section .store-product-grid,
+    .home-page .final-cta-section {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+    }
+
+    .header-main .container .hero-copy,
+    .header-main .container .hero-copy h1,
+    .header-main .container .hero-copy p,
+    .header-main .container .hero-copy .hero-actions,
+    .header-main .container .search-box,
+    .header-main .container .search-box .select-box,
+    .header-main .container .search-box .search-box-other,
+    .header-main .container .search-box .box,
+    .header-main .container .search-box .advanced-filter,
+    .header-main .container .search-box .search-btn,
+    .home-page .platform-showcase .platform-role-card,
+    .home-page .platform-showcase .feature-card,
+    .home-page .platform-showcase .platform-privacy-section,
+    .home-page .platform-showcase .privacy-card,
+    .home-page .events.communication-roadmap .event-card,
+    .home-page .video-frame.kg-store-section .store-feature-card,
+    .home-page .video-frame.kg-store-section .store-product-card {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .home-page .platform-showcase .platform-role-card .role-card-top,
+    .home-page .platform-showcase .feature-card,
+    .home-page .platform-showcase .privacy-card {
+      display: grid !important;
+      grid-template-columns: 44px minmax(0, 1fr) !important;
+      gap: 12px !important;
+      align-items: center !important;
+    }
+
+    .home-page .platform-showcase .platform-role-card .role-card-top > div,
+    .home-page .platform-showcase .feature-card > div,
+    .home-page .platform-showcase .privacy-card > div {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      display: block !important;
+      overflow: visible !important;
+    }
+
+    .home-page .platform-showcase .platform-role-card h3,
+    .home-page .platform-showcase .platform-role-card p,
+    .home-page .platform-showcase .feature-card h3,
+    .home-page .platform-showcase .feature-card p,
+    .home-page .platform-showcase .privacy-card h3,
+    .home-page .platform-showcase .privacy-card p {
+      width: 100% !important;
+      max-width: 100% !important;
+      display: block !important;
+    }
+
+    .home-page .platform-showcase .platform-section-heading h2,
+    .home-page .platform-showcase .platform-feature-grid h2,
+    .home-page .events.communication-roadmap h2,
+    .home-page .video-frame.kg-store-section h2,
+    .home-page .final-cta-section h2 {
+      font-size: 28px !important;
+      line-height: 34px !important;
+    }
+
+    .home-page h1,
+    .home-page h2,
+    .home-page h3,
+    .home-page p,
+    .home-page span,
+    .home-page strong,
+    .header-main h1,
+    .header-main p,
+    .header-main span {
+      max-width: 100% !important;
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+      word-break: normal !important;
+    }
+  }
+}
+
+/* Homepage 1B-M final: desktop-rendered homepage constrained for 390px checks. */
+@media (max-width: 600px) {
+  html,
+  body,
+  #__next,
+  #pc-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  #pc-wrap {
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box !important;
+      min-width: 0 !important;
+    }
+
+    #top,
+    #top .navbar,
+    #top .navbar-main,
+    #top .navbar-main .container {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow: hidden !important;
+    }
+
+    #top .navbar-main .container {
+      height: auto !important;
+      min-height: 64px !important;
+      padding: 10px 12px !important;
+      justify-content: flex-start !important;
+      gap: 10px !important;
+    }
+
+    #top .logo-box,
+    #top .kids-brand {
+      width: auto !important;
+      max-width: 155px !important;
+      flex: 0 1 155px !important;
+    }
+
+    #top .kids-brand img {
+      width: 145px !important;
+      max-width: 100% !important;
+      height: auto !important;
+      display: block !important;
+    }
+
+    #top .router-box,
+    #top .user-box {
+      display: none !important;
+    }
+
+    .header-main,
+    .home-page,
+    .home-page > *,
+    .home-page section,
+    .home-page article,
+    .home-page .platform-showcase,
+    .home-page .events.communication-roadmap,
+    .home-page .video-frame.kg-store-section,
+    .home-page .trend-properties,
+    .home-page .popular-properties,
+    .home-page .top-properties,
+    .home-page .community-board {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
+    }
+
+    .header-main .container,
+    .home-page .platform-showcase .platform-container,
+    .home-page .trend-properties .container,
+    .home-page .popular-properties .container,
+    .home-page .top-properties .container,
+    .home-page .community-board .container,
+    .home-page .events.communication-roadmap .container,
+    .home-page .video-frame.kg-store-section .store-container,
+    .home-page .final-cta-section {
+      width: calc(100% - 24px) !important;
+      max-width: calc(100% - 24px) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .home-page .platform-showcase,
+    .home-page .events.communication-roadmap,
+    .home-page .video-frame.kg-store-section,
+    .home-page .trend-properties,
+    .home-page .popular-properties,
+    .home-page .top-properties,
+    .home-page .community-board {
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+    }
+
+    .header-main .container .hero-copy,
+    .header-main .container .hero-copy h1,
+    .header-main .container .hero-copy p,
+    .header-main .container .hero-copy .hero-actions,
+    .header-main .container .search-box,
+    .header-main .container .hero-feature-cards,
+    .header-main .container .search-box .select-box,
+    .header-main .container .search-box .search-box-other,
+    .header-main .container .search-box .box,
+    .header-main .container .search-box .advanced-filter,
+    .header-main .container .search-box .search-btn {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .header-main .container .search-box,
+    .header-main .container .search-box .select-box,
+    .header-main .container .search-box .search-box-other,
+    .header-main .container .hero-feature-cards,
+    .home-page .platform-showcase .platform-role-grid,
+    .home-page .platform-showcase .feature-grid-list,
+    .home-page .platform-showcase .privacy-list,
+    .home-page .events.communication-roadmap .card-wrapper,
+    .home-page .video-frame.kg-store-section .store-container,
+    .home-page .video-frame.kg-store-section .store-product-grid,
+    .home-page .final-cta-section {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+    }
+
+    .home-page .platform-showcase .platform-role-card,
+    .home-page .platform-showcase .feature-card,
+    .home-page .platform-showcase .platform-privacy-section,
+    .home-page .platform-showcase .privacy-card,
+    .home-page .events.communication-roadmap .event-card,
+    .home-page .video-frame.kg-store-section .store-feature-card,
+    .home-page .video-frame.kg-store-section .store-product-card,
+    .home-page .final-cta-section {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow: hidden !important;
+    }
+
+    .home-page .platform-showcase .platform-role-card .role-card-top,
+    .home-page .platform-showcase .feature-card,
+    .home-page .platform-showcase .privacy-card {
+      display: grid !important;
+      grid-template-columns: 44px minmax(0, 1fr) !important;
+      gap: 12px !important;
+      align-items: center !important;
+    }
+
+    .home-page .platform-showcase .platform-privacy-section {
+      grid-template-columns: 1fr !important;
+    }
+
+    .home-page img,
+    .home-page svg,
+    .home-page .role-image {
+      max-width: 100% !important;
+    }
+
+    .home-page h1,
+    .home-page h2,
+    .home-page h3,
+    .home-page p,
+    .home-page span,
+    .home-page strong,
+    .home-page a,
+    .header-main h1,
+    .header-main p,
+    .header-main span,
+    .header-main a {
+      max-width: 100% !important;
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+      word-break: normal !important;
+    }
+  }
+}
+
+/* Homepage mobile overflow guard: keep the mobile-rendered shell inside 390px. */
+#mobile-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .top {
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: wrap;
+    overflow-x: hidden;
+    padding: 10px 12px;
+
+    a {
+      max-width: 100%;
+      flex: 0 1 auto;
+    }
+
+    .mobile-logo {
+      flex: 0 0 100%;
+
+      img {
+        max-width: 148px;
+      }
+    }
+  }
+
+  .header-main,
+  .header-main .container,
+  .header-main .mobile-hero,
+  .header-main .hero-copy,
+  .header-main .hero-actions,
+  .header-main .search-box,
+  .home-page,
+  .home-page .platform-showcase,
+  .home-page .platform-container,
+  .home-page .platform-role-card,
+  .home-page .feature-card,
+  .home-page .platform-privacy-section,
+  .home-page .events.communication-roadmap,
+  .home-page .events.communication-roadmap .container,
+  .home-page .events.communication-roadmap .event-card,
+  .home-page .video-frame.kg-store-section,
+  .home-page .video-frame.kg-store-section .store-container,
+  .home-page .video-frame.kg-store-section .store-feature-card,
+  .home-page .video-frame.kg-store-section .store-product-card,
+  .home-page .final-cta-section {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .home-page .platform-showcase,
+  .home-page .events.communication-roadmap,
+  .home-page .video-frame.kg-store-section {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .home-page .platform-role-grid,
+  .home-page .feature-grid-list,
+  .home-page .privacy-list,
+  .home-page .events.communication-roadmap .card-wrapper,
+  .home-page .video-frame.kg-store-section .store-container,
+  .home-page .video-frame.kg-store-section .store-product-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .home-page h1,
+  .home-page h2,
+  .home-page h3,
+  .home-page p,
+  .home-page span,
+  .header-main h1,
+  .header-main p,
+  .top div {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
 /* Hero Design 2A: mobile hero composition */
 #mobile-wrap {
   .header-main {
@@ -1857,6 +3152,198 @@
       border-radius: 18px;
       background: linear-gradient(105deg, rgba(240, 250, 232, 0.94), rgba(255, 248, 234, 0.84));
     }
+  }
+}
+
+/* Simple mobile-safe fallback for desktop-rendered homepage. */
+@media (max-width: 600px) {
+  html,
+  body,
+  #__next,
+  #pc-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  #pc-wrap,
+  #pc-wrap * {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+  }
+
+  #pc-wrap #top .navbar-main,
+  #pc-wrap #top .navbar-main .container {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 62px !important;
+    overflow: hidden !important;
+  }
+
+  #pc-wrap #top .navbar-main .container {
+    padding: 10px 12px !important;
+    justify-content: flex-start !important;
+  }
+
+  #pc-wrap #top .router-box,
+  #pc-wrap #top .user-box,
+  #pc-wrap #top .lan-box {
+    display: none !important;
+  }
+
+  #pc-wrap #top .logo-box,
+  #pc-wrap #top .kids-brand,
+  #pc-wrap #top .kids-brand img {
+    width: 145px !important;
+    max-width: 145px !important;
+  }
+
+  #pc-wrap .header-main,
+  #pc-wrap .home-page,
+  #pc-wrap .home-page > *,
+  #pc-wrap .home-page section,
+  #pc-wrap .home-page article {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  #pc-wrap .header-main .container,
+  #pc-wrap .home-page .container,
+  #pc-wrap .home-page .platform-container,
+  #pc-wrap .home-page .store-container,
+  #pc-wrap .home-page .final-cta-section {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  #pc-wrap .home-page .platform-showcase,
+  #pc-wrap .home-page .events,
+  #pc-wrap .home-page .video-frame,
+  #pc-wrap .home-page .trend-properties,
+  #pc-wrap .home-page .popular-properties,
+  #pc-wrap .home-page .top-properties,
+  #pc-wrap .home-page .community-board,
+  #pc-wrap .home-page .final-cta-section {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  #pc-wrap .header-main .search-box,
+  #pc-wrap .header-main .select-box,
+  #pc-wrap .header-main .search-box-other,
+  #pc-wrap .header-main .hero-feature-cards,
+  #pc-wrap .home-page .platform-role-grid,
+  #pc-wrap .home-page .feature-grid-list,
+  #pc-wrap .home-page .privacy-list,
+  #pc-wrap .home-page .card-wrapper,
+  #pc-wrap .home-page .store-product-grid,
+  #pc-wrap .home-page .store-container,
+  #pc-wrap .home-page .final-cta-section {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  #pc-wrap .header-main .hero-copy,
+  #pc-wrap .header-main .hero-actions,
+  #pc-wrap .header-main .search-box .box,
+  #pc-wrap .header-main .advanced-filter,
+  #pc-wrap .header-main .search-btn,
+  #pc-wrap .home-page .platform-role-card,
+  #pc-wrap .home-page .feature-card,
+  #pc-wrap .home-page .privacy-card,
+  #pc-wrap .home-page .platform-privacy-section,
+  #pc-wrap .home-page .event-card,
+  #pc-wrap .home-page .store-feature-card,
+  #pc-wrap .home-page .store-product-card,
+  #pc-wrap .home-page a,
+  #pc-wrap .home-page button {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  #pc-wrap .home-page .role-card-top,
+  #pc-wrap .home-page .feature-card,
+  #pc-wrap .home-page .privacy-card {
+    display: block !important;
+  }
+
+  #pc-wrap .home-page .platform-showcase,
+  #pc-wrap .home-page .platform-feature-grid,
+  #pc-wrap .home-page .platform-privacy-section,
+  #pc-wrap .home-page .platform-role-card,
+  #pc-wrap .home-page .feature-card,
+  #pc-wrap .home-page .privacy-card {
+    overflow: visible !important;
+  }
+
+  #pc-wrap .home-page .platform-role-card,
+  #pc-wrap .home-page .feature-card,
+  #pc-wrap .home-page .privacy-card {
+    padding: 14px !important;
+  }
+
+  #pc-wrap .home-page .role-icon,
+  #pc-wrap .home-page .feature-icon,
+  #pc-wrap .home-page .privacy-card span {
+    width: 42px !important;
+    height: 42px !important;
+    margin-bottom: 8px !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+  }
+
+  #pc-wrap .home-page .platform-section-heading,
+  #pc-wrap .home-page .platform-feature-grid {
+    align-items: stretch !important;
+    text-align: left !important;
+  }
+
+  #pc-wrap .home-page .platform-section-heading h2,
+  #pc-wrap .home-page .platform-feature-grid h2,
+  #pc-wrap .home-page .platform-privacy-section h2 {
+    font-size: 24px !important;
+    line-height: 30px !important;
+  }
+
+  #pc-wrap .home-page .platform-role-card h3,
+  #pc-wrap .home-page .feature-card h3,
+  #pc-wrap .home-page .privacy-card h3 {
+    margin-top: 0 !important;
+    font-size: 16px !important;
+    line-height: 22px !important;
+  }
+
+  #pc-wrap .home-page .platform-role-card p,
+  #pc-wrap .home-page .feature-card p,
+  #pc-wrap .home-page .privacy-card p {
+    margin-top: 6px !important;
+    font-size: 12px !important;
+    line-height: 18px !important;
+  }
+
+  #pc-wrap .home-page img,
+  #pc-wrap .home-page svg,
+  #pc-wrap .home-page .role-image {
+    max-width: 100% !important;
+  }
+
+  #pc-wrap h1,
+  #pc-wrap h2,
+  #pc-wrap h3,
+  #pc-wrap p,
+  #pc-wrap span,
+  #pc-wrap strong,
+  #pc-wrap a,
+  #pc-wrap button {
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
   }
 }
 
@@ -5787,6 +7274,473 @@
       border: 1px solid rgba(47, 125, 74, 0.12);
       border-radius: 18px;
       background: linear-gradient(105deg, rgba(240, 250, 232, 0.94), rgba(255, 248, 234, 0.84));
+    }
+  }
+}
+#mobile-wrap {
+  #property-list-page {
+    overflow-x: hidden;
+    background: #f8f5ec;
+
+    * {
+      box-sizing: border-box;
+      min-width: 0;
+    }
+
+    .kg-property-hero {
+      width: 100%;
+      background: #fff8ea;
+
+      .kg-property-hero-inner {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        padding: 30px 14px 26px;
+      }
+
+      .kg-property-hero-copy {
+        width: 100%;
+        gap: 12px;
+
+        h1 {
+          width: 100%;
+          margin: 0;
+          color: #16492d;
+          font-family: $font;
+          font-size: 30px;
+          font-weight: 900;
+          line-height: 1.12;
+          white-space: normal;
+          overflow-wrap: normal;
+        }
+
+        .kg-property-hero-subtitle {
+          width: 100%;
+          color: #4f6254;
+          font-family: $font;
+          font-size: 14px;
+          font-weight: 700;
+          line-height: 22px;
+          white-space: normal;
+        }
+
+        .kg-trust-chips {
+          width: 100%;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+
+          span {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 11px;
+            border: 1px solid #e7eadf;
+            border-radius: 999px;
+            background: #fff;
+            color: #243e2b;
+            font-family: $font;
+            font-size: 12px;
+            font-weight: 800;
+          }
+
+          svg {
+            width: 16px;
+            height: 16px;
+            color: #278d45;
+          }
+        }
+      }
+
+      .kg-property-hero-visual {
+        width: 100%;
+        height: 180px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 20px;
+
+        .kg-hero-photo {
+          position: absolute;
+          inset: 0;
+          background: url('/img/homepage/kidsgarden-hero-classroom.png') center / cover no-repeat;
+        }
+      }
+    }
+
+    .container.kg-property-container {
+      width: 100%;
+      max-width: 100%;
+      display: block;
+      padding: 0 12px;
+      margin: 0;
+    }
+
+    .kg-search-panel {
+      width: 100%;
+      display: grid !important;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 0;
+      padding: 12px;
+      border: 1px solid #e8eadf;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 14px 30px rgba(55, 71, 48, 0.12);
+
+      .kg-search-field {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e8eadf;
+        border-radius: 12px;
+
+        span,
+        strong {
+          display: block;
+          font-family: $font;
+        }
+
+        span {
+          color: #7a8579;
+          font-size: 11px;
+          font-weight: 800;
+        }
+
+        strong {
+          color: #213d28;
+          font-size: 14px;
+          font-weight: 900;
+        }
+      }
+
+      .kg-search-button {
+        width: 100%;
+        height: 52px;
+        border-radius: 12px;
+        background: #23823f;
+        color: #fff;
+        font-family: $font;
+        font-weight: 900;
+        text-transform: none;
+      }
+    }
+
+    .kg-map-preview {
+      width: 100%;
+      height: 250px;
+      margin: 12px 0 18px;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid #e1ead9;
+      border-radius: 16px;
+      background:
+        linear-gradient(90deg, rgba(126, 172, 127, 0.16) 1px, transparent 1px),
+        linear-gradient(rgba(126, 172, 127, 0.16) 1px, transparent 1px),
+        linear-gradient(135deg, #eef5e9 0%, #f9fbf3 52%, #edf6ea 100%);
+      background-size: 56px 56px, 56px 56px, auto;
+
+      .kg-map-tabs {
+        position: absolute;
+        top: 12px;
+        left: 10px;
+        right: 10px;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding: 6px;
+        border-radius: 999px;
+        background: #fff;
+
+        span {
+          flex: 0 0 auto;
+          padding: 8px 12px;
+          border-radius: 999px;
+          color: #26382b;
+          font-family: $font;
+          font-size: 12px;
+          font-weight: 900;
+        }
+
+        .active {
+          background: #2f7d4a;
+          color: #fff;
+        }
+      }
+
+      .kg-map-count {
+        position: absolute;
+        top: 70px;
+        left: 12px;
+        right: 12px;
+        padding: 9px 12px;
+        border-radius: 12px;
+        background: #fff;
+        color: #2f7d4a;
+        text-align: center;
+        font-family: $font;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .kg-map-label {
+        align-items: center;
+
+        h2 {
+          margin: 0;
+          color: rgba(31, 81, 50, 0.58);
+          font-family: $font;
+          font-size: 30px;
+          font-weight: 900;
+        }
+
+        span {
+          color: rgba(31, 81, 50, 0.64);
+          font-family: $font;
+          font-size: 12px;
+          font-weight: 800;
+        }
+      }
+
+      .kg-map-pin,
+      .kg-map-controls {
+        display: none;
+      }
+    }
+
+    .property-page.kg-listing-area {
+      width: 100%;
+      display: flex !important;
+      flex-direction: column;
+      gap: 18px;
+      padding: 0;
+
+      .filter-config,
+      .main-config {
+        width: 100%;
+      }
+
+      .main-config {
+        gap: 18px;
+      }
+
+      .kg-listing-toolbar {
+        display: flex !important;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+
+        h2 {
+          color: #223328;
+          font-family: $font;
+          font-size: 18px;
+          font-weight: 900;
+        }
+
+        .kg-listing-actions {
+          width: 100%;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+      }
+
+      .list-config {
+        display: grid !important;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+    }
+
+    .kg-top-kindergartens {
+      width: 100%;
+      margin: 24px 0 32px;
+      padding: 18px 14px;
+      border: 1px solid #f0d99e;
+      border-radius: 16px;
+      background: #fff8df;
+
+      .kg-top-strip-list {
+        display: grid !important;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+    }
+  }
+}
+
+/* Final /property mobile containment loaded after all legacy mobile rules. */
+@media (max-width: 600px) {
+  #mobile-wrap,
+  #pc-wrap {
+    #property-list-page {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
+
+      *,
+      *::before,
+      *::after {
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      .kg-property-hero,
+      .container.kg-property-container,
+      .kg-search-panel,
+      .kg-map-preview,
+      .property-page.kg-listing-area,
+      .kg-top-kindergartens {
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+        min-width: 0 !important;
+      }
+
+      .kg-property-hero-inner {
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 18px !important;
+        padding: 30px 14px 26px !important;
+      }
+
+      .kg-property-hero-copy {
+        width: calc(100vw - 52px) !important;
+        max-width: calc(100vw - 52px) !important;
+        flex: 0 0 auto !important;
+
+        h1 {
+          width: calc(100vw - 52px) !important;
+          max-width: calc(100vw - 52px) !important;
+          white-space: normal !important;
+          overflow-wrap: anywhere !important;
+          font-size: 30px !important;
+          line-height: 1.12 !important;
+        }
+
+        .kg-property-hero-subtitle {
+          width: calc(100vw - 52px) !important;
+          max-width: calc(100vw - 52px) !important;
+          white-space: normal !important;
+          overflow-wrap: anywhere !important;
+        }
+
+        .kg-trust-chips {
+          width: calc(100vw - 52px) !important;
+          max-width: calc(100vw - 52px) !important;
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+          overflow: visible !important;
+
+          span {
+            width: 100% !important;
+            max-width: 100% !important;
+            white-space: normal !important;
+          }
+        }
+      }
+
+      .kg-property-hero-visual {
+        width: calc(100vw - 52px) !important;
+        max-width: calc(100vw - 52px) !important;
+        flex: 0 0 auto !important;
+        height: 180px !important;
+        border-radius: 20px !important;
+      }
+
+      .container.kg-property-container {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 12px !important;
+      }
+
+      .kg-search-panel {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+        margin: 0 !important;
+
+        .kg-search-field,
+        .kg-search-button {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+      }
+
+      .kg-map-preview {
+        height: 250px !important;
+        margin: 12px 0 18px !important;
+        overflow: hidden !important;
+
+        .kg-map-tabs {
+          left: 10px !important;
+          right: 10px !important;
+          width: auto !important;
+          transform: none !important;
+          overflow-x: auto !important;
+        }
+      }
+
+      .property-page.kg-listing-area {
+        display: flex !important;
+        flex-direction: column !important;
+
+        .filter-config,
+        .main-config {
+          width: calc(100vw - 24px) !important;
+          max-width: calc(100vw - 24px) !important;
+          min-width: 0 !important;
+        }
+
+        .filter-main .find-your-home .square-year-input {
+          flex-direction: column !important;
+          align-items: stretch !important;
+
+          .central-divider {
+            display: none !important;
+          }
+        }
+
+        .list-config {
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+        }
+      }
+    }
+  }
+}
+
+/* EOF /property mobile React path guard. */
+#mobile-wrap {
+  #property-list-page {
+    .kg-property-hero,
+    .container.kg-property-container,
+    .kg-search-panel,
+    .kg-map-preview,
+    .property-page.kg-listing-area,
+    .kg-top-kindergartens {
+      width: calc(100vw - 24px) !important;
+      max-width: calc(100vw - 24px) !important;
+      min-width: 0 !important;
+    }
+
+    .kg-property-hero-inner {
+      width: calc(100vw - 24px) !important;
+      max-width: calc(100vw - 24px) !important;
+      padding: 30px 12px 26px !important;
+    }
+
+    .kg-property-hero-copy,
+    .kg-property-hero-copy h1,
+    .kg-property-hero-copy .kg-property-hero-subtitle,
+    .kg-property-hero-copy .kg-trust-chips,
+    .kg-property-hero-visual {
+      width: calc(100vw - 48px) !important;
+      max-width: calc(100vw - 48px) !important;
+      min-width: 0 !important;
     }
   }
 }

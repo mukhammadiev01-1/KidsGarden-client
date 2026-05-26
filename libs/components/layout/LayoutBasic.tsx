@@ -21,6 +21,7 @@ const withLayoutBasic = (Component: any) => {
 		const device = useDeviceDetect();
 		const [authHeader, setAuthHeader] = useState<boolean>(false);
 		const user = useReactiveVar(userVar);
+		const hideBasicHero = router.pathname === '/property';
 
 		const memoizedValues = useMemo(() => {
 			let title = '',
@@ -123,19 +124,21 @@ const withLayoutBasic = (Component: any) => {
 							<Top />
 						</Stack>
 
-						<Stack
-							className={`header-basic ${authHeader && 'auth'}`}
-							style={{
-								backgroundImage: `url(${memoizedValues.bgImage})`,
-								backgroundSize: 'cover',
-								boxShadow: 'inset 0 0 0 1000px rgba(36, 51, 45, 0.58)',
-							}}
-						>
-							<Stack className={'container'}>
-								<strong>{t(memoizedValues.title)}</strong>
-								<span>{t(memoizedValues.desc)}</span>
+						{!hideBasicHero && (
+							<Stack
+								className={`header-basic ${authHeader && 'auth'}`}
+								style={{
+									backgroundImage: `url(${memoizedValues.bgImage})`,
+									backgroundSize: 'cover',
+									boxShadow: 'inset 0 0 0 1000px rgba(36, 51, 45, 0.58)',
+								}}
+							>
+								<Stack className={'container'}>
+									<strong>{t(memoizedValues.title)}</strong>
+									<span>{t(memoizedValues.desc)}</span>
+								</Stack>
 							</Stack>
-						</Stack>
+						)}
 
 						<Stack id={'main'}>
 							<Component {...props} />

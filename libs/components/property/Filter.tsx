@@ -5,10 +5,7 @@ import {
 	Checkbox,
 	Button,
 	OutlinedInput,
-	FormControl,
-	InputLabel,
-	Select,
-	MenuItem,
+	Slider,
 	Tooltip,
 	IconButton,
 } from '@mui/material';
@@ -17,23 +14,34 @@ import { KindergartenLocation, KindergartenType } from '../../enums/kindergarten
 import { KindergartensInquiry } from '../../types/kindergarten/kindergarten.input';
 import { useRouter } from 'next/router';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import { propertySquare } from '../../config';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { getKindergartenTypeLabel } from '../../utils';
-
-const MenuProps = {
-	PaperProps: {
-		style: {
-			maxHeight: '200px',
-		},
-	},
-};
 
 interface FilterType {
 	searchFilter: KindergartensInquiry;
 	setSearchFilter: any;
 	initialInput: KindergartensInquiry;
 }
+
+const centerTypeLabels: Record<string, string> = {
+	[KindergartenType.APARTMENT]: 'Private Kindergarten',
+	[KindergartenType.VILLA]: 'Public Kindergarten',
+	[KindergartenType.HOUSE]: 'Daycare Center',
+};
+
+const programOptions = [
+	{ value: 1, label: 'Montessori' },
+	{ value: 2, label: 'Bilingual' },
+	{ value: 3, label: 'Play-based' },
+	{ value: 4, label: 'STEM' },
+	{ value: 5, label: 'Art & Music' },
+];
+
+const formatYears = (value: number) => {
+	if (value >= 5) return '5+ years';
+	return `${value} ${value === 1 ? 'year' : 'years'}`;
+};
+
+const formatFee = (value: number) => `${value.toLocaleString()} UZS`;
 
 const Filter = (props: FilterType) => {
 	const { searchFilter, setSearchFilter, initialInput } = props;
@@ -43,6 +51,15 @@ const Filter = (props: FilterType) => {
 	const [kindergartenType, setKindergartenType] = useState<KindergartenType[]>(Object.values(KindergartenType));
 	const [searchText, setSearchText] = useState<string>('');
 	const [showMore, setShowMore] = useState<boolean>(false);
+	const selectedAgeRange = Number(searchFilter?.search?.ageRangeList?.[0] || 0);
+	const selectedCapacityRange: [number, number] = [
+		Number(searchFilter?.search?.capacityRange?.start ?? 0),
+		Number(searchFilter?.search?.capacityRange?.end ?? 500),
+	];
+	const selectedPriceRange: [number, number] = [
+		Number(searchFilter?.search?.pricesRange?.start ?? 0),
+		Number(searchFilter?.search?.pricesRange?.end ?? 2000000),
+	];
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -78,6 +95,17 @@ const Filter = (props: FilterType) => {
 	}, [searchFilter]);
 
 	/** HANDLERS **/
+	const pushFilter = useCallback(
+		async (nextFilter: KindergartensInquiry) => {
+			await router.push(
+				`/property?input=${JSON.stringify(nextFilter)}`,
+				`/property?input=${JSON.stringify(nextFilter)}`,
+				{ scroll: false },
+			);
+		},
+		[router],
+	);
+
 	const kindergartenLocationSelectHandler = useCallback(
 		async (e: any) => {
 			try {
@@ -302,92 +330,31 @@ const Filter = (props: FilterType) => {
 		[searchFilter],
 	);
 
-	const kindergartenCapacityHandler = useCallback(
-		async (e: any, type: string) => {
-			const value = e.target.value;
-
-			if (type == 'start') {
-				await router.push(
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							capacityRange: { ...searchFilter.search.capacityRange, start: value },
-						},
-					})}`,
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							capacityRange: { ...searchFilter.search.capacityRange, start: value },
-						},
-					})}`,
-					{ scroll: false },
-				);
-			} else {
-				await router.push(
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							capacityRange: { ...searchFilter.search.capacityRange, end: value },
-						},
-					})}`,
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							capacityRange: { ...searchFilter.search.capacityRange, end: value },
-						},
-					})}`,
-					{ scroll: false },
-				);
-			}
+	const kindergartenAgeRangeSliderHandler = useCallback(
+		async (value: number) => {
+			await pushFilter({
+				...searchFilter,
+				search: {
+					...searchFilter.search,
+					ageRangeList: [value],
+				},
+			});
 		},
-		[searchFilter],
+		[pushFilter, searchFilter],
 	);
 
-	const propertyPriceHandler = useCallback(
-		async (value: number, type: string) => {
-			if (type == 'start') {
-				await router.push(
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							pricesRange: { ...searchFilter.search.pricesRange, start: value * 1 },
-						},
-					})}`,
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							pricesRange: { ...searchFilter.search.pricesRange, start: value * 1 },
-						},
-					})}`,
-					{ scroll: false },
-				);
-			} else {
-				await router.push(
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							pricesRange: { ...searchFilter.search.pricesRange, end: value * 1 },
-						},
-					})}`,
-					`/property?input=${JSON.stringify({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							pricesRange: { ...searchFilter.search.pricesRange, end: value * 1 },
-						},
-					})}`,
-					{ scroll: false },
-				);
-			}
+	const kindergartenRangeHandler = useCallback(
+		async (rangeKey: 'capacityRange' | 'pricesRange', value: number | number[]) => {
+			const [start, end] = Array.isArray(value) ? value : [0, value];
+			await pushFilter({
+				...searchFilter,
+				search: {
+					...searchFilter.search,
+					[rangeKey]: { start, end },
+				},
+			});
 		},
-		[searchFilter],
+		[pushFilter, searchFilter],
 	);
 
 	const refreshHandler = async () => {
@@ -406,7 +373,7 @@ const Filter = (props: FilterType) => {
 	return (
 			<Stack className={'filter-main'}>
 				<Stack className={'find-your-home'} mb={'40px'}>
-					<Typography className={'title-main'}>Filter Kindergartens</Typography>
+					<Typography className={'title-main'}>Find a Kindergarten</Typography>
 					<Stack className={'input-box'}>
 						<OutlinedInput
 							value={searchText}
@@ -445,7 +412,7 @@ const Filter = (props: FilterType) => {
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<p className={'title'}>Location</p>
+					<p className={'title'}>District / Location</p>
 					<Stack
 						className={`property-location`}
 						style={{ height: showMore || device === 'mobile' ? 'auto' : '115px' }}
@@ -478,224 +445,107 @@ const Filter = (props: FilterType) => {
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
 					<Typography className={'title'}>Center Type</Typography>
-					{kindergartenType.map((type: string) => (
-						<Stack className={'input-box'} key={type}>
-							<Checkbox
-								id={type}
-								className="property-checkbox"
-								color="default"
-								size="small"
-								value={type}
-								onChange={kindergartenTypeSelectHandler}
-								checked={(searchFilter?.search?.typeList || []).includes(type as KindergartenType)}
-							/>
-							<label style={{ cursor: 'pointer' }}>
-								<Typography className="property_type">{getKindergartenTypeLabel(type)}</Typography>
-							</label>
-						</Stack>
-					))}
-				</Stack>
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Programs</Typography>
-					<Stack className="button-group">
-						<Button
-							sx={{
-								borderRadius: '12px 0 0 12px',
-								border: !searchFilter?.search?.programsList ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-							}}
-							onClick={() => kindergartenProgramSelectHandler(0)}
-						>
-							Any
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.programsList?.includes(1) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-								borderLeft: searchFilter?.search?.programsList?.includes(1) ? undefined : 'none',
-							}}
-							onClick={() => kindergartenProgramSelectHandler(1)}
-						>
-							1
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.programsList?.includes(2) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-								borderLeft: searchFilter?.search?.programsList?.includes(2) ? undefined : 'none',
-							}}
-							onClick={() => kindergartenProgramSelectHandler(2)}
-						>
-							2
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.programsList?.includes(3) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-								borderLeft: searchFilter?.search?.programsList?.includes(3) ? undefined : 'none',
-							}}
-							onClick={() => kindergartenProgramSelectHandler(3)}
-						>
-							3
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.programsList?.includes(4) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-								borderLeft: searchFilter?.search?.programsList?.includes(4) ? undefined : 'none',
-								borderRight: searchFilter?.search?.programsList?.includes(4) ? undefined : 'none',
-							}}
-							onClick={() => kindergartenProgramSelectHandler(4)}
-						>
-							4
-						</Button>
-						<Button
-							sx={{
-								borderRadius: '0 12px 12px 0',
-								border: searchFilter?.search?.programsList?.includes(5) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-							}}
-							onClick={() => kindergartenProgramSelectHandler(5)}
-						>
-							5+
-						</Button>
+					<Stack className="kg-filter-chip-list">
+						{kindergartenType.map((type: string) => {
+							const checked = (searchFilter?.search?.typeList || []).includes(type as KindergartenType);
+							return (
+								<label className={`kg-filter-chip ${checked ? 'active' : ''}`} key={type}>
+									<Checkbox
+										className="property-checkbox"
+										color="default"
+										size="small"
+										value={type}
+										onChange={kindergartenTypeSelectHandler}
+										checked={checked}
+									/>
+									<span>{centerTypeLabels[type] || type}</span>
+								</label>
+							);
+						})}
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Age Range</Typography>
-					<Stack className="button-group">
-						<Button
-							sx={{
-								borderRadius: '12px 0 0 12px',
-								border: !searchFilter?.search?.ageRangeList ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-							}}
-							onClick={() => kindergartenAgeRangeSelectHandler(0)}
+					<Typography className={'title'}>Programs</Typography>
+					<Stack className="kg-filter-chip-list">
+						<button
+							type="button"
+							className={`kg-filter-chip clear ${!searchFilter?.search?.programsList ? 'active' : ''}`}
+							onClick={() => kindergartenProgramSelectHandler(0)}
 						>
-							Any
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.ageRangeList?.includes(1) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-								borderLeft: searchFilter?.search?.ageRangeList?.includes(1) ? undefined : 'none',
-							}}
-							onClick={() => kindergartenAgeRangeSelectHandler(1)}
-						>
-							1
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.ageRangeList?.includes(2) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-								borderLeft: searchFilter?.search?.ageRangeList?.includes(2) ? undefined : 'none',
-							}}
-							onClick={() => kindergartenAgeRangeSelectHandler(2)}
-						>
-							2
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.ageRangeList?.includes(3) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-								borderLeft: searchFilter?.search?.ageRangeList?.includes(3) ? undefined : 'none',
-							}}
-							onClick={() => kindergartenAgeRangeSelectHandler(3)}
-						>
-							3
-						</Button>
-						<Button
-							sx={{
-								borderRadius: 0,
-								border: searchFilter?.search?.ageRangeList?.includes(4) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-								borderLeft: searchFilter?.search?.ageRangeList?.includes(4) ? undefined : 'none',
-								// borderRight: false ? undefined : 'none',
-							}}
-							onClick={() => kindergartenAgeRangeSelectHandler(4)}
-						>
-							4
-						</Button>
-						<Button
-							sx={{
-								borderRadius: '0 12px 12px 0',
-								border: searchFilter?.search?.ageRangeList?.includes(5) ? '2px solid #6ea77a' : '1px solid #d8e5cf',
-								borderLeft: searchFilter?.search?.ageRangeList?.includes(5) ? undefined : 'none',
-							}}
-							onClick={() => kindergartenAgeRangeSelectHandler(5)}
-						>
-							5+
-						</Button>
+							Any program
+						</button>
+						{programOptions.map((program) => {
+							const active = searchFilter?.search?.programsList?.includes(program.value);
+							return (
+								<button
+									type="button"
+									key={program.value}
+									className={`kg-filter-chip ${active ? 'active' : ''}`}
+									onClick={() => kindergartenProgramSelectHandler(program.value)}
+								>
+									{program.label}
+								</button>
+							);
+						})}
+					</Stack>
+				</Stack>
+				<Stack className={'find-your-home'} mb={'30px'}>
+					<Stack className="kg-filter-title-row">
+						<Typography className={'title'}>Age Range</Typography>
+						<button type="button" onClick={() => kindergartenAgeRangeSelectHandler(0)}>
+							Any age
+						</button>
+					</Stack>
+					<Stack className="kg-range-filter">
+						<Typography className="kg-range-value">
+							{selectedAgeRange ? `Around ${formatYears(selectedAgeRange)}` : 'Any age'}
+						</Typography>
+						<Slider
+							min={1}
+							max={5}
+							step={1}
+							value={selectedAgeRange || 1}
+							onChangeCommitted={(_, value) => kindergartenAgeRangeSliderHandler(value as number)}
+							valueLabelDisplay="auto"
+							valueLabelFormat={(value) => formatYears(value)}
+							className="kg-slider"
+						/>
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
 					<Typography className={'title'}>Capacity</Typography>
-					<Stack className="square-year-input">
-						<FormControl>
-							<InputLabel id="demo-simple-select-label">Min</InputLabel>
-							<Select
-								labelId="demo-simple-select-label"
-								id="demo-simple-select"
-								value={searchFilter?.search?.capacityRange?.start ?? 0}
-								label="Min"
-								onChange={(e: any) => kindergartenCapacityHandler(e, 'start')}
-								MenuProps={MenuProps}
-							>
-								{propertySquare.map((square: number) => (
-									<MenuItem
-										value={square}
-										disabled={(searchFilter?.search?.capacityRange?.end || 0) < square}
-										key={square}
-									>
-										{square}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
-						<div className="central-divider"></div>
-						<FormControl>
-							<InputLabel id="demo-simple-select-label">Max</InputLabel>
-							<Select
-								labelId="demo-simple-select-label"
-								id="demo-simple-select"
-								value={searchFilter?.search?.capacityRange?.end ?? 500}
-								label="Max"
-								onChange={(e: any) => kindergartenCapacityHandler(e, 'end')}
-								MenuProps={MenuProps}
-							>
-								{propertySquare.map((square: number) => (
-									<MenuItem
-										value={square}
-										disabled={(searchFilter?.search?.capacityRange?.start || 0) > square}
-										key={square}
-									>
-										{square}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
+					<Stack className="kg-range-filter">
+						<Typography className="kg-range-value">
+							{selectedCapacityRange[0]} — {selectedCapacityRange[1]} children
+						</Typography>
+						<Slider
+							min={0}
+							max={500}
+							step={10}
+							value={selectedCapacityRange}
+							onChangeCommitted={(_, value) => kindergartenRangeHandler('capacityRange', value as number[])}
+							valueLabelDisplay="auto"
+							className="kg-slider"
+						/>
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'}>
-					<Typography className={'title'}>Monthly Fee Range</Typography>
-					<Stack className="square-year-input">
-						<input
-							type="number"
-							placeholder="Min fee"
+					<Typography className={'title'}>Monthly Fee</Typography>
+					<Stack className="kg-range-filter">
+						<Typography className="kg-range-value">
+							{selectedPriceRange[0] === 0 && selectedPriceRange[1] === 2000000
+								? 'Any price'
+								: `${formatFee(selectedPriceRange[0])} — ${formatFee(selectedPriceRange[1])}`}
+						</Typography>
+						<Slider
 							min={0}
-							value={searchFilter?.search?.pricesRange?.start ?? 0}
-							onChange={(e: any) => {
-								if (e.target.value >= 0) {
-									propertyPriceHandler(e.target.value, 'start');
-								}
-							}}
-						/>
-						<div className="central-divider"></div>
-						<input
-							type="number"
-							placeholder="Max fee"
-							value={searchFilter?.search?.pricesRange?.end ?? 0}
-							onChange={(e: any) => {
-								if (e.target.value >= 0) {
-									propertyPriceHandler(e.target.value, 'end');
-								}
-							}}
+							max={2000000}
+							step={50000}
+							value={selectedPriceRange}
+							onChangeCommitted={(_, value) => kindergartenRangeHandler('pricesRange', value as number[])}
+							valueLabelDisplay="auto"
+							valueLabelFormat={(value) => value.toLocaleString()}
+							className="kg-slider"
 						/>
 					</Stack>
 				</Stack>
