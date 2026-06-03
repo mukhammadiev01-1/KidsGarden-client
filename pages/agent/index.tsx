@@ -2,7 +2,7 @@ import { GetServerSideProps, NextPage } from 'next';
 
 export const getServerSideProps: GetServerSideProps = async () => ({
 	redirect: {
-		destination: '/property',
+		destination: '/kindergartens',
 		permanent: false,
 	},
 });

@@ -6,7 +6,8 @@ export interface KindergartenInput {
 	kindergartenLocation: KindergartenLocation;
 	kindergartenAddress: string;
 	kindergartenTitle: string;
-	kindergartenPrice: number;
+	monthlyFee: number;
+	kindergartenPrice?: number;
 	kindergartenCapacity: number;
 	kindergartenAgeRange: number;
 	kindergartenPrograms: number;
@@ -32,6 +33,7 @@ interface KISearch {
 	typeList?: KindergartenType[];
 	programsList?: Number[];
 	ageRangeList?: Number[];
+	monthlyFeeRange?: Range;
 	pricesRange?: Range;
 	periodsRange?: PeriodsRange;
 	capacityRange?: Range;

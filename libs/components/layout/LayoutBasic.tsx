@@ -21,7 +21,7 @@ const withLayoutBasic = (Component: any) => {
 		const device = useDeviceDetect();
 		const [authHeader, setAuthHeader] = useState<boolean>(false);
 		const user = useReactiveVar(userVar);
-		const hideBasicHero = router.pathname === '/property';
+		const hideBasicHero = router.pathname === '/property' || router.pathname === '/kindergartens' || router.pathname === '/cs';
 
 		const memoizedValues = useMemo(() => {
 			let title = '',
@@ -30,9 +30,10 @@ const withLayoutBasic = (Component: any) => {
 
 			switch (router.pathname) {
 				case '/property':
+				case '/kindergartens':
 					title = 'Find Kindergartens';
 					desc = 'Browse trusted centers for your family.';
-					bgImage = '/img/banner/properties.png';
+					bgImage = '/img/banner/kindergartens.png';
 					break;
 				case '/agent':
 					title = 'KidsGarden';

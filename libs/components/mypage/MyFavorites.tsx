@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { NextPage } from 'next';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Pagination, Stack, Typography } from '@mui/material';
-import PropertyCard from '../property/PropertyCard';
-import { Property } from '../../types/property/property';
+import KindergartenCard from '../property/KindergartenCard';
+import { Kindergarten } from '../../types/kindergarten/kindergarten';
 import { T } from '../../types/common';
 
 const MyFavorites: NextPage = () => {
 	const device = useDeviceDetect();
-	const [myFavorites, setMyFavorites] = useState<Property[]>([]);
+	const [myFavorites, setMyFavorites] = useState<Kindergarten[]>([]);
 	const [total, setTotal] = useState<number>(0);
 	const [searchFavorites, setSearchFavorites] = useState<T>({ page: 1, limit: 6 });
 
@@ -20,7 +20,7 @@ const MyFavorites: NextPage = () => {
 	};
 
 	if (device === 'mobile') {
-		return <div>NESTAR MY FAVORITES MOBILE</div>;
+		return <div>Favorite kindergartens are available on desktop for now.</div>;
 	} else {
 		return (
 			<div id="my-favorites-page">
@@ -32,8 +32,8 @@ const MyFavorites: NextPage = () => {
 				</Stack>
 				<Stack className="favorites-list-box">
 					{myFavorites?.length ? (
-						myFavorites?.map((property: Property) => {
-							return <PropertyCard property={property} myFavorites={true} />;
+						myFavorites?.map((kindergarten: Kindergarten) => {
+							return <KindergartenCard kindergarten={kindergarten} myFavorites={true} />;
 						})
 					) : (
 						<div className={'no-data'}>

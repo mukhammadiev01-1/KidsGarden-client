@@ -28,6 +28,8 @@ import ParentAttendance from '../../libs/components/mypage/ParentAttendance';
 import ParentStaffApplications from '../../libs/components/mypage/ParentStaffApplications';
 import KindergartenStaffApplications from '../../libs/components/mypage/KindergartenStaffApplications';
 import ParentKindergartenAdminApplications from '../../libs/components/mypage/ParentKindergartenAdminApplications';
+import ParentApplications from '../../libs/components/mypage/ParentApplications';
+import KindergartenApplications from '../../libs/components/mypage/KindergartenApplications';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -44,10 +46,19 @@ const MyPage: NextPage = () => {
 	const isSuperAdmin = user.memberType === MemberType.SUPER_ADMIN;
 	const rawCategory: any = router.query?.category;
 	const legacyPropertyCategories = ['addProperty', 'myProperties'];
-	const kindergartenAdminCategories = ['kindergartenProfile', 'staff', 'staffApplications', 'groups', 'children', 'attendance'];
+	const kindergartenAdminCategories = [
+		'kindergartenProfile',
+		'applications',
+		'staff',
+		'staffApplications',
+		'groups',
+		'children',
+		'attendance',
+	];
 	const teacherCategories = ['teacherGroups', 'teacherAttendance'];
 	const parentCategories = [
 		'parentChildren',
+		'applications',
 		'parentAttendance',
 		'staffApplications',
 		'kindergartenAdminApplications',
@@ -116,6 +127,7 @@ const MyPage: NextPage = () => {
 						<Stack className="main-config">
 							<Stack className={'list-config'}>
 								{dashboardCategory === 'kindergartenProfile' && <MyKindergarten />}
+								{dashboardCategory === 'applications' && isKindergartenAdmin && <KindergartenApplications />}
 								{dashboardCategory === 'staff' && <KindergartenStaff />}
 								{dashboardCategory === 'staffApplications' && isKindergartenAdmin && <KindergartenStaffApplications />}
 								{dashboardCategory === 'groups' && <KindergartenGroups />}
@@ -124,6 +136,7 @@ const MyPage: NextPage = () => {
 								{dashboardCategory === 'teacherGroups' && <TeacherGroups />}
 								{dashboardCategory === 'teacherAttendance' && <TeacherAttendance />}
 								{dashboardCategory === 'parentChildren' && <ParentChildren />}
+								{dashboardCategory === 'applications' && isParent && <ParentApplications />}
 								{dashboardCategory === 'parentAttendance' && <ParentAttendance />}
 								{dashboardCategory === 'staffApplications' && isParent && <ParentStaffApplications />}
 								{dashboardCategory === 'kindergartenAdminApplications' && isParent && (

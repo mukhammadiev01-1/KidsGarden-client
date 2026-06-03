@@ -107,6 +107,7 @@ export const GET_ALL_KINDERGARTENS_BY_ADMIN = gql`
 				kindergartenLocation
 				kindergartenAddress
 				kindergartenTitle
+				monthlyFee
 				kindergartenPrice
 				kindergartenCapacity
 				kindergartenAgeRange
@@ -190,6 +191,54 @@ export const GET_ALL_COMMENTS_BY_ADMIN = gql`
 					memberFullName
 					memberImage
 					memberDesc
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+/**************************
+ *       APPLICATION      *
+ *************************/
+
+export const GET_ALL_APPLICATIONS_FOR_ADMIN = gql`
+	query GetAllApplicationsForAdmin($input: ApplicationsInquiry!) {
+		getAllApplicationsForAdmin(input: $input) {
+			list {
+				_id
+				parentId
+				kindergartenId
+				kindergartenOwnerId
+				childName
+				childAge
+				parentMessage
+				adminNote
+				documents {
+					url
+					name
+					mimeType
+					size
+				}
+				status
+				reviewedBy
+				reviewedAt
+				canceledAt
+				createdAt
+				updatedAt
+				parentData {
+					_id
+					memberNick
+					memberFullName
+					memberImage
+				}
+				kindergartenData {
+					_id
+					kindergartenTitle
+					kindergartenLocation
+					kindergartenAddress
 				}
 			}
 			metaCounter {

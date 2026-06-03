@@ -17,7 +17,7 @@ const overviewSections = [
 			{
 				title: 'Kindergartens',
 				description: 'Review kindergarten profiles and update profile status.',
-				url: '/_admin/properties',
+				url: '/_admin/kindergartens',
 				badge: 'Status only',
 			},
 		],
@@ -26,13 +26,19 @@ const overviewSections = [
 		title: 'Applications',
 		items: [
 			{
+				title: 'Kindergarten Applications',
+				description: 'Review child admission applications sent to kindergartens.',
+				url: '/_admin/applications',
+				badge: 'Review',
+			},
+			{
 				title: 'Kindergarten Admin Applications',
 				description: 'Review requests to manage a kindergarten.',
 				url: '/_admin/users/kindergarten-admin-applications',
 				badge: 'Review',
 			},
 			{
-				title: 'Staff Applications',
+				title: 'Teacher Applications',
 				description: 'Review teacher applications across the platform.',
 				url: '/_admin/users/staff-applications',
 				badge: 'Review',

@@ -96,7 +96,7 @@
     }
   }
 
-  .trend-properties {
+  .trending-kindergartens {
     padding: 0px 10px;
     width: 100%;
     height: auto;
@@ -117,12 +117,12 @@
           justify-content: center;
           align-items: center;
         }
-        .trend-property-swiper {
+        .trending-kindergarten-swiper {
           width: 100%;
           height: 400px;
           display: flex;
           flex-direction: row;
-          .trend-property-slide {
+          .trending-kindergarten-slide {
             width: 98%;
             height: auto;
             display: flex;
@@ -380,7 +380,7 @@
     }
   }
 
-  .popular-properties {
+  .popular-kindergartens {
     padding: 10px 10px;
     width: 100%;
     height: auto;
@@ -398,12 +398,12 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        .popular-property-swiper {
+        .popular-kindergarten-swiper {
           width: 100%;
           height: 390px;
           display: flex;
           flex-direction: row;
-          .popular-property-slide {
+          .popular-kindergarten-slide {
             width: 98%;
             height: auto;
             display: flex;
@@ -587,7 +587,7 @@
     box-shadow: -3px 0px 20px 14px #34343480;
   }
 
-  .top-properties {
+  .top-kindergartens {
     padding: 0px 10px;
     width: 100%;
     height: auto;
@@ -602,12 +602,12 @@
         margin-top: 25px;
         display: flex;
         flex-direction: row;
-        .top-property-swiper {
+        .top-kindergarten-swiper {
           width: 100%;
           height: 400px;
           display: flex;
           flex-direction: row;
-          .top-property-slide {
+          .top-kindergarten-slide {
             width: 98%;
             height: auto;
             display: flex;
@@ -1006,9 +1006,318 @@
   }
 }
 
+/* KidsGarden Help Center mobile MVP */
+#mobile-wrap {
+  .cs-page {
+    width: 100%;
+    max-width: 100%;
+    padding: 28px 16px 44px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    background:
+      radial-gradient(circle at 0% 0%, rgba(246, 184, 75, 0.18), transparent 30%),
+      linear-gradient(180deg, #fffaf0 0%, #f7fbf2 52%, #ffffff 100%);
+    color: #203328;
+
+    * {
+      box-sizing: border-box;
+      max-width: 100%;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .cs-hero,
+    .cs-section,
+    .cs-faq-panel,
+    .cs-contact-card {
+      width: 100%;
+      border: 1px solid #e4ecd9;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 14px 30px rgba(72, 101, 79, 0.1);
+    }
+
+    .cs-hero {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 24px 18px;
+    }
+
+    .cs-hero-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .cs-eyebrow,
+    .cs-section-heading span {
+      width: fit-content;
+      padding: 8px 12px;
+      border: 1px solid #e3ead6;
+      border-radius: 999px;
+      background: #fff8ea;
+      color: #2f7d4a;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    h1 {
+      margin: 0;
+      color: #1f5132;
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .cs-hero-subtitle {
+      color: #657466;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 23px;
+    }
+
+    .cs-search-prompt {
+      min-height: 58px;
+      padding: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border: 1px solid #dbe8d0;
+      border-radius: 18px;
+      background: #ffffff;
+
+      svg {
+        flex: 0 0 auto;
+        color: #2f7d4a;
+      }
+
+      span {
+        color: #4e5f50;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 20px;
+      }
+    }
+
+    .cs-hero-card {
+      min-height: 220px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 12px;
+      border: 1px solid #dfe9d3;
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.94)),
+        url('/img/homepage/kidsgarden-hero-classroom.png');
+      background-size: cover;
+      background-position: center;
+
+      span {
+        color: #2f7d4a;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      strong {
+        color: #203328;
+        font-size: 20px;
+        font-weight: 900;
+        line-height: 26px;
+      }
+    }
+
+    .cs-hero-card-grid,
+    .cs-category-grid,
+    .cs-faq-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .cs-hero-card-grid p {
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px solid #e2ead8;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #4d654f;
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .cs-section,
+    .cs-faq-panel,
+    .cs-contact-card {
+      padding: 20px 16px;
+    }
+
+    .cs-section-heading {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 16px;
+
+      h2 {
+        margin: 0;
+        color: #203328;
+        font-size: 25px;
+        font-weight: 900;
+        line-height: 31px;
+      }
+    }
+
+    .cs-category-card {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border: 1px solid #e1ead5;
+      border-radius: 20px;
+      background: #ffffff;
+
+      strong {
+        color: #203328;
+        font-size: 17px;
+        font-weight: 900;
+      }
+
+      p {
+        margin: 0;
+        color: #657466;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 21px;
+      }
+    }
+
+    .cs-category-icon,
+    .cs-contact-icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      background: #e7f5df;
+      color: #2f7d4a;
+    }
+
+    .cs-category-card:nth-child(2n) .cs-category-icon {
+      background: #fff1c9;
+      color: #b7780d;
+    }
+
+    .cs-faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .cs-faq-item {
+      border: 1px solid #e1ead5;
+      border-radius: 16px;
+      background: #ffffff;
+      overflow: hidden;
+
+      summary {
+        min-height: 58px;
+        padding: 0 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        list-style: none;
+
+        &::-webkit-details-marker {
+          display: none;
+        }
+
+        span {
+          color: #203328;
+          font-size: 14px;
+          font-weight: 900;
+          line-height: 21px;
+        }
+
+        svg {
+          flex: 0 0 auto;
+          color: #2f7d4a;
+        }
+      }
+
+      p {
+        margin: 0;
+        padding: 0 14px 16px;
+        color: #657466;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 21px;
+      }
+    }
+
+    .cs-contact-card {
+      gap: 14px;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(246, 184, 75, 0.18), transparent 28%),
+        linear-gradient(180deg, #fff8ea 0%, #ffffff 100%);
+
+      h2 {
+        margin: 0;
+        color: #203328;
+        font-size: 25px;
+        font-weight: 900;
+        line-height: 31px;
+      }
+
+      p {
+        margin: 0;
+        color: #657466;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 21px;
+      }
+
+      .cs-support-button {
+        width: 100%;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: #2f7d4a;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 900;
+        text-decoration: none;
+        text-transform: none;
+      }
+
+      > span {
+        color: #4d654f;
+        font-size: 13px;
+        font-weight: 900;
+      }
+    }
+  }
+}
+
 /* /property mobile React path guard. Some desktop-UA narrow checks use #mobile-wrap without matching CSS media queries. */
 #mobile-wrap {
-  #property-list-page {
+  #kindergartens-list-page {
     width: 100% !important;
     max-width: 100% !important;
     overflow-x: hidden !important;
@@ -1020,18 +1329,18 @@
       max-width: 100% !important;
     }
 
-    .kg-property-hero,
-    .container.kg-property-container,
+    .kg-kindergarten-hero,
+    .container.kg-kindergarten-container,
     .kg-search-panel,
     .kg-map-preview,
-    .property-page.kg-listing-area,
+    .kindergartens-page.kg-listing-area,
     .kg-top-kindergartens {
       width: calc(100vw - 24px) !important;
       max-width: calc(100vw - 24px) !important;
       min-width: 0 !important;
     }
 
-    .kg-property-hero-inner {
+    .kg-kindergarten-hero-inner {
       width: calc(100vw - 24px) !important;
       max-width: calc(100vw - 24px) !important;
       padding: 30px 12px 26px !important;
@@ -1041,44 +1350,44 @@
       gap: 18px !important;
     }
 
-    .kg-property-hero-copy,
-    .kg-property-hero-copy h1,
-    .kg-property-hero-copy .kg-property-hero-subtitle,
-    .kg-property-hero-copy .kg-trust-chips,
-    .kg-property-hero-visual {
+    .kg-kindergarten-hero-copy,
+    .kg-kindergarten-hero-copy h1,
+    .kg-kindergarten-hero-copy .kg-kindergarten-hero-subtitle,
+    .kg-kindergarten-hero-copy .kg-trust-chips,
+    .kg-kindergarten-hero-visual {
       width: calc(100vw - 48px) !important;
       max-width: calc(100vw - 48px) !important;
       min-width: 0 !important;
     }
 
-    .kg-property-hero-copy h1,
-    .kg-property-hero-copy .kg-property-hero-subtitle {
+    .kg-kindergarten-hero-copy h1,
+    .kg-kindergarten-hero-copy .kg-kindergarten-hero-subtitle {
       white-space: normal !important;
       overflow-wrap: anywhere !important;
     }
 
-    .kg-property-hero-copy h1 {
+    .kg-kindergarten-hero-copy h1 {
       font-size: 30px !important;
       line-height: 1.12 !important;
     }
 
-    .kg-property-hero-copy .kg-trust-chips {
+    .kg-kindergarten-hero-copy .kg-trust-chips {
       display: grid !important;
       grid-template-columns: 1fr !important;
     }
 
-    .kg-property-hero-copy .kg-trust-chips span {
+    .kg-kindergarten-hero-copy .kg-trust-chips span {
       width: 100% !important;
       white-space: normal !important;
     }
 
-    .kg-property-hero-visual {
+    .kg-kindergarten-hero-visual {
       height: 180px !important;
       flex: 0 0 auto !important;
       border-radius: 20px !important;
     }
 
-    .container.kg-property-container {
+    .container.kg-kindergarten-container {
       margin: 0 12px !important;
       padding: 0 !important;
       display: block !important;
@@ -1111,15 +1420,15 @@
       overflow-x: auto !important;
     }
 
-    .property-page.kg-listing-area {
+    .kindergartens-page.kg-listing-area {
       display: flex !important;
       flex-direction: column !important;
     }
 
-    .property-page.kg-listing-area .filter-config,
-    .property-page.kg-listing-area .main-config,
-    .property-page.kg-listing-area .list-config,
-    .property-page.kg-listing-area .card-config,
+    .kindergartens-page.kg-listing-area .filter-config,
+    .kindergartens-page.kg-listing-area .main-config,
+    .kindergartens-page.kg-listing-area .list-config,
+    .kindergartens-page.kg-listing-area .card-config,
     .kg-top-kindergartens .kg-top-strip-list,
     .kg-top-kindergartens .kg-top-mini-card {
       width: 100% !important;
@@ -1127,7 +1436,7 @@
       min-width: 0 !important;
     }
 
-    .property-page.kg-listing-area .list-config,
+    .kindergartens-page.kg-listing-area .list-config,
     .kg-top-kindergartens .kg-top-strip-list {
       display: grid !important;
       grid-template-columns: 1fr !important;
@@ -1147,8 +1456,8 @@
 @media (max-width: 600px) {
   #pc-wrap,
   #mobile-wrap {
-    #property-list-page {
-      .property-page.kg-listing-area .filter-main {
+    #kindergartens-list-page {
+      .kindergartens-page.kg-listing-area .filter-main {
         .find-your-home {
           .kg-filter-title-row {
             display: flex;
@@ -1196,7 +1505,7 @@
               color: #1f5132;
             }
 
-            .property-checkbox {
+            .kindergarten-checkbox {
               width: 18px;
               height: 18px;
               margin-right: 5px;
@@ -1239,14 +1548,14 @@
 @media (max-width: 600px) {
   #mobile-wrap,
   #pc-wrap {
-    #property-list-page {
+    #kindergartens-list-page {
       overflow-x: hidden !important;
 
-      .kg-property-hero,
-      .container.kg-property-container,
+      .kg-kindergarten-hero,
+      .container.kg-kindergarten-container,
       .kg-search-panel,
       .kg-map-preview,
-      .property-page.kg-listing-area,
+      .kindergartens-page.kg-listing-area,
       .kg-top-kindergartens {
         width: 100% !important;
         max-width: 100% !important;
@@ -1254,7 +1563,7 @@
         box-sizing: border-box !important;
       }
 
-      .kg-property-hero-inner {
+      .kg-kindergarten-hero-inner {
         width: 100% !important;
         max-width: 100% !important;
         display: flex !important;
@@ -1265,7 +1574,7 @@
         box-sizing: border-box !important;
       }
 
-      .kg-property-hero-copy {
+      .kg-kindergarten-hero-copy {
         width: 100% !important;
         max-width: 100% !important;
         flex: 0 0 auto !important;
@@ -1279,7 +1588,7 @@
           line-height: 1.12 !important;
         }
 
-        .kg-property-hero-subtitle {
+        .kg-kindergarten-hero-subtitle {
           width: 100% !important;
           max-width: 100% !important;
           white-space: normal !important;
@@ -1300,7 +1609,7 @@
         }
       }
 
-      .kg-property-hero-visual {
+      .kg-kindergarten-hero-visual {
         width: 100% !important;
         max-width: 100% !important;
         flex: 0 0 auto !important;
@@ -1308,7 +1617,7 @@
         border-radius: 20px !important;
       }
 
-      .container.kg-property-container {
+      .container.kg-kindergarten-container {
         display: block !important;
         padding: 0 12px !important;
         margin: 0 !important;
@@ -1341,7 +1650,7 @@
         }
       }
 
-      .property-page.kg-listing-area {
+      .kindergartens-page.kg-listing-area {
         display: flex !important;
         flex-direction: column !important;
 
@@ -1363,7 +1672,7 @@
 
 /* /property mobile React path guard. Some desktop-UA narrow checks use #mobile-wrap without matching CSS media queries. */
 #mobile-wrap {
-  #property-list-page {
+  #kindergartens-list-page {
     width: 100% !important;
     max-width: 100% !important;
     overflow-x: hidden !important;
@@ -1375,18 +1684,18 @@
       max-width: 100% !important;
     }
 
-    .kg-property-hero,
-    .container.kg-property-container,
+    .kg-kindergarten-hero,
+    .container.kg-kindergarten-container,
     .kg-search-panel,
     .kg-map-preview,
-    .property-page.kg-listing-area,
+    .kindergartens-page.kg-listing-area,
     .kg-top-kindergartens {
       width: calc(100vw - 24px) !important;
       max-width: calc(100vw - 24px) !important;
       min-width: 0 !important;
     }
 
-    .kg-property-hero-inner {
+    .kg-kindergarten-hero-inner {
       width: calc(100vw - 24px) !important;
       max-width: calc(100vw - 24px) !important;
       padding: 30px 12px 26px !important;
@@ -1396,44 +1705,44 @@
       gap: 18px !important;
     }
 
-    .kg-property-hero-copy,
-    .kg-property-hero-copy h1,
-    .kg-property-hero-copy .kg-property-hero-subtitle,
-    .kg-property-hero-copy .kg-trust-chips,
-    .kg-property-hero-visual {
+    .kg-kindergarten-hero-copy,
+    .kg-kindergarten-hero-copy h1,
+    .kg-kindergarten-hero-copy .kg-kindergarten-hero-subtitle,
+    .kg-kindergarten-hero-copy .kg-trust-chips,
+    .kg-kindergarten-hero-visual {
       width: calc(100vw - 48px) !important;
       max-width: calc(100vw - 48px) !important;
       min-width: 0 !important;
     }
 
-    .kg-property-hero-copy h1,
-    .kg-property-hero-copy .kg-property-hero-subtitle {
+    .kg-kindergarten-hero-copy h1,
+    .kg-kindergarten-hero-copy .kg-kindergarten-hero-subtitle {
       white-space: normal !important;
       overflow-wrap: anywhere !important;
     }
 
-    .kg-property-hero-copy h1 {
+    .kg-kindergarten-hero-copy h1 {
       font-size: 30px !important;
       line-height: 1.12 !important;
     }
 
-    .kg-property-hero-copy .kg-trust-chips {
+    .kg-kindergarten-hero-copy .kg-trust-chips {
       display: grid !important;
       grid-template-columns: 1fr !important;
     }
 
-    .kg-property-hero-copy .kg-trust-chips span {
+    .kg-kindergarten-hero-copy .kg-trust-chips span {
       width: 100% !important;
       white-space: normal !important;
     }
 
-    .kg-property-hero-visual {
+    .kg-kindergarten-hero-visual {
       height: 180px !important;
       flex: 0 0 auto !important;
       border-radius: 20px !important;
     }
 
-    .container.kg-property-container {
+    .container.kg-kindergarten-container {
       margin: 0 12px !important;
       padding: 0 !important;
       display: block !important;
@@ -1466,15 +1775,15 @@
       overflow-x: auto !important;
     }
 
-    .property-page.kg-listing-area {
+    .kindergartens-page.kg-listing-area {
       display: flex !important;
       flex-direction: column !important;
     }
 
-    .property-page.kg-listing-area .filter-config,
-    .property-page.kg-listing-area .main-config,
-    .property-page.kg-listing-area .list-config,
-    .property-page.kg-listing-area .card-config,
+    .kindergartens-page.kg-listing-area .filter-config,
+    .kindergartens-page.kg-listing-area .main-config,
+    .kindergartens-page.kg-listing-area .list-config,
+    .kindergartens-page.kg-listing-area .card-config,
     .kg-top-kindergartens .kg-top-strip-list,
     .kg-top-kindergartens .kg-top-mini-card {
       width: 100% !important;
@@ -1482,7 +1791,7 @@
       min-width: 0 !important;
     }
 
-    .property-page.kg-listing-area .list-config,
+    .kindergartens-page.kg-listing-area .list-config,
     .kg-top-kindergartens .kg-top-strip-list {
       display: grid !important;
       grid-template-columns: 1fr !important;
@@ -1554,9 +1863,9 @@
     .home-page .platform-showcase,
     .home-page .events.communication-roadmap,
     .home-page .video-frame.kg-store-section,
-    .home-page .trend-properties,
-    .home-page .popular-properties,
-    .home-page .top-properties,
+    .home-page .trending-kindergartens,
+    .home-page .popular-kindergartens,
+    .home-page .top-kindergartens,
     .home-page .community-board {
       width: 100% !important;
       max-width: 100% !important;
@@ -1567,9 +1876,9 @@
     .home-page .platform-showcase .platform-container,
     .home-page .events.communication-roadmap .container,
     .home-page .video-frame.kg-store-section .store-container,
-    .home-page .trend-properties .container,
-    .home-page .popular-properties .container,
-    .home-page .top-properties .container,
+    .home-page .trending-kindergartens .container,
+    .home-page .popular-kindergartens .container,
+    .home-page .top-kindergartens .container,
     .home-page .community-board .container,
     .home-page .final-cta-section {
       width: calc(100% - 24px) !important;
@@ -1581,9 +1890,9 @@
     .home-page .platform-showcase,
     .home-page .events.communication-roadmap,
     .home-page .video-frame.kg-store-section,
-    .home-page .trend-properties,
-    .home-page .popular-properties,
-    .home-page .top-properties,
+    .home-page .trending-kindergartens,
+    .home-page .popular-kindergartens,
+    .home-page .top-kindergartens,
     .home-page .community-board {
       padding-left: 12px !important;
       padding-right: 12px !important;
@@ -1750,9 +2059,9 @@
     .home-page .platform-showcase,
     .home-page .events.communication-roadmap,
     .home-page .video-frame.kg-store-section,
-    .home-page .trend-properties,
-    .home-page .popular-properties,
-    .home-page .top-properties,
+    .home-page .trending-kindergartens,
+    .home-page .popular-kindergartens,
+    .home-page .top-kindergartens,
     .home-page .community-board {
       width: 100% !important;
       max-width: 100% !important;
@@ -1761,9 +2070,9 @@
 
     .header-main .container,
     .home-page .platform-showcase .platform-container,
-    .home-page .trend-properties .container,
-    .home-page .popular-properties .container,
-    .home-page .top-properties .container,
+    .home-page .trending-kindergartens .container,
+    .home-page .popular-kindergartens .container,
+    .home-page .top-kindergartens .container,
     .home-page .community-board .container,
     .home-page .events.communication-roadmap .container,
     .home-page .video-frame.kg-store-section .store-container,
@@ -2348,9 +2657,9 @@
     .home-page .platform-showcase,
     .home-page .events.communication-roadmap,
     .home-page .video-frame.kg-store-section,
-    .home-page .trend-properties,
-    .home-page .popular-properties,
-    .home-page .top-properties,
+    .home-page .trending-kindergartens,
+    .home-page .popular-kindergartens,
+    .home-page .top-kindergartens,
     .home-page .community-board {
       width: 100% !important;
       max-width: 100% !important;
@@ -2361,9 +2670,9 @@
     .home-page .platform-showcase .platform-container,
     .home-page .events.communication-roadmap .container,
     .home-page .video-frame.kg-store-section .store-container,
-    .home-page .trend-properties .container,
-    .home-page .popular-properties .container,
-    .home-page .top-properties .container,
+    .home-page .trending-kindergartens .container,
+    .home-page .popular-kindergartens .container,
+    .home-page .top-kindergartens .container,
     .home-page .community-board .container,
     .home-page .final-cta-section {
       width: calc(100% - 24px) !important;
@@ -2375,9 +2684,9 @@
     .home-page .platform-showcase,
     .home-page .events.communication-roadmap,
     .home-page .video-frame.kg-store-section,
-    .home-page .trend-properties,
-    .home-page .popular-properties,
-    .home-page .top-properties,
+    .home-page .trending-kindergartens,
+    .home-page .popular-kindergartens,
+    .home-page .top-kindergartens,
     .home-page .community-board {
       padding-left: 12px !important;
       padding-right: 12px !important;
@@ -2538,9 +2847,9 @@
     .home-page .platform-showcase,
     .home-page .events.communication-roadmap,
     .home-page .video-frame.kg-store-section,
-    .home-page .trend-properties,
-    .home-page .popular-properties,
-    .home-page .top-properties,
+    .home-page .trending-kindergartens,
+    .home-page .popular-kindergartens,
+    .home-page .top-kindergartens,
     .home-page .community-board {
       width: 100% !important;
       max-width: 100% !important;
@@ -2549,9 +2858,9 @@
 
     .header-main .container,
     .home-page .platform-showcase .platform-container,
-    .home-page .trend-properties .container,
-    .home-page .popular-properties .container,
-    .home-page .top-properties .container,
+    .home-page .trending-kindergartens .container,
+    .home-page .popular-kindergartens .container,
+    .home-page .top-kindergartens .container,
     .home-page .community-board .container,
     .home-page .events.communication-roadmap .container,
     .home-page .video-frame.kg-store-section .store-container,
@@ -2565,9 +2874,9 @@
     .home-page .platform-showcase,
     .home-page .events.communication-roadmap,
     .home-page .video-frame.kg-store-section,
-    .home-page .trend-properties,
-    .home-page .popular-properties,
-    .home-page .top-properties,
+    .home-page .trending-kindergartens,
+    .home-page .popular-kindergartens,
+    .home-page .top-kindergartens,
     .home-page .community-board {
       padding-left: 12px !important;
       padding-right: 12px !important;
@@ -3223,9 +3532,9 @@
   #pc-wrap .home-page .platform-showcase,
   #pc-wrap .home-page .events,
   #pc-wrap .home-page .video-frame,
-  #pc-wrap .home-page .trend-properties,
-  #pc-wrap .home-page .popular-properties,
-  #pc-wrap .home-page .top-properties,
+  #pc-wrap .home-page .trending-kindergartens,
+  #pc-wrap .home-page .popular-kindergartens,
+  #pc-wrap .home-page .top-kindergartens,
   #pc-wrap .home-page .community-board,
   #pc-wrap .home-page .final-cta-section {
     padding-left: 12px !important;
@@ -5382,7 +5691,7 @@
 }
 
 #mobile-wrap {
-  #property-detail-page {
+  #kindergarten-detail-page {
     min-height: 100vh;
     padding: 28px 14px 48px;
     background:
@@ -6039,7 +6348,7 @@
         width: 280px;
       }
 
-      .property-big-card-box {
+      .kindergarten-big-card-box {
         width: 280px;
         overflow: hidden;
         border-radius: 22px;
@@ -6122,7 +6431,7 @@
 @media (max-width: 600px) {
   #pc-wrap,
   #mobile-wrap {
-    #property-detail-page.kg-detail-page {
+    #kindergarten-detail-page.kg-detail-page {
       width: 100%;
       max-width: 100%;
       padding: 78px 0 44px;
@@ -6540,7 +6849,7 @@
 }
 
 #mobile-wrap {
-  #property-list-page {
+  #kindergartens-list-page {
     padding: 28px 14px 48px;
     background:
       radial-gradient(circle at 5% 4%, rgba(255, 220, 171, 0.48), transparent 30%),
@@ -6613,7 +6922,7 @@
       }
     }
 
-    .property-page {
+    .kindergartens-page {
       margin-top: 22px;
       flex-direction: column;
       gap: 22px;
@@ -6665,14 +6974,14 @@
               }
             }
 
-            .property-location {
+            .kindergarten-location {
               gap: 7px;
               max-height: 260px;
               overflow-y: auto;
             }
 
-            .property-type,
-            .property_type {
+            .kindergarten-type,
+            .kindergarten_type {
               color: #4d654f;
               font-family: $font;
               font-size: 13px;
@@ -7108,9 +7417,9 @@
       }
     }
 
-    .trend-properties,
-    .popular-properties,
-    .top-properties,
+    .trending-kindergartens,
+    .popular-kindergartens,
+    .top-kindergartens,
     .events,
     .community-board {
       padding: 34px 14px;
@@ -7121,7 +7430,7 @@
       }
     }
 
-    .popular-properties,
+    .popular-kindergartens,
     .events {
       background: #eef8ec;
     }
@@ -7698,7 +8007,7 @@
   }
 }
 #mobile-wrap {
-  #property-list-page {
+  #kindergartens-list-page {
     overflow-x: hidden;
     background: #f8f5ec;
 
@@ -7707,11 +8016,11 @@
       min-width: 0;
     }
 
-    .kg-property-hero {
+    .kg-kindergarten-hero {
       width: 100%;
       background: #fff8ea;
 
-      .kg-property-hero-inner {
+      .kg-kindergarten-hero-inner {
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -7719,7 +8028,7 @@
         padding: 30px 14px 26px;
       }
 
-      .kg-property-hero-copy {
+      .kg-kindergarten-hero-copy {
         width: 100%;
         gap: 12px;
 
@@ -7735,7 +8044,7 @@
           overflow-wrap: normal;
         }
 
-        .kg-property-hero-subtitle {
+        .kg-kindergarten-hero-subtitle {
           width: 100%;
           color: #4f6254;
           font-family: $font;
@@ -7773,7 +8082,7 @@
         }
       }
 
-      .kg-property-hero-visual {
+      .kg-kindergarten-hero-visual {
         width: 100%;
         height: 180px;
         position: relative;
@@ -7788,7 +8097,7 @@
       }
     }
 
-    .container.kg-property-container {
+    .container.kg-kindergarten-container {
       width: 100%;
       max-width: 100%;
       display: block;
@@ -7929,7 +8238,7 @@
       }
     }
 
-    .property-page.kg-listing-area {
+    .kindergartens-page.kg-listing-area {
       width: 100%;
       display: flex !important;
       flex-direction: column;
@@ -7994,7 +8303,7 @@
 @media (max-width: 600px) {
   #mobile-wrap,
   #pc-wrap {
-    #property-list-page {
+    #kindergartens-list-page {
       width: 100% !important;
       max-width: 100% !important;
       overflow-x: hidden !important;
@@ -8006,18 +8315,18 @@
         box-sizing: border-box;
       }
 
-      .kg-property-hero,
-      .container.kg-property-container,
+      .kg-kindergarten-hero,
+      .container.kg-kindergarten-container,
       .kg-search-panel,
       .kg-map-preview,
-      .property-page.kg-listing-area,
+      .kindergartens-page.kg-listing-area,
       .kg-top-kindergartens {
         width: calc(100vw - 24px) !important;
         max-width: calc(100vw - 24px) !important;
         min-width: 0 !important;
       }
 
-      .kg-property-hero-inner {
+      .kg-kindergarten-hero-inner {
         width: calc(100vw - 24px) !important;
         max-width: calc(100vw - 24px) !important;
         display: flex !important;
@@ -8027,7 +8336,7 @@
         padding: 30px 14px 26px !important;
       }
 
-      .kg-property-hero-copy {
+      .kg-kindergarten-hero-copy {
         width: calc(100vw - 52px) !important;
         max-width: calc(100vw - 52px) !important;
         flex: 0 0 auto !important;
@@ -8041,7 +8350,7 @@
           line-height: 1.12 !important;
         }
 
-        .kg-property-hero-subtitle {
+        .kg-kindergarten-hero-subtitle {
           width: calc(100vw - 52px) !important;
           max-width: calc(100vw - 52px) !important;
           white-space: normal !important;
@@ -8063,7 +8372,7 @@
         }
       }
 
-      .kg-property-hero-visual {
+      .kg-kindergarten-hero-visual {
         width: calc(100vw - 52px) !important;
         max-width: calc(100vw - 52px) !important;
         flex: 0 0 auto !important;
@@ -8071,7 +8380,7 @@
         border-radius: 20px !important;
       }
 
-      .container.kg-property-container {
+      .container.kg-kindergarten-container {
         display: block !important;
         padding: 0 !important;
         margin: 0 12px !important;
@@ -8104,7 +8413,7 @@
         }
       }
 
-      .property-page.kg-listing-area {
+      .kindergartens-page.kg-listing-area {
         display: flex !important;
         flex-direction: column !important;
 
@@ -8135,29 +8444,29 @@
 
 /* EOF /property mobile React path guard. */
 #mobile-wrap {
-  #property-list-page {
-    .kg-property-hero,
-    .container.kg-property-container,
+  #kindergartens-list-page {
+    .kg-kindergarten-hero,
+    .container.kg-kindergarten-container,
     .kg-search-panel,
     .kg-map-preview,
-    .property-page.kg-listing-area,
+    .kindergartens-page.kg-listing-area,
     .kg-top-kindergartens {
       width: calc(100vw - 24px) !important;
       max-width: calc(100vw - 24px) !important;
       min-width: 0 !important;
     }
 
-    .kg-property-hero-inner {
+    .kg-kindergarten-hero-inner {
       width: calc(100vw - 24px) !important;
       max-width: calc(100vw - 24px) !important;
       padding: 30px 12px 26px !important;
     }
 
-    .kg-property-hero-copy,
-    .kg-property-hero-copy h1,
-    .kg-property-hero-copy .kg-property-hero-subtitle,
-    .kg-property-hero-copy .kg-trust-chips,
-    .kg-property-hero-visual {
+    .kg-kindergarten-hero-copy,
+    .kg-kindergarten-hero-copy h1,
+    .kg-kindergarten-hero-copy .kg-kindergarten-hero-subtitle,
+    .kg-kindergarten-hero-copy .kg-trust-chips,
+    .kg-kindergarten-hero-visual {
       width: calc(100vw - 48px) !important;
       max-width: calc(100vw - 48px) !important;
       min-width: 0 !important;
@@ -8169,7 +8478,7 @@
 @media (max-width: 600px) {
   #pc-wrap,
   #mobile-wrap {
-    #property-detail-page.kg-detail-page {
+    #kindergarten-detail-page.kg-detail-page {
       width: 100% !important;
       max-width: 100% !important;
       overflow-x: hidden !important;

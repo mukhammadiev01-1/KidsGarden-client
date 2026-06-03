@@ -48,7 +48,7 @@ const menuSections: { title: string; items: AdminMenuItem[] }[] = [
 				key: 'kindergartens',
 				title: 'Kindergartens',
 				description: 'Center profiles',
-				url: '/_admin/properties',
+				url: '/_admin/kindergartens',
 				icon: <ApartmentRoundedIcon />,
 			},
 		],
@@ -56,6 +56,13 @@ const menuSections: { title: string; items: AdminMenuItem[] }[] = [
 	{
 		title: 'Applications',
 		items: [
+			{
+				key: 'parent-applications',
+				title: 'Kindergarten Applications',
+				description: 'Child admission inquiries',
+				url: '/_admin/applications',
+				icon: <AssignmentTurnedInRoundedIcon />,
+			},
 			{
 				key: 'kindergarten-admin-applications',
 				title: 'Kindergarten Admin Applications',
@@ -65,7 +72,7 @@ const menuSections: { title: string; items: AdminMenuItem[] }[] = [
 			},
 			{
 				key: 'staff-applications',
-				title: 'Staff Applications',
+				title: 'Teacher Applications',
 				description: 'Teacher approval requests',
 				url: '/_admin/users/staff-applications',
 				icon: <WorkRoundedIcon />,

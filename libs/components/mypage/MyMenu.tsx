@@ -24,8 +24,9 @@ const MyMenu = () => {
 	const pathname = category;
 	const kindergartenAdminMenus = [
 		{ category: 'kindergartenProfile', title: 'My Kindergarten', icon: 'home', activeIcon: 'homeWhite' },
+		{ category: 'applications', title: 'Kindergarten Applications', icon: 'newTab', activeIcon: 'whiteTab' },
 		{ category: 'staff', title: 'Staff', icon: 'newTab', activeIcon: 'whiteTab' },
-		{ category: 'staffApplications', title: 'Staff Applications', icon: 'newTab', activeIcon: 'whiteTab' },
+		{ category: 'staffApplications', title: 'Teacher Applications', icon: 'newTab', activeIcon: 'whiteTab' },
 		{ category: 'groups', title: 'Groups', icon: 'discovery', activeIcon: 'discoveryWhite' },
 		{ category: 'children', title: 'Children', icon: 'like', activeIcon: 'likeWhite' },
 		{ category: 'attendance', title: 'Attendance', icon: 'search', activeIcon: 'searchWhite' },
@@ -36,11 +37,12 @@ const MyMenu = () => {
 	];
 	const parentMenus = [
 		{ category: 'parentChildren', title: 'My Children', icon: 'like', activeIcon: 'likeWhite' },
+		{ category: 'applications', title: 'Kindergarten Applications', icon: 'newTab', activeIcon: 'whiteTab' },
 		{ category: 'parentAttendance', title: 'Attendance', icon: 'search', activeIcon: 'searchWhite' },
 		{ category: 'staffApplications', title: 'Teacher Applications', icon: 'newTab', activeIcon: 'whiteTab' },
 		{
 			category: 'kindergartenAdminApplications',
-			title: 'Admin Application',
+			title: 'Kindergarten Admin Application',
 			icon: 'home',
 			activeIcon: 'homeWhite',
 		},

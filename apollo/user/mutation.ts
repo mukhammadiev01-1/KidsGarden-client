@@ -103,6 +103,7 @@ export const CREATE_KINDERGARTEN = gql`
 			kindergartenLocation
 			kindergartenAddress
 			kindergartenTitle
+			monthlyFee
 			kindergartenPrice
 			kindergartenCapacity
 			kindergartenAgeRange
@@ -131,6 +132,7 @@ export const UPDATE_KINDERGARTEN = gql`
 			kindergartenLocation
 			kindergartenAddress
 			kindergartenTitle
+			monthlyFee
 			kindergartenPrice
 			kindergartenCapacity
 			kindergartenAgeRange
@@ -457,68 +459,6 @@ export const REMOVE_ATTENDANCE = gql`
 	}
 `;
 
-/**************************
- *        PROPERTY        *
- *************************/
-
-export const CREATE_PROPERTY = gql`
-	mutation CreateProperty($input: PropertyInput!) {
-		createProperty(input: $input) {
-			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
-			memberId
-			soldAt
-			deletedAt
-			constructedAt
-			createdAt
-			updatedAt
-		}
-	}
-`;
-
-export const UPDATE_PROPERTY = gql`
-	mutation UpdateProperty($input: PropertyUpdate!) {
-		updateProperty(input: $input) {
-			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
-			memberId
-			soldAt
-			deletedAt
-			constructedAt
-			createdAt
-			updatedAt
-		}
-	}
-`;
-
 export const LIKE_TARGET_KINDERGARTEN = gql`
 	mutation LikeTargetKindergarten($input: String!) {
 		likeTargetKindergarten(kindergartenId: $input) {
@@ -528,6 +468,7 @@ export const LIKE_TARGET_KINDERGARTEN = gql`
 			kindergartenLocation
 			kindergartenAddress
 			kindergartenTitle
+			monthlyFee
 			kindergartenPrice
 			kindergartenCapacity
 			kindergartenAgeRange
@@ -666,6 +607,102 @@ export const UNSUBSCRIBE = gql`
 			_id
 			followingId
 			followerId
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+/**************************
+ *       APPLICATION      *
+ *************************/
+
+export const CREATE_APPLICATION = gql`
+	mutation CreateApplication($input: ApplicationInput!) {
+		createApplication(input: $input) {
+			_id
+			parentId
+			kindergartenId
+			kindergartenOwnerId
+			childName
+			childAge
+			parentMessage
+			adminNote
+			documents {
+				url
+				name
+				mimeType
+				size
+			}
+			status
+			reviewedBy
+			reviewedAt
+			canceledAt
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const APPLICATION_DOCUMENTS_UPLOADER = gql`
+	mutation ApplicationDocumentsUploader($files: [Upload!]!) {
+		applicationDocumentsUploader(files: $files) {
+			url
+			name
+			mimeType
+			size
+		}
+	}
+`;
+
+export const UPDATE_APPLICATION_STATUS = gql`
+	mutation UpdateApplicationStatus($input: ApplicationStatusUpdateInput!) {
+		updateApplicationStatus(input: $input) {
+			_id
+			parentId
+			kindergartenId
+			kindergartenOwnerId
+			childName
+			childAge
+			parentMessage
+			adminNote
+			documents {
+				url
+				name
+				mimeType
+				size
+			}
+			status
+			reviewedBy
+			reviewedAt
+			canceledAt
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const CANCEL_APPLICATION = gql`
+	mutation CancelApplication($applicationId: String!) {
+		cancelApplication(applicationId: $applicationId) {
+			_id
+			parentId
+			kindergartenId
+			kindergartenOwnerId
+			childName
+			childAge
+			parentMessage
+			adminNote
+			documents {
+				url
+				name
+				mimeType
+				size
+			}
+			status
+			reviewedBy
+			reviewedAt
+			canceledAt
 			createdAt
 			updatedAt
 		}

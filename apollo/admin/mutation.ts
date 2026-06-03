@@ -111,6 +111,7 @@ export const UPDATE_KINDERGARTEN_BY_ADMIN = gql`
 			kindergartenLocation
 			kindergartenAddress
 			kindergartenTitle
+			monthlyFee
 			kindergartenPrice
 			kindergartenCapacity
 			kindergartenAgeRange

@@ -136,7 +136,7 @@ const KindergartenStaffApplications = () => {
 	return (
 		<Stack className="admin-dashboard-screen admin-staff-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Staff Applications</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Teacher Applications</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
 					Review teacher applications submitted to your kindergarten.
 				</Typography>

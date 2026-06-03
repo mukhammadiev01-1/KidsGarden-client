@@ -2,24 +2,32 @@ import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
+import axios from 'axios';
 import { CREATE_KINDERGARTEN, UPDATE_KINDERGARTEN } from '../../../apollo/user/mutation';
 import { GET_OWNER_KINDERGARTENS } from '../../../apollo/user/query';
 import { userVar } from '../../../apollo/store';
 import { Kindergarten } from '../../types/kindergarten/kindergarten';
 import { KindergartenInput } from '../../types/kindergarten/kindergarten.input';
 import { KindergartenUpdate } from '../../types/kindergarten/kindergarten.update';
-import { KindergartenLocation, KindergartenStatus, KindergartenType } from '../../enums/kindergarten.enum';
+import {
+	KindergartenLocation,
+	KindergartenStatus,
+	KindergartenType,
+	MANAGE_KINDERGARTEN_TYPES,
+} from '../../enums/kindergarten.enum';
 import { MemberType } from '../../enums/member.enum';
 import { getImageUrl } from '../../config';
+import { getKindergartenTypeLabel } from '../../utils';
+import { getJwtToken } from '../../auth';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { getStatusChipSx, getStatusLabel, truncateId } from './dashboardUtils';
 
 const emptyForm: KindergartenInput = {
-	kindergartenType: KindergartenType.APARTMENT,
+	kindergartenType: KindergartenType.PRIVATE_KINDERGARTEN,
 	kindergartenLocation: KindergartenLocation.SEOUL,
 	kindergartenAddress: '',
 	kindergartenTitle: '',
-	kindergartenPrice: 0,
+	monthlyFee: 0,
 	kindergartenCapacity: 1,
 	kindergartenAgeRange: 1,
 	kindergartenPrograms: 1,
@@ -27,10 +35,19 @@ const emptyForm: KindergartenInput = {
 	kindergartenDesc: '',
 };
 
-const typeLabels: Record<KindergartenType, string> = {
-	[KindergartenType.APARTMENT]: 'Private Kindergarten',
-	[KindergartenType.VILLA]: 'Public Kindergarten',
-	[KindergartenType.HOUSE]: 'Daycare Center',
+const maxKindergartenImages = 10;
+
+const normalizeKindergartenTypeValue = (type: KindergartenType): KindergartenType => {
+	switch (type) {
+		case KindergartenType.APARTMENT:
+			return KindergartenType.PRIVATE_KINDERGARTEN;
+		case KindergartenType.VILLA:
+			return KindergartenType.PUBLIC_KINDERGARTEN;
+		case KindergartenType.HOUSE:
+			return KindergartenType.DAYCARE_CENTER;
+		default:
+			return type;
+	}
 };
 
 const MyKindergarten = () => {
@@ -66,14 +83,74 @@ const MyKindergarten = () => {
 		setForm((prev) => ({ ...prev, [name]: value }));
 	};
 
+	const uploadKindergartenImages = async (event: React.ChangeEvent<HTMLInputElement>) => {
+		try {
+			const files = Array.from(event.target.files ?? []);
+			if (!files.length) return;
+			if (files.length > maxKindergartenImages) {
+				throw new Error(`Please upload up to ${maxKindergartenImages} photos at once.`);
+			}
+
+			const formData = new FormData();
+			formData.append(
+				'operations',
+				JSON.stringify({
+					query: `mutation ImagesUploader($files: [Upload!]!, $target: String!) {
+						imagesUploader(files: $files, target: $target)
+					}`,
+					variables: {
+						files: files.map(() => null),
+						target: 'kindergarten',
+					},
+				}),
+			);
+			formData.append(
+				'map',
+				JSON.stringify(
+					files.reduce<Record<string, string[]>>((acc, _file, index) => {
+						acc[`${index}`] = [`variables.files.${index}`];
+						return acc;
+					}, {}),
+				),
+			);
+			files.forEach((file, index) => formData.append(`${index}`, file));
+
+			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+					'apollo-require-preflight': true,
+					Authorization: `Bearer ${getJwtToken()}`,
+				},
+			});
+
+			const responseImages: string[] = response.data?.data?.imagesUploader ?? [];
+			if (!responseImages.length) throw new Error('Image upload failed.');
+
+			setForm((prev) => ({
+				...prev,
+				kindergartenImages: [...(prev.kindergartenImages ?? []), ...responseImages].slice(0, maxKindergartenImages),
+			}));
+			event.target.value = '';
+		} catch (err: any) {
+			await sweetErrorHandling(err);
+		}
+	};
+
+	const removeKindergartenImage = (index: number) => {
+		setForm((prev) => ({
+			...prev,
+			kindergartenImages: (prev.kindergartenImages ?? []).filter((_image, imageIndex) => imageIndex !== index),
+		}));
+	};
+
 	const selectKindergarten = (kindergarten: Kindergarten) => {
 		setSelectedId(kindergarten._id);
 		setForm({
-			kindergartenType: kindergarten.kindergartenType,
+			kindergartenType: normalizeKindergartenTypeValue(kindergarten.kindergartenType),
 			kindergartenLocation: kindergarten.kindergartenLocation,
 			kindergartenAddress: kindergarten.kindergartenAddress,
 			kindergartenTitle: kindergarten.kindergartenTitle,
-			kindergartenPrice: kindergarten.kindergartenPrice,
+			monthlyFee: kindergarten.monthlyFee ?? kindergarten.kindergartenPrice ?? 0,
 			kindergartenCapacity: kindergarten.kindergartenCapacity,
 			kindergartenAgeRange: kindergarten.kindergartenAgeRange,
 			kindergartenPrograms: kindergarten.kindergartenPrograms,
@@ -93,13 +170,19 @@ const MyKindergarten = () => {
 			if (!form.kindergartenTitle || !form.kindergartenAddress || !form.kindergartenDesc) {
 				throw new Error('Please fill title, address, and description.');
 			}
+			if (!form.kindergartenImages.length) {
+				throw new Error('Please upload at least one kindergarten photo.');
+			}
 
 			if (selectedId) {
 				const input: KindergartenUpdate = { _id: selectedId, ...form };
+				delete input.kindergartenPrice;
 				await updateKindergarten({ variables: { input } });
 				await sweetMixinSuccessAlert('Kindergarten profile updated');
 			} else {
-				await createKindergarten({ variables: { input: form } });
+				const input: KindergartenInput = { ...form };
+				delete input.kindergartenPrice;
+				await createKindergarten({ variables: { input } });
 				await sweetMixinSuccessAlert('Kindergarten profile created');
 			}
 
@@ -166,7 +249,7 @@ const MyKindergarten = () => {
 								/>
 							</Stack>
 							<Typography className="dashboard-muted-text">
-								{typeLabels[kindergarten.kindergartenType]} · {kindergarten.kindergartenLocation}
+								{getKindergartenTypeLabel(kindergarten.kindergartenType)} · {kindergarten.kindergartenLocation}
 							</Typography>
 							<Typography className="dashboard-muted-text">{kindergarten.kindergartenAddress}</Typography>
 							<Stack className="admin-center-card-details">
@@ -220,8 +303,8 @@ const MyKindergarten = () => {
 						fullWidth
 						label="Monthly fee"
 						type="number"
-						value={form.kindergartenPrice}
-						onChange={(e) => updateForm('kindergartenPrice', Number(e.target.value))}
+						value={form.monthlyFee}
+						onChange={(e) => updateForm('monthlyFee', Number(e.target.value))}
 					/>
 				</Stack>
 
@@ -234,9 +317,9 @@ const MyKindergarten = () => {
 						value={form.kindergartenType}
 						onChange={(e) => updateForm('kindergartenType', e.target.value as KindergartenType)}
 					>
-						{Object.values(KindergartenType).map((type) => (
+						{MANAGE_KINDERGARTEN_TYPES.map((type) => (
 							<option key={type} value={type}>
-								{typeLabels[type]}
+								{getKindergartenTypeLabel(type)}
 							</option>
 						))}
 					</TextField>
@@ -296,6 +379,55 @@ const MyKindergarten = () => {
 					value={form.kindergartenDesc}
 					onChange={(e) => updateForm('kindergartenDesc', e.target.value)}
 				/>
+
+				<Typography className="admin-form-section-title">Photos</Typography>
+				<Stack spacing={1.5}>
+					<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ xs: 'stretch', sm: 'center' }}>
+						<Button variant="outlined" component="label" sx={{ width: { xs: '100%', sm: 'fit-content' } }}>
+							Upload kindergarten photos
+							<input
+								type="file"
+								hidden
+								multiple
+								accept="image/jpg, image/jpeg, image/png, image/webp"
+								onChange={uploadKindergartenImages}
+							/>
+						</Button>
+						<Typography className="dashboard-muted-text">
+							First image is used as the main photo. JPG, JPEG, PNG or WEBP. Up to {maxKindergartenImages} images.
+						</Typography>
+					</Stack>
+
+					{form.kindergartenImages.length > 0 && (
+						<Stack direction="row" flexWrap="wrap" gap={1.5}>
+							{form.kindergartenImages.map((image, index) => (
+								<Stack
+									key={`${image}-${index}`}
+									spacing={1}
+									sx={{
+										width: 152,
+										padding: '8px',
+										border: '1px solid #d9e5dc',
+										borderRadius: '12px',
+										background: '#f8fbf7',
+									}}
+								>
+									<img
+										src={getImageUrl(image)}
+										alt={`Kindergarten photo ${index + 1}`}
+										style={{ width: '100%', height: 92, objectFit: 'cover', borderRadius: 10 }}
+									/>
+									<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+										<Chip label={index === 0 ? 'Main' : `Gallery ${index + 1}`} size="small" color={index === 0 ? 'success' : 'default'} />
+										<Button size="small" color="error" onClick={() => removeKindergartenImage(index)}>
+											Remove
+										</Button>
+									</Stack>
+								</Stack>
+							))}
+						</Stack>
+					)}
+				</Stack>
 
 				<Stack className="admin-form-actions">
 					<Button variant="contained" onClick={submitKindergarten} sx={{ width: 'fit-content' }}>

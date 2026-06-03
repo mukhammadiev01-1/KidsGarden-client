@@ -10,7 +10,7 @@ const FeaturedKindergartensIntro = () => {
 				<h2>Featured Kindergartens</h2>
 				<p>Explore active centers, popular choices and trusted options for families.</p>
 			</Box>
-			<Link href={'/property'}>See all kindergartens</Link>
+			<Link href={'/kindergartens'}>See all kindergartens</Link>
 		</Stack>
 	);
 };

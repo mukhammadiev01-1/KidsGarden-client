@@ -28,7 +28,7 @@ const Footer = () => {
 				<Box component={'nav'} className={'footer-link-grid'} aria-label={'Footer navigation'}>
 					<div>
 						<strong>Platform</strong>
-						<Link href={'/property'}>Kindergartens</Link>
+						<Link href={'/kindergartens'}>Kindergartens</Link>
 						<Link href={'/account/join'}>For Parents</Link>
 						<Link href={'/cs'}>For Centers</Link>
 					</div>
@@ -41,7 +41,7 @@ const Footer = () => {
 					<div>
 						<strong>Company</strong>
 						<Link href={'/'}>Home</Link>
-						<Link href={'/property'}>Kindergartens</Link>
+						<Link href={'/kindergartens'}>Kindergartens</Link>
 						<Link href={'/community?articleCategory=FREE'}>Community</Link>
 					</div>
 					<div>

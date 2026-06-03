@@ -43,7 +43,7 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 	};
 
 	if (device === 'mobile') {
-		return <div>NESTAR FOLLOWS MOBILE</div>;
+		return <div>Account connections are available on desktop for now.</div>;
 	} else {
 		return (
 			<div id="member-follows-page">

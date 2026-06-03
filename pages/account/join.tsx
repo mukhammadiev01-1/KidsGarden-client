@@ -1,6 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import React, { FormEvent, useCallback, useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { Box, Button, Checkbox, FormControlLabel, FormGroup, Stack } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -17,9 +16,14 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const Join: NextPage = () => {
 	const router = useRouter();
-	const device = useDeviceDetect();
 	const [input, setInput] = useState({ nick: '', password: '', phone: '', type: MemberType.PARENT });
 	const [loginView, setLoginView] = useState<boolean>(true);
+
+	useEffect(() => {
+		const mode = Array.isArray(router.query.mode) ? router.query.mode[0] : router.query.mode;
+		if (mode === 'register') setLoginView(false);
+		if (mode === 'login') setLoginView(true);
+	}, [router.query.mode]);
 
 	/** HANDLERS **/
 	const viewChangeHandler = (state: boolean) => {
@@ -33,35 +37,37 @@ const Join: NextPage = () => {
 	}, []);
 
 	const doLogin = useCallback(async () => {
-		console.warn(input);
 		try {
 			await logIn(input.nick, input.password);
 			await router.push(`${router.query.referrer ?? '/'}`);
 		} catch (err: any) {
 			await sweetMixinErrorAlert(err.message);
 		}
-	}, [input]);
+	}, [input.nick, input.password, router]);
 
 	const doSignUp = useCallback(async () => {
-		console.warn(input);
 		try {
 			await signUp(input.nick, input.password, input.phone, MemberType.PARENT);
 			await router.push(`${router.query.referrer ?? '/'}`);
 		} catch (err: any) {
 			await sweetMixinErrorAlert(err.message);
 		}
-	}, [input]);
+	}, [input.nick, input.password, input.phone, router]);
 
-	console.log('+input: ', input);
+	const submitHandler = useCallback(
+		async (event: FormEvent<HTMLFormElement>) => {
+			event.preventDefault();
+			if (loginView) await doLogin();
+			else await doSignUp();
+		},
+		[doLogin, doSignUp, loginView],
+	);
 
-	if (device === 'mobile') {
-		return <div>LOGIN MOBILE</div>;
-	} else {
-		return (
-			<Stack className={'join-page'}>
-				<Stack className={'container'}>
-					<Stack className={'main'}>
-						<Stack className={'left'}>
+	return (
+		<Stack className={'join-page'}>
+			<Stack className={'container'}>
+				<Stack className={'main'}>
+					<Stack component="form" className={'left'} onSubmit={submitHandler}>
 							{/* @ts-ignore */}
 							<Box className={'logo'}>
 								<img src="/img/logo/logoText.svg" alt="" />
@@ -75,40 +81,41 @@ const Join: NextPage = () => {
 								<div className={'input-box'}>
 									<span>Nickname</span>
 									<input
+										id={loginView ? 'login-username' : 'register-username'}
+										name="username"
 										type="text"
 										placeholder={'Enter Nickname'}
+										value={input.nick}
+										autoComplete="username"
 										onChange={(e) => handleInput('nick', e.target.value)}
 										required={true}
-										onKeyDown={(event) => {
-											if (event.key == 'Enter' && loginView) doLogin();
-											if (event.key == 'Enter' && !loginView) doSignUp();
-										}}
 									/>
 								</div>
 								<div className={'input-box'}>
 									<span>Password</span>
 									<input
-										type="text"
+										id={loginView ? 'login-password' : 'register-password'}
+										name="password"
+										type="password"
 										placeholder={'Enter Password'}
+										value={input.password}
+										autoComplete={loginView ? 'current-password' : 'new-password'}
 										onChange={(e) => handleInput('password', e.target.value)}
 										required={true}
-										onKeyDown={(event) => {
-											if (event.key == 'Enter' && loginView) doLogin();
-											if (event.key == 'Enter' && !loginView) doSignUp();
-										}}
 									/>
 								</div>
 								{!loginView && (
 									<div className={'input-box'}>
 										<span>Phone</span>
 										<input
-											type="text"
+											id="register-phone"
+											name="tel"
+											type="tel"
 											placeholder={'Enter Phone'}
+											value={input.phone}
+											autoComplete="tel"
 											onChange={(e) => handleInput('phone', e.target.value)}
 											required={true}
-											onKeyDown={(event) => {
-												if (event.key == 'Enter') doSignUp();
-											}}
 										/>
 									</div>
 								)}
@@ -140,18 +147,18 @@ const Join: NextPage = () => {
 
 								{loginView ? (
 									<Button
+										type="submit"
 										variant="contained"
 										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
 										disabled={input.nick == '' || input.password == ''}
-										onClick={doLogin}
 									>
 										LOGIN
 									</Button>
 								) : (
 									<Button
+										type="submit"
 										variant="contained"
 										disabled={input.nick == '' || input.password == '' || input.phone == ''}
-										onClick={doSignUp}
 										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
 									>
 										SIGNUP
@@ -177,13 +184,12 @@ const Join: NextPage = () => {
 									</p>
 								)}
 							</Box>
-						</Stack>
-						<Stack className={'right'}></Stack>
 					</Stack>
+					<Stack className={'right'}></Stack>
 				</Stack>
 			</Stack>
-		);
-	}
+		</Stack>
+	);
 };
 
 export default withLayoutBasic(Join);

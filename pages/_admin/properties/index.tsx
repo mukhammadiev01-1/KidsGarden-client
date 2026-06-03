@@ -9,7 +9,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { TabContext } from '@mui/lab';
 import TablePagination from '@mui/material/TablePagination';
-import { PropertyPanelList } from '../../../libs/components/admin/properties/PropertyList';
+import { KindergartenPanelList } from '../../../libs/components/admin/kindergartens/KindergartenList';
 import { AllKindergartensInquiry } from '../../../libs/types/kindergarten/kindergarten.input';
 import { Kindergarten } from '../../../libs/types/kindergarten/kindergarten';
 import { KindergartenLocation, KindergartenStatus } from '../../../libs/enums/kindergarten.enum';
@@ -18,7 +18,7 @@ import { KindergartenUpdate } from '../../../libs/types/kindergarten/kindergarte
 import { GET_ALL_KINDERGARTENS_BY_ADMIN } from '../../../apollo/admin/query';
 import { UPDATE_KINDERGARTEN_BY_ADMIN } from '../../../apollo/admin/mutation';
 
-const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
+const AdminKindergartens: NextPage = ({ initialInquiry, ...props }: any) => {
 	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
 	const [kindergartensInquiry, setKindergartensInquiry] = useState<AllKindergartensInquiry>(initialInquiry);
 	const [kindergartens, setKindergartens] = useState<Kindergarten[]>([]);
@@ -71,8 +71,8 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 			case 'ACTIVE':
 				nextSearch.kindergartenStatus = KindergartenStatus.ACTIVE;
 				break;
-			case 'SOLD':
-				nextSearch.kindergartenStatus = KindergartenStatus.SOLD;
+			case 'CLOSED':
+				nextSearch.kindergartenStatus = KindergartenStatus.CLOSED;
 				break;
 			case 'DELETE':
 				nextSearch.kindergartenStatus = KindergartenStatus.DELETE;
@@ -154,9 +154,9 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 									Active
 								</ListItem>
 								<ListItem
-									onClick={(e) => tabChangeHandler(e, 'SOLD')}
-									value="SOLD"
-									className={value === 'SOLD' ? 'li on' : 'li'}
+									onClick={(e) => tabChangeHandler(e, 'CLOSED')}
+									value="CLOSED"
+									className={value === 'CLOSED' ? 'li on' : 'li'}
 								>
 									Closed
 								</ListItem>
@@ -183,7 +183,7 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 							</Stack>
 							<Divider />
 						</Box>
-						<PropertyPanelList
+						<KindergartenPanelList
 							kindergartens={kindergartens}
 							loading={loading}
 							anchorEl={anchorEl}
@@ -208,7 +208,7 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 	);
 };
 
-AdminProperties.defaultProps = {
+AdminKindergartens.defaultProps = {
 	initialInquiry: {
 		page: 1,
 		limit: 10,
@@ -218,4 +218,4 @@ AdminProperties.defaultProps = {
 	},
 };
 
-export default withAdminLayout(AdminProperties);
+export default withAdminLayout(AdminKindergartens);

@@ -152,7 +152,7 @@
 				min-height: 260px;
 			}
 		}
-		.trend-properties {
+		.trending-kindergartens {
 			padding: 108px 0px 76px;
 			width: 100%;
 			height: 697px;
@@ -172,12 +172,12 @@
 						justify-content: center;
 						align-items: center;
 					}
-					.trend-property-swiper {
+					.trending-kindergarten-swiper {
 						width: 100%;
 						height: 400px;
 						display: flex;
 						flex-direction: row;
-						.trend-property-slide {
+						.trending-kindergarten-slide {
 							width: auto;
 							height: auto;
 							display: flex;
@@ -316,7 +316,7 @@
 				}
 			}
 		}
-		.popular-properties {
+		.popular-kindergartens {
 			padding: 132px 0px 94px;
 			width: 100%;
 			height: 816px;
@@ -333,12 +333,12 @@
 					display: flex;
 					flex-direction: row;
 					justify-content: space-between;
-					.popular-property-swiper {
+					.popular-kindergarten-swiper {
 						width: 100%;
 						height: 425px;
 						display: flex;
 						flex-direction: row;
-						.popular-property-slide {
+						.popular-kindergarten-slide {
 							width: auto;
 							height: auto;
 							display: flex;
@@ -525,7 +525,7 @@
 			transform: perspective(0px);
 			box-shadow: -3px 0px 20px 14px #34343480;
 		}
-		.top-properties {
+		.top-kindergartens {
 			padding: 108px 0px 76px;
 			width: 100%;
 			height: 697px;
@@ -538,12 +538,12 @@
 					margin-top: 64px;
 					display: flex;
 					flex-direction: row;
-					.top-property-swiper {
+					.top-kindergarten-swiper {
 						width: 100%;
 						height: 400px;
 						display: flex;
 						flex-direction: row;
-						.top-property-slide {
+						.top-kindergarten-slide {
 							width: auto;
 							height: auto;
 							display: flex;
@@ -1073,9 +1073,9 @@
 					align-items: flex-start;
 				}
 
-				.trend-properties,
-				.popular-properties,
-				.top-properties,
+				.trending-kindergartens,
+				.popular-kindergartens,
+				.top-kindergartens,
 				.community-board,
 				.events,
 				.video-frame {
@@ -2487,9 +2487,9 @@ body #pc-wrap {
 				align-items: flex-start;
 			}
 
-			.trend-properties,
-			.popular-properties,
-			.top-properties,
+			.trending-kindergartens,
+			.popular-kindergartens,
+			.top-kindergartens,
 			.community-board,
 			.events,
 			.video-frame {
@@ -2898,7 +2898,7 @@ body #pc-wrap {
 			}
 		}
 
-		.trend-properties {
+		.trending-kindergartens {
 			padding-top: 48px;
 		}
 
@@ -3515,9 +3515,9 @@ body #pc-wrap .home-page {
 				align-items: flex-start;
 			}
 
-			.trend-properties,
-			.popular-properties,
-			.top-properties,
+			.trending-kindergartens,
+			.popular-kindergartens,
+			.top-kindergartens,
 			.community-board,
 			.events,
 			.video-frame {
@@ -3804,9 +3804,9 @@ body #pc-wrap .home-page {
 				align-items: flex-start;
 			}
 
-			.trend-properties,
-			.popular-properties,
-			.top-properties,
+			.trending-kindergartens,
+			.popular-kindergartens,
+			.top-kindergartens,
 			.community-board,
 			.events,
 			.video-frame {
@@ -4021,8 +4021,8 @@ body #pc-wrap .home-page {
 			}
 		}
 
-		.trend-properties,
-		.top-properties {
+		.trending-kindergartens,
+		.top-kindergartens {
 			height: auto;
 			padding: 86px 0 72px;
 			background: #fffaf2;
@@ -4032,7 +4032,7 @@ body #pc-wrap .home-page {
 			}
 		}
 
-		.popular-properties,
+		.popular-kindergartens,
 		.top-agents {
 			height: auto;
 			padding: 86px 0 78px;

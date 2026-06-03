@@ -4,34 +4,38 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Button, Stack, Typography } from '@mui/material';
 import axios from 'axios';
 import { REACT_APP_API_URL } from '../../config';
-import { getJwtToken } from '../../auth';
-import { useReactiveVar } from '@apollo/client';
+import { getJwtToken, setJwtToken, updateUserInfo } from '../../auth';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { MemberUpdate } from '../../types/member/member.update';
+import { UPDATE_MEMBER } from '../../../apollo/user/mutation';
+import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
 
 const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	const device = useDeviceDetect();
 	const token = getJwtToken();
 	const user = useReactiveVar(userVar);
 	const [updateData, setUpdateData] = useState<MemberUpdate>(initialValues);
+	const [updateMember] = useMutation(UPDATE_MEMBER);
 
 	/** APOLLO REQUESTS **/
 
 	/** LIFECYCLES **/
 	useEffect(() => {
 		setUpdateData({
-			...updateData,
-			memberNick: user.memberNick,
-			memberPhone: user.memberPhone,
-			memberAddress: user.memberAddress,
-			memberImage: user.memberImage,
+			_id: user._id ?? '',
+			memberNick: user.memberNick ?? '',
+			memberPhone: user.memberPhone ?? '',
+			memberAddress: user.memberAddress ?? '',
+			memberImage: user.memberImage ?? '',
 		});
 	}, [user]);
 
 	/** HANDLERS **/
-	const uploadImage = async (e: any) => {
+	const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		try {
-			const image = e.target.files[0];
+			const image = e.target.files?.[0];
+			if (!image) return;
 			console.log('+image:', image);
 
 			const formData = new FormData();
@@ -65,8 +69,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 
 			const responseImage = response.data.data.imageUploader;
 			console.log('+responseImage: ', responseImage);
-			updateData.memberImage = responseImage;
-			setUpdateData({ ...updateData });
+			setUpdateData((prev) => ({ ...prev, memberImage: responseImage }));
 
 			return `${REACT_APP_API_URL}/${responseImage}`;
 		} catch (err) {
@@ -74,7 +77,34 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 		}
 	};
 
-	const updatePropertyHandler = useCallback(async () => {}, [updateData]);
+	const updateProfileHandler = useCallback(async () => {
+		try {
+			const memberId = updateData._id || user._id;
+			if (!memberId) throw new Error('Profile member id is missing.');
+
+			const result = await updateMember({
+				variables: {
+					input: {
+						_id: memberId,
+						memberNick: updateData.memberNick,
+						memberPhone: updateData.memberPhone,
+						memberAddress: updateData.memberAddress,
+						memberImage: updateData.memberImage,
+					},
+				},
+			});
+			const updatedMember = result.data?.updateMember;
+			if (updatedMember?.accessToken) {
+				setJwtToken(updatedMember.accessToken);
+				updateUserInfo(updatedMember.accessToken);
+			} else if (updatedMember) {
+				userVar({ ...userVar(), ...updatedMember });
+			}
+			await sweetMixinSuccessAlert('Profile updated');
+		} catch (err) {
+			await sweetErrorHandling(err);
+		}
+	}, [updateData, updateMember, user._id]);
 
 	const doDisabledCheck = () => {
 		if (
@@ -120,12 +150,12 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 									hidden
 									id="hidden-input"
 									onChange={uploadImage}
-									accept="image/jpg, image/jpeg, image/png"
+									accept="image/jpg, image/jpeg, image/png, image/webp"
 								/>
 								<label htmlFor="hidden-input" className="labeler">
 									<Typography>Upload Profile Image</Typography>
 								</label>
-								<Typography className="upload-text">A photo must be in JPG, JPEG or PNG format!</Typography>
+								<Typography className="upload-text">A photo must be in JPG, JPEG, PNG or WEBP format!</Typography>
 							</Stack>
 						</Stack>
 					</Stack>
@@ -159,7 +189,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 						/>
 					</Stack>
 					<Stack className="about-me-box">
-						<Button className="update-button" onClick={updatePropertyHandler} disabled={doDisabledCheck()}>
+						<Button className="update-button" onClick={updateProfileHandler} disabled={doDisabledCheck()}>
 							<Typography>Update Profile</Typography>
 							<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
 								<g clipPath="url(#clip0_7065_6985)">

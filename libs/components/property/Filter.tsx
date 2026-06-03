@@ -10,7 +10,7 @@ import {
 	IconButton,
 } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { KindergartenLocation, KindergartenType } from '../../enums/kindergarten.enum';
+import { DISCOVERY_KINDERGARTEN_TYPES, KindergartenLocation, KindergartenType } from '../../enums/kindergarten.enum';
 import { KindergartensInquiry } from '../../types/kindergarten/kindergarten.input';
 import { useRouter } from 'next/router';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
@@ -23,6 +23,9 @@ interface FilterType {
 }
 
 const centerTypeLabels: Record<string, string> = {
+	[KindergartenType.PRIVATE_KINDERGARTEN]: 'Private Kindergarten',
+	[KindergartenType.PUBLIC_KINDERGARTEN]: 'Public Kindergarten',
+	[KindergartenType.DAYCARE_CENTER]: 'Daycare Center',
 	[KindergartenType.APARTMENT]: 'Private Kindergarten',
 	[KindergartenType.VILLA]: 'Public Kindergarten',
 	[KindergartenType.HOUSE]: 'Daycare Center',
@@ -48,7 +51,7 @@ const Filter = (props: FilterType) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const [kindergartenLocation, setKindergartenLocation] = useState<KindergartenLocation[]>(Object.values(KindergartenLocation));
-	const [kindergartenType, setKindergartenType] = useState<KindergartenType[]>(Object.values(KindergartenType));
+	const [kindergartenType, setKindergartenType] = useState<KindergartenType[]>(DISCOVERY_KINDERGARTEN_TYPES);
 	const [searchText, setSearchText] = useState<string>('');
 	const [showMore, setShowMore] = useState<boolean>(false);
 	const selectedAgeRange = Number(searchFilter?.search?.ageRangeList?.[0] || 0);
@@ -56,10 +59,12 @@ const Filter = (props: FilterType) => {
 		Number(searchFilter?.search?.capacityRange?.start ?? 0),
 		Number(searchFilter?.search?.capacityRange?.end ?? 500),
 	];
-	const selectedPriceRange: [number, number] = [
-		Number(searchFilter?.search?.pricesRange?.start ?? 0),
-		Number(searchFilter?.search?.pricesRange?.end ?? 2000000),
+	const activeMonthlyFeeRange = searchFilter?.search?.monthlyFeeRange ?? searchFilter?.search?.pricesRange;
+	const selectedMonthlyFeeRange: [number, number] = [
+		Number(activeMonthlyFeeRange?.start ?? 0),
+		Number(activeMonthlyFeeRange?.end ?? 2000000),
 	];
+	const listingBasePath = router.pathname.startsWith('/kindergartens') ? '/kindergartens' : '/property';
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -73,22 +78,22 @@ const Filter = (props: FilterType) => {
 		if (searchFilter?.search?.locationList?.length == 0) {
 			delete searchFilter.search.locationList;
 			setShowMore(false);
-			router.push(`/property?input=${queryParams}`, `/property?input=${queryParams}`, { scroll: false }).then();
+			router.push(`${listingBasePath}?input=${queryParams}`, `${listingBasePath}?input=${queryParams}`, { scroll: false }).then();
 		}
 
 		if (searchFilter?.search?.typeList?.length == 0) {
 			delete searchFilter.search.typeList;
-			router.push(`/property?input=${queryParams}`, `/property?input=${queryParams}`, { scroll: false }).then();
+			router.push(`${listingBasePath}?input=${queryParams}`, `${listingBasePath}?input=${queryParams}`, { scroll: false }).then();
 		}
 
 		if (searchFilter?.search?.programsList?.length == 0) {
 			delete searchFilter.search.programsList;
-			router.push(`/property?input=${queryParams}`, `/property?input=${queryParams}`, { scroll: false }).then();
+			router.push(`${listingBasePath}?input=${queryParams}`, `${listingBasePath}?input=${queryParams}`, { scroll: false }).then();
 		}
 
 		if (searchFilter?.search?.ageRangeList?.length == 0) {
 			delete searchFilter.search.ageRangeList;
-			router.push(`/property?input=${queryParams}`, `/property?input=${queryParams}`, { scroll: false }).then();
+			router.push(`${listingBasePath}?input=${queryParams}`, `${listingBasePath}?input=${queryParams}`, { scroll: false }).then();
 		}
 
 		if (searchFilter?.search?.locationList) setShowMore(true);
@@ -97,13 +102,14 @@ const Filter = (props: FilterType) => {
 	/** HANDLERS **/
 	const pushFilter = useCallback(
 		async (nextFilter: KindergartensInquiry) => {
+			const href = `${listingBasePath}?input=${JSON.stringify(nextFilter)}`;
 			await router.push(
-				`/property?input=${JSON.stringify(nextFilter)}`,
-				`/property?input=${JSON.stringify(nextFilter)}`,
+				href,
+				href,
 				{ scroll: false },
 			);
 		},
-		[router],
+		[listingBasePath, router],
 	);
 
 	const kindergartenLocationSelectHandler = useCallback(
@@ -113,11 +119,11 @@ const Filter = (props: FilterType) => {
 				const value = e.target.value;
 				if (isChecked) {
 					await router.push(
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: { ...searchFilter.search, locationList: [...(searchFilter?.search?.locationList || []), value] },
 						})}`,
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: { ...searchFilter.search, locationList: [...(searchFilter?.search?.locationList || []), value] },
 						})}`,
@@ -125,14 +131,14 @@ const Filter = (props: FilterType) => {
 					);
 				} else if (searchFilter?.search?.locationList?.includes(value)) {
 					await router.push(
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: {
 								...searchFilter.search,
 								locationList: searchFilter?.search?.locationList?.filter((item: string) => item !== value),
 							},
 						})}`,
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: {
 								...searchFilter.search,
@@ -152,7 +158,7 @@ const Filter = (props: FilterType) => {
 				console.log('ERROR, kindergartenLocationSelectHandler:', err);
 			}
 		},
-		[searchFilter],
+		[listingBasePath, searchFilter],
 	);
 
 	const kindergartenTypeSelectHandler = useCallback(
@@ -162,11 +168,11 @@ const Filter = (props: FilterType) => {
 				const value = e.target.value;
 				if (isChecked) {
 					await router.push(
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: { ...searchFilter.search, typeList: [...(searchFilter?.search?.typeList || []), value] },
 						})}`,
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: { ...searchFilter.search, typeList: [...(searchFilter?.search?.typeList || []), value] },
 						})}`,
@@ -174,14 +180,14 @@ const Filter = (props: FilterType) => {
 					);
 				} else if (searchFilter?.search?.typeList?.includes(value)) {
 					await router.push(
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: {
 								...searchFilter.search,
 								typeList: searchFilter?.search?.typeList?.filter((item: string) => item !== value),
 							},
 						})}`,
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: {
 								...searchFilter.search,
@@ -201,7 +207,7 @@ const Filter = (props: FilterType) => {
 				console.log('ERROR, kindergartenTypeSelectHandler:', err);
 			}
 		},
-		[searchFilter],
+		[listingBasePath, searchFilter],
 	);
 
 	const kindergartenProgramSelectHandler = useCallback(
@@ -210,14 +216,14 @@ const Filter = (props: FilterType) => {
 				if (number != 0) {
 					if (searchFilter?.search?.programsList?.includes(number)) {
 						await router.push(
-							`/property?input=${JSON.stringify({
+							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
 								search: {
 									...searchFilter.search,
 									programsList: searchFilter?.search?.programsList?.filter((item: Number) => item !== number),
 								},
 							})}`,
-							`/property?input=${JSON.stringify({
+							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
 								search: {
 									...searchFilter.search,
@@ -228,11 +234,11 @@ const Filter = (props: FilterType) => {
 						);
 					} else {
 						await router.push(
-							`/property?input=${JSON.stringify({
+							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
 								search: { ...searchFilter.search, programsList: [...(searchFilter?.search?.programsList || []), number] },
 							})}`,
-							`/property?input=${JSON.stringify({
+							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
 								search: { ...searchFilter.search, programsList: [...(searchFilter?.search?.programsList || []), number] },
 							})}`,
@@ -243,13 +249,13 @@ const Filter = (props: FilterType) => {
 					delete searchFilter?.search.programsList;
 					setSearchFilter({ ...searchFilter });
 					await router.push(
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: {
 								...searchFilter.search,
 							},
 						})}`,
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: {
 								...searchFilter.search,
@@ -264,7 +270,7 @@ const Filter = (props: FilterType) => {
 				console.log('ERROR, kindergartenProgramSelectHandler:', err);
 			}
 		},
-		[searchFilter],
+		[listingBasePath, searchFilter],
 	);
 
 	const kindergartenAgeRangeSelectHandler = useCallback(
@@ -273,14 +279,14 @@ const Filter = (props: FilterType) => {
 				if (number != 0) {
 					if (searchFilter?.search?.ageRangeList?.includes(number)) {
 						await router.push(
-							`/property?input=${JSON.stringify({
+							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
 								search: {
 									...searchFilter.search,
 									ageRangeList: searchFilter?.search?.ageRangeList?.filter((item: Number) => item !== number),
 								},
 							})}`,
-							`/property?input=${JSON.stringify({
+							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
 								search: {
 									...searchFilter.search,
@@ -291,11 +297,11 @@ const Filter = (props: FilterType) => {
 						);
 					} else {
 						await router.push(
-							`/property?input=${JSON.stringify({
+							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
 								search: { ...searchFilter.search, ageRangeList: [...(searchFilter?.search?.ageRangeList || []), number] },
 							})}`,
-							`/property?input=${JSON.stringify({
+							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
 								search: { ...searchFilter.search, ageRangeList: [...(searchFilter?.search?.ageRangeList || []), number] },
 							})}`,
@@ -306,13 +312,13 @@ const Filter = (props: FilterType) => {
 					delete searchFilter?.search.ageRangeList;
 					setSearchFilter({ ...searchFilter });
 					await router.push(
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: {
 								...searchFilter.search,
 							},
 						})}`,
-						`/property?input=${JSON.stringify({
+						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
 							search: {
 								...searchFilter.search,
@@ -327,7 +333,7 @@ const Filter = (props: FilterType) => {
 				console.log('ERROR, kindergartenAgeRangeSelectHandler:', err);
 			}
 		},
-		[searchFilter],
+		[listingBasePath, searchFilter],
 	);
 
 	const kindergartenAgeRangeSliderHandler = useCallback(
@@ -344,12 +350,15 @@ const Filter = (props: FilterType) => {
 	);
 
 	const kindergartenRangeHandler = useCallback(
-		async (rangeKey: 'capacityRange' | 'pricesRange', value: number | number[]) => {
+		async (rangeKey: 'capacityRange' | 'monthlyFeeRange', value: number | number[]) => {
 			const [start, end] = Array.isArray(value) ? value : [0, value];
+			const nextSearch = { ...searchFilter.search };
+			if (rangeKey === 'monthlyFeeRange') delete nextSearch.pricesRange;
+
 			await pushFilter({
 				...searchFilter,
 				search: {
-					...searchFilter.search,
+					...nextSearch,
 					[rangeKey]: { start, end },
 				},
 			});
@@ -360,9 +369,10 @@ const Filter = (props: FilterType) => {
 	const refreshHandler = async () => {
 		try {
 			setSearchText('');
+			const href = `${listingBasePath}?input=${JSON.stringify(initialInput)}`;
 			await router.push(
-				`/property?input=${JSON.stringify(initialInput)}`,
-				`/property?input=${JSON.stringify(initialInput)}`,
+				href,
+				href,
 				{ scroll: false },
 			);
 		} catch (err: any) {
@@ -414,7 +424,7 @@ const Filter = (props: FilterType) => {
 				<Stack className={'find-your-home'} mb={'30px'}>
 					<p className={'title'}>District / Location</p>
 					<Stack
-						className={`property-location`}
+						className={`kindergarten-location`}
 						style={{ height: showMore || device === 'mobile' ? 'auto' : '115px' }}
 						onMouseEnter={() => setShowMore(true)}
 						onMouseLeave={() => {
@@ -428,7 +438,7 @@ const Filter = (props: FilterType) => {
 								<Stack className={'input-box'} key={location}>
 									<Checkbox
 										id={location}
-										className="property-checkbox"
+										className="kindergarten-checkbox"
 										color="default"
 										size="small"
 										value={location}
@@ -436,7 +446,7 @@ const Filter = (props: FilterType) => {
 										onChange={kindergartenLocationSelectHandler}
 									/>
 									<label htmlFor={location} style={{ cursor: 'pointer' }}>
-										<Typography className="property-type">{location}</Typography>
+										<Typography className="kindergarten-type">{location}</Typography>
 									</label>
 								</Stack>
 							);
@@ -451,7 +461,7 @@ const Filter = (props: FilterType) => {
 							return (
 								<label className={`kg-filter-chip ${checked ? 'active' : ''}`} key={type}>
 									<Checkbox
-										className="property-checkbox"
+										className="kindergarten-checkbox"
 										color="default"
 										size="small"
 										value={type}
@@ -533,16 +543,16 @@ const Filter = (props: FilterType) => {
 					<Typography className={'title'}>Monthly Fee</Typography>
 					<Stack className="kg-range-filter">
 						<Typography className="kg-range-value">
-							{selectedPriceRange[0] === 0 && selectedPriceRange[1] === 2000000
+							{selectedMonthlyFeeRange[0] === 0 && selectedMonthlyFeeRange[1] === 2000000
 								? 'Any price'
-								: `${formatFee(selectedPriceRange[0])} — ${formatFee(selectedPriceRange[1])}`}
+								: `${formatFee(selectedMonthlyFeeRange[0])} — ${formatFee(selectedMonthlyFeeRange[1])}`}
 						</Typography>
 						<Slider
 							min={0}
 							max={2000000}
 							step={50000}
-							value={selectedPriceRange}
-							onChangeCommitted={(_, value) => kindergartenRangeHandler('pricesRange', value as number[])}
+							value={selectedMonthlyFeeRange}
+							onChangeCommitted={(_, value) => kindergartenRangeHandler('monthlyFeeRange', value as number[])}
 							valueLabelDisplay="auto"
 							valueLabelFormat={(value) => value.toLocaleString()}
 							className="kg-slider"

@@ -14,7 +14,7 @@ const FinalCta = () => {
 			</Box>
 			<Box component={'div'} className={'final-cta-visual'} aria-hidden />
 			<Box component={'div'} className={'final-cta-actions'}>
-				<Link href={'/property'}>
+				<Link href={'/kindergartens'}>
 					<span>
 						<SearchRoundedIcon /> Find Kindergartens
 					</span>

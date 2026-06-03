@@ -7,6 +7,7 @@ export interface KindergartenUpdate {
 	kindergartenLocation?: KindergartenLocation;
 	kindergartenAddress?: string;
 	kindergartenTitle?: string;
+	monthlyFee?: number;
 	kindergartenPrice?: number;
 	kindergartenCapacity?: number;
 	kindergartenAgeRange?: number;

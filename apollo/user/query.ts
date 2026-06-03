@@ -1,26 +1,5 @@
 import { gql } from '@apollo/client';
 
-/**************************
- *         MEMBER         *
- *************************/
-
-export const GET_AGENTS = gql`
-	query GetAgents($input: AgentsInquiry!) {
-			getAgents(input: $input) {
-				list {
-					_id
-					memberNick
-					memberFullName
-					memberImage
-					memberDesc
-				}
-			metaCounter {
-				total
-			}
-		}
-	}
-`;
-
 export const GET_MEMBER = gql(`
 	query GetMember($input: String!) {
 	    getMember(memberId: $input) {
@@ -60,6 +39,7 @@ export const GET_KINDERGARTEN = gql`
 			kindergartenLocation
 			kindergartenAddress
 			kindergartenTitle
+			monthlyFee
 			kindergartenPrice
 			kindergartenCapacity
 			kindergartenAgeRange
@@ -101,6 +81,7 @@ export const GET_KINDERGARTENS = gql`
 				kindergartenLocation
 				kindergartenAddress
 				kindergartenTitle
+				monthlyFee
 				kindergartenPrice
 				kindergartenCapacity
 				kindergartenAgeRange
@@ -146,6 +127,7 @@ export const GET_OWNER_KINDERGARTENS = gql`
 				kindergartenLocation
 				kindergartenAddress
 				kindergartenTitle
+				monthlyFee
 				kindergartenPrice
 				kindergartenCapacity
 				kindergartenAgeRange
@@ -364,66 +346,30 @@ export const GET_ATTENDANCES = gql`
 	}
 `;
 
-export const GET_AGENT_PROPERTIES = gql`
-	query GetAgentProperties($input: AgentPropertiesInquiry!) {
-		getAgentProperties(input: $input) {
-			list {
-				_id
-				propertyType
-				propertyStatus
-				propertyLocation
-				propertyAddress
-				propertyTitle
-				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
-				propertyViews
-				propertyLikes
-				propertyImages
-				propertyDesc
-				propertyBarter
-				propertyRent
-				memberId
-				soldAt
-				deletedAt
-				constructedAt
-				createdAt
-				updatedAt
-			}
-			metaCounter {
-				total
-			}
-		}
-	}
-`;
-
 export const GET_FAVORITES = gql`
 	query GetFavorites($input: OrdinaryInquiry!) {
 		getFavorites(input: $input) {
 			list {
 				_id
-				propertyType
-				propertyStatus
-				propertyLocation
-				propertyAddress
-				propertyTitle
-				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
-				propertyViews
-				propertyLikes
-				propertyComments
-				propertyRank
-				propertyImages
-				propertyDesc
-				propertyBarter
-				propertyRent
+				kindergartenType
+				kindergartenStatus
+				kindergartenLocation
+				kindergartenAddress
+				kindergartenTitle
+				monthlyFee
+				kindergartenPrice
+				kindergartenCapacity
+				kindergartenAgeRange
+				kindergartenPrograms
+				kindergartenViews
+				kindergartenLikes
+				kindergartenComments
+				kindergartenRank
+				kindergartenImages
+				kindergartenDesc
 				memberId
-				soldAt
 				deletedAt
-				constructedAt
+				establishedAt
 				createdAt
 				updatedAt
 					memberData {
@@ -446,27 +392,25 @@ export const GET_VISITED = gql`
 		getVisited(input: $input) {
 			list {
 				_id
-				propertyType
-				propertyStatus
-				propertyLocation
-				propertyAddress
-				propertyTitle
-				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
-				propertyViews
-				propertyLikes
-				propertyComments
-				propertyRank
-				propertyImages
-				propertyDesc
-				propertyBarter
-				propertyRent
+				kindergartenType
+				kindergartenStatus
+				kindergartenLocation
+				kindergartenAddress
+				kindergartenTitle
+				monthlyFee
+				kindergartenPrice
+				kindergartenCapacity
+				kindergartenAgeRange
+				kindergartenPrograms
+				kindergartenViews
+				kindergartenLikes
+				kindergartenComments
+				kindergartenRank
+				kindergartenImages
+				kindergartenDesc
 				memberId
-				soldAt
 				deletedAt
-				constructedAt
+				establishedAt
 				createdAt
 				updatedAt
 					memberData {
@@ -648,6 +592,92 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 					followingId
 					followerId
 					myFollowing
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+/**************************
+ *       APPLICATION      *
+ *************************/
+
+export const GET_MY_APPLICATIONS = gql`
+	query GetMyApplications($input: ApplicationsInquiry!) {
+		getMyApplications(input: $input) {
+			list {
+				_id
+				parentId
+				kindergartenId
+				kindergartenOwnerId
+				childName
+				childAge
+				parentMessage
+				adminNote
+				documents {
+					url
+					name
+					mimeType
+					size
+				}
+				status
+				reviewedBy
+				reviewedAt
+				canceledAt
+				createdAt
+				updatedAt
+				kindergartenData {
+					_id
+					kindergartenTitle
+					kindergartenLocation
+					kindergartenAddress
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_KINDERGARTEN_APPLICATIONS = gql`
+	query GetKindergartenApplications($input: ApplicationsInquiry!) {
+		getKindergartenApplications(input: $input) {
+			list {
+				_id
+				parentId
+				kindergartenId
+				kindergartenOwnerId
+				childName
+				childAge
+				parentMessage
+				adminNote
+				documents {
+					url
+					name
+					mimeType
+					size
+				}
+				status
+				reviewedBy
+				reviewedAt
+				canceledAt
+				createdAt
+				updatedAt
+				parentData {
+					_id
+					memberNick
+					memberFullName
+					memberImage
+				}
+				kindergartenData {
+					_id
+					kindergartenTitle
+					kindergartenLocation
+					kindergartenAddress
 				}
 			}
 			metaCounter {

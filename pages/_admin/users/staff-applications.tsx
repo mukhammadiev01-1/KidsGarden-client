@@ -107,7 +107,7 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Staff Applications
+				Teacher Applications
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
@@ -152,7 +152,7 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 									{!loading && applications.length === 0 && (
 										<TableRow>
 											<TableCell align="center" colSpan={8}>
-												<span className={'no-data'}>No staff applications found.</span>
+												<span className={'no-data'}>No teacher applications found.</span>
 											</TableCell>
 										</TableRow>
 									)}

@@ -6,9 +6,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { propertySquare, propertyYears } from '../../config';
-import { PropertyLocation, PropertyType } from '../../enums/property.enum';
-import { PropertiesInquiry } from '../../types/property/property.input';
+import { DISCOVERY_KINDERGARTEN_TYPES, KindergartenLocation, KindergartenType } from '../../enums/kindergarten.enum';
+import { KindergartensInquiry } from '../../types/kindergarten/kindergarten.input';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { getKindergartenTypeLabel } from '../../utils';
@@ -42,16 +41,26 @@ const MenuProps = {
 };
 
 const thisYear = new Date().getFullYear();
+const establishedYears = Array.from({ length: thisYear - 1970 + 1 }, (_, index) => 1970 + index);
+const capacityOptions = [0, 25, 50, 75, 100, 125, 150, 200, 300, 500];
+const kindergartenTypeImageNames: Partial<Record<KindergartenType, string>> = {
+	[KindergartenType.PRIVATE_KINDERGARTEN]: 'private-kindergarten',
+	[KindergartenType.PUBLIC_KINDERGARTEN]: 'public-kindergarten',
+	[KindergartenType.DAYCARE_CENTER]: 'daycare-center',
+	[KindergartenType.APARTMENT]: 'private-kindergarten',
+	[KindergartenType.VILLA]: 'public-kindergarten',
+	[KindergartenType.HOUSE]: 'daycare-center',
+};
 
 interface HeaderFilterProps {
-	initialInput: PropertiesInquiry;
+	initialInput: KindergartensInquiry;
 }
 
 const HeaderFilter = (props: HeaderFilterProps) => {
 	const { initialInput } = props;
 	const device = useDeviceDetect();
 	const { t, i18n } = useTranslation('common');
-	const [searchFilter, setSearchFilter] = useState<PropertiesInquiry>(initialInput);
+	const [searchFilter, setSearchFilter] = useState<KindergartensInquiry>(initialInput);
 	const locationRef: any = useRef();
 	const typeRef: any = useRef();
 	const roomsRef: any = useRef();
@@ -60,8 +69,8 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 	const [openLocation, setOpenLocation] = useState(false);
 	const [openType, setOpenType] = useState(false);
 	const [openRooms, setOpenRooms] = useState(false);
-	const [propertyLocation, setPropertyLocation] = useState<PropertyLocation[]>(Object.values(PropertyLocation));
-	const [propertyType, setPropertyType] = useState<PropertyType[]>(Object.values(PropertyType));
+	const [kindergartenLocations] = useState<KindergartenLocation[]>(Object.values(KindergartenLocation));
+	const [kindergartenTypes] = useState<KindergartenType[]>(DISCOVERY_KINDERGARTEN_TYPES);
 	const [yearCheck, setYearCheck] = useState({ start: 1970, end: thisYear });
 	const [optionCheck, setOptionCheck] = useState('all');
 
@@ -120,8 +129,8 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 		setOpenLocation(false);
 	};
 
-	const propertyLocationSelectHandler = useCallback(
-		async (value: any) => {
+	const kindergartenLocationSelectHandler = useCallback(
+		async (value: KindergartenLocation) => {
 			try {
 				setSearchFilter({
 					...searchFilter,
@@ -132,14 +141,14 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				});
 				typeStateChangeHandler();
 			} catch (err: any) {
-				console.log('ERROR, propertyLocationSelectHandler:', err);
+				console.log('ERROR, kindergartenLocationSelectHandler:', err);
 			}
 		},
 		[searchFilter],
 	);
 
-	const propertyTypeSelectHandler = useCallback(
-		async (value: any) => {
+	const kindergartenTypeSelectHandler = useCallback(
+		async (value: KindergartenType) => {
 			try {
 				setSearchFilter({
 					...searchFilter,
@@ -150,102 +159,84 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				});
 				roomStateChangeHandler();
 			} catch (err: any) {
-				console.log('ERROR, propertyTypeSelectHandler:', err);
+				console.log('ERROR, kindergartenTypeSelectHandler:', err);
 			}
 		},
 		[searchFilter],
 	);
 
-	const propertyRoomSelectHandler = useCallback(
-		async (value: any) => {
+	const kindergartenProgramSelectHandler = useCallback(
+		async (value: number) => {
 			try {
 				setSearchFilter({
 					...searchFilter,
 					search: {
 						...searchFilter.search,
-						roomsList: [value],
+						programsList: [value],
 					},
 				});
 				disableAllStateHandler();
 			} catch (err: any) {
-				console.log('ERROR, propertyRoomSelectHandler:', err);
+				console.log('ERROR, kindergartenProgramSelectHandler:', err);
 			}
 		},
 		[searchFilter],
 	);
 
-	const propertyBedSelectHandler = useCallback(
+	const kindergartenAgeSelectHandler = useCallback(
 		async (number: Number) => {
 			try {
 				if (number != 0) {
-					if (searchFilter?.search?.bedsList?.includes(number)) {
+					if (searchFilter?.search?.ageRangeList?.includes(number)) {
 						setSearchFilter({
 							...searchFilter,
 							search: {
 								...searchFilter.search,
-								bedsList: searchFilter?.search?.bedsList?.filter((item: Number) => item !== number),
+								ageRangeList: searchFilter?.search?.ageRangeList?.filter((item: Number) => item !== number),
 							},
 						});
 					} else {
 						setSearchFilter({
 							...searchFilter,
-							search: { ...searchFilter.search, bedsList: [...(searchFilter?.search?.bedsList || []), number] },
+							search: { ...searchFilter.search, ageRangeList: [...(searchFilter?.search?.ageRangeList || []), number] },
 						});
 					}
 				} else {
-					delete searchFilter?.search.bedsList;
+					delete searchFilter?.search.ageRangeList;
 					setSearchFilter({ ...searchFilter });
 				}
 
-				console.log('propertyBedSelectHandler:', number);
+				console.log('kindergartenAgeSelectHandler:', number);
 			} catch (err: any) {
-				console.log('ERROR, propertyBedSelectHandler:', err);
+				console.log('ERROR, kindergartenAgeSelectHandler:', err);
 			}
 		},
 		[searchFilter],
 	);
 
-	const propertyOptionSelectHandler = useCallback(
+	const kindergartenProgramOptionSelectHandler = useCallback(
 		async (e: any) => {
 			try {
 				const value = e.target.value;
 				setOptionCheck(value);
-
-				if (value !== 'all') {
-					setSearchFilter({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							options: [value],
-						},
-					});
-				} else {
-					delete searchFilter.search.options;
-					setSearchFilter({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-						},
-					});
-				}
 			} catch (err: any) {
-				console.log('ERROR, propertyOptionSelectHandler:', err);
+				console.log('ERROR, kindergartenProgramOptionSelectHandler:', err);
 			}
 		},
-		[searchFilter],
+		[],
 	);
 
-	const propertySquareHandler = useCallback(
+	const capacityRangeHandler = useCallback(
 		async (e: any, type: string) => {
 			const value = e.target.value;
+			const capacityRange = searchFilter.search.capacityRange || { start: 0, end: 500 };
 
 			if (type == 'start') {
 				setSearchFilter({
 					...searchFilter,
 					search: {
 						...searchFilter.search,
-						// @ts-ignore
-						squaresRange: { ...searchFilter.search.squaresRange, start: parseInt(value) },
+						capacityRange: { ...capacityRange, start: parseInt(value) },
 					},
 				});
 			} else {
@@ -253,8 +244,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					...searchFilter,
 					search: {
 						...searchFilter.search,
-						// @ts-ignore
-						squaresRange: { ...searchFilter.search.squaresRange, end: parseInt(value) },
+						capacityRange: { ...capacityRange, end: parseInt(value) },
 					},
 				});
 			}
@@ -302,21 +292,17 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				delete searchFilter.search.typeList;
 			}
 
-			if (searchFilter?.search?.roomsList?.length == 0) {
-				delete searchFilter.search.roomsList;
+			if (searchFilter?.search?.programsList?.length == 0) {
+				delete searchFilter.search.programsList;
 			}
 
-			if (searchFilter?.search?.options?.length == 0) {
-				delete searchFilter.search.options;
-			}
-
-			if (searchFilter?.search?.bedsList?.length == 0) {
-				delete searchFilter.search.bedsList;
+			if (searchFilter?.search?.ageRangeList?.length == 0) {
+				delete searchFilter.search.ageRangeList;
 			}
 
 			await router.push(
-				`/property?input=${JSON.stringify(searchFilter)}`,
-				`/property?input=${JSON.stringify(searchFilter)}`,
+				`/kindergartens?input=${JSON.stringify(searchFilter)}`,
+				`/kindergartens?input=${JSON.stringify(searchFilter)}`,
 			);
 		} catch (err: any) {
 			console.log('ERROR, pushSearchHandler:', err);
@@ -381,7 +367,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					</p>
 				</Stack>
 				<Stack className={'hero-actions'}>
-					<Link href={'/property'}>
+					<Link href={'/kindergartens'}>
 						<span>
 							<RocketLaunchRoundedIcon />
 							Explore Kindergartens
@@ -413,7 +399,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 						children can grow.
 					</p>
 					<Stack className={'hero-actions'}>
-						<Link href={'/property'}>
+						<Link href={'/kindergartens'}>
 							<span>
 								<RocketLaunchRoundedIcon />
 								Explore Kindergartens
@@ -443,7 +429,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 						</Box>
 						<Box className={`box ${openRooms ? 'on' : ''}`} onClick={roomStateChangeHandler}>
 							<span>
-								{searchFilter?.search?.roomsList ? `${searchFilter?.search?.roomsList[0]} programs` : 'Programs'}
+								{searchFilter?.search?.programsList ? `${searchFilter?.search?.programsList[0]} programs` : 'Programs'}
 							</span>
 							<ExpandMoreIcon />
 						</Box>
@@ -460,9 +446,9 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 
 					{/*MENU */}
 					<div className={`filter-location ${openLocation ? 'on' : ''}`} ref={locationRef}>
-						{propertyLocation.map((location: string) => {
+						{kindergartenLocations.map((location: KindergartenLocation) => {
 							return (
-								<div onClick={() => propertyLocationSelectHandler(location)} key={location}>
+								<div onClick={() => kindergartenLocationSelectHandler(location)} key={location}>
 									<img src={`img/banner/cities/${location}.webp`} alt="" />
 									<span>{location}</span>
 								</div>
@@ -471,11 +457,11 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					</div>
 
 					<div className={`filter-type ${openType ? 'on' : ''}`} ref={typeRef}>
-						{propertyType.map((type: string) => {
+						{kindergartenTypes.map((type: KindergartenType) => {
 							return (
 								<div
-									style={{ backgroundImage: `url(/img/banner/types/${type.toLowerCase()}.webp)` }}
-									onClick={() => propertyTypeSelectHandler(type)}
+									style={{ backgroundImage: `url(/img/banner/types/${kindergartenTypeImageNames[type] ?? type.toLowerCase()}.webp)` }}
+									onClick={() => kindergartenTypeSelectHandler(type)}
 									key={type}
 								>
 									<span>{getKindergartenTypeLabel(type)}</span>
@@ -487,7 +473,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					<div className={`filter-rooms ${openRooms ? 'on' : ''}`} ref={roomsRef}>
 						{[1, 2, 3, 4, 5].map((room: number) => {
 							return (
-								<span onClick={() => propertyRoomSelectHandler(room)} key={room}>
+								<span onClick={() => kindergartenProgramSelectHandler(room)} key={room}>
 									{room} program{room > 1 ? 's' : ''}
 								</span>
 							);
@@ -533,15 +519,15 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 										<span>age range</span>
 										<div className={'inside'}>
 											<div
-												className={`room ${!searchFilter?.search?.bedsList ? 'active' : ''}`}
-												onClick={() => propertyBedSelectHandler(0)}
+												className={`room ${!searchFilter?.search?.ageRangeList ? 'active' : ''}`}
+												onClick={() => kindergartenAgeSelectHandler(0)}
 											>
 												Any
 											</div>
 											{[1, 2, 3, 4, 5].map((bed: number) => (
 												<div
-													className={`room ${searchFilter?.search?.bedsList?.includes(bed) ? 'active' : ''}`}
-													onClick={() => propertyBedSelectHandler(bed)}
+													className={`room ${searchFilter?.search?.ageRangeList?.includes(bed) ? 'active' : ''}`}
+													onClick={() => kindergartenAgeSelectHandler(bed)}
 													key={bed}
 												>
 													{bed == 0 ? 'Any' : bed}
@@ -555,13 +541,13 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 											<FormControl>
 												<Select
 													value={optionCheck}
-													onChange={propertyOptionSelectHandler}
+													onChange={kindergartenProgramOptionSelectHandler}
 													displayEmpty
 													inputProps={{ 'aria-label': 'Without label' }}
 												>
-													<MenuItem value={'all'}>All Programs</MenuItem>
-													<MenuItem value={'propertyBarter'}>Creative Program</MenuItem>
-													<MenuItem value={'propertyRent'}>Full-day Care</MenuItem>
+						<MenuItem value={'all'}>All Programs</MenuItem>
+						<MenuItem value={'creativeProgram'}>Creative Program</MenuItem>
+						<MenuItem value={'fullDayCare'}>Full-day Care</MenuItem>
 												</Select>
 											</FormControl>
 										</div>
@@ -579,7 +565,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 													inputProps={{ 'aria-label': 'Without label' }}
 													MenuProps={MenuProps}
 												>
-													{propertyYears?.slice(0)?.map((year: number) => (
+													{establishedYears?.slice(0)?.map((year: number) => (
 														<MenuItem value={year} disabled={yearCheck.end <= year} key={year}>
 															{year}
 														</MenuItem>
@@ -595,7 +581,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 													inputProps={{ 'aria-label': 'Without label' }}
 													MenuProps={MenuProps}
 												>
-													{propertyYears
+													{establishedYears
 														?.slice(0)
 														.reverse()
 														.map((year: number) => (
@@ -612,19 +598,19 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 										<div className={'inside space-between align-center'}>
 											<FormControl sx={{ width: '122px' }}>
 												<Select
-													value={searchFilter?.search?.squaresRange?.start}
-													onChange={(e: any) => propertySquareHandler(e, 'start')}
+													value={searchFilter?.search?.capacityRange?.start}
+													onChange={(e: any) => capacityRangeHandler(e, 'start')}
 													displayEmpty
 													inputProps={{ 'aria-label': 'Without label' }}
 													MenuProps={MenuProps}
 												>
-													{propertySquare.map((square: number) => (
+													{capacityOptions.map((capacity: number) => (
 														<MenuItem
-															value={square}
-															disabled={(searchFilter?.search?.squaresRange?.end || 0) < square}
-															key={square}
+															value={capacity}
+															disabled={(searchFilter?.search?.capacityRange?.end || 0) < capacity}
+															key={capacity}
 														>
-															{square}
+															{capacity}
 														</MenuItem>
 													))}
 												</Select>
@@ -632,19 +618,19 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 											<div className={'minus-line'}></div>
 											<FormControl sx={{ width: '122px' }}>
 												<Select
-													value={searchFilter?.search?.squaresRange?.end}
-													onChange={(e: any) => propertySquareHandler(e, 'end')}
+													value={searchFilter?.search?.capacityRange?.end}
+													onChange={(e: any) => capacityRangeHandler(e, 'end')}
 													displayEmpty
 													inputProps={{ 'aria-label': 'Without label' }}
 													MenuProps={MenuProps}
 												>
-													{propertySquare.map((square: number) => (
+													{capacityOptions.map((capacity: number) => (
 														<MenuItem
-															value={square}
-															disabled={(searchFilter?.search?.squaresRange?.start || 0) > square}
-															key={square}
+															value={capacity}
+															disabled={(searchFilter?.search?.capacityRange?.start || 0) > capacity}
+															key={capacity}
 														>
-															{square}
+															{capacity}
 														</MenuItem>
 													))}
 												</Select>
@@ -680,11 +666,11 @@ HeaderFilter.defaultProps = {
 		page: 1,
 		limit: 9,
 		search: {
-			squaresRange: {
+			capacityRange: {
 				start: 0,
 				end: 500,
 			},
-			pricesRange: {
+			monthlyFeeRange: {
 				start: 0,
 				end: 2000000,
 			},

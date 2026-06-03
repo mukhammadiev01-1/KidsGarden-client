@@ -3,7 +3,7 @@ import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 
 export const getServerSideProps: GetServerSideProps = async () => ({
 	redirect: {
-		destination: '/property',
+		destination: '/kindergartens',
 		permanent: false,
 	},
 });

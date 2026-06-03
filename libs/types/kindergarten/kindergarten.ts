@@ -18,7 +18,8 @@ export interface Kindergarten {
 	kindergartenLocation: KindergartenLocation;
 	kindergartenAddress: string;
 	kindergartenTitle: string;
-	kindergartenPrice: number;
+	monthlyFee?: number;
+	kindergartenPrice?: number;
 	kindergartenCapacity: number;
 	kindergartenAgeRange: number;
 	kindergartenPrograms: number;

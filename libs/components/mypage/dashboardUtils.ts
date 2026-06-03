@@ -14,6 +14,7 @@ export const formatDate = (date?: Date | string) => {
 
 export const getStatusLabel = (status?: string) => {
 	if (!status) return '-';
+	if (status === 'SOLD') return 'Closed';
 	return status
 		.toLowerCase()
 		.split('_')
@@ -28,6 +29,8 @@ export const getStatusChipSx = (status?: string) => {
 		APPROVED: { color: '#166534', background: '#dcfce7' },
 		PRESENT: { color: '#166534', background: '#dcfce7' },
 		PENDING: { color: '#92400e', background: '#fef3c7' },
+		CLOSED: { color: '#92400e', background: '#fef3c7' },
+		SOLD: { color: '#92400e', background: '#fef3c7' },
 		LATE: { color: '#92400e', background: '#fef3c7' },
 		FULL: { color: '#1d4ed8', background: '#dbeafe' },
 		EXCUSED: { color: '#1d4ed8', background: '#dbeafe' },
