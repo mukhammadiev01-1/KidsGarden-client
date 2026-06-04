@@ -12,12 +12,12 @@ import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined
 import { CaretDown } from 'phosphor-react';
 import useDeviceDetect from '../hooks/useDeviceDetect';
 import Link from 'next/link';
-import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
 import { REACT_APP_API_URL } from '../config';
 import { MemberType } from '../enums/member.enum';
+import NotificationBell from './notification/NotificationBell';
 
 const Top = () => {
 	const device = useDeviceDetect();
@@ -150,6 +150,7 @@ const Top = () => {
 				<Link href={user?._id ? accountHref : '/account/join'}>
 					<div>{user?._id ? accountLabel : t('Login')}</div>
 				</Link>
+				{user?._id && <NotificationBell />}
 			</Stack>
 		);
 	} else {
@@ -222,7 +223,7 @@ const Top = () => {
 							)}
 
 							<div className={'lan-box'}>
-								{user?._id && <NotificationsOutlinedIcon className={'notification-icon'} />}
+								{user?._id && <NotificationBell />}
 								<Button
 									disableRipple
 									className="btn-lang"

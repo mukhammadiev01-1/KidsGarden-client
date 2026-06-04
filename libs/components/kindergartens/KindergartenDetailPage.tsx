@@ -357,6 +357,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 			const childAge = Number(applicationForm.childAge);
 			if (!childName) throw new Error('Enter child name.');
 			if (Number.isNaN(childAge) || childAge < 0) throw new Error('Enter a valid child age.');
+			if (applicationFileError) throw new Error(applicationFileError);
 
 			const documentError = validateApplicationDocumentFiles(applicationFiles);
 			if (documentError) throw new Error(documentError);
@@ -671,7 +672,11 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 											)}
 										</Stack>
 										<Stack direction="row" spacing={1}>
-											<Button className="primary" disabled={submittingApplication} onClick={applyToKindergartenHandler}>
+											<Button
+												className="primary"
+												disabled={submittingApplication || Boolean(applicationFileError)}
+												onClick={applyToKindergartenHandler}
+											>
 												{uploadingApplicationDocuments
 													? 'Uploading...'
 													: creatingApplication

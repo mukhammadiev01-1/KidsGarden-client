@@ -22,6 +22,7 @@ import { ApplicationsInquiry } from '../../../types/application/application.inpu
 import { getImageUrl } from '../../../config';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../../sweetAlert';
 import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from '../../mypage/dashboardUtils';
+import ApplicationChatPanel from '../../chat/ApplicationChatPanel';
 
 const reviewStatuses = [
 	ApplicationStatus.REVIEWING,
@@ -62,6 +63,7 @@ interface Props {
 const ApplicationList = ({ initialInquiry }: Props) => {
 	const [applicationsInquiry, setApplicationsInquiry] = useState<ApplicationsInquiry>(initialInquiry);
 	const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
+	const [activeChatApplicationId, setActiveChatApplicationId] = useState<string>('');
 	const [updateApplicationStatus] = useMutation(UPDATE_APPLICATION_STATUS);
 
 	const { data, loading, refetch } = useQuery(GET_ALL_APPLICATIONS_FOR_ADMIN, {
@@ -72,6 +74,10 @@ const ApplicationList = ({ initialInquiry }: Props) => {
 
 	const applications: Application[] = data?.getAllApplicationsForAdmin?.list ?? [];
 	const total = data?.getAllApplicationsForAdmin?.metaCounter?.[0]?.total ?? 0;
+
+	const toggleChatHandler = (applicationId: string) => {
+		setActiveChatApplicationId((currentId) => (currentId === applicationId ? '' : applicationId));
+	};
 
 	const changePageHandler = async (event: unknown, newPage: number) => {
 		setApplicationsInquiry({ ...applicationsInquiry, page: newPage + 1 });
@@ -160,72 +166,88 @@ const ApplicationList = ({ initialInquiry }: Props) => {
 								const isFinal = FINAL_APPLICATION_STATUSES.includes(application.status);
 
 								return (
-									<TableRow hover key={application._id}>
-										<TableCell sx={{ maxWidth: 220 }}>
-											<Stack spacing={0.25}>
-												<Typography sx={{ fontWeight: 700 }}>
-													{parent?.memberNick || parent?.memberFullName || 'Parent reference'}
-												</Typography>
-												<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
-													{truncateId(application.parentId)}
-												</Typography>
-											</Stack>
-										</TableCell>
-										<TableCell sx={{ maxWidth: 240 }}>
-											<Stack spacing={0.25}>
-												<Typography sx={{ fontWeight: 700 }}>
-													{application.kindergartenData?.kindergartenTitle || 'Kindergarten reference'}
-												</Typography>
-												<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
-													{truncateId(application.kindergartenId)}
-												</Typography>
-											</Stack>
-										</TableCell>
-										<TableCell>
-											<Stack spacing={0.25}>
-												<Typography sx={{ fontWeight: 700 }}>{application.childName}</Typography>
-												<Typography sx={{ fontSize: '12px', color: '#64746b' }}>{application.childAge} years old</Typography>
-											</Stack>
-										</TableCell>
-										<TableCell>
-											<Chip label={getStatusLabel(application.status)} size="small" sx={getStatusChipSx(application.status)} />
-										</TableCell>
-										<TableCell sx={{ maxWidth: 220 }}>{application.parentMessage || '-'}</TableCell>
-										<TableCell sx={{ maxWidth: 240 }}>
-											{renderApplicationDocuments(application.documents)}
-										</TableCell>
-										<TableCell>{formatDate(application.createdAt)}</TableCell>
-										<TableCell sx={{ minWidth: 220 }}>
-											<TextField
-												fullWidth
-												size="small"
-												placeholder={application.adminNote || 'Optional note'}
-												value={adminNotes[application._id] || ''}
-												onChange={(event) =>
-													setAdminNotes((prev) => ({
-														...prev,
-														[application._id]: event.target.value,
-													}))
-												}
-												disabled={isFinal}
-											/>
-										</TableCell>
-										<TableCell align="right">
-											<Stack direction="row" spacing={1} justifyContent="flex-end">
-												{reviewStatuses.map((status) => (
-													<Button
-														key={status}
-														variant={status === ApplicationStatus.APPROVED ? 'contained' : 'outlined'}
-														color={status === ApplicationStatus.REJECTED ? 'error' : 'primary'}
-														disabled={isFinal || application.status === status}
-														onClick={() => updateStatusHandler(application, status)}
-													>
-														{getStatusLabel(status)}
+									<React.Fragment key={application._id}>
+										<TableRow hover>
+											<TableCell sx={{ maxWidth: 220 }}>
+												<Stack spacing={0.25}>
+													<Typography sx={{ fontWeight: 700 }}>
+														{parent?.memberNick || parent?.memberFullName || 'Parent reference'}
+													</Typography>
+													<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
+														{truncateId(application.parentId)}
+													</Typography>
+												</Stack>
+											</TableCell>
+											<TableCell sx={{ maxWidth: 240 }}>
+												<Stack spacing={0.25}>
+													<Typography sx={{ fontWeight: 700 }}>
+														{application.kindergartenData?.kindergartenTitle || 'Kindergarten reference'}
+													</Typography>
+													<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
+														{truncateId(application.kindergartenId)}
+													</Typography>
+												</Stack>
+											</TableCell>
+											<TableCell>
+												<Stack spacing={0.25}>
+													<Typography sx={{ fontWeight: 700 }}>{application.childName}</Typography>
+													<Typography sx={{ fontSize: '12px', color: '#64746b' }}>{application.childAge} years old</Typography>
+												</Stack>
+											</TableCell>
+											<TableCell>
+												<Chip label={getStatusLabel(application.status)} size="small" sx={getStatusChipSx(application.status)} />
+											</TableCell>
+											<TableCell sx={{ maxWidth: 220 }}>{application.parentMessage || '-'}</TableCell>
+											<TableCell sx={{ maxWidth: 240 }}>
+												{renderApplicationDocuments(application.documents)}
+											</TableCell>
+											<TableCell>{formatDate(application.createdAt)}</TableCell>
+											<TableCell sx={{ minWidth: 220 }}>
+												<TextField
+													fullWidth
+													size="small"
+													placeholder={application.adminNote || 'Optional note'}
+													value={adminNotes[application._id] || ''}
+													onChange={(event) =>
+														setAdminNotes((prev) => ({
+															...prev,
+															[application._id]: event.target.value,
+														}))
+													}
+													disabled={isFinal}
+												/>
+											</TableCell>
+											<TableCell align="right">
+												<Stack direction="row" spacing={1} justifyContent="flex-end">
+													<Button variant="outlined" onClick={() => toggleChatHandler(application._id)}>
+														{activeChatApplicationId === application._id ? 'Close Chat' : 'Open Chat'}
 													</Button>
-												))}
-											</Stack>
-										</TableCell>
-									</TableRow>
+													{reviewStatuses.map((status) => (
+														<Button
+															key={status}
+															variant={status === ApplicationStatus.APPROVED ? 'contained' : 'outlined'}
+															color={status === ApplicationStatus.REJECTED ? 'error' : 'primary'}
+															disabled={isFinal || application.status === status}
+															onClick={() => updateStatusHandler(application, status)}
+														>
+															{getStatusLabel(status)}
+														</Button>
+													))}
+												</Stack>
+											</TableCell>
+										</TableRow>
+										{activeChatApplicationId === application._id && (
+											<TableRow>
+												<TableCell colSpan={9}>
+													<ApplicationChatPanel
+														applicationId={application._id}
+														title="Application chat"
+														onClose={() => setActiveChatApplicationId('')}
+													/>
+												</TableCell>
+											</TableRow>
+										)}
+									</React.Fragment>
 								);
 							})}
 						</TableBody>
