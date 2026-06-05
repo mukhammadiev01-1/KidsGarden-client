@@ -3,7 +3,7 @@ import { initializeApollo } from '../../apollo/client';
 import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
 import { sweetMixinErrorAlert } from '../sweetAlert';
-import { LOGIN, SIGN_UP } from '../../apollo/user/mutation';
+import { GOOGLE_LOGIN, LOGIN, SIGN_UP } from '../../apollo/user/mutation';
 import { normalizeMemberType } from '../enums/member.enum';
 
 export function getJwtToken(): any {
@@ -77,6 +77,41 @@ export const signUp = async (nick: string, password: string, phone: string, type
 		console.warn('login err', err);
 		logOut();
 		throw new Error('Login Err');
+	}
+};
+
+export const googleLogIn = async (idToken: string): Promise<void> => {
+	try {
+		const { jwtToken } = await requestGoogleJwtToken({ idToken });
+
+		if (jwtToken) {
+			updateStorage({ jwtToken });
+			updateUserInfo(jwtToken);
+		}
+	} catch (err) {
+		console.warn('google login err', err);
+		logOut();
+		throw new Error('Google Login Err');
+	}
+};
+
+const requestGoogleJwtToken = async ({ idToken }: { idToken: string }): Promise<{ jwtToken: string }> => {
+	const apolloClient = await initializeApollo();
+
+	try {
+		const result = await apolloClient.mutate({
+			mutation: GOOGLE_LOGIN,
+			variables: { input: { idToken } },
+			fetchPolicy: 'network-only',
+		});
+
+		const { accessToken } = result?.data?.googleLogin;
+
+		return { jwtToken: accessToken };
+	} catch (err: any) {
+		const message = err?.graphQLErrors?.[0]?.message;
+		if (message) await sweetMixinErrorAlert(message);
+		throw new Error('google token error');
 	}
 };
 

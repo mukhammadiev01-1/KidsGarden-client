@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Button, Stack, TextField, Typography } from '@mui/material';
 import { GET_MESSAGES } from '../../../apollo/chat/query';
@@ -9,6 +9,7 @@ import {
 } from '../../../apollo/chat/mutation';
 import { userVar } from '../../../apollo/store';
 import { Direction } from '../../enums/common.enum';
+import { useRealtimeEvent } from '../../hooks/useRealtimeEvent';
 import { Conversation } from '../../types/chat/conversation';
 import { Message } from '../../types/chat/message';
 import { formatDate } from '../mypage/dashboardUtils';
@@ -20,6 +21,16 @@ interface Props {
 }
 
 const MAX_CHAT_MESSAGE_LENGTH = 2000;
+const APPLICATION_CHAT_MESSAGE_CREATED_EVENT = 'application_chat.message.created';
+
+interface ApplicationChatMessageCreatedPayload extends Message {
+	conversation?: {
+		conversationId?: string;
+		applicationId?: string;
+		kindergartenId?: string;
+		parentId?: string;
+	};
+}
 
 const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClose }: Props) => {
 	const user = useReactiveVar(userVar);
@@ -55,6 +66,23 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 	});
 
 	const messages: Message[] = messagesData?.getMessages?.list ?? [];
+
+	const realtimeMessageHandler = useCallback(
+		(payload: ApplicationChatMessageCreatedPayload) => {
+			const payloadConversationId = payload?.conversationId || payload?.conversation?.conversationId;
+			if (!conversation?._id || payloadConversationId !== conversation._id) return;
+
+			void refetchMessages().catch(() => undefined);
+			void markConversationRead({ variables: { conversationId: conversation._id } }).catch(() => undefined);
+		},
+		[conversation?._id, markConversationRead, refetchMessages],
+	);
+
+	useRealtimeEvent<ApplicationChatMessageCreatedPayload>(
+		APPLICATION_CHAT_MESSAGE_CREATED_EVENT,
+		realtimeMessageHandler,
+		Boolean(user?._id && conversation?._id),
+	);
 
 	useEffect(() => {
 		if (messagesError) setErrorMessage(messagesError.message);

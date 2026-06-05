@@ -61,6 +61,35 @@ export const LOGIN = gql`
 	}
 `;
 
+export const GOOGLE_LOGIN = gql`
+	mutation GoogleLogin($input: GoogleLoginInput!) {
+		googleLogin(input: $input) {
+			_id
+			memberType
+			memberStatus
+			memberAuthType
+			memberPhone
+			memberNick
+			memberFullName
+			memberImage
+			memberAddress
+			memberDesc
+			memberWarnings
+			memberBlocks
+			memberKindergartens
+			memberRank
+			memberArticles
+			memberPoints
+			memberLikes
+			memberViews
+			deletedAt
+			createdAt
+			updatedAt
+			accessToken
+		}
+	}
+`;
+
 export const UPDATE_MEMBER = gql`
 	mutation UpdateMember($input: MemberUpdate!) {
 		updateMember(input: $input) {

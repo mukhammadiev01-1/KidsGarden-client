@@ -1,4 +1,4 @@
-import React, { MouseEvent, useMemo, useState } from 'react';
+import React, { MouseEvent, useCallback, useMemo, useState } from 'react';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
 	Badge,
@@ -18,8 +18,11 @@ import { userVar } from '../../../apollo/store';
 import { Direction } from '../../enums/common.enum';
 import { MemberType } from '../../enums/member.enum';
 import { NotificationTargetType } from '../../enums/notification.enum';
+import { useRealtimeEvent } from '../../hooks/useRealtimeEvent';
 import { Notification } from '../../types/notification/notification';
 import { NotificationsInquiry } from '../../types/notification/notification.input';
+
+const NOTIFICATION_CREATED_EVENT = 'notification.created';
 
 const NotificationBell = () => {
 	const router = useRouter();
@@ -63,6 +66,13 @@ const NotificationBell = () => {
 
 	const unreadCount = countData?.getMyUnreadNotificationCount ?? 0;
 	const notifications: Notification[] = notificationsData?.getMyNotifications?.list ?? [];
+
+	const notificationCreatedHandler = useCallback(() => {
+		void refetchUnreadCount().catch(() => undefined);
+		if (open) void refetchNotifications({ input: notificationsInput }).catch(() => undefined);
+	}, [notificationsInput, open, refetchNotifications, refetchUnreadCount]);
+
+	useRealtimeEvent<Notification>(NOTIFICATION_CREATED_EVENT, notificationCreatedHandler, Boolean(user?._id));
 
 	if (!user?._id) return null;
 

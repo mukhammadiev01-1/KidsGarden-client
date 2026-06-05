@@ -3,10 +3,11 @@ import { NextPage } from 'next';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { Box, Button, Checkbox, FormControlLabel, FormGroup, Stack } from '@mui/material';
 import { useRouter } from 'next/router';
-import { logIn, signUp } from '../../libs/auth';
+import { googleLogIn, logIn, signUp } from '../../libs/auth';
 import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { MemberType } from '../../libs/enums/member.enum';
+import { GoogleLogin } from '@react-oauth/google';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -18,6 +19,7 @@ const Join: NextPage = () => {
 	const router = useRouter();
 	const [input, setInput] = useState({ nick: '', password: '', phone: '', type: MemberType.PARENT });
 	const [loginView, setLoginView] = useState<boolean>(true);
+	const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 	useEffect(() => {
 		const mode = Array.isArray(router.query.mode) ? router.query.mode[0] : router.query.mode;
@@ -61,6 +63,23 @@ const Join: NextPage = () => {
 			else await doSignUp();
 		},
 		[doLogin, doSignUp, loginView],
+	);
+
+	const doGoogleLogin = useCallback(
+		async (idToken?: string) => {
+			if (!idToken) {
+				await sweetMixinErrorAlert('Google login did not return a valid token');
+				return;
+			}
+
+			try {
+				await googleLogIn(idToken);
+				await router.push(`${router.query.referrer ?? '/'}`);
+			} catch (err: any) {
+				await sweetMixinErrorAlert(err.message);
+			}
+		},
+		[router],
 	);
 
 	return (
@@ -121,6 +140,20 @@ const Join: NextPage = () => {
 								)}
 							</Box>
 							<Box className={'register'}>
+								<Box sx={{ mb: 2 }}>
+									{googleClientId ? (
+										<GoogleLogin
+											onSuccess={(credentialResponse) => doGoogleLogin(credentialResponse.credential)}
+											onError={() => sweetMixinErrorAlert('Google login failed')}
+											text={loginView ? 'signin_with' : 'signup_with'}
+											useOneTap={false}
+										/>
+									) : (
+										<Button variant="outlined" disabled fullWidth>
+											Google login unavailable
+										</Button>
+									)}
+								</Box>
 								{!loginView && (
 									<div className={'type-option'}>
 										<span className={'text'}>I want to be registered as:</span>

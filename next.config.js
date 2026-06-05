@@ -5,6 +5,8 @@ const nextConfig = {
 		REACT_APP_API_URL: process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL,
 		REACT_APP_API_GRAPHQL_URL: process.env.NEXT_PUBLIC_API_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL,
 		REACT_APP_API_WS: process.env.NEXT_PUBLIC_API_WS || process.env.REACT_APP_API_WS,
+		REACT_APP_REALTIME_WS_URL:
+			process.env.NEXT_PUBLIC_REALTIME_WS_URL || process.env.REACT_APP_REALTIME_WS_URL,
 	},
 };
 

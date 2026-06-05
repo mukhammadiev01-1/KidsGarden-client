@@ -217,8 +217,12 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 				<div className="kg-community-meta">
 					<span>By {getSafeAuthor(article)}</span>
 					<span>{formatDate(article.createdAt)}</span>
-					<span><RemoveRedEyeIcon /> {article.articleViews || 0}</span>
-					<span><ChatBubbleOutlineIcon /> {article.articleComments || 0}</span>
+					<span>
+						<RemoveRedEyeIcon /> {article.articleViews || 0}
+					</span>
+					<span>
+						<ChatBubbleOutlineIcon /> {article.articleComments || 0}
+					</span>
 				</div>
 			</div>
 		</button>
@@ -229,7 +233,9 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 			<span className="kg-question-icon">Q</span>
 			<div>
 				<h3>{article.articleTitle}</h3>
-				<p>{article.articleComments || 0} answers · Asked by {getSafeAuthor(article)}</p>
+				<p>
+					{article.articleComments || 0} answers · Asked by {getSafeAuthor(article)}
+				</p>
 			</div>
 			<span className={`kg-question-status ${article.articleComments > 5 ? 'popular' : ''}`}>
 				{article.articleComments > 5 ? 'Popular' : article.articleComments > 0 ? 'Answered' : 'New'}
@@ -287,7 +293,9 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 						<section className="kg-community-section">
 							<div className="kg-community-section-title">
 								<h2>Featured Articles</h2>
-								<button type="button" onClick={() => topicChangeHandler(activeTopicConfig)}>View all</button>
+								<button type="button" onClick={() => topicChangeHandler(activeTopicConfig)}>
+									View all
+								</button>
 							</div>
 							{getBoardArticlesLoading && (
 								<div className="kg-community-empty">Loading parent community articles...</div>
@@ -310,7 +318,10 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 							<div className="kg-community-section kg-questions-section">
 								<div className="kg-community-section-title">
 									<h2>Recent Questions & Answers</h2>
-									<button type="button" onClick={() => topicChangeHandler(topics.find((item) => item.key === 'qa') || topics[0])}>
+									<button
+										type="button"
+										onClick={() => topicChangeHandler(topics.find((item) => item.key === 'qa') || topics[0])}
+									>
 										View all
 									</button>
 								</div>
@@ -370,10 +381,26 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 						<div className="kg-sidebar-card">
 							<h2>Popular Topics</h2>
 							<div className="kg-topic-list">
-								<div><TipsAndUpdatesOutlinedIcon /><span>Positive Parenting</span><small>Parent posts</small></div>
-								<div><MenuBookOutlinedIcon /><span>Child Development</span><small>Learning ideas</small></div>
-								<div><RestaurantOutlinedIcon /><span>Health & Nutrition</span><small>Daily care</small></div>
-								<div><ShieldOutlinedIcon /><span>Preparing for Kindergarten</span><small>Safe starts</small></div>
+								<div>
+									<TipsAndUpdatesOutlinedIcon />
+									<span>Positive Parenting</span>
+									<small>Parent posts</small>
+								</div>
+								<div>
+									<MenuBookOutlinedIcon />
+									<span>Child Development</span>
+									<small>Learning ideas</small>
+								</div>
+								<div>
+									<RestaurantOutlinedIcon />
+									<span>Health & Nutrition</span>
+									<small>Daily care</small>
+								</div>
+								<div>
+									<ShieldOutlinedIcon />
+									<span>Preparing for Kindergarten</span>
+									<small>Safe starts</small>
+								</div>
 							</div>
 						</div>
 

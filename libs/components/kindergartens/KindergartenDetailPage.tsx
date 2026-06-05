@@ -391,7 +391,9 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 			await refetchMyApplications({ input: applicationsInput });
 			await sweetTopSmallSuccessAlert('Application submitted');
 		} catch (err: any) {
-			await sweetErrorHandling(err);
+			const applicationErrorMessage = getApplicationErrorMessage(err);
+			if (applicationErrorMessage) await sweetErrorAlert(applicationErrorMessage);
+			else await sweetErrorHandling(err);
 		}
 	};
 
