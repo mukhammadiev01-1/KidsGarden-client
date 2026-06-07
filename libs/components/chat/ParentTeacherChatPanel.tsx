@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
-import { GET_MESSAGES } from '../../../apollo/chat/query';
+import { GET_PARENT_TEACHER_MESSAGES } from '../../../apollo/chat/query';
 import {
 	CHAT_IMAGES_UPLOADER,
-	GET_OR_CREATE_APPLICATION_CONVERSATION,
-	MARK_CONVERSATION_READ,
-	SEND_MESSAGE,
+	GET_OR_CREATE_PARENT_TEACHER_CONVERSATION,
+	MARK_PARENT_TEACHER_CONVERSATION_READ,
+	SEND_PARENT_TEACHER_MESSAGE,
 } from '../../../apollo/chat/mutation';
 import { userVar } from '../../../apollo/store';
 import { getImageUrl } from '../../config';
@@ -19,34 +19,39 @@ import ChatImagePreview from './ChatImagePreview';
 import { CHAT_IMAGE_ACCEPT, compressChatImageFiles, MAX_CHAT_IMAGES, toChatAttachmentInput } from './chatImageAttachments';
 
 interface Props {
-	applicationId: string;
+	childId: string;
+	teacherId?: string;
 	title?: string;
 	onClose?: () => void;
 }
 
 const MAX_CHAT_MESSAGE_LENGTH = 2000;
-const APPLICATION_CHAT_MESSAGE_CREATED_EVENT = 'application_chat.message.created';
+const PARENT_TEACHER_CHAT_MESSAGE_CREATED_EVENT = 'parent_teacher_chat.message.created';
 
-interface ApplicationChatMessageCreatedPayload extends Message {
+interface ParentTeacherChatMessageCreatedPayload extends Message {
 	conversation?: {
 		conversationId?: string;
-		applicationId?: string;
+		childId?: string;
+		groupId?: string;
 		kindergartenId?: string;
 		parentId?: string;
+		teacherId?: string;
 	};
 }
 
-const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClose }: Props) => {
+const ParentTeacherChatPanel = ({ childId, teacherId, title = 'Parent-teacher chat', onClose }: Props) => {
 	const user = useReactiveVar(userVar);
 	const [conversation, setConversation] = useState<Conversation | null>(null);
 	const [messageText, setMessageText] = useState('');
 	const [selectedImages, setSelectedImages] = useState<File[]>([]);
 	const [previewImage, setPreviewImage] = useState<{ url: string; alt: string } | null>(null);
 	const [errorMessage, setErrorMessage] = useState('');
-	const [getOrCreateConversation, { loading: creatingConversation }] = useMutation(GET_OR_CREATE_APPLICATION_CONVERSATION);
-	const [sendMessage, { loading: sendingMessage }] = useMutation(SEND_MESSAGE);
+	const [getOrCreateConversation, { loading: creatingConversation }] = useMutation(
+		GET_OR_CREATE_PARENT_TEACHER_CONVERSATION,
+	);
+	const [sendMessage, { loading: sendingMessage }] = useMutation(SEND_PARENT_TEACHER_MESSAGE);
 	const [uploadChatImages, { loading: uploadingImages }] = useMutation(CHAT_IMAGES_UPLOADER);
-	const [markConversationRead] = useMutation(MARK_CONVERSATION_READ);
+	const [markConversationRead] = useMutation(MARK_PARENT_TEACHER_CONVERSATION_READ);
 
 	const messagesInput = useMemo(
 		() => ({
@@ -66,16 +71,16 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 		loading: loadingMessages,
 		error: messagesError,
 		refetch: refetchMessages,
-	} = useQuery(GET_MESSAGES, {
+	} = useQuery(GET_PARENT_TEACHER_MESSAGES, {
 		variables: { input: messagesInput },
 		fetchPolicy: 'network-only',
 		skip: !conversation?._id,
 	});
 
-	const messages: Message[] = messagesData?.getMessages?.list ?? [];
+	const messages: Message[] = messagesData?.getParentTeacherMessages?.list ?? [];
 
 	const realtimeMessageHandler = useCallback(
-		(payload: ApplicationChatMessageCreatedPayload) => {
+		(payload: ParentTeacherChatMessageCreatedPayload) => {
 			const payloadConversationId = payload?.conversationId || payload?.conversation?.conversationId;
 			if (!conversation?._id || payloadConversationId !== conversation._id) return;
 
@@ -85,8 +90,8 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 		[conversation?._id, markConversationRead, refetchMessages],
 	);
 
-	useRealtimeEvent<ApplicationChatMessageCreatedPayload>(
-		APPLICATION_CHAT_MESSAGE_CREATED_EVENT,
+	useRealtimeEvent<ParentTeacherChatMessageCreatedPayload>(
+		PARENT_TEACHER_CHAT_MESSAGE_CREATED_EVENT,
 		realtimeMessageHandler,
 		Boolean(user?._id && conversation?._id),
 	);
@@ -99,18 +104,22 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 		let mounted = true;
 
 		const openConversation = async () => {
-			if (!applicationId) return;
+			if (!childId) return;
 			setErrorMessage('');
 
 			try {
-				const result = await getOrCreateConversation({ variables: { applicationId } });
-				const nextConversation = result.data?.getOrCreateApplicationConversation;
+				const input = {
+					childId,
+					...(teacherId ? { teacherId } : {}),
+				};
+				const result = await getOrCreateConversation({ variables: { input } });
+				const nextConversation = result.data?.getOrCreateParentTeacherConversation;
 				if (!mounted || !nextConversation?._id) return;
 
 				setConversation(nextConversation);
 				await markConversationRead({ variables: { conversationId: nextConversation._id } });
 			} catch (err: any) {
-				if (mounted) setErrorMessage(err?.message || 'Could not open application chat.');
+				if (mounted) setErrorMessage(err?.message || 'Could not open parent-teacher chat.');
 			}
 		};
 
@@ -118,7 +127,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 		return () => {
 			mounted = false;
 		};
-	}, [applicationId, getOrCreateConversation, markConversationRead]);
+	}, [childId, getOrCreateConversation, markConversationRead, teacherId]);
 
 	const imageSelectHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(event.target.files || []);
@@ -328,4 +337,4 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 	);
 };
 
-export default ApplicationChatPanel;
+export default ParentTeacherChatPanel;

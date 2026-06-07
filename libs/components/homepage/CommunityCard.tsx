@@ -4,6 +4,7 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Box } from '@mui/material';
 import Moment from 'react-moment';
 import { BoardArticle } from '../../types/board-article/board-article';
+import { getImageUrl } from '../../config';
 
 interface CommunityCardProps {
 	vertical: boolean;
@@ -14,9 +15,7 @@ interface CommunityCardProps {
 const CommunityCard = (props: CommunityCardProps) => {
 	const { vertical, article, index } = props;
 	const device = useDeviceDetect();
-	const articleImage = article?.articleImage
-		? `${process.env.REACT_APP_API_URL}/${article?.articleImage}`
-		: '/img/event.svg';
+	const articleImage = getImageUrl(article?.articleImage, '/img/event.svg');
 	const categoryLabels: Record<string, string> = {
 		FREE: 'Parent Board',
 		NEWS: 'News',

@@ -25,6 +25,7 @@ import { CREATE_COMMENT, LIKE_TARGET_BOARD_ARTICLE, UPDATE_COMMENT } from '../..
 import { sweetErrorHandling, sweetLoginConfirmAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
 import { MemberType } from '../../libs/enums/member.enum';
+import { getImageUrl } from '../../libs/config';
 const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -178,8 +179,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	};
 
 	const getCommentMemberImage = (imageUrl: string | undefined) => {
-		if (imageUrl) return `${process.env.REACT_APP_API_URL}/${imageUrl}`;
-		else return '/img/community/articleImg.png';
+		return getImageUrl(imageUrl, '/img/community/articleImg.png');
 	};
 
 	const cancelButtonHandler = () => {

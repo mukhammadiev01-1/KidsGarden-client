@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Button, Stack, Typography } from '@mui/material';
 import axios from 'axios';
-import { REACT_APP_API_URL } from '../../config';
+import { REACT_APP_API_GRAPHQL_URL, REACT_APP_API_URL } from '../../config';
 import { getJwtToken, setJwtToken, updateUserInfo } from '../../auth';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
@@ -16,6 +16,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	const token = getJwtToken();
 	const user = useReactiveVar(userVar);
 	const [updateData, setUpdateData] = useState<MemberUpdate>(initialValues);
+	const [uploadingProfileImage, setUploadingProfileImage] = useState<boolean>(false);
 	const [updateMember] = useMutation(UPDATE_MEMBER);
 
 	/** APOLLO REQUESTS **/
@@ -36,7 +37,9 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 		try {
 			const image = e.target.files?.[0];
 			if (!image) return;
-			console.log('+image:', image);
+			if (!token) throw new Error('Please login first.');
+
+			setUploadingProfileImage(true);
 
 			const formData = new FormData();
 			formData.append(
@@ -59,7 +62,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			);
 			formData.append('0', image);
 
-			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
+			const response = await axios.post(REACT_APP_API_GRAPHQL_URL, formData, {
 				headers: {
 					'Content-Type': 'multipart/form-data',
 					'apollo-require-preflight': true,
@@ -68,12 +71,34 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			});
 
 			const responseImage = response.data.data.imageUploader;
-			console.log('+responseImage: ', responseImage);
 			setUpdateData((prev) => ({ ...prev, memberImage: responseImage }));
+			e.target.value = '';
+
+			const memberId = updateData._id || user._id;
+			if (!memberId) throw new Error('Profile member id is missing.');
+
+			const result = await updateMember({
+				variables: {
+					input: {
+						_id: memberId,
+						memberImage: responseImage,
+					},
+				},
+			});
+			const updatedMember = result.data?.updateMember;
+			if (updatedMember?.accessToken) {
+				setJwtToken(updatedMember.accessToken);
+				updateUserInfo(updatedMember.accessToken);
+			} else if (updatedMember) {
+				userVar({ ...userVar(), ...updatedMember });
+			}
+			await sweetMixinSuccessAlert('Profile image updated');
 
 			return `${REACT_APP_API_URL}/${responseImage}`;
 		} catch (err) {
-			console.log('Error, uploadImage:', err);
+			await sweetErrorHandling(err);
+		} finally {
+			setUploadingProfileImage(false);
 		}
 	};
 
@@ -117,8 +142,6 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 		}
 	};
 
-	console.log('+updateData', updateData);
-
 	if (device === 'mobile') {
 		return <>MY PROFILE PAGE MOBILE</>;
 	} else
@@ -153,7 +176,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 									accept="image/jpg, image/jpeg, image/png, image/webp"
 								/>
 								<label htmlFor="hidden-input" className="labeler">
-									<Typography>Upload Profile Image</Typography>
+									<Typography>{uploadingProfileImage ? 'Uploading...' : 'Change profile image'}</Typography>
 								</label>
 								<Typography className="upload-text">A photo must be in JPG, JPEG, PNG or WEBP format!</Typography>
 							</Stack>

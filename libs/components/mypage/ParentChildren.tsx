@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
-import { Chip, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Button, Chip, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { userVar } from '../../../apollo/store';
 import { GET_CHILDREN, GET_GROUP, GET_KINDERGARTEN } from '../../../apollo/user/query';
@@ -8,6 +8,7 @@ import { MemberType } from '../../enums/member.enum';
 import { Child } from '../../types/child/child';
 import { Group } from '../../types/group/group';
 import { sweetErrorHandling } from '../../sweetAlert';
+import ParentTeacherChatPanel from '../chat/ParentTeacherChatPanel';
 import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from './dashboardUtils';
 
 const getAge = (birthDate?: Date | string) => {
@@ -29,8 +30,12 @@ const ParentChildren = () => {
 	const user = useReactiveVar(userVar);
 	const [kindergartenNames, setKindergartenNames] = useState<Record<string, string>>({});
 	const [groupsById, setGroupsById] = useState<
-		Record<string, Pick<Group, '_id' | 'groupName' | 'groupAgeRange' | 'groupCapacity' | 'groupStatus'> | null>
+		Record<
+			string,
+			Pick<Group, '_id' | 'kindergartenId' | 'groupName' | 'groupAgeRange' | 'groupCapacity' | 'teacherIds' | 'groupStatus'> | null
+		>
 	>({});
+	const [activeChat, setActiveChat] = useState<{ childId: string; teacherId: string } | null>(null);
 
 	const childrenInput = useMemo(
 		() => ({
@@ -55,6 +60,10 @@ const ParentChildren = () => {
 		[children],
 	);
 	const groupIds = useMemo(() => Array.from(new Set(children.map((child) => child.groupId).filter(Boolean))), [children]);
+
+	const toggleChat = (childId: string, teacherId: string) => {
+		setActiveChat((prev) => (prev?.childId === childId && prev?.teacherId === teacherId ? null : { childId, teacherId }));
+	};
 
 	useEffect(() => {
 		const missingKindergartenIds = kindergartenIds.filter((kindergartenId) => !kindergartenNames[kindergartenId]);
@@ -164,48 +173,93 @@ const ParentChildren = () => {
 									<TableCell>Status</TableCell>
 									<TableCell>Kindergarten</TableCell>
 									<TableCell>Group reference</TableCell>
+									<TableCell align="right">Actions</TableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{children.map((child) => (
-									<TableRow key={child._id}>
-										<TableCell>
-											<Stack spacing={0.25}>
-												<Typography className="dashboard-primary-text">{child.childFullName}</Typography>
-												<Typography className="dashboard-muted-text">Child ID {truncateId(child._id)}</Typography>
-											</Stack>
-										</TableCell>
-										<TableCell>{formatDate(child.childBirthDate)}</TableCell>
-										<TableCell>{getAge(child.childBirthDate)}</TableCell>
-										<TableCell>{child.childGender}</TableCell>
-										<TableCell>
-											<Chip label={getStatusLabel(child.childStatus)} size="small" sx={getStatusChipSx(child.childStatus)} />
-										</TableCell>
-										<TableCell>
-											<Stack spacing={0.25}>
-												<Typography className="dashboard-primary-text">
-													{kindergartenNames[child.kindergartenId] || 'Kindergarten reference'}
-												</Typography>
-												<Typography className="dashboard-muted-text">{truncateId(child.kindergartenId)}</Typography>
-											</Stack>
-										</TableCell>
-										<TableCell sx={{ maxWidth: 220 }}>
-											<Stack spacing={0.25}>
-												<Typography className="dashboard-primary-text">
-													{groupsById[child.groupId]?.groupName || 'Group reference'}
-												</Typography>
-												{groupsById[child.groupId]?.groupAgeRange && (
-													<Typography className="dashboard-muted-text">
-														Age range {groupsById[child.groupId]?.groupAgeRange}
-													</Typography>
-												)}
-												<Typography sx={{ wordBreak: 'break-all' }} className="dashboard-muted-text">
-													{truncateId(child.groupId)}
-												</Typography>
-											</Stack>
-										</TableCell>
-									</TableRow>
-								))}
+								{children.map((child) => {
+									const group = groupsById[child.groupId];
+									const teacherIds = group?.teacherIds ?? [];
+									const activeTeacherId =
+										activeChat?.childId === child._id && teacherIds.includes(activeChat.teacherId)
+											? activeChat.teacherId
+											: null;
+
+									return (
+										<React.Fragment key={child._id}>
+											<TableRow>
+												<TableCell>
+													<Stack spacing={0.25}>
+														<Typography className="dashboard-primary-text">{child.childFullName}</Typography>
+														<Typography className="dashboard-muted-text">Child ID {truncateId(child._id)}</Typography>
+													</Stack>
+												</TableCell>
+												<TableCell>{formatDate(child.childBirthDate)}</TableCell>
+												<TableCell>{getAge(child.childBirthDate)}</TableCell>
+												<TableCell>{child.childGender}</TableCell>
+												<TableCell>
+													<Chip label={getStatusLabel(child.childStatus)} size="small" sx={getStatusChipSx(child.childStatus)} />
+												</TableCell>
+												<TableCell>
+													<Stack spacing={0.25}>
+														<Typography className="dashboard-primary-text">
+															{kindergartenNames[child.kindergartenId] || 'Kindergarten reference'}
+														</Typography>
+														<Typography className="dashboard-muted-text">{truncateId(child.kindergartenId)}</Typography>
+													</Stack>
+												</TableCell>
+												<TableCell sx={{ maxWidth: 220 }}>
+													<Stack spacing={0.25}>
+														<Typography className="dashboard-primary-text">
+															{group?.groupName || 'Group reference'}
+														</Typography>
+														{group?.groupAgeRange && (
+															<Typography className="dashboard-muted-text">Age range {group.groupAgeRange}</Typography>
+														)}
+														<Typography sx={{ wordBreak: 'break-all' }} className="dashboard-muted-text">
+															{truncateId(child.groupId)}
+														</Typography>
+													</Stack>
+												</TableCell>
+												<TableCell align="right">
+													{teacherIds.length > 0 ? (
+														<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="flex-end">
+															{teacherIds.map((teacherId, index) => {
+																const isActive = activeChat?.childId === child._id && activeChat.teacherId === teacherId;
+																return (
+																	<Button
+																		key={teacherId}
+																		size="small"
+																		variant="outlined"
+																		onClick={() => toggleChat(child._id, teacherId)}
+																	>
+																		{isActive
+																			? 'Close Teacher Chat'
+																			: `Open Teacher Chat${teacherIds.length > 1 ? ` ${index + 1}` : ''}`}
+																	</Button>
+																);
+															})}
+														</Stack>
+													) : (
+														<Typography className="dashboard-muted-text">No assigned teacher</Typography>
+													)}
+												</TableCell>
+											</TableRow>
+											{activeTeacherId && (
+												<TableRow>
+													<TableCell colSpan={8}>
+														<ParentTeacherChatPanel
+															childId={child._id}
+															teacherId={activeTeacherId}
+															title="Teacher chat"
+															onClose={() => setActiveChat(null)}
+														/>
+													</TableCell>
+												</TableRow>
+											)}
+										</React.Fragment>
+									);
+								})}
 							</TableBody>
 						</Table>
 					</TableContainer>

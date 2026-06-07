@@ -16,7 +16,7 @@ import {
 	MANAGE_KINDERGARTEN_TYPES,
 } from '../../enums/kindergarten.enum';
 import { MemberType } from '../../enums/member.enum';
-import { getImageUrl } from '../../config';
+import { getImageUrl, REACT_APP_API_GRAPHQL_URL } from '../../config';
 import { getKindergartenTypeLabel } from '../../utils';
 import { getJwtToken } from '../../auth';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
@@ -55,6 +55,7 @@ const MyKindergarten = () => {
 	const user = useReactiveVar(userVar);
 	const [selectedId, setSelectedId] = useState<string>('');
 	const [form, setForm] = useState<KindergartenInput>(emptyForm);
+	const [uploadingKindergartenImages, setUploadingKindergartenImages] = useState<boolean>(false);
 	const [createKindergarten] = useMutation(CREATE_KINDERGARTEN);
 	const [updateKindergarten] = useMutation(UPDATE_KINDERGARTEN);
 
@@ -83,13 +84,35 @@ const MyKindergarten = () => {
 		setForm((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const uploadKindergartenImages = async (event: React.ChangeEvent<HTMLInputElement>) => {
+	const saveKindergartenImages = async (kindergartenImages: string[]) => {
+		if (!selectedId) return;
+
+		await updateKindergarten({
+			variables: {
+				input: {
+					_id: selectedId,
+					kindergartenImages,
+				},
+			},
+		});
+		await refetch();
+	};
+
+	const uploadKindergartenImages = async (
+		event: React.ChangeEvent<HTMLInputElement>,
+		mode: 'main' | 'gallery' = 'gallery',
+	) => {
 		try {
 			const files = Array.from(event.target.files ?? []);
 			if (!files.length) return;
 			if (files.length > maxKindergartenImages) {
 				throw new Error(`Please upload up to ${maxKindergartenImages} photos at once.`);
 			}
+			if (mode === 'main' && files.length > 1) {
+				throw new Error('Please choose one main image.');
+			}
+
+			setUploadingKindergartenImages(true);
 
 			const formData = new FormData();
 			formData.append(
@@ -115,7 +138,7 @@ const MyKindergarten = () => {
 			);
 			files.forEach((file, index) => formData.append(`${index}`, file));
 
-			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
+			const response = await axios.post(REACT_APP_API_GRAPHQL_URL, formData, {
 				headers: {
 					'Content-Type': 'multipart/form-data',
 					'apollo-require-preflight': true,
@@ -126,21 +149,39 @@ const MyKindergarten = () => {
 			const responseImages: string[] = response.data?.data?.imagesUploader ?? [];
 			if (!responseImages.length) throw new Error('Image upload failed.');
 
+			const currentImages = form.kindergartenImages ?? [];
+			const nextImages =
+				mode === 'main'
+					? [responseImages[0], ...currentImages.slice(1)].slice(0, maxKindergartenImages)
+					: [...currentImages, ...responseImages].slice(0, maxKindergartenImages);
+
 			setForm((prev) => ({
 				...prev,
-				kindergartenImages: [...(prev.kindergartenImages ?? []), ...responseImages].slice(0, maxKindergartenImages),
+				kindergartenImages: nextImages,
 			}));
+
+			await saveKindergartenImages(nextImages);
+			await sweetMixinSuccessAlert(selectedId ? 'Kindergarten photos updated' : 'Kindergarten photos added');
 			event.target.value = '';
 		} catch (err: any) {
 			await sweetErrorHandling(err);
+		} finally {
+			setUploadingKindergartenImages(false);
 		}
 	};
 
-	const removeKindergartenImage = (index: number) => {
-		setForm((prev) => ({
-			...prev,
-			kindergartenImages: (prev.kindergartenImages ?? []).filter((_image, imageIndex) => imageIndex !== index),
-		}));
+	const removeKindergartenImage = async (index: number) => {
+		try {
+			const nextImages = (form.kindergartenImages ?? []).filter((_image, imageIndex) => imageIndex !== index);
+			setForm((prev) => ({
+				...prev,
+				kindergartenImages: nextImages,
+			}));
+			await saveKindergartenImages(nextImages);
+			if (selectedId) await sweetMixinSuccessAlert('Kindergarten photo removed');
+		} catch (err) {
+			await sweetErrorHandling(err);
+		}
 	};
 
 	const selectKindergarten = (kindergarten: Kindergarten) => {
@@ -383,14 +424,33 @@ const MyKindergarten = () => {
 				<Typography className="admin-form-section-title">Photos</Typography>
 				<Stack spacing={1.5}>
 					<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ xs: 'stretch', sm: 'center' }}>
-						<Button variant="outlined" component="label" sx={{ width: { xs: '100%', sm: 'fit-content' } }}>
-							Upload kindergarten photos
+						<Button
+							variant="outlined"
+							component="label"
+							disabled={uploadingKindergartenImages}
+							sx={{ width: { xs: '100%', sm: 'fit-content' } }}
+						>
+							{uploadingKindergartenImages ? 'Uploading...' : 'Change main image'}
+							<input
+								type="file"
+								hidden
+								accept="image/jpg, image/jpeg, image/png, image/webp"
+								onChange={(event) => uploadKindergartenImages(event, 'main')}
+							/>
+						</Button>
+						<Button
+							variant="outlined"
+							component="label"
+							disabled={uploadingKindergartenImages}
+							sx={{ width: { xs: '100%', sm: 'fit-content' } }}
+						>
+							{uploadingKindergartenImages ? 'Uploading...' : 'Add gallery images'}
 							<input
 								type="file"
 								hidden
 								multiple
 								accept="image/jpg, image/jpeg, image/png, image/webp"
-								onChange={uploadKindergartenImages}
+								onChange={(event) => uploadKindergartenImages(event, 'gallery')}
 							/>
 						</Button>
 						<Typography className="dashboard-muted-text">
@@ -419,7 +479,12 @@ const MyKindergarten = () => {
 									/>
 									<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
 										<Chip label={index === 0 ? 'Main' : `Gallery ${index + 1}`} size="small" color={index === 0 ? 'success' : 'default'} />
-										<Button size="small" color="error" onClick={() => removeKindergartenImage(index)}>
+										<Button
+											size="small"
+											color="error"
+											disabled={uploadingKindergartenImages}
+											onClick={() => removeKindergartenImage(index)}
+										>
 											Remove
 										</Button>
 									</Stack>

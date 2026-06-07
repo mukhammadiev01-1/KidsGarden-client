@@ -54,8 +54,9 @@ const MyPage: NextPage = () => {
 		'groups',
 		'children',
 		'attendance',
+		'myProfile',
 	];
-	const teacherCategories = ['teacherGroups', 'teacherAttendance'];
+	const teacherCategories = ['teacherGroups', 'teacherAttendance', 'myProfile'];
 	const parentCategories = [
 		'parentChildren',
 		'applications',
@@ -63,11 +64,18 @@ const MyPage: NextPage = () => {
 		'staffApplications',
 		'kindergartenAdminApplications',
 		'writeArticle',
+		'myProfile',
 	];
 	const fallbackCategories = ['myFavorites', 'recentlyVisited', 'myArticles', 'writeArticle', 'myProfile', 'followers', 'followings'];
 	const category: any =
 		rawCategory ??
-		(isKindergartenAdmin ? 'kindergartenProfile' : isTeacher ? 'teacherGroups' : isParent ? 'parentChildren' : 'myProfile');
+		(isKindergartenAdmin
+			? 'kindergartenProfile'
+			: isTeacher
+			? 'teacherGroups'
+			: isParent
+			? 'parentChildren'
+			: 'myProfile');
 	const dashboardCategory = isKindergartenAdmin
 		? kindergartenAdminCategories.includes(category) && !legacyPropertyCategories.includes(category)
 			? category
@@ -115,6 +123,8 @@ const MyPage: NextPage = () => {
 			await sweetErrorHandling(error);
 		}
 	};
+
+	if (isSuperAdmin) return null;
 
 	return (
 		<div id="my-page">

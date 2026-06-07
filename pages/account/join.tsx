@@ -3,11 +3,28 @@ import { NextPage } from 'next';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { Box, Button, Checkbox, FormControlLabel, FormGroup, Stack } from '@mui/material';
 import { useRouter } from 'next/router';
-import { googleLogIn, logIn, signUp } from '../../libs/auth';
+import { googleLogIn, logIn, signUp, telegramLogIn } from '../../libs/auth';
 import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { MemberType } from '../../libs/enums/member.enum';
 import { GoogleLogin } from '@react-oauth/google';
+
+declare global {
+	interface Window {
+		Telegram?: {
+			Login?: {
+				auth: (
+					options: {
+						client_id: string | number;
+						lang?: string;
+						nonce?: string;
+					},
+					callback: (response: { id_token?: string; idToken?: string; error?: string }) => void,
+				) => void;
+			};
+		};
+	}
+}
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -15,11 +32,49 @@ export const getStaticProps = async ({ locale }: any) => ({
 	},
 });
 
+const TELEGRAM_LOGIN_SCRIPT_SRC = 'https://oauth.telegram.org/js/telegram-login.js?3';
+let telegramLoginScriptPromise: Promise<void> | null = null;
+
+const loadTelegramLoginScript = (): Promise<void> => {
+	if (typeof window === 'undefined') return Promise.reject(new Error('Telegram login is unavailable'));
+	if (window.Telegram?.Login?.auth) return Promise.resolve();
+	if (telegramLoginScriptPromise) return telegramLoginScriptPromise;
+
+	telegramLoginScriptPromise = new Promise((resolve, reject) => {
+		const script = document.createElement('script');
+		script.src = TELEGRAM_LOGIN_SCRIPT_SRC;
+		script.async = true;
+		script.onload = () => {
+			if (window.Telegram?.Login?.auth) resolve();
+			else reject(new Error('Telegram login failed to load'));
+		};
+		script.onerror = () => reject(new Error('Telegram login failed to load'));
+		document.body.appendChild(script);
+	});
+
+	return telegramLoginScriptPromise;
+};
+
+const createTelegramNonce = (): string => {
+	if (typeof window === 'undefined' || !window.crypto?.getRandomValues) {
+		throw new Error('Telegram login is unavailable');
+	}
+
+	const values = new Uint8Array(24);
+	window.crypto.getRandomValues(values);
+
+	return Array.from(values)
+		.map((value) => value.toString(16).padStart(2, '0'))
+		.join('');
+};
+
 const Join: NextPage = () => {
 	const router = useRouter();
 	const [input, setInput] = useState({ nick: '', password: '', phone: '', type: MemberType.PARENT });
 	const [loginView, setLoginView] = useState<boolean>(true);
+	const [telegramLoading, setTelegramLoading] = useState<boolean>(false);
 	const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+	const telegramClientId = process.env.NEXT_PUBLIC_TELEGRAM_CLIENT_ID;
 
 	useEffect(() => {
 		const mode = Array.isArray(router.query.mode) ? router.query.mode[0] : router.query.mode;
@@ -81,6 +136,65 @@ const Join: NextPage = () => {
 		},
 		[router],
 	);
+
+	const doTelegramLogin = useCallback(async () => {
+		if (!telegramClientId || telegramLoading) return;
+
+		try {
+			setTelegramLoading(true);
+			await loadTelegramLoginScript();
+			const nonce = createTelegramNonce();
+			const clientId = Number(telegramClientId);
+			if (!Number.isSafeInteger(clientId)) {
+				throw new Error('Telegram login is not configured');
+			}
+
+			await new Promise<void>((resolve, reject) => {
+				const originalWindowOpen = window.open.bind(window);
+				window.open = ((url?: string | URL, target?: string, features?: string) => {
+					if (typeof url === 'string' && url.startsWith('https://oauth.telegram.org/auth')) {
+						const telegramAuthUrl = new URL(url);
+						if (!telegramAuthUrl.searchParams.has('origin')) {
+							telegramAuthUrl.searchParams.set('origin', window.location.origin);
+						}
+						return originalWindowOpen(telegramAuthUrl.toString(), target, features);
+					}
+
+					return originalWindowOpen(url, target, features);
+				}) as typeof window.open;
+
+				try {
+					window.Telegram?.Login?.auth({ client_id: clientId, lang: 'en', nonce }, async (response) => {
+						try {
+							if (response?.error) {
+								reject(new Error(`Telegram login failed: ${response.error}`));
+								return;
+							}
+
+							const idToken = response?.id_token || response?.idToken;
+
+							if (!idToken) {
+								reject(new Error('Missing Telegram id_token from OIDC response'));
+								return;
+							}
+
+							await telegramLogIn(idToken, nonce);
+							await router.push(`${router.query.referrer ?? '/'}`);
+							resolve();
+						} catch (err) {
+							reject(err);
+						}
+					});
+				} finally {
+					window.open = originalWindowOpen as typeof window.open;
+				}
+			});
+		} catch (err: any) {
+			await sweetMixinErrorAlert(err.message || 'Telegram login failed');
+		} finally {
+			setTelegramLoading(false);
+		}
+	}, [router, telegramClientId, telegramLoading]);
 
 	return (
 		<Stack className={'join-page'}>
@@ -153,6 +267,12 @@ const Join: NextPage = () => {
 											Google login unavailable
 										</Button>
 									)}
+								</Box>
+								<Box sx={{ mb: 2 }}>
+									{/* Telegram OIDC is paused pending BotFather/Web Login id_token confirmation. */}
+									<Button variant="outlined" disabled fullWidth>
+										Telegram login temporarily unavailable
+									</Button>
 								</Box>
 								{!loginView && (
 									<div className={'type-option'}>

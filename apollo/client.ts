@@ -15,6 +15,10 @@ function getHeaders() {
 	const token = getJwtToken();
 	// @ts-ignore
 	if (token) headers['Authorization'] = `Bearer ${token}`;
+	// Apollo Server requires this for GraphQL multipart uploads.
+	// It is safe for regular GraphQL operations and keeps all upload mutations on the shared client path.
+	// @ts-ignore
+	headers['apollo-require-preflight'] = 'true';
 	return headers;
 }
 
@@ -74,12 +78,12 @@ function createIsomorphicLink() {
 
 		// @ts-ignore
 		const link = new createUploadLink({
-			uri: process.env.REACT_APP_API_GRAPHQL_URL,
+			uri: process.env.NEXT_PUBLIC_API_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL,
 		});
 
 		/* WEBSOCKET SUBSCRIPTION LINK */
 		const wsLink = new WebSocketLink({
-			uri: process.env.REACT_APP_API_WS ?? 'ws://127.0.0.1:3007',
+			uri: process.env.NEXT_PUBLIC_API_WS || process.env.REACT_APP_API_WS || 'ws://127.0.0.1:3007',
 			options: {
 				reconnect: false,
 				timeout: 30000,

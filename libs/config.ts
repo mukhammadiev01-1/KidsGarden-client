@@ -1,6 +1,9 @@
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:7007';
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL || 'http://127.0.0.1:3000';
+const rawGraphqlUrl =
+	process.env.NEXT_PUBLIC_API_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL || 'http://127.0.0.1:3000/graphql';
 
 export const REACT_APP_API_URL = rawApiUrl.replace(/\/$/, '');
+export const REACT_APP_API_GRAPHQL_URL = rawGraphqlUrl;
 export const KINDERGARTEN_IMAGE_PLACEHOLDER = '/img/kindergarten/bigImage.png';
 
 export const getImageUrl = (imageUrl?: string | null, placeholder: string = KINDERGARTEN_IMAGE_PLACEHOLDER): string => {

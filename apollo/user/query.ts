@@ -293,9 +293,11 @@ export const GET_GROUP = gql`
 	query GetGroup($groupId: String!) {
 		getGroup(groupId: $groupId) {
 			_id
+			kindergartenId
 			groupName
 			groupAgeRange
 			groupCapacity
+			teacherIds
 			groupStatus
 		}
 	}

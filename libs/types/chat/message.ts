@@ -5,10 +5,18 @@ export interface Message {
 	_id: string;
 	conversationId: string;
 	senderId: string;
-	text: string;
+	text?: string | null;
+	attachments?: ChatAttachment[];
 	readBy: string[];
 	createdAt: Date | string;
 	updatedAt: Date | string;
+}
+
+export interface ChatAttachment {
+	url: string;
+	name: string;
+	mimeType: string;
+	size: number;
 }
 
 export interface Messages {
@@ -30,5 +38,11 @@ export interface MessagesInquiry {
 
 export interface SendMessageInput {
 	conversationId: string;
-	text: string;
+	text?: string;
+	attachments?: ChatAttachment[];
+}
+
+export interface ParentTeacherConversationInput {
+	childId: string;
+	teacherId?: string;
 }

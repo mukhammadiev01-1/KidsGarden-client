@@ -123,8 +123,8 @@ class RealtimeClient {
 	}
 
 	private getRealtimeUrl(token: string): string | null {
-		const explicitWsUrl = process.env.REACT_APP_REALTIME_WS_URL;
-		const apiUrl = process.env.REACT_APP_API_URL;
+		const explicitWsUrl = process.env.NEXT_PUBLIC_REALTIME_WS_URL || process.env.REACT_APP_REALTIME_WS_URL;
+		const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL;
 		const baseUrl = explicitWsUrl || apiUrl;
 
 		if (!baseUrl) return null;

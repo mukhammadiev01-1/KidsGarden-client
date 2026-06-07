@@ -3,7 +3,7 @@ import { initializeApollo } from '../../apollo/client';
 import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
 import { sweetMixinErrorAlert } from '../sweetAlert';
-import { GOOGLE_LOGIN, LOGIN, SIGN_UP } from '../../apollo/user/mutation';
+import { GOOGLE_LOGIN, LOGIN, SIGN_UP, TELEGRAM_LOGIN } from '../../apollo/user/mutation';
 import { normalizeMemberType } from '../enums/member.enum';
 
 export function getJwtToken(): any {
@@ -95,6 +95,21 @@ export const googleLogIn = async (idToken: string): Promise<void> => {
 	}
 };
 
+export const telegramLogIn = async (idToken: string, nonce?: string): Promise<void> => {
+	try {
+		const { jwtToken } = await requestTelegramJwtToken({ idToken, nonce });
+
+		if (jwtToken) {
+			updateStorage({ jwtToken });
+			updateUserInfo(jwtToken);
+		}
+	} catch (err) {
+		console.warn('telegram login err', err);
+		logOut();
+		throw new Error('Telegram Login Err');
+	}
+};
+
 const requestGoogleJwtToken = async ({ idToken }: { idToken: string }): Promise<{ jwtToken: string }> => {
 	const apolloClient = await initializeApollo();
 
@@ -112,6 +127,32 @@ const requestGoogleJwtToken = async ({ idToken }: { idToken: string }): Promise<
 		const message = err?.graphQLErrors?.[0]?.message;
 		if (message) await sweetMixinErrorAlert(message);
 		throw new Error('google token error');
+	}
+};
+
+const requestTelegramJwtToken = async ({
+	idToken,
+	nonce,
+}: {
+	idToken: string;
+	nonce?: string;
+}): Promise<{ jwtToken: string }> => {
+	const apolloClient = await initializeApollo();
+
+	try {
+		const result = await apolloClient.mutate({
+			mutation: TELEGRAM_LOGIN,
+			variables: { input: { idToken, nonce } },
+			fetchPolicy: 'network-only',
+		});
+
+		const { accessToken } = result?.data?.telegramLogin;
+
+		return { jwtToken: accessToken };
+	} catch (err: any) {
+		const message = err?.graphQLErrors?.[0]?.message;
+		if (message) await sweetMixinErrorAlert(message);
+		throw new Error('telegram token error');
 	}
 };
 

@@ -359,28 +359,26 @@ const MyMenu = () => {
 								MANAGE ACCOUNT
 							</Typography>
 							<List className={'sub-section'}>
-								{showFallbackMenus && (
-									<ListItem className={pathname === 'myProfile' ? 'focus' : ''}>
-										<Link
-											href={{
-												pathname: '/mypage',
-												query: { category: 'myProfile' },
-											}}
-											scroll={false}
-										>
-											<div className={'flex-box'}>
-												{category === 'myProfile' ? (
-													<img className={'com-icon'} src={'/img/icons/userWhite.svg'} alt={'com-icon'} />
-												) : (
-													<img className={'com-icon'} src={'/img/icons/user.svg'} alt={'com-icon'} />
-												)}
-												<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-													My Profile
-												</Typography>
-											</div>
-										</Link>
-									</ListItem>
-								)}
+								<ListItem className={pathname === 'myProfile' ? 'focus' : ''}>
+									<Link
+										href={{
+											pathname: '/mypage',
+											query: { category: 'myProfile' },
+										}}
+										scroll={false}
+									>
+										<div className={'flex-box'}>
+											{category === 'myProfile' ? (
+												<img className={'com-icon'} src={'/img/icons/userWhite.svg'} alt={'com-icon'} />
+											) : (
+												<img className={'com-icon'} src={'/img/icons/user.svg'} alt={'com-icon'} />
+											)}
+											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
+												My Profile
+											</Typography>
+										</div>
+									</Link>
+								</ListItem>
 								<ListItem onClick={logoutHandler}>
 									<div className={'flex-box'}>
 										<img className={'com-icon'} src={'/img/icons/logout.svg'} alt={'com-icon'} />

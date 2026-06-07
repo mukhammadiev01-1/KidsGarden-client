@@ -88,6 +88,10 @@ const NotificationBell = () => {
 			case NotificationTargetType.APPLICATION:
 			case NotificationTargetType.APPLICATION_CHAT:
 				return '/mypage?category=applications';
+			case NotificationTargetType.PARENT_TEACHER_CHAT:
+				if (user.memberType === MemberType.PARENT) return '/mypage?category=parentChildren';
+				if (user.memberType === MemberType.TEACHER) return '/mypage?category=teacherAttendance';
+				return null;
 			case NotificationTargetType.STAFF_APPLICATION:
 				return user.memberType === MemberType.SUPER_ADMIN
 					? '/_admin/users/staff-applications'
