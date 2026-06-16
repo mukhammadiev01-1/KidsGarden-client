@@ -49,4 +49,5 @@ export enum MemberAuthType {
 	EMAIL = 'EMAIL',
 	TELEGRAM = 'TELEGRAM',
 	GOOGLE = 'GOOGLE',
+	KAKAO = 'KAKAO',
 }

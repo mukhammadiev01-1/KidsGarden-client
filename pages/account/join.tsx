@@ -8,23 +8,9 @@ import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { MemberType } from '../../libs/enums/member.enum';
 import { GoogleLogin } from '@react-oauth/google';
-
-declare global {
-	interface Window {
-		Telegram?: {
-			Login?: {
-				auth: (
-					options: {
-						client_id: string | number;
-						lang?: string;
-						nonce?: string;
-					},
-					callback: (response: { id_token?: string; idToken?: string; error?: string }) => void,
-				) => void;
-			};
-		};
-	}
-}
+import { KAKAO_REDIRECT_URI, KAKAO_REST_API_KEY, TELEGRAM_BOT_NAME } from '../../libs/config';
+import { TLoginButton, TLoginButtonSize, TUser } from 'react-telegram-auth';
+import PageSeo from '../../libs/components/seo/PageSeo';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -32,32 +18,9 @@ export const getStaticProps = async ({ locale }: any) => ({
 	},
 });
 
-const TELEGRAM_LOGIN_SCRIPT_SRC = 'https://oauth.telegram.org/js/telegram-login.js?3';
-let telegramLoginScriptPromise: Promise<void> | null = null;
-
-const loadTelegramLoginScript = (): Promise<void> => {
-	if (typeof window === 'undefined') return Promise.reject(new Error('Telegram login is unavailable'));
-	if (window.Telegram?.Login?.auth) return Promise.resolve();
-	if (telegramLoginScriptPromise) return telegramLoginScriptPromise;
-
-	telegramLoginScriptPromise = new Promise((resolve, reject) => {
-		const script = document.createElement('script');
-		script.src = TELEGRAM_LOGIN_SCRIPT_SRC;
-		script.async = true;
-		script.onload = () => {
-			if (window.Telegram?.Login?.auth) resolve();
-			else reject(new Error('Telegram login failed to load'));
-		};
-		script.onerror = () => reject(new Error('Telegram login failed to load'));
-		document.body.appendChild(script);
-	});
-
-	return telegramLoginScriptPromise;
-};
-
-const createTelegramNonce = (): string => {
+const createOAuthState = (): string => {
 	if (typeof window === 'undefined' || !window.crypto?.getRandomValues) {
-		throw new Error('Telegram login is unavailable');
+		throw new Error('Kakao login is unavailable');
 	}
 
 	const values = new Uint8Array(24);
@@ -68,19 +31,42 @@ const createTelegramNonce = (): string => {
 		.join('');
 };
 
+const SocialIcon = ({ src, alt }: { src: string; alt: string }) => (
+	<img className="social-auth-icon" src={src} alt={alt} aria-hidden="true" />
+);
+
+const isValidTelegramBotName = (botName?: string): botName is string => {
+	if (!botName) return false;
+	return /^[A-Za-z][A-Za-z0-9_]{4,}$/.test(botName.trim()) && !/^\d+$/.test(botName.trim());
+};
+
 const Join: NextPage = () => {
 	const router = useRouter();
 	const [input, setInput] = useState({ nick: '', password: '', phone: '', type: MemberType.PARENT });
 	const [loginView, setLoginView] = useState<boolean>(true);
 	const [telegramLoading, setTelegramLoading] = useState<boolean>(false);
+	const [telegramBrowserReady, setTelegramBrowserReady] = useState<boolean>(false);
 	const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-	const telegramClientId = process.env.NEXT_PUBLIC_TELEGRAM_CLIENT_ID;
+	const telegramBotName = TELEGRAM_BOT_NAME.trim();
+	const hasTelegramBotName = isValidTelegramBotName(telegramBotName);
+	const telegramUnavailableReason = !telegramBotName
+		? 'missing NEXT_PUBLIC_TELEGRAM_BOT_NAME'
+		: !hasTelegramBotName
+			? 'invalid NEXT_PUBLIC_TELEGRAM_BOT_NAME'
+			: !telegramBrowserReady
+				? 'browser APIs unavailable'
+				: '';
+	const canUseTelegram = !telegramUnavailableReason;
 
 	useEffect(() => {
 		const mode = Array.isArray(router.query.mode) ? router.query.mode[0] : router.query.mode;
 		if (mode === 'register') setLoginView(false);
 		if (mode === 'login') setLoginView(true);
 	}, [router.query.mode]);
+
+	useEffect(() => {
+		setTelegramBrowserReady(typeof window !== 'undefined' && typeof document !== 'undefined');
+	}, []);
 
 	/** HANDLERS **/
 	const viewChangeHandler = (state: boolean) => {
@@ -137,67 +123,69 @@ const Join: NextPage = () => {
 		[router],
 	);
 
-	const doTelegramLogin = useCallback(async () => {
-		if (!telegramClientId || telegramLoading) return;
+	const doTelegramLogin = useCallback(async (user: TUser) => {
+		if (telegramLoading) return;
 
 		try {
 			setTelegramLoading(true);
-			await loadTelegramLoginScript();
-			const nonce = createTelegramNonce();
-			const clientId = Number(telegramClientId);
-			if (!Number.isSafeInteger(clientId)) {
-				throw new Error('Telegram login is not configured');
-			}
-
-			await new Promise<void>((resolve, reject) => {
-				const originalWindowOpen = window.open.bind(window);
-				window.open = ((url?: string | URL, target?: string, features?: string) => {
-					if (typeof url === 'string' && url.startsWith('https://oauth.telegram.org/auth')) {
-						const telegramAuthUrl = new URL(url);
-						if (!telegramAuthUrl.searchParams.has('origin')) {
-							telegramAuthUrl.searchParams.set('origin', window.location.origin);
-						}
-						return originalWindowOpen(telegramAuthUrl.toString(), target, features);
-					}
-
-					return originalWindowOpen(url, target, features);
-				}) as typeof window.open;
-
-				try {
-					window.Telegram?.Login?.auth({ client_id: clientId, lang: 'en', nonce }, async (response) => {
-						try {
-							if (response?.error) {
-								reject(new Error(`Telegram login failed: ${response.error}`));
-								return;
-							}
-
-							const idToken = response?.id_token || response?.idToken;
-
-							if (!idToken) {
-								reject(new Error('Missing Telegram id_token from OIDC response'));
-								return;
-							}
-
-							await telegramLogIn(idToken, nonce);
-							await router.push(`${router.query.referrer ?? '/'}`);
-							resolve();
-						} catch (err) {
-							reject(err);
-						}
-					});
-				} finally {
-					window.open = originalWindowOpen as typeof window.open;
-				}
-			});
+			const intent = loginView ? 'LOGIN' : 'SIGNUP';
+			await telegramLogIn(
+				{
+					id: String(user.id),
+					firstName: user.first_name,
+					lastName: user.last_name,
+					username: user.username,
+					photoUrl: user.photo_url,
+					authDate: user.auth_date,
+					hash: user.hash,
+				},
+				intent,
+			);
+			await router.push(`${router.query.referrer ?? '/'}`);
 		} catch (err: any) {
-			await sweetMixinErrorAlert(err.message || 'Telegram login failed');
+			const errorMessage = err.message || 'Telegram login failed';
+			await sweetMixinErrorAlert(errorMessage);
+			if (errorMessage.includes('Please sign up first')) {
+				await router.push('/account/join?mode=register');
+			}
 		} finally {
 			setTelegramLoading(false);
 		}
-	}, [router, telegramClientId, telegramLoading]);
+	}, [loginView, router, telegramLoading]);
+
+	const doKakaoLogin = useCallback(async () => {
+		if (!KAKAO_REST_API_KEY || !KAKAO_REDIRECT_URI) {
+			await sweetMixinErrorAlert('Kakao login is not configured');
+			return;
+		}
+
+		try {
+			const state = createOAuthState();
+			const referrer = typeof router.query.referrer === 'string' ? router.query.referrer : '/';
+			const intent = loginView ? 'LOGIN' : 'SIGNUP';
+			window.sessionStorage.setItem('kakao_oauth_state', state);
+			window.sessionStorage.setItem('kakao_oauth_intent', intent);
+			window.sessionStorage.setItem('kakao_oauth_referrer', referrer);
+
+			const authorizeUrl = new URL('https://kauth.kakao.com/oauth/authorize');
+			authorizeUrl.searchParams.set('response_type', 'code');
+			authorizeUrl.searchParams.set('client_id', KAKAO_REST_API_KEY);
+			authorizeUrl.searchParams.set('redirect_uri', KAKAO_REDIRECT_URI);
+			authorizeUrl.searchParams.set('state', state);
+
+			window.location.assign(authorizeUrl.toString());
+		} catch (err: any) {
+			await sweetMixinErrorAlert(err.message || 'Kakao login failed');
+		}
+	}, [loginView, router.query.referrer]);
 
 	return (
 		<Stack className={'join-page'}>
+			<PageSeo
+				title={loginView ? 'Login to KidsGarden' : 'Create KidsGarden Account'}
+				description="Securely access KidsGarden as a parent, teacher, or kindergarten admin after role approval."
+				canonicalPath="/account/join"
+			/>
 			<Stack className={'container'}>
 				<Stack className={'main'}>
 					<Stack component="form" className={'left'} onSubmit={submitHandler}>
@@ -254,25 +242,77 @@ const Join: NextPage = () => {
 								)}
 							</Box>
 							<Box className={'register'}>
-								<Box sx={{ mb: 2 }}>
+								<Box className="social-auth-row" sx={{ mb: 2 }}>
 									{googleClientId ? (
 										<GoogleLogin
 											onSuccess={(credentialResponse) => doGoogleLogin(credentialResponse.credential)}
 											onError={() => sweetMixinErrorAlert('Google login failed')}
 											text={loginView ? 'signin_with' : 'signup_with'}
 											useOneTap={false}
+											width="470"
 										/>
 									) : (
-										<Button variant="outlined" disabled fullWidth>
+										<Button
+											className="social-auth-button social-auth-button--google"
+											variant="outlined"
+											disabled
+											fullWidth
+											startIcon={<SocialIcon src="/img/icons/social/google.svg" alt="" />}
+										>
 											Google login unavailable
 										</Button>
 									)}
 								</Box>
-								<Box sx={{ mb: 2 }}>
-									{/* Telegram OIDC is paused pending BotFather/Web Login id_token confirmation. */}
-									<Button variant="outlined" disabled fullWidth>
-										Telegram login temporarily unavailable
-									</Button>
+								<Box className="social-auth-row" sx={{ mb: 2 }}>
+									{canUseTelegram ? (
+										<Box
+											className={`telegram-widget-area ${telegramLoading ? 'is-loading' : ''}`}
+											aria-label={loginView ? 'Login with Telegram' : 'Sign up with Telegram'}
+										>
+											<TLoginButton
+												key={`${telegramBotName}-${loginView ? 'login' : 'signup'}`}
+												botName={telegramBotName}
+												buttonSize={TLoginButtonSize.Large}
+												onAuthCallback={doTelegramLogin}
+												usePic={false}
+												lang="en"
+												additionalClassNames="telegram-widget-button"
+											/>
+										</Box>
+									) : (
+										<Button
+											className="social-auth-button social-auth-button--telegram"
+											variant="outlined"
+											disabled
+											fullWidth
+											startIcon={<SocialIcon src="/img/icons/social/telegram.svg" alt="" />}
+										>
+											{loginView ? 'Login with Telegram unavailable' : 'Sign up with Telegram unavailable'}
+										</Button>
+									)}
+								</Box>
+								<Box className="social-auth-row" sx={{ mb: 2 }}>
+									{KAKAO_REST_API_KEY && KAKAO_REDIRECT_URI ? (
+										<Button
+											className="social-auth-button social-auth-button--kakao"
+											variant="outlined"
+											fullWidth
+											onClick={doKakaoLogin}
+											startIcon={<SocialIcon src="/img/icons/social/kakao.svg" alt="" />}
+										>
+											{loginView ? 'Login with Kakao' : 'Sign up with Kakao'}
+										</Button>
+									) : (
+										<Button
+											className="social-auth-button social-auth-button--kakao"
+											variant="outlined"
+											disabled
+											fullWidth
+											startIcon={<SocialIcon src="/img/icons/social/kakao.svg" alt="" />}
+										>
+											Kakao login unavailable
+										</Button>
+									)}
 								</Box>
 								{!loginView && (
 									<div className={'type-option'}>

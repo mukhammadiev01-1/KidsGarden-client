@@ -45,7 +45,7 @@ const Advertisement = () => {
 					<Box component={'div'} className={'store-feature-copy'}>
 						<h3>Everything they need for a happy day</h3>
 						<p>Books, toys, lunch supplies, uniforms and more.</p>
-						<span>Explore Store</span>
+						<span>Coming Soon</span>
 					</Box>
 					<Box component={'div'} className={'store-feature-visual'} aria-hidden>
 						<BackpackRoundedIcon />

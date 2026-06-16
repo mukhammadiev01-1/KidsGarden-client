@@ -152,14 +152,15 @@ const NotificationBell = () => {
 			</IconButton>
 
 			<Popover
+				className="notification-popover"
 				open={open}
 				anchorEl={anchorEl}
 				onClose={closeHandler}
 				anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
 				transformOrigin={{ vertical: 'top', horizontal: 'right' }}
 			>
-				<Stack sx={{ width: 340, maxWidth: 'calc(100vw - 24px)', p: 2, gap: 1.5 }}>
-					<Stack direction="row" justifyContent="space-between" alignItems="center" gap={1}>
+				<Stack className="notification-panel" sx={{ width: 340, maxWidth: 'calc(100vw - 24px)', p: 2, gap: 1.5 }}>
+					<Stack className="notification-panel-header" direction="row" justifyContent="space-between" alignItems="center" gap={1}>
 						<Typography sx={{ fontWeight: 700, color: '#24332d' }}>Notifications</Typography>
 						<Button
 							size="small"
@@ -183,11 +184,14 @@ const NotificationBell = () => {
 					)}
 
 					{!notificationsLoading && !notificationsError && notifications.length === 0 && (
-						<Typography sx={{ fontSize: '13px', color: '#64746b' }}>No notifications yet.</Typography>
+						<Typography className="notification-empty-state" sx={{ fontSize: '13px', color: '#64746b' }}>
+							No notifications yet.
+						</Typography>
 					)}
 
 					{notifications.map((notification) => (
 						<Box
+							className={`notification-list-item ${notification.isRead ? 'is-read' : 'is-unread'}`}
 							component="button"
 							key={notification._id}
 							type="button"

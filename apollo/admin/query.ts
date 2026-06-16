@@ -106,6 +106,8 @@ export const GET_ALL_KINDERGARTENS_BY_ADMIN = gql`
 				kindergartenStatus
 				kindergartenLocation
 				kindergartenAddress
+				kindergartenLatitude
+				kindergartenLongitude
 				kindergartenTitle
 				monthlyFee
 				kindergartenPrice

@@ -6,6 +6,8 @@ export interface KindergartenUpdate {
 	kindergartenStatus?: KindergartenStatus;
 	kindergartenLocation?: KindergartenLocation;
 	kindergartenAddress?: string;
+	kindergartenLatitude?: number;
+	kindergartenLongitude?: number;
 	kindergartenTitle?: string;
 	monthlyFee?: number;
 	kindergartenPrice?: number;

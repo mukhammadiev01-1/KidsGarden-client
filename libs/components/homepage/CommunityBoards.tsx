@@ -69,48 +69,64 @@ const CommunityBoards = () => {
 			</Stack>
 		);
 	} else {
+		const hasCommunityArticles = newsArticles.length > 0 || freeArticles.length > 0;
+
 		return (
 			<Stack className={'community-board'}>
 				<Stack className={'container'}>
 					<Stack>
 						<Typography variant={'h1'}>PARENT COMMUNITY HIGHLIGHTS</Typography>
+						<Typography className={'community-section-copy'}>
+							Helpful updates and parent conversations from the KidsGarden community.
+						</Typography>
 					</Stack>
-					<Stack className="community-main">
-						<Stack className={'community-left'}>
-							<Stack className={'content-top'}>
-								<Link href={'/community?articleCategory=NEWS'}>
-									<span>News</span>
-								</Link>
-								<img src="/img/icons/arrowBig.svg" alt="" />
+					{getNewsArticlesLoading || getFreeArticlesLoading || !hasCommunityArticles ? (
+						<Box component={'div'} className={'community-empty-panel'}>
+							<span>Community updates</span>
+							<h3>
+								{getNewsArticlesLoading || getFreeArticlesLoading
+									? 'Loading community highlights...'
+									: 'Parent community posts will appear here soon.'}
+							</h3>
+							<p>
+								News, center updates, and parent conversations will show here once posts are available.
+							</p>
+							<Link href={'/community?articleCategory=FREE'}>Visit community</Link>
+						</Box>
+					) : (
+						<Stack className="community-main">
+							<Stack className={'community-left'}>
+								<Stack className={'content-top'}>
+									<Link href={'/community?articleCategory=NEWS'}>
+										<span>News</span>
+									</Link>
+									<img src="/img/icons/arrowBig.svg" alt="" />
+								</Stack>
+								<Stack className={'card-wrap'}>
+									{newsArticles.length === 0
+										? renderCommunityEmptyState('Kindergarten news will appear here soon.')
+										: newsArticles.map((article, index) => {
+												return <CommunityCard vertical={true} article={article} index={index} key={article?._id} />;
+										  })}
+								</Stack>
 							</Stack>
-							<Stack className={'card-wrap'}>
-								{getNewsArticlesLoading
-									? renderCommunityEmptyState('Loading community posts...')
-									: newsArticles.length === 0
-									? renderCommunityEmptyState('Kindergarten news will appear here soon.')
-									: newsArticles.map((article, index) => {
-											return <CommunityCard vertical={true} article={article} index={index} key={article?._id} />;
-									  })}
+							<Stack className={'community-right'}>
+								<Stack className={'content-top'}>
+									<Link href={'/community?articleCategory=FREE'}>
+										<span>Parent Board</span>
+									</Link>
+									<img src="/img/icons/arrowBig.svg" alt="" />
+								</Stack>
+								<Stack className={'card-wrap vertical'}>
+									{freeArticles.length === 0
+										? renderCommunityEmptyState('Parent community posts will appear here soon.', true)
+										: freeArticles.map((article, index) => {
+												return <CommunityCard vertical={false} article={article} index={index} key={article?._id} />;
+										  })}
+								</Stack>
 							</Stack>
 						</Stack>
-						<Stack className={'community-right'}>
-							<Stack className={'content-top'}>
-								<Link href={'/community?articleCategory=FREE'}>
-									<span>Parent Board</span>
-								</Link>
-								<img src="/img/icons/arrowBig.svg" alt="" />
-							</Stack>
-							<Stack className={'card-wrap vertical'}>
-								{getFreeArticlesLoading
-									? renderCommunityEmptyState('Loading community posts...')
-									: freeArticles.length === 0
-									? renderCommunityEmptyState('Parent community posts will appear here soon.', true)
-									: freeArticles.map((article, index) => {
-											return <CommunityCard vertical={false} article={article} index={index} key={article?._id} />;
-									  })}
-							</Stack>
-						</Stack>
-					</Stack>
+					)}
 				</Stack>
 			</Stack>
 		);

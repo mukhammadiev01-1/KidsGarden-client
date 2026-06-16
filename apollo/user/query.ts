@@ -38,6 +38,8 @@ export const GET_KINDERGARTEN = gql`
 			kindergartenStatus
 			kindergartenLocation
 			kindergartenAddress
+			kindergartenLatitude
+			kindergartenLongitude
 			kindergartenTitle
 			monthlyFee
 			kindergartenPrice
@@ -80,6 +82,8 @@ export const GET_KINDERGARTENS = gql`
 				kindergartenStatus
 				kindergartenLocation
 				kindergartenAddress
+				kindergartenLatitude
+				kindergartenLongitude
 				kindergartenTitle
 				monthlyFee
 				kindergartenPrice
@@ -126,6 +130,8 @@ export const GET_OWNER_KINDERGARTENS = gql`
 				kindergartenStatus
 				kindergartenLocation
 				kindergartenAddress
+				kindergartenLatitude
+				kindergartenLongitude
 				kindergartenTitle
 				monthlyFee
 				kindergartenPrice
@@ -357,6 +363,8 @@ export const GET_FAVORITES = gql`
 				kindergartenStatus
 				kindergartenLocation
 				kindergartenAddress
+				kindergartenLatitude
+				kindergartenLongitude
 				kindergartenTitle
 				monthlyFee
 				kindergartenPrice
@@ -398,6 +406,8 @@ export const GET_VISITED = gql`
 				kindergartenStatus
 				kindergartenLocation
 				kindergartenAddress
+				kindergartenLatitude
+				kindergartenLongitude
 				kindergartenTitle
 				monthlyFee
 				kindergartenPrice

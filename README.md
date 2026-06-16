@@ -1,38 +1,188 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# KidsGarden Client
 
-## Getting Started
+KidsGarden-client is the Next.js frontend for the KidsGarden kindergarten marketplace, parent application flow, role dashboards, private chat, notifications, uploads, maps, and social login.
 
-First, run the development server:
+## Prerequisites
+
+- Node.js compatible with the project dependencies
+- Yarn or npm
+- Running KidsGarden backend API
+- MongoDB and Redis through the backend
+- Provider setup for enabled social login and maps
+
+## Install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+yarn install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+or:
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Environment
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Create `.env.local` from `.env.example` and fill in local or deployment values.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```bash
+cp .env.example .env.local
+```
 
-## Learn More
+Do not commit `.env.local`. Use placeholder values in committed examples only.
 
-To learn more about Next.js, take a look at the following resources:
+## Local Startup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The development script runs Next.js on port `7007`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```bash
+yarn dev
+```
 
-## Deploy on Vercel
+Open:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```text
+http://127.0.0.1:7007
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Expected local backend:
+
+```text
+http://127.0.0.1:3000
+```
+
+Expected local GraphQL endpoint:
+
+```text
+http://127.0.0.1:3000/graphql
+```
+
+## Build And Start
+
+```bash
+yarn build
+yarn start
+```
+
+If the deployment platform controls the port, configure it there. For local development, use `yarn dev`.
+
+## API And Upload URLs
+
+Set:
+
+```env
+NEXT_PUBLIC_API_URL=http://127.0.0.1:3000
+NEXT_PUBLIC_API_GRAPHQL_URL=http://127.0.0.1:3000/graphql
+```
+
+Uploaded files render from backend `/uploads`, for example:
+
+```text
+http://127.0.0.1:3000/uploads/...
+```
+
+Do not point API URLs to the frontend port.
+
+## Realtime
+
+The private realtime gateway is exposed by the backend at `/realtime`.
+
+Usually this can be derived from `NEXT_PUBLIC_API_URL`. Set `NEXT_PUBLIC_REALTIME_WS_URL` only when the websocket URL differs from the API base URL.
+
+Local example:
+
+```env
+NEXT_PUBLIC_REALTIME_WS_URL=ws://127.0.0.1:3000/realtime
+```
+
+MongoDB and GraphQL remain the source of truth. Realtime events are hints for refetch/update behavior.
+
+## Social Login Frontend Setup
+
+Google:
+
+- Set `NEXT_PUBLIC_GOOGLE_CLIENT_ID`.
+- The frontend sends only the Google ID token to the backend.
+
+Kakao:
+
+- Set `NEXT_PUBLIC_KAKAO_REST_API_KEY`.
+- Set `NEXT_PUBLIC_KAKAO_REDIRECT_URI`.
+- The redirect URI must exactly match the Kakao Developers setting.
+- Local redirect URI:
+  - `http://127.0.0.1:7007/account/kakao/callback`
+- Optional ngrok redirect URI:
+  - `https://YOUR_NGROK_DOMAIN/account/kakao/callback`
+- Do not expose Kakao Client Secret or Admin key in frontend env.
+
+Telegram:
+
+- Set `NEXT_PUBLIC_TELEGRAM_BOT_NAME`, for example `kidsgarden_login_bot`.
+- Configure the BotFather Web Login domain with `/setdomain`.
+- For ngrok testing, the BotFather domain must match the active ngrok host.
+- The frontend sends only the classic Telegram Login Widget payload to the backend.
+
+Frontend social login must never send `memberType` or role.
+
+## Kakao Map Setup
+
+Set:
+
+```env
+NEXT_PUBLIC_KAKAO_MAP_JS_KEY=replace-with-kakao-javascript-key
+```
+
+Kakao Map frontend code uses the JavaScript key only.
+
+Register JavaScript SDK domains in Kakao Developers:
+
+- Local/ngrok testing domain as needed.
+- Production frontend domain.
+
+Do not put Kakao REST API keys or Admin keys into map frontend code.
+
+## SEO URL
+
+Set `NEXT_PUBLIC_SITE_URL` to the public frontend origin so canonical and Open Graph URLs can be generated.
+
+Local example:
+
+```env
+NEXT_PUBLIC_SITE_URL=http://127.0.0.1:7007
+```
+
+## Ngrok Testing
+
+Kakao and Telegram provider settings often require a public domain.
+
+Example frontend tunnel:
+
+```bash
+ngrok http 7007
+```
+
+Then update provider dashboards:
+
+- Kakao Login redirect URI: `https://YOUR_NGROK_DOMAIN/account/kakao/callback`
+- Kakao Map JavaScript SDK domain: `YOUR_NGROK_DOMAIN`
+- Telegram BotFather domain: `YOUR_NGROK_DOMAIN`
+
+Do not commit ngrok URLs as permanent production configuration.
+
+## Security Notes
+
+- Never commit `.env.local`.
+- Never expose backend secrets, OAuth client secrets, Telegram bot tokens, or Kakao Admin keys in frontend code.
+- Rotate exposed keys or tokens immediately.
+- Social signup creates `PARENT` users only.
+- Existing social login preserves the database role returned by the backend.
+
+## Useful Commands
+
+```bash
+yarn dev
+yarn build
+yarn start
+git diff --check
+```

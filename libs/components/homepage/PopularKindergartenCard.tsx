@@ -18,124 +18,82 @@ const PopularKindergartenCard = (props: PopularKindergartenCardProps) => {
 	const router = useRouter();
 	const kindergartenDetails = {
 		images: kindergarten?.kindergartenImages || [],
-		rank: kindergarten?.kindergartenRank,
 		price: kindergarten?.monthlyFee ?? kindergarten?.kindergartenPrice,
-		title: kindergarten?.kindergartenTitle,
-		address: kindergarten?.kindergartenAddress,
+		title: kindergarten?.kindergartenTitle || 'Kindergarten',
+		address: kindergarten?.kindergartenAddress || kindergarten?.kindergartenLocation || 'Location pending',
 		ageRange: kindergarten?.kindergartenAgeRange,
 		programs: kindergarten?.kindergartenPrograms,
 		capacity: kindergarten?.kindergartenCapacity,
 		views: kindergarten?.kindergartenViews,
+		status: kindergarten?.kindergartenStatus,
 	};
+	const cardImage = getImageUrl(kindergartenDetails.images[0]);
+	const ageLabel = kindergartenDetails.ageRange ? `Age ${kindergartenDetails.ageRange}` : 'Age info pending';
+	const programsLabel =
+		kindergartenDetails.programs !== undefined && kindergartenDetails.programs !== null
+			? `${kindergartenDetails.programs} programs`
+			: 'Programs pending';
+	const capacityLabel =
+		kindergartenDetails.capacity !== undefined && kindergartenDetails.capacity !== null
+			? `${kindergartenDetails.capacity} spots`
+			: 'Capacity pending';
 
-	/** HANDLERS **/
 	const moveToKindergartenDetail = () => {
 		if (!kindergarten?._id) return;
 		void router.push({
 			pathname: '/kindergartens/detail',
-			query: { kindergartenId: kindergarten._id },
+			query: { id: kindergarten._id },
 		});
 	};
 
-	if (device === 'mobile') {
-		return (
-			<Stack className="popular-card-box clickable-kindergarten-card" onClick={moveToKindergartenDetail}>
-				<Box
-					component={'div'}
-					className={'card-img'}
-					style={{ backgroundImage: `url(${getImageUrl(kindergartenDetails.images[0])})` }}
-				>
-					{kindergartenDetails.rank && kindergartenDetails.rank >= 50 ? (
-						<div className={'status'}>
-							<img src="/img/icons/electricity.svg" alt="" />
-							<span>top</span>
-						</div>
-					) : (
-						''
-					)}
+	if (!device) return null;
 
-					<div className={'price'}>{formatMonthlyFee(kindergartenDetails.price)}</div>
-				</Box>
-				<Box component={'div'} className={'info'}>
-					<strong className={'title'}>{kindergartenDetails.title}</strong>
-					<p className={'desc'}>{kindergartenDetails.address}</p>
-					<div className={'options'}>
-						<div>
-							<img src="/img/icons/age.svg" alt="" />
-							<span>Age {kindergartenDetails.ageRange}</span>
-						</div>
-						<div>
-							<img src="/img/icons/program.svg" alt="" />
-							<span>{kindergartenDetails.programs} programs</span>
-						</div>
-						<div>
-							<img src="/img/icons/capacity.svg" alt="" />
-							<span>{kindergartenDetails.capacity} spots</span>
-						</div>
+	return (
+		<Stack className="popular-card-box clickable-kindergarten-card" onClick={moveToKindergartenDetail}>
+			<Box
+				component={'div'}
+				className={'card-img'}
+				style={{ backgroundImage: `url(${cardImage})` }}
+			>
+				{kindergartenDetails.status ? (
+					<div className={'status'}>
+						<span>{kindergartenDetails.status === 'ACTIVE' ? 'Active' : kindergartenDetails.status}</span>
 					</div>
+				) : null}
+
+				<div className={'price'}>{formatMonthlyFee(kindergartenDetails.price)}</div>
+			</Box>
+			<Box component={'div'} className={'info'}>
+				<strong className={'title'}>{kindergartenDetails.title}</strong>
+				<p className={'desc'}>{kindergartenDetails.address}</p>
+				<div className={'options'}>
+					<div>
+						<img src="/img/icons/age.svg" alt="" />
+						<span>{ageLabel}</span>
+					</div>
+					<div>
+						<img src="/img/icons/program.svg" alt="" />
+						<span>{programsLabel}</span>
+					</div>
+					<div>
+						<img src="/img/icons/capacity.svg" alt="" />
+						<span>{capacityLabel}</span>
+					</div>
+				</div>
 				<Divider sx={{ mt: '15px', mb: '17px' }} />
 				<div className={'bott'}>
 					<p>Popular with parents</p>
+					<span className={'details-cta'}>View Details</span>
 					<div className="view-like-box" onClick={(event) => event.stopPropagation()}>
 						<IconButton color={'default'}>
 							<RemoveRedEyeIcon />
 						</IconButton>
-							<Typography className="view-cnt">{kindergartenDetails.views}</Typography>
-						</div>
+						<Typography className="view-cnt">{kindergartenDetails.views || 0}</Typography>
 					</div>
-				</Box>
-			</Stack>
-		);
-		} else {
-			return (
-				<Stack className="popular-card-box clickable-kindergarten-card" onClick={moveToKindergartenDetail}>
-					<Box
-						component={'div'}
-						className={'card-img'}
-					style={{ backgroundImage: `url(${getImageUrl(kindergartenDetails.images[0])})` }}
-				>
-					{kindergartenDetails.rank && kindergartenDetails.rank >= 50 ? (
-						<div className={'status'}>
-							<img src="/img/icons/electricity.svg" alt="" />
-							<span>top</span>
-						</div>
-					) : (
-						''
-					)}
-
-					<div className={'price'}>{formatMonthlyFee(kindergartenDetails.price)}</div>
-				</Box>
-				<Box component={'div'} className={'info'}>
-					<strong className={'title'}>{kindergartenDetails.title}</strong>
-					<p className={'desc'}>{kindergartenDetails.address}</p>
-					<div className={'options'}>
-						<div>
-							<img src="/img/icons/age.svg" alt="" />
-							<span>Age {kindergartenDetails.ageRange}</span>
-						</div>
-						<div>
-							<img src="/img/icons/program.svg" alt="" />
-							<span>{kindergartenDetails.programs} programs</span>
-						</div>
-						<div>
-							<img src="/img/icons/capacity.svg" alt="" />
-							<span>{kindergartenDetails.capacity} spots</span>
-						</div>
-					</div>
-				<Divider sx={{ mt: '15px', mb: '17px' }} />
-				<div className={'bott'}>
-					<p>Popular with parents</p>
-					<div className="view-like-box" onClick={(event) => event.stopPropagation()}>
-						<IconButton color={'default'}>
-							<RemoveRedEyeIcon />
-						</IconButton>
-							<Typography className="view-cnt">{kindergartenDetails.views}</Typography>
-						</div>
-					</div>
-				</Box>
-			</Stack>
-		);
-	}
+				</div>
+			</Box>
+		</Stack>
+	);
 };
 
 export default PopularKindergartenCard;

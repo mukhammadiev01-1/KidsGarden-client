@@ -187,6 +187,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 
 	return (
 		<Stack
+			className="kg-chat-panel application-chat-panel"
 			spacing={1.5}
 			sx={{
 				mt: 2,
@@ -198,7 +199,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 				boxSizing: 'border-box',
 			}}
 		>
-			<Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
+			<Stack className="kg-chat-header" direction="row" alignItems="center" justifyContent="space-between" gap={1}>
 				<Typography sx={{ fontWeight: 700, color: '#24332d' }}>{title}</Typography>
 				{onClose && (
 					<Button size="small" variant="outlined" onClick={onClose}>
@@ -212,14 +213,17 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 			)}
 			{errorMessage && <Typography sx={{ fontSize: '13px', color: '#b42318' }}>{errorMessage}</Typography>}
 
-			<Stack spacing={1} sx={{ maxHeight: 260, overflowY: 'auto' }}>
+			<Stack className="kg-chat-messages" spacing={1} sx={{ maxHeight: 260, overflowY: 'auto' }}>
 				{!loadingMessages && messages.length === 0 && (
-					<Typography sx={{ fontSize: '13px', color: '#64746b' }}>No messages yet.</Typography>
+					<Typography className="kg-chat-empty" sx={{ fontSize: '13px', color: '#64746b' }}>
+						No messages yet.
+					</Typography>
 				)}
 				{messages.map((message) => {
 					const isOwnMessage = message.senderId === user._id;
 					return (
 						<Stack
+							className={`kg-chat-bubble ${isOwnMessage ? 'is-own' : 'is-other'}`}
 							key={message._id}
 							spacing={0.25}
 							sx={{
@@ -237,6 +241,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 								<Stack spacing={0.75}>
 									{message.attachments?.map((attachment) => (
 										<Box
+											className="kg-chat-attachment-image"
 											key={`${message._id}-${attachment.url}`}
 											component="img"
 											src={getImageUrl(attachment.url)}
@@ -261,7 +266,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 			</Stack>
 
 			{Boolean(selectedImages.length) && (
-				<Stack spacing={0.75}>
+				<Stack className="kg-chat-selected-images" spacing={0.75}>
 					{selectedImages.map((file, index) => (
 						<Stack
 							key={`${file.name}-${file.size}-${index}`}
@@ -282,7 +287,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 				</Stack>
 			)}
 
-			<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+			<Stack className="kg-chat-input-row" direction={{ xs: 'column', sm: 'row' }} spacing={1}>
 				<TextField
 					fullWidth
 					size="small"

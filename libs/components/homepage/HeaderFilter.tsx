@@ -69,6 +69,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 	const [openLocation, setOpenLocation] = useState(false);
 	const [openType, setOpenType] = useState(false);
 	const [openRooms, setOpenRooms] = useState(false);
+	const [isNarrowViewport, setIsNarrowViewport] = useState(false);
 	const [kindergartenLocations] = useState<KindergartenLocation[]>(Object.values(KindergartenLocation));
 	const [kindergartenTypes] = useState<KindergartenType[]>(DISCOVERY_KINDERGARTEN_TYPES);
 	const [yearCheck, setYearCheck] = useState({ start: 1970, end: thisYear });
@@ -94,6 +95,19 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 
 		return () => {
 			document.removeEventListener('mousedown', clickHandler);
+		};
+	}, []);
+
+	useEffect(() => {
+		const syncViewport = () => {
+			setIsNarrowViewport(window.innerWidth <= 768);
+		};
+
+		syncViewport();
+		window.addEventListener('resize', syncViewport);
+
+		return () => {
+			window.removeEventListener('resize', syncViewport);
 		};
 	}, []);
 
@@ -350,9 +364,17 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 		</Stack>
 	);
 
-	if (device === 'mobile') {
+	if (device === 'mobile' || isNarrowViewport) {
 		return (
-			<Stack className={'mobile-hero'}>
+			<Stack
+				className={'mobile-hero'}
+				sx={{
+					width: 'min(100%, calc(100vw - 72px), 696px)',
+					maxWidth: 'min(100%, calc(100vw - 72px), 696px)',
+					mx: 'auto',
+					overflow: 'hidden',
+				}}
+			>
 				<Stack className={'hero-copy'}>
 					<span className={'eyebrow'}>
 						<AutoAwesomeRoundedIcon />
@@ -413,249 +435,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 						</Link>
 					</Stack>
 				</Stack>
-				<Stack className={'search-box'}>
-					<Stack className={'select-box'}>
-						<Box component={'div'} className={`box ${openLocation ? 'on' : ''}`} onClick={locationStateChangeHandler}>
-							<span>{searchFilter?.search?.locationList ? searchFilter?.search?.locationList[0] : t('Location')} </span>
-							<ExpandMoreIcon />
-						</Box>
-						<Box className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
-							<span>
-								{searchFilter?.search?.typeList
-									? getKindergartenTypeLabel(searchFilter?.search?.typeList[0])
-									: 'Center Type'}
-							</span>
-							<ExpandMoreIcon />
-						</Box>
-						<Box className={`box ${openRooms ? 'on' : ''}`} onClick={roomStateChangeHandler}>
-							<span>
-								{searchFilter?.search?.programsList ? `${searchFilter?.search?.programsList[0]} programs` : 'Programs'}
-							</span>
-							<ExpandMoreIcon />
-						</Box>
-					</Stack>
-					<Stack className={'search-box-other'}>
-						<Box className={'advanced-filter'} onClick={() => advancedFilterHandler(true)}>
-							<img src="/img/icons/tune.svg" alt="" />
-							<span>{t('Advanced')}</span>
-						</Box>
-						<Box className={'search-btn'} onClick={pushSearchHandler}>
-							<img src="/img/icons/search_white.svg" alt="" />
-						</Box>
-					</Stack>
-
-					{/*MENU */}
-					<div className={`filter-location ${openLocation ? 'on' : ''}`} ref={locationRef}>
-						{kindergartenLocations.map((location: KindergartenLocation) => {
-							return (
-								<div onClick={() => kindergartenLocationSelectHandler(location)} key={location}>
-									<img src={`img/banner/cities/${location}.webp`} alt="" />
-									<span>{location}</span>
-								</div>
-							);
-						})}
-					</div>
-
-					<div className={`filter-type ${openType ? 'on' : ''}`} ref={typeRef}>
-						{kindergartenTypes.map((type: KindergartenType) => {
-							return (
-								<div
-									style={{ backgroundImage: `url(/img/banner/types/${kindergartenTypeImageNames[type] ?? type.toLowerCase()}.webp)` }}
-									onClick={() => kindergartenTypeSelectHandler(type)}
-									key={type}
-								>
-									<span>{getKindergartenTypeLabel(type)}</span>
-								</div>
-							);
-						})}
-					</div>
-
-					<div className={`filter-rooms ${openRooms ? 'on' : ''}`} ref={roomsRef}>
-						{[1, 2, 3, 4, 5].map((room: number) => {
-							return (
-								<span onClick={() => kindergartenProgramSelectHandler(room)} key={room}>
-									{room} program{room > 1 ? 's' : ''}
-								</span>
-							);
-						})}
-					</div>
-				</Stack>
 				{heroFeatureCards}
-
-				{/* ADVANCED FILTER MODAL */}
-				<Modal
-					open={openAdvancedFilter}
-					onClose={() => advancedFilterHandler(false)}
-					aria-labelledby="modal-modal-title"
-					aria-describedby="modal-modal-description"
-				>
-					{/* @ts-ignore */}
-					<Box sx={style}>
-						<Box className={'advanced-filter-modal'}>
-							<div className={'close'} onClick={() => advancedFilterHandler(false)}>
-								<CloseIcon />
-							</div>
-							<div className={'top'}>
-								<span>Find trusted kindergartens</span>
-								<div className={'search-input-box'}>
-									<img src="/img/icons/search.svg" alt="" />
-									<input
-										value={searchFilter?.search?.text ?? ''}
-										type="text"
-										placeholder={'Search by name, program, or neighborhood'}
-										onChange={(e: any) => {
-											setSearchFilter({
-												...searchFilter,
-												search: { ...searchFilter.search, text: e.target.value },
-											});
-										}}
-									/>
-								</div>
-							</div>
-							<Divider sx={{ mt: '30px', mb: '35px' }} />
-							<div className={'middle'}>
-								<div className={'row-box'}>
-									<div className={'box'}>
-										<span>age range</span>
-										<div className={'inside'}>
-											<div
-												className={`room ${!searchFilter?.search?.ageRangeList ? 'active' : ''}`}
-												onClick={() => kindergartenAgeSelectHandler(0)}
-											>
-												Any
-											</div>
-											{[1, 2, 3, 4, 5].map((bed: number) => (
-												<div
-													className={`room ${searchFilter?.search?.ageRangeList?.includes(bed) ? 'active' : ''}`}
-													onClick={() => kindergartenAgeSelectHandler(bed)}
-													key={bed}
-												>
-													{bed == 0 ? 'Any' : bed}
-												</div>
-											))}
-										</div>
-									</div>
-									<div className={'box'}>
-										<span>program focus</span>
-										<div className={'inside'}>
-											<FormControl>
-												<Select
-													value={optionCheck}
-													onChange={kindergartenProgramOptionSelectHandler}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-												>
-						<MenuItem value={'all'}>All Programs</MenuItem>
-						<MenuItem value={'creativeProgram'}>Creative Program</MenuItem>
-						<MenuItem value={'fullDayCare'}>Full-day Care</MenuItem>
-												</Select>
-											</FormControl>
-										</div>
-									</div>
-								</div>
-								<div className={'row-box'} style={{ marginTop: '44px' }}>
-									<div className={'box'}>
-										<span>Established</span>
-										<div className={'inside space-between align-center'}>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={yearCheck.start.toString()}
-													onChange={yearStartChangeHandler}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{establishedYears?.slice(0)?.map((year: number) => (
-														<MenuItem value={year} disabled={yearCheck.end <= year} key={year}>
-															{year}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
-											<div className={'minus-line'}></div>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={yearCheck.end.toString()}
-													onChange={yearEndChangeHandler}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{establishedYears
-														?.slice(0)
-														.reverse()
-														.map((year: number) => (
-															<MenuItem value={year} disabled={yearCheck.start >= year} key={year}>
-																{year}
-															</MenuItem>
-														))}
-												</Select>
-											</FormControl>
-										</div>
-									</div>
-									<div className={'box'}>
-										<span>capacity</span>
-										<div className={'inside space-between align-center'}>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={searchFilter?.search?.capacityRange?.start}
-													onChange={(e: any) => capacityRangeHandler(e, 'start')}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{capacityOptions.map((capacity: number) => (
-														<MenuItem
-															value={capacity}
-															disabled={(searchFilter?.search?.capacityRange?.end || 0) < capacity}
-															key={capacity}
-														>
-															{capacity}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
-											<div className={'minus-line'}></div>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={searchFilter?.search?.capacityRange?.end}
-													onChange={(e: any) => capacityRangeHandler(e, 'end')}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{capacityOptions.map((capacity: number) => (
-														<MenuItem
-															value={capacity}
-															disabled={(searchFilter?.search?.capacityRange?.start || 0) > capacity}
-															key={capacity}
-														>
-															{capacity}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
-										</div>
-									</div>
-								</div>
-							</div>
-							<Divider sx={{ mt: '60px', mb: '18px' }} />
-							<div className={'bottom'}>
-								<div onClick={resetFilterHandler}>
-									<img src="/img/icons/reset.svg" alt="" />
-									<span>Reset all filters</span>
-								</div>
-								<Button
-									startIcon={<img src={'/img/icons/search.svg'} />}
-									className={'search-btn'}
-									onClick={pushSearchHandler}
-								>
-									Search
-								</Button>
-							</div>
-						</Box>
-					</Box>
-				</Modal>
 			</>
 		);
 	}

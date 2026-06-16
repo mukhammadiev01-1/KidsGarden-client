@@ -162,6 +162,77 @@
                filter: brightness(0) invert(1);
              }
            }
+           .social-auth-row {
+             width: 100%;
+             display: flex;
+             justify-content: center;
+             align-items: center;
+
+             > div {
+               width: 100% !important;
+             }
+           }
+           button.social-auth-button {
+             margin-top: 0;
+             height: 44px;
+             border-radius: 6px;
+             border: 1px solid #dadce0;
+             background: #ffffff;
+             color: #3c4043;
+             text-transform: none;
+             font-family: $font;
+             font-size: 14px;
+             font-weight: 600;
+             box-shadow: none;
+             &:hover {
+               border-color: #c6c9ce;
+               background: #f8faf9;
+               box-shadow: none;
+             }
+             &.Mui-disabled {
+               border-color: #d7dce0;
+               background: #f5f7f6;
+               color: #7b8580;
+             }
+             &.social-auth-button--kakao:not(.Mui-disabled) {
+               border-color: #fee500;
+               background: #fee500;
+               color: #191919;
+               &:hover {
+                 border-color: #f1d900;
+                 background: #f1d900;
+               }
+             }
+             .social-auth-icon {
+               width: 20px;
+               height: 20px;
+               display: block;
+               filter: none !important;
+             }
+           }
+           .telegram-widget-area {
+             width: 100%;
+             min-height: 44px;
+             display: flex;
+             justify-content: center;
+             align-items: center;
+
+             .telegram-widget-button {
+               min-height: 44px;
+               display: flex;
+               justify-content: center;
+               align-items: center;
+
+               iframe {
+                 max-width: 100%;
+               }
+             }
+
+             &.is-loading {
+               opacity: 0.65;
+               pointer-events: none;
+             }
+           }
          }
          .ask-info {
            margin-top: 90px;
@@ -190,5 +261,149 @@
        }
      }
    }
+  }
+}
+
+/* KidsGarden UI repair: keep auth behavior unchanged, align the existing screen with the current product style. */
+#pc-wrap {
+  .join-page {
+    background:
+      radial-gradient(circle at 12% 12%, rgba(246, 196, 83, 0.18), transparent 28%),
+      linear-gradient(180deg, #fffaf2 0%, #f7f4ed 100%);
+
+    .container {
+      .main {
+        width: min(1120px, calc(100vw - 48px));
+        min-height: 760px;
+        height: auto;
+        overflow: hidden;
+        border: 1px solid #e4ecd9;
+        border-radius: 28px;
+        box-shadow: 0 22px 54px rgba(36, 51, 45, 0.12);
+
+        .left {
+          padding: 56px 44px;
+          box-sizing: border-box;
+
+          .logo {
+            span {
+              color: #24332d;
+              letter-spacing: 0;
+            }
+          }
+
+          .info {
+            margin-top: 24px;
+
+            span {
+              color: #2f7d4a;
+              font-size: 14px;
+              font-weight: 900;
+              letter-spacing: 0;
+              text-transform: none;
+            }
+
+            p {
+              max-width: 360px;
+              color: #64746b;
+              text-align: center;
+            }
+          }
+
+          .input-wrap,
+          .register {
+            width: min(470px, 100%);
+          }
+
+          .input-wrap {
+            margin-top: 34px;
+
+            .input-box {
+              span {
+                color: #24332d;
+              }
+
+              input {
+                border-color: #d9e6dd;
+                border-radius: 14px;
+                color: #24332d;
+                background: #fffdf8;
+
+                &:focus {
+                  border-color: #2f7d4a;
+                  box-shadow: 0 0 0 3px rgba(47, 125, 74, 0.12);
+                }
+              }
+            }
+          }
+
+          .register {
+            margin-top: 28px;
+
+            button:not(.social-auth-button) {
+              background: #2f7d4a;
+              box-shadow: 0 12px 24px rgba(47, 125, 74, 0.22);
+              text-transform: none;
+
+              &:hover {
+                background: #25683d;
+              }
+            }
+
+            button.social-auth-button {
+              height: 46px;
+              border-radius: 14px;
+            }
+
+            .type-option {
+              width: 100%;
+              padding: 12px 14px;
+              border: 1px solid #d9e6dd;
+              border-radius: 16px;
+              background: #fbfff8;
+              box-sizing: border-box;
+            }
+          }
+
+          .ask-info {
+            margin-top: 38px;
+
+            p {
+              color: #64746b;
+              font-size: 15px;
+
+              b {
+                color: #2f7d4a;
+                font-size: 18px;
+                text-decoration: none;
+              }
+            }
+          }
+        }
+
+        .right {
+          position: relative;
+          background-color: #e7f5ec;
+          border-left: 1px solid #e4ecd9;
+
+          &::after {
+            content: 'Families, teachers, and kindergartens connected in one warm space.';
+            position: absolute;
+            left: 42px;
+            right: 42px;
+            bottom: 42px;
+            padding: 18px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #24332d;
+            font-family: $font;
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 28px;
+            box-shadow: 0 16px 34px rgba(36, 51, 45, 0.14);
+          }
+        }
+      }
+    }
   }
 }

@@ -4,7 +4,6 @@ import Head from 'next/head';
 import Top from '../Top';
 import Footer from '../Footer';
 import { Stack } from '@mui/material';
-import FiberContainer from '../common/FiberContainer';
 import HeaderFilter from '../homepage/HeaderFilter';
 import { getJwtToken, updateUserInfo } from '../../auth';
 import 'swiper/css';
@@ -40,6 +39,16 @@ const withLayoutMain = (Component: any) => {
 						</Stack>
 
 						<Stack className={'header-main'}>
+							<video
+								className={'kg-hero-video'}
+								src={'/videos/kidsgarden-hero.mp4'}
+								autoPlay
+								muted
+								loop
+								playsInline
+								preload={'metadata'}
+								aria-hidden={'true'}
+							/>
 							<Stack className={'container'}>
 								<HeaderFilter />
 							</Stack>
@@ -72,7 +81,16 @@ const withLayoutMain = (Component: any) => {
 						</Stack>
 
 						<Stack className={'header-main'}>
-							<FiberContainer />
+							<video
+								className={'kg-hero-video'}
+								src={'/videos/kidsgarden-hero.mp4'}
+								autoPlay
+								muted
+								loop
+								playsInline
+								preload={'metadata'}
+								aria-hidden={'true'}
+							/>
 							<Stack className={'container'}>
 								<HeaderFilter />
 							</Stack>

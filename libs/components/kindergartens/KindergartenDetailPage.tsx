@@ -37,6 +37,8 @@ import { StaffApplicationStatus } from '../../enums/staff-application.enum';
 import { StaffApplication } from '../../types/staff-application/staff-application';
 import { ACTIVE_APPLICATION_STATUSES } from '../../enums/application.enum';
 import { Application, ApplicationDocument } from '../../types/application/application';
+import KakaoKindergartenMap from '../maps/KakaoKindergartenMap';
+import PageSeo from '../seo/PageSeo';
 
 const programLabels = ['Montessori', 'Bilingual', 'Play-based', 'STEM', 'Art & Music'];
 const facilityLabels = ['Secure entry', 'Healthy meals', 'Indoor play', 'Outdoor play', 'First aid', 'Clean classrooms'];
@@ -61,6 +63,15 @@ const getApplicationErrorMessage = (err: any) => {
 const formatDocumentSize = (size: number) => {
 	if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 	return `${Math.max(1, Math.round(size / 1024))} KB`;
+};
+
+const buildSeoDescription = (kindergarten?: Kindergarten | null) => {
+	const source =
+		kindergarten?.kindergartenDesc ||
+		[kindergarten?.kindergartenAddress, kindergarten?.kindergartenLocation].filter(Boolean).join(', ') ||
+		'View kindergarten details, programs, location, application options, and parent information on KidsGarden.';
+
+	return source.length > 155 ? `${source.slice(0, 152).trim()}...` : source;
 };
 
 const validateApplicationDocumentFiles = (files: File[]) => {
@@ -110,7 +121,11 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 		APPLICATION_DOCUMENTS_UPLOADER,
 	);
 
-	const { refetch: getKindergartenRefetch } = useQuery(GET_KINDERGARTEN, {
+	const {
+		loading: kindergartenLoading,
+		error: kindergartenError,
+		refetch: getKindergartenRefetch,
+	} = useQuery(GET_KINDERGARTEN, {
 		skip: !kindergartenId,
 		fetchPolicy: 'network-only',
 		variables: { input: kindergartenId },
@@ -228,6 +243,8 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 	const programsCount = Number(kindergarten?.kindergartenPrograms || 0);
 	const visiblePrograms = programLabels.slice(0, Math.max(1, Math.min(programLabels.length, programsCount || 5)));
 	const locationText = [kindergarten?.kindergartenAddress, kindergarten?.kindergartenLocation].filter(Boolean).join(', ');
+	const seoDescription = buildSeoDescription(kindergarten);
+	const seoImage = detailImages[0] ? getImageUrl(detailImages[0]) : undefined;
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -401,8 +418,57 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 		document.querySelector('.kg-detail-contact-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 	};
 
+	if (!kindergarten && (kindergartenLoading || !kindergartenId)) {
+		return (
+			<div id={'kindergarten-detail-page'} className="kg-detail-page">
+				<PageSeo
+					title="Kindergarten Details"
+					description="View kindergarten details, programs, location, application options, and parent information on KidsGarden."
+					canonicalPath="/kindergartens/detail"
+				/>
+				<div className={'container kg-detail-container'}>
+					<section className="kg-detail-panel">
+						<Typography component="h1">Loading kindergarten details...</Typography>
+						<Typography>Please wait while KidsGarden loads this center.</Typography>
+					</section>
+				</div>
+			</div>
+		);
+	}
+
+	if (!kindergarten && kindergartenId && !kindergartenLoading) {
+		return (
+			<div id={'kindergarten-detail-page'} className="kg-detail-page">
+				<PageSeo
+					title="Kindergarten Not Found"
+					description="This kindergarten profile could not be found. Browse other kindergarten profiles on KidsGarden."
+					canonicalPath="/kindergartens/detail"
+				/>
+				<div className={'container kg-detail-container'}>
+					<section className="kg-detail-panel">
+						<Typography component="h1">Kindergarten not found</Typography>
+						<Typography>
+							{kindergartenError
+								? 'The kindergarten profile could not be loaded right now.'
+								: 'This kindergarten profile is unavailable or may have been removed.'}
+						</Typography>
+						<Button className="primary" onClick={() => router.push('/kindergartens')}>
+							Browse kindergartens
+						</Button>
+					</section>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div id={'kindergarten-detail-page'} className="kg-detail-page">
+			<PageSeo
+				title={title}
+				description={seoDescription}
+				canonicalPath={kindergartenId ? `/kindergartens/detail?id=${kindergartenId}` : '/kindergartens/detail'}
+				image={seoImage}
+			/>
 			<div className={'container kg-detail-container'}>
 				<Stack className="kg-detail-breadcrumb">
 					<button type="button" onClick={() => router.push('/')}>Home</button>
@@ -594,19 +660,18 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 						<Stack className="kg-detail-side-card kg-detail-contact-card">
 							<Typography component="h3">Contact & Location</Typography>
 							<p>{locationText || 'Location available after center confirmation.'}</p>
+							<KakaoKindergartenMap
+								latitude={kindergarten?.kindergartenLatitude}
+								longitude={kindergarten?.kindergartenLongitude}
+								title={title}
+								locationText={locationText}
+							/>
 							<Button className="primary">Contact Center</Button>
 						</Stack>
 						<Stack className="kg-detail-side-card kg-fee-card">
 							<Typography component="h3">Monthly Fee</Typography>
 							<strong>{formatMonthlyFee(kindergarten?.monthlyFee ?? kindergarten?.kindergartenPrice)}</strong>
 							<span>Ask the center what meals and materials are included.</span>
-						</Stack>
-						<Stack className="kg-detail-side-card kg-map-card">
-							<Typography component="h3">Map preview</Typography>
-							<div className="kg-detail-map-placeholder">
-								<span></span>
-							</div>
-							<p>Live map coming soon.</p>
 						</Stack>
 						{user?._id && user.memberType === MemberType.PARENT && (
 							<Stack className="kg-detail-side-card kg-application-card">

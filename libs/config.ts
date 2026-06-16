@@ -4,6 +4,10 @@ const rawGraphqlUrl =
 
 export const REACT_APP_API_URL = rawApiUrl.replace(/\/$/, '');
 export const REACT_APP_API_GRAPHQL_URL = rawGraphqlUrl;
+export const KAKAO_MAP_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_MAP_JS_KEY || '';
+export const KAKAO_REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY || '';
+export const KAKAO_REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI || '';
+export const TELEGRAM_BOT_NAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME || '';
 export const KINDERGARTEN_IMAGE_PLACEHOLDER = '/img/kindergarten/bigImage.png';
 
 export const getImageUrl = (imageUrl?: string | null, placeholder: string = KINDERGARTEN_IMAGE_PLACEHOLDER): string => {

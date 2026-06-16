@@ -28,6 +28,7 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import { getImageUrl } from '../../config';
 import { formatMonthlyFee, getKindergartenTypeLabel } from '../../utils';
+import KakaoKindergartenListMap from '../maps/KakaoKindergartenListMap';
 
 const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -202,7 +203,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					</Button>
 				</Stack>
 
-				<Stack className="kg-map-preview">
+				<Stack className="kg-map-preview kg-map-preview-live">
 					<Stack className="kg-map-tabs">
 						<span className="active">All</span>
 						<span>Trending</span>
@@ -212,21 +213,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					<Box component="div" className="kg-map-count">
 						{total || kindergartens.length} kindergartens found in this area
 					</Box>
-					<Stack className="kg-map-label">
-						<Typography component="h2">Map preview</Typography>
-						<span>Live map coming soon</span>
-					</Stack>
-					{[18, 32, 48, 63, 78].map((left, index) => (
-						<span
-							className={`kg-map-pin ${index % 2 ? 'honey' : 'green'}`}
-							style={{ left: `${left}%`, top: `${index % 2 ? 48 : 34 + index * 7}%` }}
-							key={left}
-						/>
-					))}
-					<Stack className="kg-map-controls">
-						<span>+</span>
-						<span>-</span>
-					</Stack>
+					<KakaoKindergartenListMap kindergartens={kindergartens} />
 				</Stack>
 
 				<Stack className={'kindergartens-page kg-listing-area'}>

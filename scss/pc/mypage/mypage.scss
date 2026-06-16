@@ -334,6 +334,149 @@
 	}
 }
 
+/* KidsGarden UI repair: shared dashboard surfaces for parent, teacher, and kindergarten admin pages. */
+#pc-wrap {
+	#my-page {
+		background:
+			radial-gradient(circle at 8% 0%, rgba(246, 196, 83, 0.16), transparent 24%),
+			#fffaf2;
+
+		.dashboard-page-header {
+			padding: 2px 4px;
+
+			h1,
+			h2,
+			.MuiTypography-root:first-child {
+				color: #24332d;
+				letter-spacing: 0;
+			}
+
+			.MuiTypography-root:last-child {
+				color: #64746b;
+			}
+		}
+
+		.dashboard-panel,
+		.parent-application-form-panel,
+		.kindergarten-profile-dashboard,
+		.parent-dashboard-screen,
+		.admin-dashboard-screen,
+		.teacher-dashboard-screen {
+			max-width: 100%;
+			min-width: 0;
+			box-sizing: border-box;
+		}
+
+		.dashboard-panel,
+		.parent-application-form-panel {
+			border: 1px solid #e4ecd9;
+			border-radius: 24px !important;
+			background: rgba(255, 255, 255, 0.96) !important;
+			box-shadow: 0 16px 40px rgba(72, 101, 79, 0.1);
+		}
+
+		.dashboard-panel-header {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: flex-start;
+			gap: 16px;
+			padding-bottom: 12px;
+			border-bottom: 1px solid #edf2e8;
+		}
+
+		.dashboard-panel-subtitle,
+		.dashboard-muted-text,
+		.dashboard-note-text {
+			color: #64746b !important;
+			font-family: $font;
+		}
+
+		.dashboard-count-chip,
+		.MuiChip-root.dashboard-count-chip {
+			border: 1px solid #cfe0c8;
+			background: #e7f5ec;
+			color: #2f7d4a;
+			font-family: $font;
+			font-weight: 900;
+		}
+
+		.dashboard-empty-state,
+		.no-data {
+			min-height: 92px;
+			padding: 22px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			gap: 8px;
+			border: 1px dashed #cfe0c8;
+			border-radius: 18px;
+			background: #fffdf8;
+			color: #64746b !important;
+			text-align: center;
+			font-family: $font;
+			font-weight: 700;
+		}
+
+		.dashboard-document-link {
+			width: fit-content;
+			color: #2f7d4a;
+			font-size: 12px;
+			font-weight: 800;
+			text-decoration: none;
+
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+
+		.dashboard-table-container {
+			max-width: 100%;
+			border-radius: 20px !important;
+			border: 1px solid #e4ecd9 !important;
+			box-shadow: 0 14px 34px rgba(72, 101, 79, 0.08) !important;
+
+			table {
+				min-width: 920px;
+			}
+
+			th {
+				padding: 14px 16px;
+				background: #f3f8ef;
+				color: #405346;
+				font-size: 12px;
+				font-weight: 900;
+				text-transform: uppercase;
+				letter-spacing: 0;
+				white-space: nowrap;
+			}
+
+			td {
+				padding: 14px 16px;
+				color: #405346;
+				border-bottom: 1px solid #edf2e8;
+				vertical-align: top;
+			}
+
+			tr:hover td {
+				background: #fbfff8;
+			}
+		}
+
+		.admin-review-actions,
+		.parent-applications-table td:last-child > .MuiStack-root {
+			flex-wrap: wrap;
+			gap: 8px;
+		}
+
+		.MuiTextField-root .MuiOutlinedInput-root {
+			border-radius: 14px;
+			background: #fffdf8;
+		}
+	}
+}
+
 #pc-wrap {
 	#my-page {
 		.parent-dashboard-screen {
@@ -456,6 +599,52 @@
 					border-radius: 999px;
 				}
 			}
+			.parent-kindergarten-applications-dashboard,
+			.parent-children-dashboard,
+			.parent-attendance-dashboard,
+			.parent-staff-applications-dashboard,
+			.parent-admin-applications-dashboard {
+				gap: 24px;
+
+				.MuiButton-contained {
+					border-radius: 999px;
+					background: #2f7d4a;
+					box-shadow: 0 10px 22px rgba(47, 125, 74, 0.18);
+					font-family: $font;
+					font-weight: 900;
+					text-transform: none;
+
+					&:hover {
+						background: #25683d;
+					}
+				}
+
+				.MuiButton-outlined {
+					border-radius: 999px;
+					border-color: #cfe0c8;
+					color: #405346;
+					background: #fffdf8;
+					font-family: $font;
+					font-weight: 800;
+					text-transform: none;
+
+					&:hover {
+						border-color: #9fc798;
+						background: #f3f8ef;
+					}
+				}
+			}
+			.parent-applications-table,
+			.parent-children-table,
+			.parent-attendance-table {
+				table {
+					min-width: 980px;
+				}
+
+				.MuiTableCell-root {
+					overflow-wrap: anywhere;
+				}
+			}
 		}
 	}
 }
@@ -566,6 +755,48 @@
 			.teacher-attendance-table {
 				.MuiTextField-root {
 					min-width: 140px;
+				}
+			}
+			.teacher-groups-dashboard,
+			.teacher-attendance-dashboard {
+				gap: 24px;
+
+				.MuiButton-contained {
+					border-radius: 999px;
+					background: #2f7d4a;
+					box-shadow: 0 10px 22px rgba(47, 125, 74, 0.18);
+					font-family: $font;
+					font-weight: 900;
+					text-transform: none;
+
+					&:hover {
+						background: #25683d;
+					}
+				}
+
+				.MuiButton-outlined {
+					border-radius: 999px;
+					border-color: #cfe0c8;
+					color: #405346;
+					background: #fffdf8;
+					font-family: $font;
+					font-weight: 800;
+					text-transform: none;
+
+					&:hover {
+						border-color: #9fc798;
+						background: #f3f8ef;
+					}
+				}
+			}
+			.teacher-groups-table,
+			.teacher-attendance-table {
+				table {
+					min-width: 920px;
+				}
+
+				.MuiTableCell-root {
+					overflow-wrap: anywhere;
 				}
 			}
 		}
@@ -864,6 +1095,278 @@
 					min-width: 150px;
 				}
 			}
+			.admin-kindergarten-profile-dashboard,
+			.kindergarten-applications-dashboard,
+			.admin-groups-dashboard,
+			.admin-children-dashboard,
+			.admin-attendance-dashboard,
+			.admin-staff-dashboard {
+				gap: 24px;
+
+				.MuiButton-containedPrimary,
+				.MuiButton-contained {
+					border-radius: 999px;
+					background: #2f7d4a;
+					box-shadow: 0 10px 22px rgba(47, 125, 74, 0.18);
+					font-family: $font;
+					font-weight: 900;
+					text-transform: none;
+
+					&:hover {
+						background: #25683d;
+					}
+				}
+
+				.MuiButton-outlined {
+					border-radius: 999px;
+					border-color: #cfe0c8;
+					color: #405346;
+					background: #fffdf8;
+					font-family: $font;
+					font-weight: 800;
+					text-transform: none;
+
+					&:hover {
+						border-color: #9fc798;
+						background: #f3f8ef;
+					}
+				}
+
+				.MuiButton-text {
+					color: #2f7d4a;
+					font-family: $font;
+					font-weight: 900;
+					text-transform: none;
+				}
+			}
+			.admin-kindergarten-profile-dashboard {
+				.admin-profile-form-panel {
+					max-width: 980px;
+					margin: 0 auto;
+				}
+
+				.admin-form-section-title {
+					width: 100%;
+					padding-top: 8px;
+					border-top: 1px solid #edf2e8;
+				}
+			}
+			.admin-selector-card {
+				cursor: pointer;
+
+				&:focus-within {
+					outline: 2px solid rgba(47, 125, 74, 0.22);
+					outline-offset: 2px;
+				}
+
+				.admin-meta-value {
+					overflow-wrap: anywhere;
+				}
+			}
+			.admin-form-grid {
+				align-items: stretch;
+
+				.MuiTextField-root {
+					min-width: 0;
+				}
+			}
+			.admin-form-actions {
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+			.admin-attendance-scope-panel,
+			.admin-staff-create-panel,
+			.admin-groups-form-panel,
+			.admin-children-form-panel {
+				.dashboard-panel-header {
+					margin-bottom: 2px;
+				}
+			}
+			.admin-teacher-assignment,
+			.admin-candidate-card,
+			.dashboard-context-card {
+				box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+			}
+			.admin-teacher-list {
+				max-height: 260px;
+				overflow: auto;
+			}
+			.admin-teacher-option {
+				.MuiTypography-root {
+					overflow-wrap: anywhere;
+				}
+			}
+			.admin-candidate-card {
+				.dashboard-primary-text,
+				.dashboard-muted-text {
+					overflow-wrap: anywhere;
+				}
+			}
+			.admin-danger-actions,
+			.admin-review-actions {
+				flex-wrap: wrap;
+
+				.MuiButton-root {
+					min-height: 36px;
+				}
+			}
+			.admin-staff-table,
+			.admin-applications-table,
+			.admin-groups-table,
+			.admin-children-table,
+			.admin-attendance-table {
+				table {
+					min-width: 980px;
+				}
+
+				.MuiTextField-root {
+					background: #fffdf8;
+				}
+			}
+		}
+	}
+}
+
+.kg-chat-panel {
+	border: 1px solid #dfe9d7 !important;
+	border-radius: 20px !important;
+	background:
+		linear-gradient(180deg, rgba(255, 253, 248, 0.96) 0%, rgba(248, 251, 244, 0.96) 100%) !important;
+	box-shadow: 0 14px 30px rgba(72, 101, 79, 0.08);
+	box-sizing: border-box;
+
+	.kg-chat-header {
+		padding-bottom: 10px;
+		border-bottom: 1px solid #edf2e8;
+
+		.MuiTypography-root {
+			font-family: $font;
+			font-size: 15px;
+			font-weight: 900;
+		}
+	}
+
+	.kg-chat-messages {
+		padding: 12px;
+		border: 1px solid #edf2e8;
+		border-radius: 18px;
+		background: rgba(255, 255, 255, 0.72);
+		scrollbar-width: thin;
+	}
+
+	.kg-chat-empty {
+		min-height: 76px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 1px dashed #cfe0c8;
+		border-radius: 16px;
+		background: #fffaf2;
+		color: #64746b !important;
+		font-family: $font;
+		font-weight: 800;
+	}
+
+	.kg-chat-bubble {
+		border-radius: 18px !important;
+		box-shadow: 0 8px 18px rgba(72, 101, 79, 0.07);
+
+		&.is-own {
+			border-color: #cfe7d3 !important;
+			background: #e8f6ec !important;
+		}
+
+		&.is-other {
+			background: #ffffff !important;
+		}
+	}
+
+	.kg-chat-attachment-image {
+		max-width: 220px !important;
+		max-height: 180px !important;
+		border-radius: 14px !important;
+		transition:
+			transform 0.18s ease,
+			box-shadow 0.18s ease;
+
+		&:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 10px 22px rgba(72, 101, 79, 0.16);
+		}
+	}
+
+	.kg-chat-selected-images {
+		padding: 10px 12px;
+		border: 1px solid #edf2e8;
+		border-radius: 16px;
+		background: #fffdf8;
+	}
+
+	.kg-chat-input-row {
+		align-items: center;
+
+		.MuiOutlinedInput-root {
+			border-radius: 999px;
+			background: #ffffff;
+		}
+
+		.MuiButton-root {
+			border-radius: 999px;
+			font-family: $font;
+			font-weight: 900;
+			text-transform: none;
+		}
+	}
+}
+
+.notification-popover {
+	.MuiPaper-root {
+		border: 1px solid #dfe9d7;
+		border-radius: 18px;
+		box-shadow: 0 18px 42px rgba(36, 51, 45, 0.16);
+	}
+
+	.notification-panel {
+		background: #fffdf8;
+		font-family: $font;
+	}
+
+	.notification-panel-header {
+		padding-bottom: 10px;
+		border-bottom: 1px solid #edf2e8;
+	}
+
+	.notification-empty-state {
+		min-height: 72px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 1px dashed #cfe0c8;
+		border-radius: 16px;
+		background: #fffaf2;
+		font-family: $font;
+		font-weight: 800;
+	}
+
+	.notification-list-item {
+		font-family: $font;
+		transition:
+			border-color 0.18s ease,
+			background 0.18s ease,
+			transform 0.18s ease;
+
+		&.is-unread {
+			border-color: #cfe7d3 !important;
+			background: #eef8ee !important;
+		}
+
+		&.is-read {
+			background: #ffffff !important;
+		}
+
+		&:hover {
+			border-color: #9fc798 !important;
+			transform: translateY(-1px);
 		}
 	}
 }

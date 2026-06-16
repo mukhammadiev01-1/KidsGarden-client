@@ -1006,6 +1006,1201 @@
   }
 }
 
+/* Final desktop guard for dynamic homepage showcase and roadmap cards. */
+@media (min-width: 1025px) {
+  body #pc-wrap .home-page {
+    .popular-kindergarten-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 24px !important;
+      align-items: stretch !important;
+    }
+
+    .popular-card-box {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 464px !important;
+      cursor: pointer !important;
+    }
+
+    .popular-card-box .card-img {
+      position: relative !important;
+      height: 214px !important;
+      min-height: 214px !important;
+      background-color: #edf7e9 !important;
+    }
+
+    .popular-card-box .card-img .status,
+    .popular-card-box .card-img .price {
+      position: absolute !important;
+      padding: 7px 12px !important;
+      border-radius: 999px !important;
+      background: rgba(255, 255, 255, 0.94) !important;
+      font-size: 12px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      box-shadow: 0 10px 24px rgba(31, 81, 50, 0.12) !important;
+    }
+
+    .popular-card-box .card-img .status {
+      top: 16px !important;
+      left: 16px !important;
+      color: #0f8b3d !important;
+    }
+
+    .popular-card-box .card-img .price {
+      right: 16px !important;
+      bottom: 16px !important;
+      color: #496052 !important;
+    }
+
+    .events.communication-roadmap .card-wrapper {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 22px !important;
+      align-items: stretch !important;
+    }
+
+    .events.communication-roadmap .event-card {
+      width: 100% !important;
+      height: 268px !important;
+      min-height: 268px !important;
+      padding: 24px !important;
+      align-items: flex-start !important;
+      gap: 14px !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(47, 125, 74, 0.12) !important;
+      background: linear-gradient(145deg, #ffffff 0%, #fff8e8 100%) !important;
+      box-shadow: 0 18px 42px rgba(31, 81, 50, 0.1) !important;
+      box-sizing: border-box !important;
+    }
+
+    .events.communication-roadmap .event-card.available {
+      background: linear-gradient(145deg, #ffffff 0%, #eef8e9 100%) !important;
+      border-color: rgba(15, 139, 61, 0.24) !important;
+    }
+
+    .events.communication-roadmap .event-card > strong {
+      padding: 7px 12px !important;
+      border-radius: 999px !important;
+      background: #fff0c6 !important;
+      color: #9a6612 !important;
+      font-size: 12px !important;
+      font-weight: 950 !important;
+      line-height: 1 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.04em !important;
+    }
+
+    .events.communication-roadmap .event-card.available > strong {
+      background: #dcf6df !important;
+      color: #0f8b3d !important;
+    }
+
+    .events.communication-roadmap .roadmap-icon {
+      width: 54px !important;
+      height: 54px !important;
+      border-radius: 18px !important;
+      background: rgba(15, 139, 61, 0.1) !important;
+      color: #0f8b3d !important;
+    }
+
+    .events.communication-roadmap .event-card.planned .roadmap-icon {
+      background: rgba(239, 168, 38, 0.14) !important;
+      color: #c17c13 !important;
+    }
+
+    .community-board .community-main {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 24px !important;
+      overflow: hidden !important;
+    }
+
+    .community-board .community-left,
+    .community-board .community-right,
+    .community-board .content-top,
+    .community-board .card-wrap,
+    .community-board .horizontal-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+    }
+  }
+}
+
+/* Desktop homepage dynamic showcase and roadmap polish. */
+@media (min-width: 1025px) {
+	body #pc-wrap .home-page {
+		.popular-kindergarten-grid {
+			display: grid !important;
+			grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+			gap: 24px !important;
+			align-items: stretch !important;
+		}
+
+		.popular-card-box {
+			width: 100% !important;
+			min-width: 0 !important;
+			height: 464px !important;
+			cursor: pointer !important;
+		}
+
+		.popular-card-box .card-img {
+			position: relative !important;
+			height: 214px !important;
+			min-height: 214px !important;
+			background-color: #edf7e9 !important;
+		}
+
+		.popular-card-box .card-img .status {
+			position: absolute !important;
+			top: 16px !important;
+			left: 16px !important;
+			min-width: auto !important;
+			height: auto !important;
+			padding: 7px 12px !important;
+			display: inline-flex !important;
+			align-items: center !important;
+			border-radius: 999px !important;
+			background: rgba(255, 255, 255, 0.92) !important;
+			color: #0f8b3d !important;
+			font-size: 12px !important;
+			font-weight: 900 !important;
+			line-height: 1 !important;
+			box-shadow: 0 10px 24px rgba(31, 81, 50, 0.12) !important;
+		}
+
+		.popular-card-box .card-img .price {
+			position: absolute !important;
+			right: 16px !important;
+			bottom: 16px !important;
+			padding: 7px 12px !important;
+			border-radius: 999px !important;
+			background: rgba(255, 255, 255, 0.94) !important;
+			color: #496052 !important;
+			font-size: 12px !important;
+			font-weight: 900 !important;
+			line-height: 1 !important;
+			box-shadow: 0 10px 24px rgba(31, 81, 50, 0.1) !important;
+		}
+
+		.popular-card-box .info .bott p {
+			color: #637166 !important;
+			font-size: 13px !important;
+			font-weight: 800 !important;
+		}
+
+		.homepage-empty-state {
+			width: 100% !important;
+			min-height: 238px !important;
+			padding: 34px !important;
+			display: flex !important;
+			flex-direction: column !important;
+			align-items: center !important;
+			justify-content: center !important;
+			gap: 14px !important;
+			text-align: center !important;
+			border: 1px dashed rgba(47, 125, 74, 0.22) !important;
+			border-radius: 24px !important;
+			background: linear-gradient(135deg, rgba(255, 253, 248, 0.98), rgba(243, 248, 239, 0.96)) !important;
+			box-shadow: 0 18px 42px rgba(31, 81, 50, 0.08) !important;
+			box-sizing: border-box !important;
+		}
+
+		.homepage-empty-state p {
+			max-width: 560px !important;
+			margin: 0 !important;
+			color: #4c5f52 !important;
+			font-size: 18px !important;
+			font-weight: 900 !important;
+			line-height: 26px !important;
+		}
+
+		.homepage-empty-state a {
+			padding: 11px 18px !important;
+			border-radius: 999px !important;
+			background: #0f8b3d !important;
+			color: #ffffff !important;
+			font-size: 14px !important;
+			font-weight: 900 !important;
+			box-shadow: 0 12px 26px rgba(15, 139, 61, 0.18) !important;
+		}
+
+		.events.communication-roadmap {
+			padding: 76px 0 78px !important;
+			background: linear-gradient(180deg, #f7f3e8 0%, #fffaf2 100%) !important;
+		}
+
+		.events.communication-roadmap .container {
+			width: min(1180px, calc(100% - 72px)) !important;
+			max-width: min(1180px, calc(100% - 72px)) !important;
+		}
+
+		.events.communication-roadmap .info-box {
+			margin-bottom: 26px !important;
+			align-items: flex-start !important;
+		}
+
+		.events.communication-roadmap .info-box .left span {
+			color: #123d24 !important;
+			font-size: 32px !important;
+			font-weight: 950 !important;
+			line-height: 38px !important;
+		}
+
+		.events.communication-roadmap .info-box .left p {
+			max-width: 620px !important;
+			margin-top: 10px !important;
+			color: #627066 !important;
+			font-size: 16px !important;
+			font-weight: 700 !important;
+			line-height: 25px !important;
+		}
+
+		.events.communication-roadmap .card-wrapper {
+			display: grid !important;
+			grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+			gap: 22px !important;
+			align-items: stretch !important;
+		}
+
+		.events.communication-roadmap .event-card {
+			position: relative !important;
+			width: 100% !important;
+			min-width: 0 !important;
+			height: 268px !important;
+			min-height: 268px !important;
+			padding: 24px !important;
+			display: flex !important;
+			flex-direction: column !important;
+			align-items: flex-start !important;
+			justify-content: flex-start !important;
+			gap: 14px !important;
+			border: 1px solid rgba(47, 125, 74, 0.12) !important;
+			border-radius: 24px !important;
+			background: #fffdf8 !important;
+			box-shadow: 0 18px 42px rgba(31, 81, 50, 0.1) !important;
+			box-sizing: border-box !important;
+		}
+
+		.events.communication-roadmap .event-card.available {
+			background: linear-gradient(145deg, #ffffff 0%, #eef8e9 100%) !important;
+			border-color: rgba(15, 139, 61, 0.24) !important;
+			box-shadow: 0 20px 48px rgba(15, 139, 61, 0.14) !important;
+		}
+
+		.events.communication-roadmap .event-card.planned {
+			background: linear-gradient(145deg, #ffffff 0%, #fff8e8 100%) !important;
+		}
+
+		.events.communication-roadmap .event-card > strong {
+			align-self: flex-start !important;
+			padding: 7px 12px !important;
+			border-radius: 999px !important;
+			background: #fff0c6 !important;
+			color: #9a6612 !important;
+			font-size: 12px !important;
+			font-weight: 950 !important;
+			line-height: 1 !important;
+			text-transform: uppercase !important;
+			letter-spacing: 0.04em !important;
+		}
+
+		.events.communication-roadmap .event-card.available > strong {
+			background: #dcf6df !important;
+			color: #0f8b3d !important;
+		}
+
+		.events.communication-roadmap .roadmap-icon {
+			width: 54px !important;
+			height: 54px !important;
+			display: inline-flex !important;
+			align-items: center !important;
+			justify-content: center !important;
+			border-radius: 18px !important;
+			background: rgba(15, 139, 61, 0.1) !important;
+			color: #0f8b3d !important;
+		}
+
+		.events.communication-roadmap .roadmap-icon svg {
+			width: 30px !important;
+			height: 30px !important;
+		}
+
+		.events.communication-roadmap .event-card.planned .roadmap-icon {
+			background: rgba(239, 168, 38, 0.14) !important;
+			color: #c17c13 !important;
+		}
+
+		.events.communication-roadmap .event-card h3 {
+			margin: 2px 0 0 !important;
+			color: #20342a !important;
+			font-size: 21px !important;
+			font-weight: 950 !important;
+			line-height: 26px !important;
+		}
+
+		.events.communication-roadmap .event-card p {
+			margin: 0 !important;
+			color: #647168 !important;
+			font-size: 14px !important;
+			font-weight: 700 !important;
+			line-height: 22px !important;
+		}
+	}
+}
+
+/* Homepage visual QA guard: compact hero must fit inside 390px screenshots. */
+#pc-wrap {
+  .header-main {
+    .mobile-hero {
+      width: 300px !important;
+      max-width: 300px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+
+    .mobile-hero .hero-copy,
+    .mobile-hero .hero-copy h1,
+    .mobile-hero .hero-copy p,
+    .mobile-hero .hero-actions,
+    .mobile-hero .hero-actions a,
+    .mobile-hero .hero-actions a span,
+    .mobile-hero .hero-feature-cards,
+    .mobile-hero .hero-feature-card {
+      width: 100% !important;
+      max-width: 300px !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+    }
+
+    .mobile-hero .hero-copy h1 {
+      font-size: 30px !important;
+      line-height: 1.12 !important;
+      overflow-wrap: anywhere !important;
+      word-break: break-word !important;
+    }
+
+    .mobile-hero .hero-copy p,
+    .mobile-hero .feature-copy strong,
+    .mobile-hero .feature-copy span {
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+      word-break: break-word !important;
+    }
+  }
+}
+
+@media (min-width: 421px) and (max-width: 768px) {
+  #pc-wrap,
+  #mobile-wrap {
+    .header-main {
+      .mobile-hero,
+      .mobile-hero .hero-copy,
+      .mobile-hero .hero-copy h1,
+      .mobile-hero .hero-copy p,
+      .mobile-hero .hero-actions,
+      .mobile-hero .hero-actions a,
+      .mobile-hero .hero-actions a span,
+      .mobile-hero .hero-feature-cards,
+      .mobile-hero .hero-feature-card {
+        width: 100% !important;
+        max-width: 696px !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      .mobile-hero .hero-feature-cards {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 14px !important;
+      }
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  #pc-wrap,
+  #mobile-wrap {
+    .header-main {
+      .mobile-hero,
+      .mobile-hero .hero-copy,
+      .mobile-hero .hero-copy h1,
+      .mobile-hero .hero-copy p,
+      .mobile-hero .hero-actions,
+      .mobile-hero .hero-actions a,
+      .mobile-hero .hero-actions a span,
+      .mobile-hero .hero-feature-cards,
+      .mobile-hero .hero-feature-card {
+        width: 100% !important;
+        max-width: 300px !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      .mobile-hero {
+        width: 300px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
+
+      .mobile-hero .hero-copy h1 {
+        font-size: 30px !important;
+        line-height: 1.12 !important;
+      }
+    }
+  }
+}
+
+/* Homepage hero video background */
+#pc-wrap,
+#mobile-wrap {
+  .header-main {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+    background:
+      linear-gradient(90deg, rgba(255, 251, 242, 0.94) 0%, rgba(255, 251, 242, 0.76) 100%),
+      url('/img/homepage/kidsgarden-hero-classroom.png') center / cover no-repeat !important;
+
+    .kg-hero-video {
+      display: none !important;
+    }
+
+    &::before {
+      content: '' !important;
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: -1 !important;
+      pointer-events: none !important;
+      background: linear-gradient(90deg, rgba(255, 251, 242, 0.92) 0%, rgba(255, 251, 242, 0.56) 100%) !important;
+    }
+
+    .container {
+      position: relative !important;
+      z-index: 1 !important;
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  #pc-wrap {
+    .header-main {
+      .container {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+      }
+
+      .container .mobile-hero {
+        width: min(100%, 300px) !important;
+        max-width: 300px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        align-items: stretch !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+      }
+
+      .container .mobile-hero .hero-copy,
+      .container .mobile-hero .hero-copy h1,
+      .container .mobile-hero .hero-copy p,
+      .container .mobile-hero .hero-actions,
+      .container .mobile-hero .hero-actions a,
+      .container .mobile-hero .hero-actions a span,
+      .container .mobile-hero .hero-feature-cards,
+      .container .mobile-hero .hero-feature-card {
+        width: 100% !important;
+        max-width: 300px !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+      }
+
+      .container .mobile-hero .hero-copy p,
+      .container .mobile-hero .feature-copy strong,
+      .container .mobile-hero .feature-copy span {
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+      }
+
+      .container .mobile-hero .hero-actions a span {
+        justify-content: center !important;
+        text-align: center !important;
+      }
+    }
+  }
+}
+
+#pc-wrap {
+  .header-main {
+    .mobile-hero {
+      width: 300px !important;
+      max-width: 300px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+
+    .mobile-hero .hero-copy,
+    .mobile-hero .hero-copy h1,
+    .mobile-hero .hero-copy p,
+    .mobile-hero .hero-actions,
+    .mobile-hero .hero-actions a,
+    .mobile-hero .hero-actions a span,
+    .mobile-hero .hero-feature-cards,
+    .mobile-hero .hero-feature-card {
+      width: 100% !important;
+      max-width: 300px !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+    }
+
+    .mobile-hero .hero-copy h1 {
+      font-size: 30px !important;
+      line-height: 1.12 !important;
+      overflow-wrap: anywhere !important;
+      word-break: break-word !important;
+    }
+
+    .mobile-hero .hero-copy p,
+    .mobile-hero .feature-copy strong,
+    .mobile-hero .feature-copy span {
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+      word-break: break-word !important;
+    }
+  }
+}
+
+/* Homepage browser QA final guard: prevent 390px clipping when desktop hero renders. */
+@media (max-width: 768px) {
+  html,
+  body,
+  #__next,
+  #pc-wrap,
+  #mobile-wrap {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  #pc-wrap {
+    .header-main {
+      .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        overflow: hidden !important;
+      }
+
+      .hero-copy,
+      .hero-actions,
+      .search-box,
+      .hero-feature-cards {
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        transform: none !important;
+        box-sizing: border-box !important;
+      }
+
+      .hero-copy {
+        h1 {
+          width: 100% !important;
+          max-width: 100% !important;
+          font-size: clamp(34px, 10vw, 44px) !important;
+          line-height: 1.08 !important;
+          overflow-wrap: break-word !important;
+        }
+
+        p {
+          width: 100% !important;
+          max-width: 100% !important;
+          font-size: 15px !important;
+          line-height: 1.55 !important;
+          overflow-wrap: break-word !important;
+        }
+
+        .eyebrow {
+          max-width: 100% !important;
+          white-space: normal !important;
+          box-sizing: border-box !important;
+        }
+      }
+
+      .hero-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+
+        a,
+        a span {
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+        }
+      }
+
+      .search-box {
+        padding: 14px !important;
+
+        .select-box,
+        .search-box-other {
+          width: 100% !important;
+          max-width: 100% !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: stretch !important;
+          gap: 10px !important;
+        }
+
+        .box,
+        .advanced-filter,
+        .search-btn {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+          display: flex !important;
+          justify-content: space-between !important;
+          box-sizing: border-box !important;
+        }
+      }
+
+      .hero-feature-cards {
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+
+      .hero-feature-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+      }
+    }
+  }
+}
+
+/* Homepage visual QA guard: compact hero must fit inside 390px screenshots. */
+#pc-wrap {
+  .header-main {
+    .mobile-hero {
+      width: 300px !important;
+      max-width: 300px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+
+    .mobile-hero .hero-copy,
+    .mobile-hero .hero-copy h1,
+    .mobile-hero .hero-copy p,
+    .mobile-hero .hero-actions,
+    .mobile-hero .hero-actions a,
+    .mobile-hero .hero-actions a span,
+    .mobile-hero .hero-feature-cards,
+    .mobile-hero .hero-feature-card {
+      width: 100% !important;
+      max-width: 300px !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+    }
+
+    .mobile-hero .hero-copy h1 {
+      font-size: 30px !important;
+      line-height: 1.12 !important;
+      overflow-wrap: anywhere !important;
+      word-break: break-word !important;
+    }
+
+    .mobile-hero .hero-copy p,
+    .mobile-hero .feature-copy strong,
+    .mobile-hero .feature-copy span {
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+      word-break: break-word !important;
+    }
+  }
+}
+
+/* Homepage browser QA fix: keep desktop hero variant inside 390px screenshots. */
+@media (max-width: 768px) {
+  html,
+  body,
+  #__next,
+  #pc-wrap,
+  #mobile-wrap {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  #pc-wrap {
+    .header-main {
+      .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+      }
+
+      .hero-copy {
+        width: 100% !important;
+        max-width: 100% !important;
+
+        .eyebrow {
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+          white-space: normal !important;
+        }
+
+        h1 {
+          width: 100% !important;
+          max-width: 100% !important;
+          font-size: clamp(36px, 10vw, 44px) !important;
+          line-height: 1.08 !important;
+          overflow-wrap: break-word !important;
+        }
+
+        p {
+          width: 100% !important;
+          max-width: 100% !important;
+          font-size: 15px !important;
+          line-height: 1.55 !important;
+          overflow-wrap: break-word !important;
+        }
+      }
+
+      .hero-actions {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+
+        a,
+        a span {
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+        }
+      }
+
+      .search-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 14px !important;
+        box-sizing: border-box !important;
+
+        .select-box,
+        .search-box-other {
+          width: 100% !important;
+          max-width: 100% !important;
+          flex-direction: column !important;
+          align-items: stretch !important;
+          gap: 10px !important;
+        }
+
+        .box,
+        .advanced-filter,
+        .search-btn {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+          box-sizing: border-box !important;
+        }
+      }
+
+      .hero-feature-cards,
+      .hero-feature-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+      }
+    }
+  }
+}
+
+
+
+/* KidsGarden UI repair Phase D: final responsive hardening for public, dashboard, chat, and table surfaces. */
+@media (max-width: 1024px) {
+  html,
+  body,
+  #__next {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  #pc-wrap,
+  #mobile-wrap {
+    max-width: 100vw;
+    overflow-x: hidden;
+
+    .container,
+    .main,
+    .main-config,
+    .list-config,
+    .filter-config,
+    .right-config,
+    .left-config,
+    .kg-detail-container,
+    .kg-detail-layout,
+    .kg-detail-main,
+    .kg-detail-sidebar,
+    .dashboard-panel,
+    .dashboard-table-container,
+    .parent-dashboard-screen,
+    .teacher-dashboard-screen,
+    .admin-dashboard-screen,
+    .kg-chat-panel {
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    img,
+    iframe,
+    canvas {
+      max-width: 100%;
+    }
+
+    .MuiTypography-root,
+    p,
+    span,
+    a,
+    button,
+    td,
+    th {
+      overflow-wrap: anywhere;
+    }
+
+    .join-page {
+      padding-left: 16px !important;
+      padding-right: 16px !important;
+
+      .main {
+        width: min(100%, 960px) !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      .left,
+      .right,
+      .input-wrap,
+      .register {
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      .social-auth-row,
+      .telegram-widget-area,
+      .telegram-widget-button,
+      .telegram-widget-button iframe {
+        max-width: 100% !important;
+      }
+    }
+
+    #kindergartens-list-page,
+    #kindergarten-detail-page,
+    #my-page {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
+    .kindergartens-page,
+    .kindergartens-page.kg-listing-area,
+    .kg-map-preview,
+    .kg-detail-hero,
+    .kg-detail-gallery,
+    .kg-detail-info-card,
+    .kg-detail-panel,
+    .kg-detail-side-card,
+    .kg-detail-map-placeholder {
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    .kg-detail-actions,
+    .dashboard-panel-header,
+    .admin-review-actions,
+    .admin-danger-actions {
+      flex-wrap: wrap;
+    }
+
+    .dashboard-table-container,
+    .parent-applications-table,
+    .parent-children-table,
+    .parent-attendance-table,
+    .teacher-groups-table,
+    .teacher-attendance-table,
+    .admin-applications-table,
+    .admin-groups-table,
+    .admin-children-table,
+    .admin-attendance-table,
+    .admin-staff-table {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .kg-chat-panel {
+      width: 100% !important;
+
+      .kg-chat-messages,
+      .kg-chat-selected-images,
+      .kg-chat-input-row {
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .kg-chat-bubble {
+        max-width: min(96%, 560px) !important;
+      }
+
+      .kg-chat-attachment-image {
+        max-width: min(220px, 100%) !important;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  #pc-wrap,
+  #mobile-wrap {
+    .container {
+      width: calc(100vw - 24px) !important;
+      max-width: calc(100vw - 24px) !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    .join-page {
+      .main {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+      }
+
+      .left,
+      .right {
+        width: 100% !important;
+      }
+
+      .register button,
+      .social-auth-button,
+      .telegram-widget-area {
+        width: 100% !important;
+      }
+    }
+
+    #my-page {
+      .back-frame {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .left-config,
+      .main-config,
+      .list-config {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      .dashboard-panel-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+      }
+
+      .dashboard-form-grid,
+      .admin-form-grid {
+        flex-direction: column !important;
+      }
+    }
+
+    .kg-detail-layout,
+    .kg-detail-hero,
+    .kindergartens-page,
+    .kindergartens-page.kg-listing-area {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    .kg-detail-actions,
+    .kg-detail-actions button,
+    .kg-detail-side-card .primary,
+    .admin-review-actions .MuiButton-root,
+    .admin-danger-actions .MuiButton-root {
+      width: 100% !important;
+    }
+  }
+}
+
+@media (max-width: 430px) {
+  #pc-wrap,
+  #mobile-wrap {
+    .container {
+      width: calc(100vw - 20px) !important;
+      max-width: calc(100vw - 20px) !important;
+    }
+
+    .dashboard-panel,
+    .kg-chat-panel,
+    .kg-detail-panel,
+    .kg-detail-side-card,
+    .kg-detail-info-card,
+    .kg-detail-gallery {
+      padding-left: 14px !important;
+      padding-right: 14px !important;
+    }
+
+    .kg-chat-input-row {
+      .MuiButton-root {
+        width: 100% !important;
+      }
+    }
+
+    .kg-chat-bubble {
+      max-width: 98% !important;
+    }
+
+    .notification-popover {
+      .MuiPaper-root {
+        width: calc(100vw - 20px) !important;
+        max-width: calc(100vw - 20px) !important;
+      }
+    }
+  }
+}
+
+/* KidsGarden UI repair: prevent the highest-risk repaired pages from overflowing at 390px. */
+@media (max-width: 768px) {
+  #mobile-wrap,
+  #pc-wrap {
+    .join-page {
+      padding: 28px 12px !important;
+
+      .container,
+      .main,
+      .left,
+      .right,
+      .input-wrap,
+      .register {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      .main {
+        height: auto !important;
+        min-height: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        border-radius: 24px !important;
+        overflow: hidden !important;
+      }
+
+      .left {
+        padding: 30px 18px !important;
+      }
+
+      .right {
+        min-height: 170px !important;
+        border-left: 0 !important;
+        border-top: 1px solid #e4ecd9 !important;
+
+        &::after {
+          left: 16px !important;
+          right: 16px !important;
+          bottom: 16px !important;
+          font-size: 13px !important;
+          line-height: 20px !important;
+        }
+      }
+
+      .ask-info {
+        margin-top: 26px !important;
+
+        p,
+        b {
+          font-size: 15px !important;
+        }
+      }
+    }
+
+    #my-page {
+      .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 12px !important;
+        box-sizing: border-box !important;
+      }
+
+      .my-page {
+        padding: 28px 0 54px !important;
+      }
+
+      .back-frame {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+        margin: 0 !important;
+      }
+
+      .left-config {
+        position: relative !important;
+        top: auto !important;
+        width: 100% !important;
+        margin: 0 !important;
+      }
+
+      .main-config,
+      .list-config,
+      .dashboard-panel,
+      .parent-dashboard-screen,
+      .admin-dashboard-screen,
+      .teacher-dashboard-screen {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      .dashboard-panel {
+        padding: 16px !important;
+      }
+
+      .dashboard-panel-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+      }
+    }
+  }
+}
+
 /* KidsGarden Help Center mobile MVP */
 #mobile-wrap {
   .cs-page {
@@ -4527,6 +5722,47 @@
         width: fit-content;
         max-width: 100%;
       }
+
+      .parent-kindergarten-applications-dashboard,
+      .parent-children-dashboard,
+      .parent-attendance-dashboard,
+      .parent-staff-applications-dashboard,
+      .parent-admin-applications-dashboard {
+        gap: 18px;
+
+        .MuiButton-contained {
+          border-radius: 999px;
+          background: #2f7d4a;
+          box-shadow: 0 10px 22px rgba(47, 125, 74, 0.18);
+          font-family: $font;
+          font-weight: 900;
+          text-transform: none;
+        }
+
+        .MuiButton-outlined {
+          border-radius: 999px;
+          border-color: #cfe0c8;
+          color: #405346;
+          background: #fffdf8;
+          font-family: $font;
+          font-weight: 800;
+          text-transform: none;
+        }
+      }
+
+      .parent-applications-table,
+      .parent-children-table,
+      .parent-attendance-table {
+        overflow-x: auto;
+
+        table {
+          min-width: 920px;
+        }
+
+        .MuiTableCell-root {
+          overflow-wrap: anywhere;
+        }
+      }
     }
   }
 }
@@ -4646,6 +5882,43 @@
       .teacher-attendance-table {
         .MuiTextField-root {
           min-width: 150px;
+        }
+      }
+
+      .teacher-groups-dashboard,
+      .teacher-attendance-dashboard {
+        gap: 18px;
+
+        .MuiButton-contained {
+          border-radius: 999px;
+          background: #2f7d4a;
+          box-shadow: 0 10px 22px rgba(47, 125, 74, 0.18);
+          font-family: $font;
+          font-weight: 900;
+          text-transform: none;
+        }
+
+        .MuiButton-outlined {
+          border-radius: 999px;
+          border-color: #cfe0c8;
+          color: #405346;
+          background: #fffdf8;
+          font-family: $font;
+          font-weight: 800;
+          text-transform: none;
+        }
+      }
+
+      .teacher-groups-table,
+      .teacher-attendance-table {
+        overflow-x: auto;
+
+        table {
+          min-width: 920px;
+        }
+
+        .MuiTableCell-root {
+          overflow-wrap: anywhere;
         }
       }
     }
@@ -4987,9 +6260,291 @@
 	          min-width: 150px;
 	        }
 	      }
+      .admin-kindergarten-profile-dashboard,
+      .kindergarten-applications-dashboard,
+      .admin-groups-dashboard,
+      .admin-children-dashboard,
+      .admin-attendance-dashboard,
+      .admin-staff-dashboard {
+        gap: 18px;
+
+        .MuiButton-containedPrimary,
+        .MuiButton-contained {
+          border-radius: 999px;
+          background: #2f7d4a;
+          box-shadow: 0 10px 22px rgba(47, 125, 74, 0.18);
+          font-family: $font;
+          font-weight: 900;
+          text-transform: none;
+
+          &:hover {
+            background: #25683d;
+          }
+        }
+
+        .MuiButton-outlined {
+          border-radius: 999px;
+          border-color: #cfe0c8;
+          color: #405346;
+          background: #fffdf8;
+          font-family: $font;
+          font-weight: 800;
+          text-transform: none;
+
+          &:hover {
+            border-color: #9fc798;
+            background: #f3f8ef;
+          }
+        }
+
+        .MuiButton-text {
+          color: #2f7d4a;
+          font-family: $font;
+          font-weight: 900;
+          text-transform: none;
+        }
+      }
+
+      .admin-kindergarten-profile-dashboard {
+        .admin-profile-form-panel {
+          margin: 0;
+        }
+
+        .admin-form-section-title {
+          width: 100%;
+          padding-top: 8px;
+          border-top: 1px solid #edf2e8;
+        }
+
+        .admin-profile-form-panel > .MuiStack-root {
+          min-width: 0;
+        }
+      }
+
+      .admin-selector-card {
+        cursor: pointer;
+
+        .admin-meta-value {
+          overflow-wrap: anywhere;
+        }
+      }
+
+      .admin-form-grid {
+        align-items: stretch;
+
+        .MuiTextField-root {
+          min-width: 0;
+        }
+      }
+
+      .admin-form-actions,
+      .admin-danger-actions,
+      .admin-review-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 8px;
+
+        .MuiButton-root {
+          width: 100%;
+        }
+      }
+
+      .admin-attendance-scope-panel,
+      .admin-staff-create-panel,
+      .admin-groups-form-panel,
+      .admin-children-form-panel {
+        .dashboard-panel-header {
+          margin-bottom: 2px;
+        }
+      }
+
+      .admin-teacher-assignment,
+      .admin-candidate-card,
+      .dashboard-context-card {
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      }
+
+      .admin-teacher-list {
+        max-height: 250px;
+        overflow: auto;
+      }
+
+      .admin-teacher-option {
+        .MuiTypography-root {
+          overflow-wrap: anywhere;
+        }
+      }
+
+      .admin-candidate-card {
+        .dashboard-primary-text,
+        .dashboard-muted-text {
+          overflow-wrap: anywhere;
+        }
+
+        .MuiButton-root {
+          width: 100%;
+        }
+      }
+
+      .admin-staff-table,
+      .admin-applications-table,
+      .admin-groups-table,
+      .admin-children-table,
+      .admin-attendance-table {
+        overflow-x: auto;
+
+        table {
+          min-width: 920px;
+        }
+
+        .MuiTextField-root {
+          background: #fffdf8;
+        }
+      }
 	    }
-	  }
 	}
+}
+
+.kg-chat-panel {
+  max-width: 100%;
+  border: 1px solid #dfe9d7 !important;
+  border-radius: 20px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.96) 0%, rgba(248, 251, 244, 0.96) 100%) !important;
+  box-shadow: 0 14px 30px rgba(72, 101, 79, 0.08);
+  box-sizing: border-box;
+
+  .kg-chat-header {
+    padding-bottom: 10px;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    border-bottom: 1px solid #edf2e8;
+
+    .MuiTypography-root {
+      font-family: $font;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .MuiButton-root {
+      width: 100%;
+    }
+  }
+
+  .kg-chat-messages {
+    padding: 10px;
+    border: 1px solid #edf2e8;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .kg-chat-empty {
+    min-height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #cfe0c8;
+    border-radius: 16px;
+    background: #fffaf2;
+    color: #64746b !important;
+    font-family: $font;
+    font-weight: 800;
+  }
+
+  .kg-chat-bubble {
+    max-width: 96% !important;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 18px rgba(72, 101, 79, 0.07);
+
+    &.is-own {
+      border-color: #cfe7d3 !important;
+      background: #e8f6ec !important;
+    }
+
+    &.is-other {
+      background: #ffffff !important;
+    }
+  }
+
+  .kg-chat-attachment-image {
+    width: 100%;
+    max-width: 210px !important;
+    max-height: 170px !important;
+    border-radius: 14px !important;
+  }
+
+  .kg-chat-selected-images {
+    padding: 10px 12px;
+    border: 1px solid #edf2e8;
+    border-radius: 16px;
+    background: #fffdf8;
+  }
+
+  .kg-chat-input-row {
+    width: 100%;
+
+    .MuiOutlinedInput-root {
+      border-radius: 18px;
+      background: #ffffff;
+    }
+
+    .MuiButton-root {
+      width: 100%;
+      border-radius: 999px;
+      font-family: $font;
+      font-weight: 900;
+      text-transform: none;
+    }
+  }
+}
+
+.notification-popover {
+  .MuiPaper-root {
+    width: calc(100vw - 24px);
+    max-width: 360px;
+    border: 1px solid #dfe9d7;
+    border-radius: 18px;
+    box-shadow: 0 18px 42px rgba(36, 51, 45, 0.16);
+  }
+
+  .notification-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #fffdf8;
+    font-family: $font;
+  }
+
+  .notification-panel-header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #edf2e8;
+  }
+
+  .notification-empty-state {
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #cfe0c8;
+    border-radius: 16px;
+    background: #fffaf2;
+    font-family: $font;
+    font-weight: 800;
+  }
+
+  .notification-list-item {
+    font-family: $font;
+
+    &.is-unread {
+      border-color: #cfe7d3 !important;
+      background: #eef8ee !important;
+    }
+
+    &.is-read {
+      background: #ffffff !important;
+    }
+  }
+}
 
 #mobile-wrap {
   #community-list-page,
@@ -6814,7 +8369,8 @@
 
       .kg-detail-map-placeholder {
         position: relative;
-        height: 145px;
+        width: 100%;
+        height: 220px;
         overflow: hidden;
         border-radius: 16px;
         background:
@@ -6833,6 +8389,14 @@
           background: #2f7d4a;
           transform: translate(-50%, -50%) rotate(-45deg);
         }
+      }
+
+      .kg-map-helper-text {
+        margin: -2px 0 2px;
+        color: #657466;
+        font-size: 12px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
       }
 
       .kg-detail-side-card .primary {
@@ -8236,6 +9800,70 @@
       .kg-map-controls {
         display: none;
       }
+
+      &.kg-map-preview-live {
+        background: #eef5e9;
+
+        &::before,
+        &::after {
+          display: none;
+        }
+
+        .kg-list-map-shell {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          width: 100%;
+          height: 100%;
+        }
+
+        .kg-list-map-canvas {
+          width: 100%;
+          height: 100%;
+        }
+
+        .kg-list-map-fallback {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          background:
+            linear-gradient(90deg, rgba(126, 172, 127, 0.16) 1px, transparent 1px),
+            linear-gradient(rgba(126, 172, 127, 0.16) 1px, transparent 1px),
+            linear-gradient(135deg, #eef5e9 0%, #f9fbf3 52%, #edf6ea 100%);
+          background-size: 56px 56px, 56px 56px, auto;
+          color: #2f7d4a;
+          text-align: center;
+          font-family: $font;
+          font-size: 14px;
+          font-weight: 900;
+        }
+
+        .kg-list-map-info {
+          min-width: 150px;
+          padding: 9px 10px;
+          color: #243e2b;
+          font-family: $font;
+
+          a {
+            display: block;
+            color: #1f7a3a;
+            font-size: 12px;
+            font-weight: 900;
+            text-decoration: none;
+          }
+
+          p {
+            margin: 4px 0 0;
+            color: #5f6d62;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1.35;
+          }
+        }
+      }
     }
 
     .kindergartens-page.kg-listing-area {
@@ -8975,6 +10603,937 @@
         font-weight: 800 !important;
         text-align: center !important;
       }
+    }
+  }
+}
+
+/* Homepage focused cleanup: terminal mobile guard. */
+@media (max-width: 768px) {
+  #mobile-wrap,
+  #pc-wrap {
+    .header-main {
+      padding-top: 12px !important;
+      padding-bottom: 20px !important;
+
+      .search-box {
+        margin-top: 10px !important;
+        padding: 12px !important;
+      }
+
+      .hero-actions {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+
+        a,
+        span {
+          width: 100% !important;
+          max-width: 100% !important;
+          justify-content: center !important;
+          white-space: normal !important;
+        }
+      }
+
+      .hero-feature-cards {
+        margin-top: 10px !important;
+        gap: 10px !important;
+      }
+    }
+
+    .home-page {
+      .featured-kindergartens-intro,
+      .trending-kindergartens .container,
+      .popular-kindergartens .container,
+      .community-board .container {
+        width: calc(100vw - 28px) !important;
+        max-width: calc(100vw - 28px) !important;
+      }
+
+      .trend-card-box,
+      .popular-card-box,
+      .top-card-box {
+        max-width: calc(100vw - 42px) !important;
+        border: 1px solid rgba(47, 125, 74, 0.12) !important;
+        border-radius: 18px !important;
+        background: #fffdf8 !important;
+        box-shadow: 0 12px 28px rgba(31, 81, 50, 0.08) !important;
+      }
+
+      .trend-card-box .card-img > div,
+      .top-card-box .card-img > div,
+      .popular-card-box .card-img .price {
+        left: auto !important;
+        right: 12px !important;
+        bottom: 12px !important;
+        width: auto !important;
+        height: auto !important;
+        padding: 6px 10px !important;
+        border-radius: 999px !important;
+        background: rgba(255, 253, 248, 0.94) !important;
+        color: #42604c !important;
+        font-size: 11px !important;
+        font-weight: 850 !important;
+        line-height: 15px !important;
+      }
+
+      .popular-card-box .card-img .status {
+        left: 12px !important;
+        right: auto !important;
+        top: 12px !important;
+        bottom: auto !important;
+        background: #63b76f !important;
+        color: #ffffff !important;
+      }
+
+      .trend-card-box .info .options,
+      .popular-card-box .info .options,
+      .top-card-box .info .options {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+      }
+
+      .community-board .community-main {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+      }
+
+      .community-board .community-left,
+      .community-board .community-right,
+      .community-board .card-wrap {
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+    }
+  }
+}
+
+/* Homepage layout rhythm cleanup: mobile/tablet section stacking. */
+@media (max-width: 768px) {
+  #mobile-wrap,
+  #pc-wrap {
+    .header-main {
+      min-height: auto !important;
+    }
+
+    .home-page {
+      .platform-showcase,
+      .events.communication-roadmap,
+      .video-frame.kg-store-section,
+      .trending-kindergartens,
+      .popular-kindergartens,
+      .community-board {
+        padding-top: 34px !important;
+        padding-bottom: 34px !important;
+      }
+
+      .featured-kindergartens-intro,
+      .platform-container,
+      .events.communication-roadmap .container,
+      .video-frame.kg-store-section .store-container,
+      .video-frame.kg-store-section .store-heading,
+      .trending-kindergartens .container,
+      .popular-kindergartens .container,
+      .community-board .container,
+      .final-cta-section {
+        width: calc(100vw - 28px) !important;
+        max-width: calc(100vw - 28px) !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        box-sizing: border-box !important;
+      }
+
+      .platform-section-heading,
+      .video-frame.kg-store-section .store-heading,
+      .events.communication-roadmap .info-box,
+      .trending-kindergartens .info-box,
+      .popular-kindergartens .info-box,
+      .community-board .container > div:first-child {
+        margin-bottom: 16px !important;
+        gap: 8px !important;
+      }
+
+      .platform-role-grid,
+      .feature-grid-list,
+      .privacy-list,
+      .events.communication-roadmap .card-wrapper,
+      .video-frame.kg-store-section .store-container,
+      .video-frame.kg-store-section .store-product-grid,
+      .community-board .community-main,
+      .final-cta-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+      }
+
+      .platform-role-card,
+      .feature-card,
+      .privacy-card,
+      .events.communication-roadmap .event-card,
+      .video-frame.kg-store-section .store-feature-card,
+      .video-frame.kg-store-section .store-product-card,
+      .trend-card-box,
+      .popular-card-box,
+      .community-left,
+      .community-right,
+      .final-cta-section {
+        border-radius: 18px !important;
+        box-sizing: border-box !important;
+      }
+
+      .trending-kindergartens,
+      .popular-kindergartens {
+        .info-box {
+          align-items: flex-start !important;
+        }
+      }
+
+      .video-frame.kg-store-section .store-feature-card,
+      .final-cta-section {
+        padding: 22px !important;
+      }
+
+      .final-cta-section {
+        margin-top: 28px !important;
+        margin-bottom: 36px !important;
+        gap: 18px !important;
+      }
+    }
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  #mobile-wrap,
+  #pc-wrap {
+    .home-page {
+      .featured-kindergartens-intro,
+      .platform-container,
+      .events.communication-roadmap .container,
+      .video-frame.kg-store-section .store-container,
+      .video-frame.kg-store-section .store-heading,
+      .trending-kindergartens .container,
+      .popular-kindergartens .container,
+      .community-board .container,
+      .final-cta-section {
+        width: calc(100vw - 44px) !important;
+        max-width: calc(100vw - 44px) !important;
+      }
+
+      .video-frame.kg-store-section .store-container,
+      .community-board .community-main {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+    }
+  }
+}
+
+/* Homepage hero boundary fix: mobile/tablet containment and stacking. */
+@media (max-width: 768px) {
+  #mobile-wrap,
+  #pc-wrap {
+    .header-main {
+      position: relative !important;
+      min-height: auto !important;
+      height: auto !important;
+      overflow: hidden !important;
+      isolation: isolate !important;
+      background-repeat: no-repeat !important;
+      background-size: cover !important;
+      background-position: center top !important;
+      border-bottom: 1px solid rgba(47, 125, 74, 0.1) !important;
+      box-shadow: inset 0 -30px 48px rgba(247, 243, 232, 0.86) !important;
+
+      &::after {
+        content: '' !important;
+        position: absolute !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        height: 70px !important;
+        background: linear-gradient(180deg, rgba(247, 243, 232, 0), #f7f3e8 92%) !important;
+        pointer-events: none !important;
+        z-index: 1 !important;
+      }
+
+      .container {
+        position: relative !important;
+        z-index: 2 !important;
+        width: calc(100vw - 28px) !important;
+        max-width: calc(100vw - 28px) !important;
+        min-height: 0 !important;
+        padding: 38px 0 34px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+        box-sizing: border-box !important;
+      }
+
+      .mobile-hero,
+      .hero-copy,
+      .hero-actions,
+      .search-box,
+      .hero-feature-cards {
+        position: relative !important;
+        z-index: 3 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        transform: none !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      .hero-copy {
+        align-items: flex-start !important;
+        text-align: left !important;
+      }
+
+      .hero-actions,
+      .hero-feature-cards {
+        margin-top: 0 !important;
+      }
+
+      .hero-feature-cards {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+    }
+
+    #main,
+    .home-page {
+      position: relative !important;
+      z-index: 2 !important;
+      background: #f7f3e8 !important;
+    }
+
+    .home-page .platform-showcase {
+      margin-top: 0 !important;
+      padding-top: 34px !important;
+      background: #f7f3e8 !important;
+    }
+  }
+}
+
+/* Homepage browser QA final guard: prevent 390px clipping when desktop hero renders. */
+@media (max-width: 768px) {
+  html,
+  body,
+  #__next,
+  #pc-wrap,
+  #mobile-wrap {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  #pc-wrap {
+    .header-main {
+      .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        overflow: hidden !important;
+      }
+
+      .hero-copy,
+      .hero-actions,
+      .search-box,
+      .hero-feature-cards {
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        transform: none !important;
+        box-sizing: border-box !important;
+      }
+
+      .hero-copy {
+        h1 {
+          width: 100% !important;
+          max-width: 100% !important;
+          font-size: clamp(34px, 10vw, 44px) !important;
+          line-height: 1.08 !important;
+          overflow-wrap: break-word !important;
+        }
+
+        p {
+          width: 100% !important;
+          max-width: 100% !important;
+          font-size: 15px !important;
+          line-height: 1.55 !important;
+          overflow-wrap: break-word !important;
+        }
+
+        .eyebrow {
+          max-width: 100% !important;
+          white-space: normal !important;
+          box-sizing: border-box !important;
+        }
+      }
+
+      .hero-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+
+        a,
+        a span {
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+        }
+      }
+
+      .search-box {
+        padding: 14px !important;
+
+        .select-box,
+        .search-box-other {
+          width: 100% !important;
+          max-width: 100% !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: stretch !important;
+          gap: 10px !important;
+        }
+
+        .box,
+        .advanced-filter,
+        .search-btn {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+          display: flex !important;
+          justify-content: space-between !important;
+          box-sizing: border-box !important;
+        }
+      }
+
+      .hero-feature-cards {
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+
+      .hero-feature-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+      }
+    }
+  }
+}
+/* KG_HOME_FINAL_MOBILE_HERO_GUARD */
+#pc-wrap {
+  .header-main {
+    .mobile-hero {
+      width: 300px !important;
+      max-width: 300px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+
+    .mobile-hero .hero-copy,
+    .mobile-hero .hero-copy h1,
+    .mobile-hero .hero-copy p,
+    .mobile-hero .hero-actions,
+    .mobile-hero .hero-actions a,
+    .mobile-hero .hero-actions a span,
+    .mobile-hero .hero-feature-cards,
+    .mobile-hero .hero-feature-card {
+      width: 100% !important;
+      max-width: 300px !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+    }
+
+    .mobile-hero .hero-copy h1 {
+      font-size: 30px !important;
+      line-height: 1.12 !important;
+      overflow-wrap: anywhere !important;
+      word-break: break-word !important;
+    }
+
+    .mobile-hero .hero-copy p,
+    .mobile-hero .feature-copy strong,
+    .mobile-hero .feature-copy span {
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+      word-break: break-word !important;
+    }
+  }
+}
+
+/* Desktop homepage hero cascade guard: mobile.scss is imported after pc/main.scss. */
+@media (min-width: 1025px) {
+  #pc-wrap {
+    .header-main {
+      position: relative !important;
+      width: 100% !important;
+      height: auto !important;
+      min-height: 800px !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      isolation: isolate !important;
+      background: #fffaf2 !important;
+      background-image: none !important;
+      background-color: #fffaf2 !important;
+      box-shadow: none !important;
+
+      .kg-hero-video {
+        position: absolute !important;
+        inset: 0 !important;
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        opacity: 0.96 !important;
+        filter: saturate(1.04) brightness(1.01) !important;
+        pointer-events: none !important;
+        z-index: 0 !important;
+      }
+
+      &::before {
+        content: '' !important;
+        position: absolute !important;
+        inset: 0 !important;
+        display: block !important;
+        background: linear-gradient(
+          104deg,
+          #fffaf2 0%,
+          rgba(255, 250, 242, 0.98) 31%,
+          rgba(255, 250, 242, 0.8) 50%,
+          rgba(255, 250, 242, 0.36) 74%,
+          rgba(255, 250, 242, 0.1) 100%
+        ) !important;
+        pointer-events: none !important;
+        z-index: 1 !important;
+      }
+
+      &::after {
+        content: none !important;
+        display: none !important;
+      }
+
+      .threeJSContainer {
+        display: none !important;
+      }
+
+      .container {
+        position: relative !important;
+        z-index: 2 !important;
+        width: min(1180px, calc(100% - 72px)) !important;
+        height: auto !important;
+        min-height: 800px !important;
+        margin: 0 auto !important;
+        padding: 124px 0 60px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        gap: 24px !important;
+        box-sizing: border-box !important;
+      }
+
+      .hero-copy {
+        position: relative !important;
+        z-index: 2 !important;
+        width: min(660px, 56vw) !important;
+        max-width: 660px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+        background: transparent !important;
+        background-image: none !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+      }
+
+      .hero-copy h1 {
+        max-width: 660px !important;
+        margin: 0 !important;
+        font-size: 66px !important;
+        line-height: 1.05 !important;
+      }
+
+      .hero-copy p {
+        max-width: 590px !important;
+        margin: 0 !important;
+      }
+
+      .hero-actions {
+        position: relative !important;
+        z-index: 2 !important;
+        margin-top: 2px !important;
+        margin-bottom: 0 !important;
+        transform: none !important;
+        background: transparent !important;
+        background-image: none !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+      }
+
+      .search-box {
+        display: none !important;
+      }
+
+      .hero-feature-cards {
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        z-index: 2 !important;
+        width: 100% !important;
+        max-width: 1180px !important;
+        margin: 44px 0 0 !important;
+        padding: 20px !important;
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        grid-auto-rows: 1fr !important;
+        gap: 18px !important;
+        transform: none !important;
+        border: 1px solid rgba(47, 125, 74, 0.1) !important;
+        border-radius: 28px !important;
+        background: #fffdf6 !important;
+        box-shadow: 0 24px 58px rgba(31, 81, 50, 0.12) !important;
+        backdrop-filter: none !important;
+        box-sizing: border-box !important;
+      }
+
+      .hero-feature-card {
+        width: auto !important;
+        min-width: 0 !important;
+        height: 136px !important;
+        min-height: 136px !important;
+        padding: 22px 20px !important;
+        border: 1px solid rgba(47, 125, 74, 0.11) !important;
+        border-radius: 20px !important;
+        background: #ffffff !important;
+        box-shadow: 0 14px 30px rgba(31, 81, 50, 0.08) !important;
+        backdrop-filter: none !important;
+        box-sizing: border-box !important;
+      }
+    }
+
+    #main,
+    .home-page,
+    .home-page .platform-showcase {
+      position: relative !important;
+      background: #f7f3e8 !important;
+    }
+
+    .home-page .platform-showcase {
+      margin-top: 0 !important;
+      padding-top: 58px !important;
+    }
+  }
+}
+
+/* Final desktop below-hero section guard: mobile.scss loads after PC styles. */
+@media (min-width: 1025px) {
+  #pc-wrap .home-page {
+    .popular-kindergartens {
+      padding: 66px 0 72px !important;
+      background: #fffaf2 !important;
+
+      .container {
+        width: min(1180px, calc(100% - 72px)) !important;
+        max-width: min(1180px, calc(100% - 72px)) !important;
+      }
+
+      .info-box {
+        margin-bottom: 28px !important;
+        align-items: flex-end !important;
+      }
+
+      .card-box {
+        margin-top: 0 !important;
+      }
+
+      .pagination-box {
+        display: none !important;
+      }
+    }
+
+    .featured-kindergarten-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 24px !important;
+      align-items: stretch !important;
+    }
+
+    .popular-card-box,
+    .featured-fallback-card {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 456px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+      border: 1px solid rgba(47, 125, 74, 0.12) !important;
+      border-radius: 22px !important;
+      background: #fffdf8 !important;
+      box-shadow: 0 18px 42px rgba(31, 81, 50, 0.1) !important;
+      box-sizing: border-box !important;
+    }
+
+    .popular-card-box .card-img,
+    .featured-fallback-image {
+      height: 210px !important;
+      min-height: 210px !important;
+      border-radius: 22px 22px 0 0 !important;
+      background-size: cover !important;
+      background-position: center !important;
+    }
+
+    .popular-card-box .info,
+    .featured-fallback-info {
+      flex: 1 1 auto !important;
+      padding: 20px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+    }
+
+    .popular-card-box .info .title,
+    .featured-fallback-info strong {
+      min-height: 44px !important;
+      color: #20342a !important;
+      font-size: 19px !important;
+      font-weight: 900 !important;
+      line-height: 22px !important;
+    }
+
+    .popular-card-box .info .desc,
+    .featured-fallback-info p {
+      min-height: 42px !important;
+      margin: 8px 0 0 !important;
+      color: #647168 !important;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      line-height: 21px !important;
+    }
+
+    .popular-card-box .info .options,
+    .featured-fallback-meta {
+      width: 100% !important;
+      margin-top: 14px !important;
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 8px !important;
+    }
+
+    .popular-card-box .info .options div,
+    .featured-fallback-meta span {
+      padding: 8px 10px !important;
+      border-radius: 999px !important;
+      background: #f3f8ef !important;
+      color: #4d654f !important;
+      font-size: 12px !important;
+      font-weight: 800 !important;
+      line-height: 16px !important;
+      text-align: center !important;
+    }
+
+    .popular-card-box .info .options div:last-child,
+    .popular-card-box .info hr,
+    .popular-card-box .view-like-box {
+      display: none !important;
+    }
+
+    .popular-card-box .info .bott {
+      width: 100% !important;
+      margin-top: auto !important;
+      padding-top: 18px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+    }
+
+    .popular-card-box .info .bott p {
+      margin: 0 !important;
+    }
+
+    .popular-card-box .details-cta,
+    .featured-fallback-info a {
+      margin-top: auto !important;
+      padding: 10px 16px !important;
+      border-radius: 999px !important;
+      background: #0f8b3d !important;
+      color: #ffffff !important;
+      font-size: 13px !important;
+      font-weight: 900 !important;
+      line-height: 18px !important;
+      text-align: center !important;
+      box-shadow: 0 10px 22px rgba(15, 139, 61, 0.18) !important;
+    }
+
+    .featured-fallback-info a {
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .community-board {
+      padding: 66px 0 70px !important;
+      background: #fffaf2 !important;
+
+      .container {
+        width: min(1180px, calc(100% - 72px)) !important;
+        max-width: min(1180px, calc(100% - 72px)) !important;
+      }
+    }
+
+    .community-empty-panel {
+      width: 100% !important;
+      min-height: 248px !important;
+      padding: 34px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      text-align: center !important;
+      border: 1px dashed rgba(47, 125, 74, 0.22) !important;
+      border-radius: 24px !important;
+      background: linear-gradient(135deg, rgba(255, 253, 248, 0.98), rgba(243, 248, 239, 0.96)) !important;
+      box-shadow: 0 18px 42px rgba(31, 81, 50, 0.08) !important;
+      box-sizing: border-box !important;
+    }
+
+    .community-empty-panel span {
+      color: #0f8b3d !important;
+      font-size: 13px !important;
+      font-weight: 900 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.04em !important;
+    }
+
+    .community-empty-panel h3 {
+      max-width: 560px !important;
+      margin: 10px 0 0 !important;
+      color: #20342a !important;
+      font-size: 28px !important;
+      font-weight: 900 !important;
+      line-height: 34px !important;
+    }
+
+    .community-empty-panel p {
+      max-width: 620px !important;
+      margin: 10px 0 0 !important;
+      color: #647168 !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      line-height: 24px !important;
+    }
+
+    .community-empty-panel a {
+      margin-top: 20px !important;
+      padding: 11px 18px !important;
+      border-radius: 999px !important;
+      background: #0f8b3d !important;
+      color: #ffffff !important;
+      font-size: 14px !important;
+      font-weight: 900 !important;
+      box-shadow: 0 12px 26px rgba(15, 139, 61, 0.18) !important;
+    }
+  }
+}
+
+/* True final desktop guard for dynamic homepage showcase and roadmap cards. */
+@media (min-width: 1025px) {
+  body #pc-wrap .home-page {
+    .popular-kindergarten-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 24px !important;
+      align-items: stretch !important;
+    }
+
+    .popular-card-box {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 464px !important;
+      cursor: pointer !important;
+    }
+
+    .popular-card-box .card-img {
+      position: relative !important;
+      height: 214px !important;
+      min-height: 214px !important;
+      background-color: #edf7e9 !important;
+    }
+
+    .events.communication-roadmap .card-wrapper {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 22px !important;
+      align-items: stretch !important;
+    }
+
+    .events.communication-roadmap .event-card {
+      width: 100% !important;
+      height: 268px !important;
+      min-height: 268px !important;
+      padding: 24px !important;
+      align-items: flex-start !important;
+      gap: 14px !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(47, 125, 74, 0.12) !important;
+      background: linear-gradient(145deg, #ffffff 0%, #fff8e8 100%) !important;
+      box-shadow: 0 18px 42px rgba(31, 81, 50, 0.1) !important;
+      box-sizing: border-box !important;
+    }
+
+    .events.communication-roadmap .event-card.available {
+      background: linear-gradient(145deg, #ffffff 0%, #eef8e9 100%) !important;
+      border-color: rgba(15, 139, 61, 0.24) !important;
+    }
+
+    .events.communication-roadmap .event-card > strong {
+      padding: 7px 12px !important;
+      border-radius: 999px !important;
+      background: #fff0c6 !important;
+      color: #9a6612 !important;
+      font-size: 12px !important;
+      font-weight: 950 !important;
+      line-height: 1 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.04em !important;
+    }
+
+    .events.communication-roadmap .event-card.available > strong {
+      background: #dcf6df !important;
+      color: #0f8b3d !important;
+    }
+
+    .events.communication-roadmap .roadmap-icon {
+      width: 54px !important;
+      height: 54px !important;
+      border-radius: 18px !important;
+      background: rgba(15, 139, 61, 0.1) !important;
+      color: #0f8b3d !important;
+    }
+
+    .events.communication-roadmap .event-card.planned .roadmap-icon {
+      background: rgba(239, 168, 38, 0.14) !important;
+      color: #c17c13 !important;
     }
   }
 }

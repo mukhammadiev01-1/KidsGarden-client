@@ -119,6 +119,35 @@ export const TELEGRAM_LOGIN = gql`
 	}
 `;
 
+export const KAKAO_LOGIN = gql`
+	mutation KakaoLogin($input: KakaoLoginInput!) {
+		kakaoLogin(input: $input) {
+			_id
+			memberType
+			memberStatus
+			memberAuthType
+			memberPhone
+			memberNick
+			memberFullName
+			memberImage
+			memberAddress
+			memberDesc
+			memberWarnings
+			memberBlocks
+			memberKindergartens
+			memberRank
+			memberArticles
+			memberPoints
+			memberLikes
+			memberViews
+			deletedAt
+			createdAt
+			updatedAt
+			accessToken
+		}
+	}
+`;
+
 export const UPDATE_MEMBER = gql`
 	mutation UpdateMember($input: MemberUpdate!) {
 		updateMember(input: $input) {
@@ -160,6 +189,8 @@ export const CREATE_KINDERGARTEN = gql`
 			kindergartenStatus
 			kindergartenLocation
 			kindergartenAddress
+			kindergartenLatitude
+			kindergartenLongitude
 			kindergartenTitle
 			monthlyFee
 			kindergartenPrice
@@ -189,6 +220,8 @@ export const UPDATE_KINDERGARTEN = gql`
 			kindergartenStatus
 			kindergartenLocation
 			kindergartenAddress
+			kindergartenLatitude
+			kindergartenLongitude
 			kindergartenTitle
 			monthlyFee
 			kindergartenPrice
@@ -525,6 +558,8 @@ export const LIKE_TARGET_KINDERGARTEN = gql`
 			kindergartenStatus
 			kindergartenLocation
 			kindergartenAddress
+			kindergartenLatitude
+			kindergartenLongitude
 			kindergartenTitle
 			monthlyFee
 			kindergartenPrice

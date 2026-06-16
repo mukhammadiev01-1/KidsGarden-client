@@ -11,15 +11,17 @@ interface EventData {
 	description: string;
 	tone: string;
 	icon: React.ElementType;
+	available?: boolean;
 }
 
 const eventsData: EventData[] = [
 	{
 		eventTitle: 'Private Chat',
-		label: 'Coming Soon',
-		description: 'One-on-one messages when you need them.',
+		label: 'Available',
+		description: 'Secure parent-teacher and application conversations are already built into KidsGarden.',
 		tone: 'green',
 		icon: ForumRoundedIcon,
+		available: true,
 	},
 	{
 		eventTitle: 'Auto Translation',
@@ -48,7 +50,7 @@ const EventCard = ({ event }: { event: EventData }) => {
 	const Icon = event.icon;
 
 	return (
-		<Stack className={`event-card roadmap-card ${event.tone}`}>
+		<Stack className={`event-card roadmap-card ${event.tone} ${event.available ? 'available' : 'planned'}`}>
 			<strong>{event.label}</strong>
 			<span className={'roadmap-icon'}>
 				<Icon />
@@ -68,7 +70,7 @@ const Events = () => {
 						<span>
 							Communication Roadmap <em className={'sprout-accent'} aria-hidden />
 						</span>
-						<p>Exciting features coming soon to bring us even closer together.</p>
+						<p>Private chat is live today, with family communication upgrades planned next.</p>
 					</Box>
 				</Stack>
 				<Stack className={'card-wrapper'}>

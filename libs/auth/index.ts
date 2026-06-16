@@ -3,7 +3,7 @@ import { initializeApollo } from '../../apollo/client';
 import { userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
 import { sweetMixinErrorAlert } from '../sweetAlert';
-import { GOOGLE_LOGIN, LOGIN, SIGN_UP, TELEGRAM_LOGIN } from '../../apollo/user/mutation';
+import { GOOGLE_LOGIN, KAKAO_LOGIN, LOGIN, SIGN_UP, TELEGRAM_LOGIN } from '../../apollo/user/mutation';
 import { normalizeMemberType } from '../enums/member.enum';
 
 export function getJwtToken(): any {
@@ -95,18 +95,45 @@ export const googleLogIn = async (idToken: string): Promise<void> => {
 	}
 };
 
-export const telegramLogIn = async (idToken: string, nonce?: string): Promise<void> => {
+export type TelegramAuthIntent = 'LOGIN' | 'SIGNUP';
+
+export interface TelegramAuthData {
+	id: string;
+	firstName?: string;
+	lastName?: string;
+	username?: string;
+	photoUrl?: string;
+	authDate: number;
+	hash: string;
+}
+
+export const telegramLogIn = async (authData: TelegramAuthData, intent: TelegramAuthIntent): Promise<void> => {
 	try {
-		const { jwtToken } = await requestTelegramJwtToken({ idToken, nonce });
+		const { jwtToken } = await requestTelegramJwtToken({ authData, intent });
 
 		if (jwtToken) {
 			updateStorage({ jwtToken });
 			updateUserInfo(jwtToken);
 		}
-	} catch (err) {
-		console.warn('telegram login err', err);
+	} catch (err: any) {
 		logOut();
-		throw new Error('Telegram Login Err');
+		throw new Error(err.message || 'Telegram Login Err');
+	}
+};
+
+export type KakaoAuthIntent = 'LOGIN' | 'SIGNUP';
+
+export const kakaoLogIn = async (code: string, redirectUri: string, intent: KakaoAuthIntent): Promise<void> => {
+	try {
+		const { jwtToken } = await requestKakaoJwtToken({ code, redirectUri, intent });
+
+		if (jwtToken) {
+			updateStorage({ jwtToken });
+			updateUserInfo(jwtToken);
+		}
+	} catch (err: any) {
+		logOut();
+		throw new Error(err.message || 'Kakao Login Err');
 	}
 };
 
@@ -131,18 +158,18 @@ const requestGoogleJwtToken = async ({ idToken }: { idToken: string }): Promise<
 };
 
 const requestTelegramJwtToken = async ({
-	idToken,
-	nonce,
+	authData,
+	intent,
 }: {
-	idToken: string;
-	nonce?: string;
+	authData: TelegramAuthData;
+	intent: TelegramAuthIntent;
 }): Promise<{ jwtToken: string }> => {
 	const apolloClient = await initializeApollo();
 
 	try {
 		const result = await apolloClient.mutate({
 			mutation: TELEGRAM_LOGIN,
-			variables: { input: { idToken, nonce } },
+			variables: { input: { ...authData, intent } },
 			fetchPolicy: 'network-only',
 		});
 
@@ -151,8 +178,34 @@ const requestTelegramJwtToken = async ({
 		return { jwtToken: accessToken };
 	} catch (err: any) {
 		const message = err?.graphQLErrors?.[0]?.message;
-		if (message) await sweetMixinErrorAlert(message);
-		throw new Error('telegram token error');
+		throw new Error(message || 'telegram token error');
+	}
+};
+
+const requestKakaoJwtToken = async ({
+	code,
+	redirectUri,
+	intent,
+}: {
+	code: string;
+	redirectUri: string;
+	intent: KakaoAuthIntent;
+}): Promise<{ jwtToken: string }> => {
+	const apolloClient = await initializeApollo();
+
+	try {
+		const result = await apolloClient.mutate({
+			mutation: KAKAO_LOGIN,
+			variables: { input: { code, redirectUri, intent } },
+			fetchPolicy: 'network-only',
+		});
+
+		const { accessToken } = result?.data?.kakaoLogin;
+
+		return { jwtToken: accessToken };
+	} catch (err: any) {
+		const message = err?.graphQLErrors?.[0]?.message;
+		throw new Error(message || 'kakao token error');
 	}
 };
 

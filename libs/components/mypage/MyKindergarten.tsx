@@ -16,11 +16,12 @@ import {
 	MANAGE_KINDERGARTEN_TYPES,
 } from '../../enums/kindergarten.enum';
 import { MemberType } from '../../enums/member.enum';
-import { getImageUrl, REACT_APP_API_GRAPHQL_URL } from '../../config';
+import { getImageUrl, KAKAO_MAP_JS_KEY, REACT_APP_API_GRAPHQL_URL } from '../../config';
 import { getKindergartenTypeLabel } from '../../utils';
 import { getJwtToken } from '../../auth';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { getStatusChipSx, getStatusLabel, truncateId } from './dashboardUtils';
+import { loadKakaoMapSdk } from '../../utils/kakaoMapLoader';
 
 const emptyForm: KindergartenInput = {
 	kindergartenType: KindergartenType.PRIVATE_KINDERGARTEN,
@@ -36,6 +37,36 @@ const emptyForm: KindergartenInput = {
 };
 
 const maxKindergartenImages = 10;
+
+interface KakaoAddressSearchResult {
+	address_name: string;
+	road_address_name?: string;
+	x: string;
+	y: string;
+}
+
+const parseOptionalCoordinate = (value: string): number | undefined => {
+	const trimmedValue = value.trim();
+	if (!trimmedValue) return undefined;
+	return Number(trimmedValue);
+};
+
+const validateCoordinates = (latitude?: number, longitude?: number): void => {
+	const hasLatitude = typeof latitude === 'number';
+	const hasLongitude = typeof longitude === 'number';
+
+	if (hasLatitude !== hasLongitude) {
+		throw new Error('Please enter both latitude and longitude.');
+	}
+
+	if (hasLatitude && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)) {
+		throw new Error('Latitude must be between -90 and 90.');
+	}
+
+	if (hasLongitude && (!Number.isFinite(longitude) || longitude < -180 || longitude > 180)) {
+		throw new Error('Longitude must be between -180 and 180.');
+	}
+};
 
 const normalizeKindergartenTypeValue = (type: KindergartenType): KindergartenType => {
 	switch (type) {
@@ -55,6 +86,10 @@ const MyKindergarten = () => {
 	const user = useReactiveVar(userVar);
 	const [selectedId, setSelectedId] = useState<string>('');
 	const [form, setForm] = useState<KindergartenInput>(emptyForm);
+	const [addressSearchQuery, setAddressSearchQuery] = useState<string>('');
+	const [addressSearchResults, setAddressSearchResults] = useState<KakaoAddressSearchResult[]>([]);
+	const [addressSearchLoading, setAddressSearchLoading] = useState<boolean>(false);
+	const [addressSearchMessage, setAddressSearchMessage] = useState<string>('');
 	const [uploadingKindergartenImages, setUploadingKindergartenImages] = useState<boolean>(false);
 	const [createKindergarten] = useMutation(CREATE_KINDERGARTEN);
 	const [updateKindergarten] = useMutation(UPDATE_KINDERGARTEN);
@@ -197,13 +232,88 @@ const MyKindergarten = () => {
 			kindergartenPrograms: kindergarten.kindergartenPrograms,
 			kindergartenImages: kindergarten.kindergartenImages ?? [],
 			kindergartenDesc: kindergarten.kindergartenDesc ?? '',
+			kindergartenLatitude: kindergarten.kindergartenLatitude,
+			kindergartenLongitude: kindergarten.kindergartenLongitude,
 			establishedAt: kindergarten.establishedAt,
 		});
+		setAddressSearchQuery(kindergarten.kindergartenAddress || '');
+		setAddressSearchResults([]);
+		setAddressSearchMessage('');
 	};
 
 	const resetForm = () => {
 		setSelectedId('');
 		setForm(emptyForm);
+		setAddressSearchQuery('');
+		setAddressSearchResults([]);
+		setAddressSearchMessage('');
+	};
+
+	const searchAddress = async () => {
+		const query = (addressSearchQuery || form.kindergartenAddress || '').trim();
+
+		if (!query) {
+			setAddressSearchResults([]);
+			setAddressSearchMessage('Please enter an address to search.');
+			return;
+		}
+
+		if (!KAKAO_MAP_JS_KEY) {
+			setAddressSearchResults([]);
+			setAddressSearchMessage('Kakao address search is unavailable. Enter coordinates manually.');
+			return;
+		}
+
+		try {
+			setAddressSearchLoading(true);
+			setAddressSearchMessage('');
+			await loadKakaoMapSdk({ services: true });
+
+			if (!window.kakao?.maps?.services?.Geocoder) {
+				throw new Error('services unavailable');
+			}
+
+			const geocoder = new window.kakao.maps.services.Geocoder();
+			const results = await new Promise<KakaoAddressSearchResult[]>((resolve, reject) => {
+				geocoder.addressSearch(query, (data: KakaoAddressSearchResult[], status: string) => {
+					if (status === window.kakao.maps.services.Status.OK) {
+						resolve(data ?? []);
+						return;
+					}
+
+					if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
+						resolve([]);
+						return;
+					}
+
+					reject(new Error('search failed'));
+				});
+			});
+
+			setAddressSearchResults(results);
+			setAddressSearchMessage(results.length ? '' : 'No address results found.');
+		} catch (_err) {
+			setAddressSearchResults([]);
+			setAddressSearchMessage('Address search could not be loaded. Enter coordinates manually.');
+		} finally {
+			setAddressSearchLoading(false);
+		}
+	};
+
+	const selectAddressSearchResult = (result: KakaoAddressSearchResult) => {
+		const latitude = Number(result.y);
+		const longitude = Number(result.x);
+		const address = result.road_address_name || result.address_name;
+
+		setForm((prev) => ({
+			...prev,
+			kindergartenAddress: address,
+			kindergartenLatitude: latitude,
+			kindergartenLongitude: longitude,
+		}));
+		setAddressSearchQuery(address);
+		setAddressSearchResults([]);
+		setAddressSearchMessage('Address selected. Click Update Kindergarten to save changes.');
 	};
 
 	const submitKindergarten = async () => {
@@ -214,6 +324,7 @@ const MyKindergarten = () => {
 			if (!form.kindergartenImages.length) {
 				throw new Error('Please upload at least one kindergarten photo.');
 			}
+			validateCoordinates(form.kindergartenLatitude, form.kindergartenLongitude);
 
 			if (selectedId) {
 				const input: KindergartenUpdate = { _id: selectedId, ...form };
@@ -384,8 +495,100 @@ const MyKindergarten = () => {
 					fullWidth
 					label="Address"
 					value={form.kindergartenAddress}
-					onChange={(e) => updateForm('kindergartenAddress', e.target.value)}
+					onChange={(e) => {
+						updateForm('kindergartenAddress', e.target.value);
+						setAddressSearchQuery(e.target.value);
+					}}
 				/>
+
+				<Stack spacing={1.25}>
+					<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
+						<TextField
+							fullWidth
+							label="Search address"
+							value={addressSearchQuery}
+							onChange={(e) => setAddressSearchQuery(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') {
+									e.preventDefault();
+									searchAddress().then();
+								}
+							}}
+							placeholder="Search address with Kakao"
+						/>
+						<Button
+							variant="outlined"
+							onClick={searchAddress}
+							disabled={addressSearchLoading}
+							sx={{ minWidth: { xs: '100%', md: 160 } }}
+						>
+							{addressSearchLoading ? 'Searching...' : 'Search address'}
+						</Button>
+					</Stack>
+					<Typography className="dashboard-muted-text">
+						Use Kakao address search to fill address and coordinates, or enter coordinates manually below.
+					</Typography>
+					{addressSearchMessage && (
+						<Typography className="dashboard-muted-text" sx={{ color: '#2f7d4a' }}>
+							{addressSearchMessage}
+						</Typography>
+					)}
+					{addressSearchResults.length > 0 && (
+						<Stack spacing={1}>
+							{addressSearchResults.slice(0, 5).map((result, index) => {
+								const address = result.road_address_name || result.address_name;
+
+								return (
+									<Button
+										key={`${result.x}-${result.y}-${index}`}
+										variant="outlined"
+										onClick={() => selectAddressSearchResult(result)}
+										sx={{
+											justifyContent: 'flex-start',
+											textAlign: 'left',
+											textTransform: 'none',
+										}}
+									>
+										<Stack alignItems="flex-start">
+											<Typography sx={{ fontSize: 14, fontWeight: 700 }}>{address}</Typography>
+											{result.road_address_name && result.address_name && (
+												<Typography sx={{ fontSize: 12, color: '#6b7280' }}>{result.address_name}</Typography>
+											)}
+										</Stack>
+									</Button>
+								);
+							})}
+						</Stack>
+					)}
+				</Stack>
+
+				<Typography className="admin-form-section-title">Map coordinates</Typography>
+				<Stack spacing={1}>
+					<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
+						<TextField
+							fullWidth
+							label="Latitude"
+							type="number"
+							inputProps={{ step: 'any', min: -90, max: 90 }}
+							value={form.kindergartenLatitude ?? ''}
+							onChange={(e) => updateForm('kindergartenLatitude', parseOptionalCoordinate(e.target.value))}
+						/>
+						<TextField
+							fullWidth
+							label="Longitude"
+							type="number"
+							inputProps={{ step: 'any', min: -180, max: 180 }}
+							value={form.kindergartenLongitude ?? ''}
+							onChange={(e) => updateForm('kindergartenLongitude', parseOptionalCoordinate(e.target.value))}
+						/>
+					</Stack>
+					<Typography className="dashboard-muted-text">
+						Coordinates are used to display your kindergarten on the map.
+						{typeof form.kindergartenLatitude === 'number' && typeof form.kindergartenLongitude === 'number'
+							? ` Current coordinates: ${form.kindergartenLatitude}, ${form.kindergartenLongitude}.`
+							: ''}
+					</Typography>
+				</Stack>
 
 				<Typography className="admin-form-section-title">Center details</Typography>
 				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>

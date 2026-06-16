@@ -544,3 +544,102 @@
     }
   }
 }
+
+/* KidsGarden UI repair: keep Super Admin utilitarian, but remove raw/harsh table treatment. */
+#pc-wrap {
+  #bunker {
+    background: #f7f4ed;
+
+    .content {
+      max-width: 100%;
+    }
+
+    .dashboard-page-header {
+      .tit,
+      h1,
+      h2 {
+        color: #24332d;
+        letter-spacing: 0;
+      }
+
+      p,
+      .MuiTypography-root {
+        color: #64746b;
+      }
+    }
+
+    .table-wrap {
+      border: 1px solid #e4ecd9;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 16px 40px rgba(72, 101, 79, 0.09);
+      overflow: hidden;
+
+      .dashboard-panel-header {
+        padding-bottom: 12px;
+        border-bottom: 1px solid #edf2e8;
+      }
+
+      .dashboard-count-chip {
+        border: 1px solid #cfe0c8;
+        background: #e7f5ec;
+        color: #2f7d4a;
+        font-weight: 900;
+      }
+
+      thead tr,
+      .MuiTableHead-root .MuiTableRow-root {
+        background: #f3f8ef;
+      }
+
+      thead th,
+      .MuiTableHead-root .MuiTableCell-root {
+        color: #405346;
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+        border-bottom: 1px solid #dfe8da;
+      }
+
+      tbody td,
+      .MuiTableBody-root .MuiTableCell-root {
+        color: #405346;
+        border-bottom: 1px solid #edf2e8;
+      }
+
+      tbody tr:hover td {
+        background: #fbfff8;
+      }
+
+      .no-data {
+        display: inline-flex;
+        padding: 14px 18px;
+        border: 1px dashed #cfe0c8;
+        border-radius: 14px;
+        background: #fffdf8;
+        color: #64746b;
+        font-weight: 800;
+      }
+    }
+
+    .badge {
+      border-radius: 999px;
+      font-weight: 800;
+    }
+
+    .MuiButton-root {
+      border-radius: 999px;
+      text-transform: none;
+      font-weight: 800;
+    }
+
+    .MuiButton-contained {
+      background: #2f7d4a;
+      box-shadow: 0 10px 20px rgba(47, 125, 74, 0.18);
+
+      &:hover {
+        background: #25683d;
+      }
+    }
+  }
+}
