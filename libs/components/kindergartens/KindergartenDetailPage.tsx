@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Stack, TextField, Typography } from '@mui/material';
 import withLayoutFull from '../layout/LayoutFull';
 import { NextPage } from 'next';
@@ -46,6 +46,7 @@ const APPLICATION_DOCUMENT_ACCEPT = 'image/jpeg,image/jpg,image/png,application/
 const APPLICATION_DOCUMENT_MIME_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'application/pdf']);
 const MAX_APPLICATION_DOCUMENTS = 5;
 const MAX_APPLICATION_DOCUMENT_SIZE = 1024 * 1024;
+type ApplicationIntent = 'application' | 'contact' | 'visit';
 
 const formatCount = (value?: number, fallback = 'Not listed') => {
 	if (typeof value !== 'number') return fallback;
@@ -99,6 +100,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 	const [commentTotal, setCommentTotal] = useState<number>(0);
 	const [staffApplicationMessage, setStaffApplicationMessage] = useState<string>('');
 	const [applicationFormOpen, setApplicationFormOpen] = useState(false);
+	const [applicationIntent, setApplicationIntent] = useState<ApplicationIntent>('application');
 	const [applicationForm, setApplicationForm] = useState({
 		childName: '',
 		childAge: '',
@@ -106,6 +108,10 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 	});
 	const [applicationFiles, setApplicationFiles] = useState<File[]>([]);
 	const [applicationFileError, setApplicationFileError] = useState<string>('');
+	const gallerySectionRef = useRef<HTMLElement | null>(null);
+	const applicationCardRef = useRef<HTMLDivElement | null>(null);
+	const applicationChildNameRef = useRef<HTMLInputElement | null>(null);
+	const applicationMessageRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 	const [insertCommentData, setInsertCommentData] = useState<CommentInput>({
 		commentGroup: CommentGroup.KINDERGARTEN,
 		commentContent: '',
@@ -277,6 +283,57 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 		setSlideImage(image);
 	};
 
+	const scrollToGallery = () => {
+		if (!detailImages.length) return;
+		gallerySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	};
+
+	const scrollToApplicationCard = () => {
+		(applicationCardRef.current || document.querySelector('.kg-application-card'))?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'center',
+		});
+	};
+
+	const focusApplicationField = (intent: ApplicationIntent) => {
+		window.setTimeout(() => {
+			if (intent === 'application') {
+				applicationChildNameRef.current?.focus();
+				return;
+			}
+			(applicationMessageRef.current || applicationChildNameRef.current)?.focus();
+		}, 450);
+	};
+
+	const openApplicationForm = (intent: ApplicationIntent = 'application') => {
+		setApplicationIntent(intent);
+		setApplicationFormOpen(true);
+		scrollToApplicationCard();
+		focusApplicationField(intent);
+	};
+
+	const handleParentApplicationIntent = async (intent: Exclude<ApplicationIntent, 'application'>) => {
+		try {
+			if (!user?._id) {
+				const confirmed = await sweetLoginConfirmAlert('Please login first');
+				if (confirmed) await router.push('/account/join');
+				return;
+			}
+			if (user.memberType !== MemberType.PARENT) {
+				await sweetErrorAlert('Contact and visit requests are available from parent accounts.');
+				return;
+			}
+			if (hasOpenApplication) {
+				await router.push('/mypage?category=applications');
+				return;
+			}
+
+			openApplicationForm(intent);
+		} catch (err: any) {
+			await sweetErrorHandling(err);
+		}
+	};
+
 	const commentPaginationChangeHandler = async (event: ChangeEvent<unknown>, value: number) => {
 		commentInquiry.page = value;
 		setCommentInquiry({ ...commentInquiry });
@@ -402,6 +459,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 				},
 			});
 			setApplicationForm({ childName: '', childAge: '', parentMessage: '' });
+			setApplicationIntent('application');
 			setApplicationFiles([]);
 			setApplicationFileError('');
 			setApplicationFormOpen(false);
@@ -412,10 +470,6 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 			if (applicationErrorMessage) await sweetErrorAlert(applicationErrorMessage);
 			else await sweetErrorHandling(err);
 		}
-	};
-
-	const scrollToContact = () => {
-		document.querySelector('.kg-detail-contact-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 	};
 
 	if (!kindergarten && (kindergartenLoading || !kindergartenId)) {
@@ -483,7 +537,16 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 						<Stack className="kg-detail-main-image">
 							<span className="kg-verified-badge">Verified Kindergarten</span>
 							<img src={getImageUrl(activeImage)} alt={title} />
-							<button type="button" className="kg-photo-count">See all photos ({detailImages.length || 1})</button>
+							{detailImages.length > 0 && (
+								<button
+									type="button"
+									className="kg-photo-count"
+									onClick={scrollToGallery}
+									aria-label="See all kindergarten photos"
+								>
+									See all photos ({detailImages.length})
+								</button>
+							)}
 						</Stack>
 						<Stack className="kg-detail-thumbs">
 							{detailImages.slice(0, 5).map((image, index) => (
@@ -527,8 +590,8 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 							<div><strong>Center Type</strong><span>{getKindergartenTypeLabel(kindergarten?.kindergartenType)}</span></div>
 						</Stack>
 						<Stack className="kg-detail-actions">
-							<Button onClick={scrollToContact} className="primary">Contact Center</Button>
-							<Button onClick={scrollToContact} className="secondary">Request a Visit</Button>
+							<Button onClick={() => handleParentApplicationIntent('contact')} className="primary">Contact Center</Button>
+							<Button onClick={() => handleParentApplicationIntent('visit')} className="secondary">Request a Visit</Button>
 						</Stack>
 					</Stack>
 				</Stack>
@@ -589,7 +652,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 						</section>
 
 						{detailImages.length > 0 && (
-							<section className="kg-detail-panel">
+							<section className="kg-detail-panel kg-gallery-panel" ref={gallerySectionRef}>
 								<Typography component="h2">Gallery</Typography>
 								<Stack className="kg-gallery-grid">
 									{detailImages.slice(0, 6).map((image, index) => (
@@ -666,7 +729,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 								title={title}
 								locationText={locationText}
 							/>
-							<Button className="primary">Contact Center</Button>
+							<Button className="primary" onClick={() => handleParentApplicationIntent('contact')}>Contact Center</Button>
 						</Stack>
 						<Stack className="kg-detail-side-card kg-fee-card">
 							<Typography component="h3">Monthly Fee</Typography>
@@ -674,8 +737,18 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 							<span>Ask the center what meals and materials are included.</span>
 						</Stack>
 						{user?._id && user.memberType === MemberType.PARENT && (
-							<Stack className="kg-detail-side-card kg-application-card">
+							<Stack className="kg-detail-side-card kg-application-card" ref={applicationCardRef}>
 								<Typography component="h3">Apply to this kindergarten</Typography>
+								{applicationIntent === 'contact' && !hasOpenApplication && (
+									<p className="kg-application-intent">
+										Use the parent message to ask this center a question through the existing application flow.
+									</p>
+								)}
+								{applicationIntent === 'visit' && !hasOpenApplication && (
+									<p className="kg-application-intent">
+										Request visit availability in the parent message. This does not book a visit automatically.
+									</p>
+								)}
 								{currentApplication && (
 									<p className={`status ${currentApplication.status.toLowerCase()}`}>
 										Current application: {currentApplication.status}
@@ -685,7 +758,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 									<Button
 										className="primary"
 										disabled={hasOpenApplication || submittingApplication}
-										onClick={() => setApplicationFormOpen(true)}
+										onClick={() => openApplicationForm('application')}
 									>
 										{hasOpenApplication ? 'Application In Review' : 'Apply to this kindergarten'}
 									</Button>
@@ -696,6 +769,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 											fullWidth
 											size="small"
 											label="Child name"
+											inputRef={applicationChildNameRef}
 											value={applicationForm.childName}
 											onChange={(event) => setApplicationForm({ ...applicationForm, childName: event.target.value })}
 										/>
@@ -712,6 +786,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 											multiline
 											minRows={3}
 											label="Parent message"
+											inputRef={applicationMessageRef}
 											value={applicationForm.parentMessage}
 											onChange={(event) => setApplicationForm({ ...applicationForm, parentMessage: event.target.value })}
 										/>
@@ -754,6 +829,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 												className="secondary"
 												onClick={() => {
 													setApplicationFormOpen(false);
+													setApplicationIntent('application');
 													setApplicationForm({ childName: '', childAge: '', parentMessage: '' });
 													setApplicationFiles([]);
 													setApplicationFileError('');

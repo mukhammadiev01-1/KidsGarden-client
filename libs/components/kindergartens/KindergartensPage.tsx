@@ -26,9 +26,48 @@ import ViewListRoundedIcon from '@mui/icons-material/ViewListRounded';
 import EmojiEventsRoundedIcon from '@mui/icons-material/EmojiEventsRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { getImageUrl } from '../../config';
 import { formatMonthlyFee, getKindergartenTypeLabel } from '../../utils';
 import KakaoKindergartenListMap from '../maps/KakaoKindergartenListMap';
+
+type ListingView = 'grid' | 'list';
+type MapPresetKey = 'all' | 'trending' | 'popular' | 'topRank';
+
+interface MapPreset {
+	key: MapPresetKey;
+	label: string;
+	sort: string;
+	direction: Direction;
+}
+
+const mapPresetTabs: MapPreset[] = [
+	{ key: 'all', label: 'All', sort: 'createdAt', direction: Direction.DESC },
+	{ key: 'trending', label: 'Trending', sort: 'kindergartenViews', direction: Direction.DESC },
+	{ key: 'popular', label: 'Popular', sort: 'kindergartenLikes', direction: Direction.DESC },
+	{ key: 'topRank', label: 'Top Rank', sort: 'kindergartenRank', direction: Direction.DESC },
+];
+
+const getActivePresetKey = (filter: KindergartensInquiry): MapPresetKey | null => {
+	const sort = filter?.sort || 'createdAt';
+	const direction = filter?.direction || Direction.DESC;
+	const activePreset = mapPresetTabs.find((preset) => preset.sort === sort && preset.direction === direction);
+
+	return activePreset?.key ?? null;
+};
+
+const getSortLabel = (filter: KindergartensInquiry): string => {
+	const sort = filter?.sort || 'createdAt';
+	const direction = filter?.direction || Direction.DESC;
+	const preset = mapPresetTabs.find((item) => item.sort === sort && item.direction === direction);
+
+	if (preset) return preset.key === 'all' ? 'New' : preset.label;
+	if (sort === 'monthlyFee' && direction === Direction.ASC) return 'Lowest Fee';
+	if (sort === 'monthlyFee' && direction === Direction.DESC) return 'Highest Fee';
+
+	return 'Sort';
+};
 
 const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -43,6 +82,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [sortingOpen, setSortingOpen] = useState(false);
 	const [filterSortName, setFilterSortName] = useState('New');
+	const [listingView, setListingView] = useState<ListingView>('grid');
 	const listingBasePath = router.pathname.startsWith('/kindergartens') ? '/kindergartens' : '/property';
 
 	const getListingHref = (input: KindergartensInquiry) => `${listingBasePath}?input=${JSON.stringify(input)}`;
@@ -78,6 +118,10 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		getKindergartensRefetch({ input: searchFilter }).then();
 	}, [searchFilter]);
 
+	useEffect(() => {
+		setFilterSortName(getSortLabel(searchFilter));
+	}, [searchFilter.sort, searchFilter.direction]);
+
 	/** HANDLERS **/
 	const handlePaginationChange = async (event: ChangeEvent<unknown>, value: number) => {
 		const nextFilter = { ...searchFilter, page: value };
@@ -97,22 +141,45 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		setAnchorEl(null);
 	};
 
-	const sortingHandler = (e: React.MouseEvent<HTMLLIElement>) => {
+	const sortingHandler = async (e: React.MouseEvent<HTMLLIElement>) => {
+		let nextFilter = searchFilter;
+
 		switch (e.currentTarget.id) {
 			case 'new':
-				setSearchFilter({ ...searchFilter, sort: 'createdAt', direction: Direction.ASC });
+				nextFilter = { ...searchFilter, page: 1, sort: 'createdAt', direction: Direction.DESC };
 				setFilterSortName('New');
 				break;
 			case 'lowest':
-				setSearchFilter({ ...searchFilter, sort: 'monthlyFee', direction: Direction.ASC });
+				nextFilter = { ...searchFilter, page: 1, sort: 'monthlyFee', direction: Direction.ASC };
 				setFilterSortName('Lowest Fee');
 				break;
 			case 'highest':
-				setSearchFilter({ ...searchFilter, sort: 'monthlyFee', direction: Direction.DESC });
+				nextFilter = { ...searchFilter, page: 1, sort: 'monthlyFee', direction: Direction.DESC };
 				setFilterSortName('Highest Fee');
+				break;
+			default:
+				break;
 		}
+		const href = getListingHref(nextFilter);
+		setSearchFilter(nextFilter);
+		setCurrentPage(1);
 		setSortingOpen(false);
 		setAnchorEl(null);
+		await router.push(href, href, { scroll: false });
+	};
+
+	const mapPresetClickHandler = async (preset: MapPreset) => {
+		const nextFilter = {
+			...searchFilter,
+			page: 1,
+			sort: preset.sort,
+			direction: preset.direction,
+		};
+		const href = getListingHref(nextFilter);
+
+		setSearchFilter(nextFilter);
+		setCurrentPage(1);
+		await router.push(href, href, { scroll: false });
 	};
 
 	const searchButtonHandler = async () => {
@@ -139,6 +206,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 			: 'Any fee';
 
 	const topKindergartens = kindergartens.slice(0, 4);
+	const activePresetKey = getActivePresetKey(searchFilter);
 
 	const likeKindergartenHandler = async (user: any, id: string) => {
 		try {
@@ -153,6 +221,71 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
+	};
+
+	const renderKindergartenListRow = (kindergarten: Kindergarten) => {
+		const kindergartenImageUrl = getImageUrl(kindergarten?.kindergartenImages?.[0]);
+		const location = kindergarten?.kindergartenLocation || kindergarten?.kindergartenAddress || 'Location pending';
+		const description = kindergarten?.kindergartenDesc?.trim();
+		const kindergartenTypeLabel = getKindergartenTypeLabel(kindergarten?.kindergartenType);
+		const isLiked = Boolean(kindergarten?.meLiked?.[0]?.myFavorite);
+		const detailHref = {
+			pathname: '/kindergartens/detail',
+			query: { id: kindergarten?._id },
+		};
+		const metaItems = [
+			kindergarten?.kindergartenAgeRange ? `Ages ${kindergarten.kindergartenAgeRange}` : '',
+			kindergarten?.kindergartenCapacity ? `${kindergarten.kindergartenCapacity} capacity` : '',
+			kindergarten?.kindergartenPrograms ? `${kindergarten.kindergartenPrograms} programs` : '',
+		].filter(Boolean);
+
+		return (
+			<Stack className="kg-list-card" key={kindergarten?._id}>
+				<Link className="kg-list-card-image" href={detailHref}>
+					<img src={kindergartenImageUrl} alt={kindergarten?.kindergartenTitle || 'Kindergarten'} />
+				</Link>
+				<Stack className="kg-list-card-main">
+					<Stack className="kg-list-title-row">
+						<Link href={detailHref}>
+							<Typography component="h3">{kindergarten?.kindergartenTitle || 'Kindergarten'}</Typography>
+						</Link>
+						<button
+							type="button"
+							className={`kg-list-like ${isLiked ? 'active' : ''}`}
+							aria-label="Like kindergarten"
+							onClick={() => likeKindergartenHandler(user, kindergarten?._id || '')}
+						>
+							{isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+						</button>
+					</Stack>
+					<Typography className="kg-list-location">
+						<LocationOnOutlinedIcon />
+						{location}
+					</Typography>
+					{description && <Typography className="kg-list-description">{description}</Typography>}
+					<Stack className="kg-list-meta">
+						{kindergartenTypeLabel && <span>{kindergartenTypeLabel}</span>}
+						{metaItems.map((item) => (
+							<span key={item}>{item}</span>
+						))}
+					</Stack>
+					<Stack className="kg-list-stats">
+						<span>
+							<StarRoundedIcon /> {kindergarten?.kindergartenRank || 0} rank
+						</span>
+						<span>{kindergarten?.kindergartenViews || 0} views</span>
+						<span>{kindergarten?.kindergartenLikes || 0} likes</span>
+					</Stack>
+				</Stack>
+				<Stack className="kg-list-card-side">
+					<span className="kg-list-status">{kindergarten?.kindergartenStatus}</span>
+					<strong>{formatMonthlyFee(kindergarten?.monthlyFee ?? kindergarten?.kindergartenPrice)}</strong>
+					<Link className="kg-list-details" href={detailHref}>
+						View Details
+					</Link>
+				</Stack>
+			</Stack>
+		);
 	};
 
 	return (
@@ -205,10 +338,17 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 
 				<Stack className="kg-map-preview kg-map-preview-live">
 					<Stack className="kg-map-tabs">
-						<span className="active">All</span>
-						<span>Trending</span>
-						<span>Popular</span>
-						<span>Top Rated</span>
+						{mapPresetTabs.map((preset) => (
+							<button
+								type="button"
+								key={preset.key}
+								className={activePresetKey === preset.key ? 'active' : ''}
+								aria-pressed={activePresetKey === preset.key}
+								onClick={() => mapPresetClickHandler(preset)}
+							>
+								{preset.label}
+							</button>
+						))}
 					</Stack>
 					<Box component="div" className="kg-map-count">
 						{total || kindergartens.length} kindergartens found in this area
@@ -250,16 +390,28 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 									</div>
 								</Box>
 								<Stack className="kg-view-toggle">
-									<span className="active">
+									<button
+										type="button"
+										className={listingView === 'grid' ? 'active' : ''}
+										aria-label="Show grid view"
+										aria-pressed={listingView === 'grid'}
+										onClick={() => setListingView('grid')}
+									>
 										<GridViewRoundedIcon />
-									</span>
-									<span>
+									</button>
+									<button
+										type="button"
+										className={listingView === 'list' ? 'active' : ''}
+										aria-label="Show list view"
+										aria-pressed={listingView === 'list'}
+										onClick={() => setListingView('list')}
+									>
 										<ViewListRoundedIcon />
-									</span>
+									</button>
 								</Stack>
 							</Stack>
 						</Stack>
-						<Stack className={'list-config'}>
+						<Stack className={`list-config kg-${listingView}-view`}>
 							{getKindergartensLoading && kindergartens?.length === 0 ? (
 								<div className={'no-data'}>
 									<p>Loading kindergartens...</p>
@@ -272,12 +424,14 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 								</div>
 							) : (
 								kindergartens.map((kindergarten: Kindergarten) => {
-									return (
+									return listingView === 'grid' ? (
 										<KindergartenCard
 											kindergarten={kindergarten}
 											key={kindergarten?._id}
 											likeKindergartenHandler={likeKindergartenHandler}
 										/>
+									) : (
+										renderKindergartenListRow(kindergarten)
 									);
 								})
 							)}
@@ -387,6 +541,27 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					min-width: 0 !important;
 				}
 
+				#kindergartens-list-page .kg-map-tabs button,
+				#kindergartens-list-page .kg-view-toggle button {
+					border: 0;
+					font: inherit;
+					cursor: pointer;
+					appearance: none;
+				}
+
+				#kindergartens-list-page .kg-map-tabs button {
+					padding: 9px 15px;
+					border-radius: 999px;
+					background: transparent;
+					color: #26382b;
+					font-weight: 900;
+				}
+
+				#kindergartens-list-page .kg-map-tabs button.active {
+					background: #2f7d4a;
+					color: #fff;
+				}
+
 				#kindergartens-list-page .kg-listing-area.kindergartens-page {
 					display: flex !important;
 					flex-wrap: wrap !important;
@@ -407,21 +582,233 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					min-width: 0 !important;
 				}
 
-				#kindergartens-list-page .kg-listing-area.kindergartens-page .list-config {
+				#kindergartens-list-page .kg-view-toggle button {
+					width: 34px;
+					height: 34px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					border-radius: 10px;
+					background: transparent;
+					color: #9ba79a;
+				}
+
+				#kindergartens-list-page .kg-view-toggle button.active {
+					background: #e9f5e4;
+					color: #2f7d4a;
+				}
+
+				#kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-grid-view {
 					display: grid !important;
 					grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 320px)) !important;
 					justify-content: start !important;
 				}
 
-				#kindergartens-list-page .kg-listing-area.kindergartens-page .card-config {
+				#kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-list-view {
+					display: flex !important;
+					flex-direction: column !important;
+					gap: 16px !important;
+				}
+
+				#kindergartens-list-page .kg-listing-area.kindergartens-page .kg-grid-view .card-config {
 					width: 100% !important;
 					max-width: 320px !important;
 					min-width: 0 !important;
 				}
 
+				#kindergartens-list-page .kg-list-card {
+					width: 100%;
+					min-width: 0;
+					display: grid;
+					grid-template-columns: 220px minmax(0, 1fr) 180px;
+					gap: 20px;
+					align-items: stretch;
+					padding: 16px;
+					border: 1px solid #e1ead9;
+					border-radius: 22px;
+					background: #fffdf8;
+					box-shadow: 0 16px 34px rgba(31, 81, 50, 0.08);
+					box-sizing: border-box;
+				}
+
+				#kindergartens-list-page .kg-list-card-image {
+					display: block;
+					min-width: 0;
+					height: 166px;
+					overflow: hidden;
+					border-radius: 18px;
+					background: #eef5e9;
+				}
+
+				#kindergartens-list-page .kg-list-card-image img {
+					width: 100%;
+					height: 100%;
+					display: block;
+					object-fit: cover;
+				}
+
+				#kindergartens-list-page .kg-list-card-main {
+					min-width: 0;
+					gap: 8px;
+					justify-content: center;
+				}
+
+				#kindergartens-list-page .kg-list-title-row {
+					flex-direction: row;
+					align-items: flex-start;
+					justify-content: space-between;
+					gap: 12px;
+					min-width: 0;
+				}
+
+				#kindergartens-list-page .kg-list-title-row a {
+					min-width: 0;
+					color: inherit;
+					text-decoration: none;
+				}
+
+				#kindergartens-list-page .kg-list-title-row h3 {
+					margin: 0;
+					color: #223328;
+					font-size: 20px;
+					font-weight: 900;
+					line-height: 25px;
+				}
+
+				#kindergartens-list-page .kg-list-like {
+					width: 34px;
+					height: 34px;
+					flex: 0 0 auto;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					border: 1px solid #e1ead9;
+					border-radius: 50%;
+					background: #fff;
+					color: #2f7d4a;
+					cursor: pointer;
+				}
+
+				#kindergartens-list-page .kg-list-like svg {
+					width: 19px;
+					height: 19px;
+				}
+
+				#kindergartens-list-page .kg-list-location {
+					display: flex;
+					align-items: center;
+					gap: 5px;
+					margin: 0;
+					color: #607064;
+					font-size: 13px;
+					font-weight: 800;
+					line-height: 19px;
+				}
+
+				#kindergartens-list-page .kg-list-location svg {
+					width: 17px;
+					height: 17px;
+					color: #2f7d4a;
+				}
+
+				#kindergartens-list-page .kg-list-description {
+					margin: 0;
+					color: #6f7d72;
+					font-size: 13px;
+					font-weight: 600;
+					line-height: 20px;
+					display: -webkit-box;
+					-webkit-line-clamp: 2;
+					-webkit-box-orient: vertical;
+					overflow: hidden;
+				}
+
+				#kindergartens-list-page .kg-list-meta,
+				#kindergartens-list-page .kg-list-stats {
+					flex-direction: row;
+					flex-wrap: wrap;
+					gap: 8px;
+				}
+
+				#kindergartens-list-page .kg-list-meta span {
+					padding: 7px 10px;
+					border-radius: 999px;
+					background: #f3f8ef;
+					color: #4d654f;
+					font-size: 12px;
+					font-weight: 800;
+				}
+
+				#kindergartens-list-page .kg-list-stats span {
+					display: inline-flex;
+					align-items: center;
+					gap: 4px;
+					color: #7a867b;
+					font-size: 12px;
+					font-weight: 800;
+				}
+
+				#kindergartens-list-page .kg-list-stats svg {
+					width: 15px;
+					height: 15px;
+					color: #f5a623;
+				}
+
+				#kindergartens-list-page .kg-list-card-side {
+					min-width: 0;
+					align-items: flex-end;
+					justify-content: center;
+					gap: 12px;
+					text-align: right;
+				}
+
+				#kindergartens-list-page .kg-list-status {
+					padding: 7px 11px;
+					border-radius: 999px;
+					background: #e9f5e4;
+					color: #2f7d4a;
+					font-size: 12px;
+					font-weight: 900;
+				}
+
+				#kindergartens-list-page .kg-list-card-side strong {
+					color: #213d28;
+					font-size: 16px;
+					font-weight: 950;
+					line-height: 22px;
+				}
+
+				#kindergartens-list-page .kg-list-details {
+					width: 100%;
+					padding: 11px 16px;
+					border-radius: 999px;
+					background: #23823f;
+					color: #fff;
+					font-size: 13px;
+					font-weight: 900;
+					text-align: center;
+					text-decoration: none;
+					box-sizing: border-box;
+				}
+
+				#kindergartens-list-page .kg-list-details:hover {
+					background: #1b6e34;
+				}
+
 				#kindergartens-list-page .kg-top-kindergartens .kg-top-strip-list {
 					display: grid !important;
 					grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)) !important;
+				}
+
+				@media (max-width: 900px) {
+					#kindergartens-list-page .kg-list-card {
+						grid-template-columns: 1fr;
+					}
+
+					#kindergartens-list-page .kg-list-card-side {
+						align-items: flex-start;
+						text-align: left;
+					}
 				}
 			`}</style>
 		</div>

@@ -96,13 +96,14 @@ const MyPage: NextPage = () => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (!user._id) router.push('/').then();
+		if (!user._id) router.push('/account/login').then();
 		else if (isSuperAdmin) router.push('/_admin').then();
 	}, [user, isSuperAdmin, router]);
 
 	/** HANDLERS **/
 	const subscribeHandler = async (id: string, refetch: any, query: any) => {
 		try {
+			await sweetErrorHandling(new Error('Following is coming soon for KidsGarden profiles.'));
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -110,6 +111,7 @@ const MyPage: NextPage = () => {
 
 	const unsubscribeHandler = async (id: string, refetch: any, query: any) => {
 		try {
+			await sweetErrorHandling(new Error('Following is coming soon for KidsGarden profiles.'));
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -118,7 +120,7 @@ const MyPage: NextPage = () => {
 	const redirectToMemberPageHandler = async (memberId: string) => {
 		try {
 			if (memberId === user?._id) await router.push(`/mypage?memberId=${memberId}`);
-			else await router.push(`/member?memberId=${memberId}`);
+			else await sweetErrorHandling(new Error('Public member profiles are coming soon.'));
 		} catch (error) {
 			await sweetErrorHandling(error);
 		}

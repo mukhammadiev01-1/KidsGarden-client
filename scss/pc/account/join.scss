@@ -267,25 +267,140 @@
 /* KidsGarden UI repair: keep auth behavior unchanged, align the existing screen with the current product style. */
 #pc-wrap {
   .join-page {
+    position: relative;
+    overflow-x: hidden;
+    padding: 72px 0 84px;
     background:
       radial-gradient(circle at 12% 12%, rgba(246, 196, 83, 0.18), transparent 28%),
       linear-gradient(180deg, #fffaf2 0%, #f7f4ed 100%);
 
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    &::before {
+      background:
+        radial-gradient(ellipse at 14% 18%, rgba(255, 255, 255, 0.86) 0 22px, transparent 23px),
+        radial-gradient(ellipse at 18% 17%, rgba(255, 255, 255, 0.78) 0 16px, transparent 17px),
+        radial-gradient(ellipse at 76% 12%, rgba(255, 255, 255, 0.7) 0 18px, transparent 19px),
+        radial-gradient(circle at 83% 31%, rgba(116, 182, 244, 0.16) 0 34px, transparent 35px),
+        radial-gradient(circle at 10% 72%, rgba(246, 196, 83, 0.16) 0 42px, transparent 43px),
+        radial-gradient(circle at 91% 78%, rgba(47, 125, 74, 0.1) 0 54px, transparent 55px);
+      animation: kg-auth-float-soft 28s ease-in-out infinite alternate;
+    }
+
+    &::after {
+      background:
+        radial-gradient(circle at 24% 29%, rgba(47, 125, 74, 0.26) 0 3px, transparent 4px),
+        radial-gradient(circle at 70% 24%, rgba(246, 196, 83, 0.34) 0 3px, transparent 4px),
+        radial-gradient(circle at 82% 60%, rgba(116, 182, 244, 0.26) 0 4px, transparent 5px),
+        radial-gradient(circle at 18% 83%, rgba(47, 125, 74, 0.18) 0 4px, transparent 5px),
+        linear-gradient(45deg, transparent 0 48%, rgba(47, 125, 74, 0.2) 49% 51%, transparent 52%) 8% 36% / 22px 22px no-repeat,
+        linear-gradient(-35deg, transparent 0 48%, rgba(246, 196, 83, 0.24) 49% 51%, transparent 52%) 88% 43% / 18px 18px no-repeat;
+      opacity: 0.76;
+      animation: kg-auth-drift-soft 34s ease-in-out infinite alternate;
+    }
+
     .container {
+      position: relative;
+      width: min(1180px, calc(100vw - 96px));
+      z-index: 1;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      &::before {
+        left: 15%;
+        top: 62px;
+        width: 44px;
+        height: 24px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.76);
+        box-shadow:
+          14px -10px 0 rgba(255, 255, 255, 0.62),
+          30px 0 0 rgba(255, 255, 255, 0.54);
+        animation: kg-auth-cloud 32s ease-in-out infinite alternate;
+      }
+
+      &::after {
+        right: 18%;
+        bottom: 122px;
+        width: 18px;
+        height: 18px;
+        border-radius: 18px 2px 18px 2px;
+        background: rgba(47, 125, 74, 0.18);
+        box-shadow:
+          -78px -64px 0 rgba(246, 196, 83, 0.18),
+          52px -118px 0 rgba(116, 182, 244, 0.16);
+        transform: rotate(-22deg);
+        animation: kg-auth-leaf 30s ease-in-out infinite alternate;
+      }
+
       .main {
-        width: min(1120px, calc(100vw - 48px));
-        min-height: 760px;
+        position: relative;
+        width: min(620px, calc(100vw - 64px));
+        min-height: 0;
         height: auto;
         overflow: hidden;
         border: 1px solid #e4ecd9;
         border-radius: 28px;
         box-shadow: 0 22px 54px rgba(36, 51, 45, 0.12);
+        z-index: 1;
+        animation: kg-auth-card-in 520ms ease-out both;
+
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        &::before {
+          right: 28px;
+          top: 26px;
+          width: 46px;
+          height: 46px;
+          border-radius: 50%;
+          background:
+            radial-gradient(circle at 50% 50%, rgba(246, 196, 83, 0.26) 0 4px, transparent 5px),
+            conic-gradient(from 0deg, transparent 0 9%, rgba(246, 196, 83, 0.22) 10% 15%, transparent 16% 34%, rgba(246, 196, 83, 0.2) 35% 40%, transparent 41% 59%, rgba(246, 196, 83, 0.18) 60% 65%, transparent 66% 84%, rgba(246, 196, 83, 0.18) 85% 90%, transparent 91%);
+          opacity: 0.72;
+        }
+
+        &::after {
+          left: 30px;
+          bottom: 28px;
+          width: 26px;
+          height: 26px;
+          border-radius: 26px 3px 26px 3px;
+          background: rgba(47, 125, 74, 0.12);
+          transform: rotate(34deg);
+        }
 
         .left {
+          position: relative;
+          width: 100%;
           padding: 56px 44px;
           box-sizing: border-box;
+          z-index: 1;
 
           .logo {
+            img {
+              width: 42px;
+              height: 42px;
+            }
+
             span {
               color: #24332d;
               letter-spacing: 0;
@@ -328,10 +443,13 @@
                 border-radius: 14px;
                 color: #24332d;
                 background: #fffdf8;
+                transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
 
                 &:focus {
+                  outline: none;
                   border-color: #2f7d4a;
-                  box-shadow: 0 0 0 3px rgba(47, 125, 74, 0.12);
+                  background: #ffffff;
+                  box-shadow: 0 0 0 4px rgba(47, 125, 74, 0.13);
                 }
               }
             }
@@ -344,24 +462,64 @@
               background: #2f7d4a;
               box-shadow: 0 12px 24px rgba(47, 125, 74, 0.22);
               text-transform: none;
+              transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
 
               &:hover {
+                transform: translateY(-2px);
                 background: #25683d;
+                box-shadow: 0 16px 30px rgba(47, 125, 74, 0.26);
+              }
+
+              &:active {
+                transform: translateY(0);
               }
             }
 
             button.social-auth-button {
               height: 46px;
               border-radius: 14px;
+              transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease;
+
+              &:hover:not(.Mui-disabled) {
+                transform: translateY(-1px);
+                border-color: #b8d7c3;
+                box-shadow: 0 8px 18px rgba(36, 51, 45, 0.08);
+              }
             }
 
             .type-option {
               width: 100%;
               padding: 12px 14px;
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 8px;
               border: 1px solid #d9e6dd;
               border-radius: 16px;
               background: #fbfff8;
               box-sizing: border-box;
+
+              div {
+                margin-left: 0;
+              }
+
+              .helper-text {
+                margin: 0;
+                color: #64746b;
+                font-family: $font;
+                font-size: 13px;
+                font-weight: 500;
+                line-height: 20px;
+              }
+            }
+
+            .remember-info {
+              .auth-unavailable {
+                color: #64746b;
+                font-family: $font;
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 22px;
+              }
             }
           }
 
@@ -372,9 +530,16 @@
               color: #64746b;
               font-size: 15px;
 
-              b {
+              .auth-mode-link {
+                margin-left: 10px;
+                padding: 0;
+                border: 0;
+                background: transparent;
                 color: #2f7d4a;
+                cursor: pointer;
+                font-family: $font;
                 font-size: 18px;
+                font-weight: 700;
                 text-decoration: none;
               }
             }
@@ -382,27 +547,85 @@
         }
 
         .right {
-          position: relative;
-          background-color: #e7f5ec;
-          border-left: 1px solid #e4ecd9;
-
-          &::after {
-            content: 'Families, teachers, and kindergartens connected in one warm space.';
-            position: absolute;
-            left: 42px;
-            right: 42px;
-            bottom: 42px;
-            padding: 18px 20px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #24332d;
-            font-family: $font;
-            font-size: 18px;
-            font-weight: 800;
-            line-height: 28px;
-            box-shadow: 0 16px 34px rgba(36, 51, 45, 0.14);
-          }
+          display: none;
         }
+      }
+    }
+  }
+}
+
+@keyframes kg-auth-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kg-auth-float-soft {
+  from {
+    transform: translate3d(-10px, 8px, 0);
+  }
+
+  to {
+    transform: translate3d(12px, -10px, 0);
+  }
+}
+
+@keyframes kg-auth-drift-soft {
+  from {
+    transform: translate3d(10px, -4px, 0);
+  }
+
+  to {
+    transform: translate3d(-12px, 10px, 0);
+  }
+}
+
+@keyframes kg-auth-cloud {
+  from {
+    transform: translate3d(-6px, 0, 0);
+  }
+
+  to {
+    transform: translate3d(10px, -8px, 0);
+  }
+}
+
+@keyframes kg-auth-leaf {
+  from {
+    transform: translate3d(0, 0, 0) rotate(-22deg);
+  }
+
+  to {
+    transform: translate3d(-8px, 12px, 0) rotate(-12deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #pc-wrap {
+    .join-page {
+      &::before,
+      &::after,
+      .container::before,
+      .container::after,
+      .main {
+        animation: none;
+      }
+
+      .input-wrap .input-box input,
+      .register button,
+      .register button.social-auth-button {
+        transition: none;
+      }
+
+      .register button:hover,
+      .register button.social-auth-button:hover {
+        transform: none;
       }
     }
   }

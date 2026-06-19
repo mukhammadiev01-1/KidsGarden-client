@@ -70,36 +70,20 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 							: '/img/profile/defaultUser.svg';
 						return (
 							<Stack className="follows-card-box" key={follower._id}>
-								<Stack className={'info'} onClick={() => redirectToMemberPageHandler(follower?.followerData?._id)}>
+								<Stack className={'info disabled-member-profile'}>
 									<Stack className="image-box">
 										<img src={imagePath} alt="" />
 									</Stack>
 									<Stack className="information-box">
 										<Typography className="name">{follower?.followerData?.memberNick}</Typography>
+										<Typography className="member-profile-note">Profile view coming soon</Typography>
 									</Stack>
 								</Stack>
-									{user?._id !== follower?.followerId && (
+								{user?._id !== follower?.followerId && (
 									<Stack className="action-box">
-										{follower.meFollowed && follower.meFollowed[0]?.myFollowing ? (
-											<>
-												<Typography>Following</Typography>
-												<Button
-													variant="outlined"
-													sx={{ background: '#ed5858', ':hover': { background: '#ee7171' } }}
-													onClick={() => unsubscribeHandler(follower?.followerData?._id, null, followInquiry)}
-												>
-													Unfollow
-												</Button>
-											</>
-										) : (
-											<Button
-												variant="contained"
-												sx={{ background: '#60eb60d4', ':hover': { background: '#60eb60d4' } }}
-												onClick={() => subscribeHandler(follower?.followerData?._id, null, followInquiry)}
-											>
-												Follow
-											</Button>
-										)}
+										<Button variant="outlined" disabled>
+											Follow coming soon
+										</Button>
 									</Stack>
 								)}
 							</Stack>

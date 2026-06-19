@@ -102,7 +102,7 @@ const ParentStaffApplications = () => {
 	return (
 		<Stack className="parent-dashboard-screen parent-staff-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Teacher Applications</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Teacher Access Request</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
 					Track your applications to teach at kindergartens and cancel pending requests.
 				</Typography>

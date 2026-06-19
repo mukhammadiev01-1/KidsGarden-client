@@ -58,7 +58,7 @@ const KakaoCallback: NextPage = () => {
 				<Stack className={'main'}>
 					<Stack className={'left'}>
 						<div className={'logo'}>
-							<img src="/img/logo/logoText.svg" alt="" />
+							<img src="/img/logo/kidsgarden-mark.svg" alt="" />
 							<span>KidsGarden</span>
 						</div>
 						<div className={'info'}>

@@ -404,6 +404,34 @@
 	}
 }
 
+/* /kindergartens view toggle behavior: keep legacy grid rules from constraining list mode. */
+#pc-wrap #kindergartens-list-page {
+	.kg-listing-area.kindergartens-page {
+		.list-config.kg-grid-view {
+			display: grid !important;
+			grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 320px)) !important;
+			justify-content: start !important;
+		}
+
+		.list-config.kg-list-view {
+			width: 100% !important;
+			max-width: 100% !important;
+			display: flex !important;
+			flex-direction: column !important;
+			gap: 16px !important;
+			grid-template-columns: none !important;
+			justify-content: stretch !important;
+		}
+
+		.list-config.kg-list-view .kg-list-card {
+			width: 100% !important;
+			max-width: none !important;
+			display: grid !important;
+			grid-template-columns: 220px minmax(0, 1fr) 180px !important;
+		}
+	}
+}
+
 #pc-wrap {
 	#kindergartens-list-page {
 		.kindergartens-page.kg-listing-area .filter-main {

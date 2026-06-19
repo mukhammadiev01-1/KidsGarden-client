@@ -443,6 +443,19 @@ body::-webkit-scrollbar {
 		background: black;
 		&.auth {
 			height: 300px;
+
+			.container {
+				width: min(1180px, calc(100vw - 96px));
+				margin-top: 158px;
+
+				strong {
+					color: #24332d;
+				}
+
+				span {
+					color: #64746b;
+				}
+			}
 		}
 		.container {
 			margin-top: 175px;

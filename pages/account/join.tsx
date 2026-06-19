@@ -46,6 +46,7 @@ const Join: NextPage = () => {
 	const [loginView, setLoginView] = useState<boolean>(true);
 	const [telegramLoading, setTelegramLoading] = useState<boolean>(false);
 	const [telegramBrowserReady, setTelegramBrowserReady] = useState<boolean>(false);
+	const [telegramDomainSupported, setTelegramDomainSupported] = useState<boolean>(false);
 	const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 	const telegramBotName = TELEGRAM_BOT_NAME.trim();
 	const hasTelegramBotName = isValidTelegramBotName(telegramBotName);
@@ -55,7 +56,9 @@ const Join: NextPage = () => {
 			? 'invalid NEXT_PUBLIC_TELEGRAM_BOT_NAME'
 			: !telegramBrowserReady
 				? 'browser APIs unavailable'
-				: '';
+				: !telegramDomainSupported
+					? 'Telegram login is unavailable on this local domain'
+					: '';
 	const canUseTelegram = !telegramUnavailableReason;
 
 	useEffect(() => {
@@ -65,12 +68,18 @@ const Join: NextPage = () => {
 	}, [router.query.mode]);
 
 	useEffect(() => {
-		setTelegramBrowserReady(typeof window !== 'undefined' && typeof document !== 'undefined');
+		const browserReady = typeof window !== 'undefined' && typeof document !== 'undefined';
+		setTelegramBrowserReady(browserReady);
+
+		if (browserReady) {
+			const hostname = window.location.hostname;
+			setTelegramDomainSupported(!['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname));
+		}
 	}, []);
 
 	/** HANDLERS **/
-	const viewChangeHandler = (state: boolean) => {
-		setLoginView(state);
+	const routeToAuthMode = async (mode: 'login' | 'register') => {
+		await router.push(mode === 'login' ? '/account/login' : '/account/join?mode=register');
 	};
 
 	const handleInput = useCallback((name: any, value: any) => {
@@ -191,7 +200,7 @@ const Join: NextPage = () => {
 					<Stack component="form" className={'left'} onSubmit={submitHandler}>
 							{/* @ts-ignore */}
 							<Box className={'logo'}>
-								<img src="/img/logo/logoText.svg" alt="" />
+								<img src="/img/logo/kidsgarden-mark.svg" alt="" />
 								<span>KidsGarden</span>
 							</Box>
 							<Box className={'info'}>
@@ -287,7 +296,11 @@ const Join: NextPage = () => {
 											fullWidth
 											startIcon={<SocialIcon src="/img/icons/social/telegram.svg" alt="" />}
 										>
-											{loginView ? 'Login with Telegram unavailable' : 'Sign up with Telegram unavailable'}
+											{telegramUnavailableReason.includes('local domain')
+												? 'Telegram unavailable on this domain'
+												: loginView
+													? 'Login with Telegram unavailable'
+													: 'Sign up with Telegram unavailable'}
 										</Button>
 									)}
 								</Box>
@@ -334,7 +347,9 @@ const Join: NextPage = () => {
 										<FormGroup>
 											<FormControlLabel control={<Checkbox defaultChecked size="small" />} label="Remember me" />
 										</FormGroup>
-										<a>Lost your password?</a>
+										<span className="auth-unavailable" aria-disabled="true">
+											Password reset coming soon
+										</span>
 									</div>
 								)}
 
@@ -343,7 +358,6 @@ const Join: NextPage = () => {
 										type="submit"
 										variant="contained"
 										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
-										disabled={input.nick == '' || input.password == ''}
 									>
 										LOGIN
 									</Button>
@@ -351,7 +365,6 @@ const Join: NextPage = () => {
 									<Button
 										type="submit"
 										variant="contained"
-										disabled={input.nick == '' || input.password == '' || input.phone == ''}
 										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
 									>
 										SIGNUP
@@ -362,18 +375,16 @@ const Join: NextPage = () => {
 								{loginView ? (
 									<p>
 										Not registered yet?
-										<b
-											onClick={() => {
-												viewChangeHandler(false);
-											}}
-										>
+										<button type="button" className="auth-mode-link" onClick={() => routeToAuthMode('register')}>
 											SIGNUP
-										</b>
+										</button>
 									</p>
 								) : (
 									<p>
 										Have account?
-										<b onClick={() => viewChangeHandler(true)}> LOGIN</b>
+										<button type="button" className="auth-mode-link" onClick={() => routeToAuthMode('login')}>
+											LOGIN
+										</button>
 									</p>
 								)}
 							</Box>

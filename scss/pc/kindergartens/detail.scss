@@ -857,7 +857,13 @@
 			background: rgba(28, 42, 32, 0.72);
 			color: #fff;
 			font-size: 13px;
-			cursor: default;
+			cursor: pointer;
+			transition: background 0.2s ease, transform 0.2s ease;
+
+			&:hover {
+				background: rgba(24, 130, 59, 0.88);
+				transform: translateY(-1px);
+			}
 		}
 
 		.kg-detail-thumbs {
@@ -1190,16 +1196,21 @@
 			}
 		}
 
-		.kg-gallery-grid {
-			grid-template-columns: repeat(4, minmax(0, 1fr));
+			.kg-gallery-grid {
+				grid-template-columns: repeat(4, minmax(0, 1fr));
 
-			img {
-				width: 100%;
-				height: 128px;
-				border-radius: 16px;
-				object-fit: cover;
+				img {
+					width: 100%;
+					height: 128px;
+					border-radius: 16px;
+					object-fit: cover;
+				}
 			}
-		}
+
+			.kg-gallery-panel,
+			.kg-application-card {
+				scroll-margin-top: 110px;
+			}
 
 		.kg-review-list {
 			gap: 14px;
@@ -1289,9 +1300,9 @@
 			gap: 16px;
 		}
 
-		.kg-detail-side-card {
-			padding: 20px;
-			gap: 12px;
+			.kg-detail-side-card {
+				padding: 20px;
+				gap: 12px;
 
 			h3 {
 				margin: 0;
@@ -1316,15 +1327,48 @@
 				font-weight: 900;
 			}
 
-			.primary {
-				height: 45px;
-				border-radius: 999px;
-				background: #18823b;
-				color: #fff;
-				font-weight: 900;
-				text-transform: none;
+				.primary {
+					height: 45px;
+					border-radius: 999px;
+					background: #18823b;
+					color: #fff;
+					font-weight: 900;
+					text-transform: none;
+				}
 			}
-		}
+
+			.kg-application-card {
+				.kg-application-intent {
+					margin: 0;
+					padding: 10px 12px;
+					border-radius: 14px;
+					background: #f3f8ef;
+					color: #2f5f3e;
+					font-size: 12px;
+					font-weight: 800;
+					line-height: 1.5;
+				}
+
+				.status {
+					margin: 0;
+					font-weight: 900;
+				}
+
+				.MuiInputBase-root {
+					border-radius: 14px;
+					background: #fffdf8;
+				}
+
+				.secondary {
+					height: 45px;
+					border-radius: 999px;
+					border: 1px solid #cddac8;
+					background: #fff;
+					color: #1f5132;
+					font-weight: 900;
+					text-transform: none;
+				}
+			}
 
 		.kg-fee-card {
 			background: linear-gradient(135deg, #fff7dc 0%, #fffaf2 100%);
@@ -1369,24 +1413,24 @@
 				background: #fffdf8;
 			}
 
-			.status {
-				font-weight: 900;
+				.status {
+					font-weight: 900;
 
-				&.pending {
-					color: #92400e;
+					&.pending {
+						color: #92400e;
 				}
 
 				&.approved {
 					color: #166534;
 				}
 
-				&.rejected {
-					color: #991b1b;
+					&.rejected {
+						color: #991b1b;
+					}
 				}
 			}
 		}
 	}
-}
 
 #pc-wrap {
 	#kindergarten-detail-page {

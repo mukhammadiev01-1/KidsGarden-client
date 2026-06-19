@@ -1130,6 +1130,527 @@
   }
 }
 
+/* Homepage final lower-section consistency pass: desktop only. */
+@media (min-width: 1025px) {
+  body #pc-wrap .home-page {
+    .popular-kindergartens,
+    .events.communication-roadmap,
+    .video-frame.kg-store-section,
+    .community-board {
+      padding-top: 46px !important;
+      padding-bottom: 48px !important;
+    }
+
+    .popular-kindergartens .container,
+    .events.communication-roadmap .container,
+    .video-frame.kg-store-section .store-heading,
+    .video-frame.kg-store-section .store-container,
+    .community-board .container,
+    .final-cta-section {
+      width: min(1180px, calc(100% - 72px)) !important;
+      max-width: min(1180px, calc(100% - 72px)) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      box-sizing: border-box !important;
+    }
+
+    .popular-kindergartens .info-box,
+    .events.communication-roadmap .info-box,
+    .video-frame.kg-store-section .store-heading,
+    .community-board .container > .MuiStack-root:first-child {
+      width: min(1180px, 100%) !important;
+      margin-bottom: 22px !important;
+      align-items: center !important;
+      text-align: center !important;
+      gap: 8px !important;
+    }
+
+    .popular-kindergartens .info-box {
+      position: relative !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .popular-kindergartens .info-box .right {
+      position: absolute !important;
+      right: 0 !important;
+      bottom: 0 !important;
+    }
+
+    .events.communication-roadmap .info-box {
+      justify-content: center !important;
+    }
+
+    .events.communication-roadmap .info-box .left {
+      width: 100% !important;
+    }
+
+    .popular-kindergartens .info-box .left,
+    .events.communication-roadmap .info-box .left,
+    .video-frame.kg-store-section .store-heading,
+    .community-board .container > .MuiStack-root:first-child {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+    }
+
+    .popular-kindergartens .info-box .left span,
+    .events.communication-roadmap .info-box .left span,
+    .video-frame.kg-store-section .store-heading h2,
+    .community-board .container > .MuiStack-root:first-child h1 {
+      margin: 0 !important;
+      color: #20342a !important;
+      font-size: 34px !important;
+      font-weight: 950 !important;
+      line-height: 40px !important;
+      letter-spacing: 0 !important;
+      text-align: center !important;
+      text-transform: none !important;
+    }
+
+    .popular-kindergartens .info-box .left p,
+    .events.communication-roadmap .info-box .left p,
+    .video-frame.kg-store-section .store-heading p,
+    .community-board .community-section-copy {
+      margin: 8px 0 0 !important;
+      color: #647168 !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      line-height: 23px !important;
+      text-align: center !important;
+      text-transform: none !important;
+    }
+
+    .events.communication-roadmap .card-wrapper {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 24px !important;
+      align-items: stretch !important;
+    }
+
+    .events.communication-roadmap .event-card {
+      width: 100% !important;
+      height: 300px !important;
+      min-height: 300px !important;
+      padding: 28px !important;
+      gap: 16px !important;
+      border-radius: 26px !important;
+      box-shadow: 0 22px 48px rgba(31, 81, 50, 0.12) !important;
+    }
+
+    .events.communication-roadmap .roadmap-icon {
+      width: 62px !important;
+      height: 62px !important;
+      border-radius: 20px !important;
+    }
+
+    .events.communication-roadmap .roadmap-icon svg {
+      font-size: 34px !important;
+    }
+
+    .events.communication-roadmap .event-card h3 {
+      margin: 0 !important;
+      color: #20342a !important;
+      font-size: 24px !important;
+      font-weight: 950 !important;
+      line-height: 30px !important;
+    }
+
+    .events.communication-roadmap .event-card p {
+      margin: 0 !important;
+      color: #647168 !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      line-height: 24px !important;
+    }
+
+    .community-board .container {
+      align-items: stretch !important;
+    }
+
+    .community-board .community-main {
+      margin-top: 0 !important;
+    }
+
+    .final-cta-section {
+      margin-top: 28px !important;
+      margin-bottom: 38px !important;
+    }
+  }
+}
+
+/* Desktop homepage lower-section visual rhythm polish. */
+@media (min-width: 1025px) {
+  body #pc-wrap .home-page {
+    .popular-kindergartens,
+    .events.communication-roadmap,
+    .video-frame.kg-store-section,
+    .community-board {
+      padding-top: 54px !important;
+      padding-bottom: 58px !important;
+    }
+
+    .popular-kindergartens .container,
+    .events.communication-roadmap .container,
+    .video-frame.kg-store-section .store-heading,
+    .video-frame.kg-store-section .store-container,
+    .community-board .container,
+    .final-cta-section {
+      width: min(1180px, calc(100% - 72px)) !important;
+      max-width: min(1180px, calc(100% - 72px)) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      box-sizing: border-box !important;
+    }
+
+    .popular-kindergartens .info-box,
+    .events.communication-roadmap .info-box,
+    .video-frame.kg-store-section .store-heading,
+    .community-board .container > div:first-child {
+      margin-bottom: 26px !important;
+      align-items: center !important;
+      text-align: center !important;
+    }
+
+    .popular-kindergartens .info-box {
+      position: relative !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .popular-kindergartens .info-box .right {
+      position: absolute !important;
+      right: 0 !important;
+      bottom: 0 !important;
+    }
+
+    .events.communication-roadmap .info-box {
+      justify-content: center !important;
+    }
+
+    .events.communication-roadmap .info-box .left {
+      width: 100% !important;
+    }
+
+    .popular-kindergartens .info-box .left,
+    .events.communication-roadmap .info-box .left,
+    .video-frame.kg-store-section .store-heading,
+    .community-board .container > div:first-child {
+      align-items: center !important;
+    }
+
+    .popular-kindergartens .info-box .left span,
+    .events.communication-roadmap .info-box .left span,
+    .video-frame.kg-store-section .store-heading h2,
+    .community-board .container > div:first-child h1 {
+      color: #20342a !important;
+      font-size: 34px !important;
+      font-weight: 950 !important;
+      line-height: 40px !important;
+      letter-spacing: 0 !important;
+      text-align: center !important;
+      text-transform: none !important;
+    }
+
+    .popular-kindergartens .info-box .left p,
+    .events.communication-roadmap .info-box .left p,
+    .video-frame.kg-store-section .store-heading p,
+    .community-board .community-section-copy {
+      margin-top: 8px !important;
+      color: #647168 !important;
+      font-size: 16px !important;
+      font-weight: 700 !important;
+      line-height: 24px !important;
+      text-align: center !important;
+    }
+
+    .video-frame.kg-store-section .store-heading,
+    .community-board .container > div:first-child {
+      text-align: center !important;
+    }
+
+    .popular-kindergartens {
+      background: #fffaf2 !important;
+    }
+
+    .popular-kindergarten-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 26px !important;
+    }
+
+    .popular-card-box {
+      height: 492px !important;
+      border-radius: 24px !important;
+      box-shadow: 0 22px 48px rgba(31, 81, 50, 0.11) !important;
+    }
+
+    .popular-card-box .card-img {
+      height: 226px !important;
+      min-height: 226px !important;
+    }
+
+    .popular-card-box .info {
+      padding: 22px !important;
+    }
+
+    .popular-card-box .info .title {
+      font-size: 21px !important;
+      line-height: 25px !important;
+    }
+
+    .popular-card-box .info .desc {
+      font-size: 15px !important;
+      line-height: 22px !important;
+    }
+
+    .popular-card-box .details-cta {
+      padding: 11px 18px !important;
+      font-size: 14px !important;
+    }
+
+    .events.communication-roadmap {
+      background: linear-gradient(180deg, #fffaf2 0%, #f6fbf2 100%) !important;
+    }
+
+    .events.communication-roadmap .card-wrapper {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 24px !important;
+    }
+
+    .events.communication-roadmap .event-card {
+      height: 318px !important;
+      min-height: 318px !important;
+      padding: 28px !important;
+      gap: 16px !important;
+      border-radius: 26px !important;
+      box-shadow: 0 24px 54px rgba(31, 81, 50, 0.12) !important;
+    }
+
+    .events.communication-roadmap .event-card > strong {
+      padding: 8px 13px !important;
+      font-size: 12px !important;
+    }
+
+    .events.communication-roadmap .roadmap-icon {
+      width: 64px !important;
+      height: 64px !important;
+      border-radius: 20px !important;
+    }
+
+    .events.communication-roadmap .roadmap-icon svg {
+      font-size: 34px !important;
+    }
+
+    .events.communication-roadmap .event-card h3 {
+      margin: 0 !important;
+      color: #20342a !important;
+      font-size: 24px !important;
+      font-weight: 950 !important;
+      line-height: 30px !important;
+    }
+
+    .events.communication-roadmap .event-card p {
+      margin: 0 !important;
+      color: #647168 !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      line-height: 24px !important;
+    }
+
+    .video-frame.kg-store-section {
+      background: #fffaf2 !important;
+    }
+
+    .video-frame.kg-store-section .store-container {
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.38fr) !important;
+      gap: 26px !important;
+      align-items: stretch !important;
+    }
+
+    .video-frame.kg-store-section .store-feature-card {
+      min-height: 332px !important;
+      padding: 34px !important;
+      border-radius: 28px !important;
+      box-shadow: 0 24px 54px rgba(31, 81, 50, 0.12) !important;
+    }
+
+    .video-frame.kg-store-section .store-feature-copy h3 {
+      font-size: 31px !important;
+      line-height: 37px !important;
+    }
+
+    .video-frame.kg-store-section .store-feature-copy p {
+      font-size: 16px !important;
+      line-height: 25px !important;
+    }
+
+    .video-frame.kg-store-section .store-feature-visual {
+      width: 132px !important;
+      height: 132px !important;
+      border-radius: 32px !important;
+    }
+
+    .video-frame.kg-store-section .store-feature-visual svg {
+      font-size: 76px !important;
+    }
+
+    .video-frame.kg-store-section .store-product-grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 18px !important;
+    }
+
+    .video-frame.kg-store-section .store-product-card {
+      min-height: 157px !important;
+      padding: 24px 20px !important;
+      border-radius: 24px !important;
+      box-shadow: 0 18px 42px rgba(31, 81, 50, 0.1) !important;
+    }
+
+    .video-frame.kg-store-section .store-product-icon {
+      width: 62px !important;
+      height: 62px !important;
+      border-radius: 20px !important;
+    }
+
+    .video-frame.kg-store-section .store-product-icon svg {
+      font-size: 34px !important;
+    }
+
+    .video-frame.kg-store-section .store-product-card h3 {
+      font-size: 19px !important;
+      line-height: 24px !important;
+    }
+
+    .video-frame.kg-store-section .store-product-card p {
+      font-size: 14px !important;
+      line-height: 22px !important;
+    }
+
+    .community-board {
+      background: #f6fbf2 !important;
+    }
+
+    .community-board .container {
+      align-items: stretch !important;
+    }
+
+    .community-board .container > .MuiStack-root:first-child {
+      width: 100% !important;
+      align-items: center !important;
+      text-align: center !important;
+    }
+
+    .community-board .community-main {
+      display: grid !important;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+      gap: 26px !important;
+      align-items: stretch !important;
+    }
+
+    .community-board .community-left,
+    .community-board .community-right {
+      padding: 26px !important;
+      border-radius: 28px !important;
+      background: #fffdf8 !important;
+      box-shadow: 0 22px 48px rgba(31, 81, 50, 0.1) !important;
+      box-sizing: border-box !important;
+    }
+
+    .community-board .content-top {
+      margin-bottom: 18px !important;
+      align-items: center !important;
+    }
+
+    .community-board .content-top span {
+      color: #20342a !important;
+      font-size: 22px !important;
+      font-weight: 950 !important;
+      line-height: 28px !important;
+    }
+
+    .community-board .community-left .card-wrap {
+      min-height: 308px !important;
+    }
+
+    .community-board .community-left .homepage-empty-state {
+      min-height: 276px !important;
+      padding: 34px !important;
+      border-radius: 24px !important;
+      border: 1px dashed rgba(47, 125, 74, 0.24) !important;
+      background: linear-gradient(135deg, #fffdf8 0%, #edf7e9 100%) !important;
+      box-shadow: none !important;
+    }
+
+    .community-board .community-left .homepage-empty-state p {
+      max-width: 330px !important;
+      color: #42604c !important;
+      font-size: 18px !important;
+      font-weight: 850 !important;
+      line-height: 27px !important;
+      text-align: center !important;
+    }
+
+    .community-board .community-right .card-wrap.vertical {
+      gap: 16px !important;
+    }
+
+    .community-board .horizontal-card {
+      min-height: 128px !important;
+      padding: 14px !important;
+      border-radius: 22px !important;
+      background: #ffffff !important;
+      box-shadow: 0 14px 30px rgba(31, 81, 50, 0.08) !important;
+    }
+
+    .community-board .horizontal-card img {
+      width: 132px !important;
+      height: 100px !important;
+      border-radius: 18px !important;
+      object-fit: cover !important;
+    }
+
+    .community-board .horizontal-card strong {
+      color: #20342a !important;
+      font-size: 17px !important;
+      font-weight: 900 !important;
+      line-height: 23px !important;
+    }
+
+    .community-board .horizontal-card span {
+      color: #647168 !important;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+    }
+
+    .final-cta-section {
+      margin-top: 38px !important;
+      margin-bottom: 50px !important;
+      padding: 42px 48px !important;
+      border-radius: 30px !important;
+      box-shadow: 0 22px 52px rgba(31, 81, 50, 0.12) !important;
+    }
+
+    .final-cta-section h2 {
+      font-size: 34px !important;
+      line-height: 40px !important;
+    }
+
+    .final-cta-section p {
+      font-size: 16px !important;
+      line-height: 25px !important;
+    }
+
+    .footer-container .main,
+    .footer-container .second {
+      width: min(1180px, calc(100% - 72px)) !important;
+      max-width: min(1180px, calc(100% - 72px)) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+  }
+}
+
 /* Desktop homepage dynamic showcase and roadmap polish. */
 @media (min-width: 1025px) {
 	body #pc-wrap .home-page {
@@ -1240,7 +1761,14 @@
 
 		.events.communication-roadmap .info-box {
 			margin-bottom: 26px !important;
-			align-items: flex-start !important;
+			align-items: center !important;
+			justify-content: center !important;
+			text-align: center !important;
+		}
+
+		.events.communication-roadmap .info-box .left {
+			width: 100% !important;
+			align-items: center !important;
 		}
 
 		.events.communication-roadmap .info-box .left span {
@@ -1248,6 +1776,7 @@
 			font-size: 32px !important;
 			font-weight: 950 !important;
 			line-height: 38px !important;
+			text-align: center !important;
 		}
 
 		.events.communication-roadmap .info-box .left p {
@@ -1257,6 +1786,7 @@
 			font-size: 16px !important;
 			font-weight: 700 !important;
 			line-height: 25px !important;
+			text-align: center !important;
 		}
 
 		.events.communication-roadmap .card-wrapper {
@@ -11534,6 +12064,155 @@
     .events.communication-roadmap .event-card.planned .roadmap-icon {
       background: rgba(239, 168, 38, 0.14) !important;
       color: #c17c13 !important;
+    }
+  }
+}
+
+/* Homepage final lower-section consistency pass: desktop only. */
+@media (min-width: 1025px) {
+  body #pc-wrap .home-page {
+    .popular-kindergartens,
+    .events.communication-roadmap,
+    .video-frame.kg-store-section,
+    .community-board {
+      padding-top: 46px !important;
+      padding-bottom: 48px !important;
+    }
+
+    .popular-kindergartens .container,
+    .events.communication-roadmap .container,
+    .video-frame.kg-store-section .store-heading,
+    .video-frame.kg-store-section .store-container,
+    .community-board .container,
+    .final-cta-section {
+      width: min(1180px, calc(100% - 72px)) !important;
+      max-width: min(1180px, calc(100% - 72px)) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      box-sizing: border-box !important;
+    }
+
+    .popular-kindergartens .info-box,
+    .events.communication-roadmap .info-box,
+    .video-frame.kg-store-section .store-heading,
+    .community-board .container > .MuiStack-root:first-child {
+      width: min(1180px, 100%) !important;
+      margin-bottom: 22px !important;
+      align-items: center !important;
+      text-align: center !important;
+      gap: 8px !important;
+    }
+
+    .popular-kindergartens .info-box {
+      position: relative !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .popular-kindergartens .info-box .right {
+      position: absolute !important;
+      right: 0 !important;
+      bottom: 0 !important;
+    }
+
+    .events.communication-roadmap .info-box {
+      justify-content: center !important;
+    }
+
+    .events.communication-roadmap .info-box .left {
+      width: 100% !important;
+    }
+
+    .popular-kindergartens .info-box .left,
+    .events.communication-roadmap .info-box .left,
+    .video-frame.kg-store-section .store-heading,
+    .community-board .container > .MuiStack-root:first-child {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+    }
+
+    .popular-kindergartens .info-box .left span,
+    .events.communication-roadmap .container .info-box .left > span,
+    .video-frame.kg-store-section .store-heading h2,
+    .community-board .container > .MuiStack-root:first-child h1 {
+      margin: 0 !important;
+      color: #20342a !important;
+      font-size: 34px !important;
+      font-weight: 950 !important;
+      line-height: 40px !important;
+      letter-spacing: 0 !important;
+      text-align: center !important;
+      text-transform: none !important;
+    }
+
+    .popular-kindergartens .info-box .left p,
+    .events.communication-roadmap .info-box .left p,
+    .video-frame.kg-store-section .store-heading p,
+    .community-board .community-section-copy {
+      margin: 8px 0 0 !important;
+      color: #647168 !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      line-height: 23px !important;
+      text-align: center !important;
+      text-transform: none !important;
+    }
+
+    .events.communication-roadmap .card-wrapper {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 24px !important;
+      align-items: stretch !important;
+    }
+
+    .events.communication-roadmap .event-card {
+      width: 100% !important;
+      height: 300px !important;
+      min-height: 300px !important;
+      padding: 28px !important;
+      gap: 16px !important;
+      border-radius: 26px !important;
+      box-shadow: 0 22px 48px rgba(31, 81, 50, 0.12) !important;
+    }
+
+    .events.communication-roadmap .roadmap-icon {
+      width: 62px !important;
+      height: 62px !important;
+      border-radius: 20px !important;
+    }
+
+    .events.communication-roadmap .roadmap-icon svg {
+      font-size: 34px !important;
+    }
+
+    .events.communication-roadmap .event-card h3 {
+      margin: 0 !important;
+      color: #20342a !important;
+      font-size: 24px !important;
+      font-weight: 950 !important;
+      line-height: 30px !important;
+    }
+
+    .events.communication-roadmap .event-card p {
+      margin: 0 !important;
+      color: #647168 !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      line-height: 24px !important;
+    }
+
+    .community-board .container {
+      align-items: stretch !important;
+    }
+
+    .community-board .community-main {
+      margin-top: 0 !important;
+    }
+
+    .final-cta-section {
+      margin-top: 28px !important;
+      margin-bottom: 38px !important;
     }
   }
 }

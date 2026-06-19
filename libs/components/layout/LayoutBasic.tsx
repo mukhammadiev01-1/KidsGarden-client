@@ -18,6 +18,7 @@ const withLayoutBasic = (Component: any) => {
 		const device = useDeviceDetect();
 		const [authHeader, setAuthHeader] = useState<boolean>(false);
 		const hideBasicHero = router.pathname === '/property' || router.pathname === '/kindergartens' || router.pathname === '/cs';
+		const isMyPageHeader = router.pathname === '/mypage';
 
 		const memoizedValues = useMemo(() => {
 			let title = '',
@@ -78,6 +79,18 @@ const withLayoutBasic = (Component: any) => {
 
 			return { title, desc, bgImage };
 		}, [router.pathname]);
+		const basicHeaderStyle = authHeader || isMyPageHeader
+			? {
+					backgroundImage:
+						'radial-gradient(circle at 16% 12%, rgba(255, 207, 89, 0.22), transparent 24%), linear-gradient(135deg, #fffaf2 0%, #eef8e9 100%)',
+					backgroundSize: 'cover',
+					boxShadow: 'none',
+				}
+			: {
+					backgroundImage: `url(${memoizedValues.bgImage})`,
+					backgroundSize: 'cover',
+					boxShadow: 'inset 0 0 0 1000px rgba(36, 51, 45, 0.58)',
+				};
 
 		/** LIFECYCLES **/
 		useEffect(() => {
@@ -123,12 +136,8 @@ const withLayoutBasic = (Component: any) => {
 
 						{!hideBasicHero && (
 							<Stack
-								className={`header-basic ${authHeader && 'auth'}`}
-								style={{
-									backgroundImage: `url(${memoizedValues.bgImage})`,
-									backgroundSize: 'cover',
-									boxShadow: 'inset 0 0 0 1000px rgba(36, 51, 45, 0.58)',
-								}}
+								className={`header-basic ${(authHeader || isMyPageHeader) && 'auth'}`}
+								style={basicHeaderStyle}
 							>
 								<Stack className={'container'}>
 									<strong>{t(memoizedValues.title)}</strong>

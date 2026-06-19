@@ -121,7 +121,7 @@ const ParentKindergartenAdminApplications = () => {
 		<Stack className="parent-dashboard-screen parent-admin-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>
-					Kindergarten Admin Application
+					Center Admin Access Request
 				</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
 					Apply to manage your own kindergarten. A super admin will review your request.

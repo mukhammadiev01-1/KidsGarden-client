@@ -10,6 +10,7 @@ import { userVar } from '../../../apollo/store';
 import { MemberUpdate } from '../../types/member/member.update';
 import { UPDATE_MEMBER } from '../../../apollo/user/mutation';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
+import { getMemberTypeLabel } from '../../enums/member.enum';
 
 const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	const device = useDeviceDetect();
@@ -114,7 +115,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 						memberNick: updateData.memberNick,
 						memberPhone: updateData.memberPhone,
 						memberAddress: updateData.memberAddress,
-						memberImage: updateData.memberImage,
+						memberImage: updateData.memberImage || user.memberImage || undefined,
 					},
 				},
 			});
@@ -135,8 +136,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 		if (
 			updateData.memberNick === '' ||
 			updateData.memberPhone === '' ||
-			updateData.memberAddress === '' ||
-			updateData.memberImage === ''
+			updateData.memberAddress === ''
 		) {
 			return true;
 		}
@@ -154,6 +154,18 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 					</Stack>
 				</Stack>
 				<Stack className="top-box">
+					<Stack className="profile-meta-box">
+						<Stack className="profile-meta-item">
+							<Typography className="meta-label">Role</Typography>
+							<Typography className="meta-value">{getMemberTypeLabel(user.memberType)}</Typography>
+						</Stack>
+						{user.memberStatus && (
+							<Stack className="profile-meta-item">
+								<Typography className="meta-label">Status</Typography>
+								<Typography className="meta-value">{user.memberStatus}</Typography>
+							</Stack>
+						)}
+					</Stack>
 					<Stack className="photo-box">
 						<Typography className="title">Photo</Typography>
 						<Stack className="image-big-box">
