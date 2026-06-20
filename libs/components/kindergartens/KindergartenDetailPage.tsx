@@ -119,7 +119,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 	});
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetKindergarten] = useMutation(LIKE_TARGET_KINDERGARTEN);
+	const [likeTargetKindergarten, { loading: likingKindergarten }] = useMutation(LIKE_TARGET_KINDERGARTEN);
 	const [createComment] = useMutation(CREATE_COMMENT);
 	const [createStaffApplication, { loading: creatingStaffApplication }] = useMutation(CREATE_STAFF_APPLICATION);
 	const [createApplication, { loading: creatingApplication }] = useMutation(CREATE_APPLICATION);
@@ -251,6 +251,14 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 	const locationText = [kindergarten?.kindergartenAddress, kindergarten?.kindergartenLocation].filter(Boolean).join(', ');
 	const seoDescription = buildSeoDescription(kindergarten);
 	const seoImage = detailImages[0] ? getImageUrl(detailImages[0]) : undefined;
+	const kindergartenLiked = Boolean(kindergarten?.meLiked?.[0]?.myFavorite);
+	const isGuestUser = !user?._id;
+	const isParentUser = user?.memberType === MemberType.PARENT;
+	const isKindergartenAdminUser = user?.memberType === MemberType.KINDERGARTEN_ADMIN;
+	const canUseParentDetailActions = isGuestUser || isParentUser;
+	const canViewTeacherApplicationCard = isGuestUser || isParentUser;
+	const canManageThisKindergarten =
+		isKindergartenAdminUser && Boolean(kindergarten?.memberId && user?._id && kindergarten.memberId === user._id);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -347,12 +355,18 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 				if (confirmed) await router.push('/account/join');
 				return;
 			}
-			await likeTargetKindergarten({ variables: { input: id } });
-			await getKindergartenRefetch({ input: id });
+			const likeResult = await likeTargetKindergarten({ variables: { input: id } });
+			const updatedKindergarten = likeResult.data?.likeTargetKindergarten;
+			if (updatedKindergarten) {
+				setKindergarten((prev) =>
+					prev && prev._id === updatedKindergarten._id ? { ...prev, ...updatedKindergarten } : updatedKindergarten,
+				);
+			}
+
+			const refetchResult = await getKindergartenRefetch({ input: id });
+			if (refetchResult.data?.getKindergarten) setKindergarten(refetchResult.data.getKindergarten);
 		} catch (err: any) {
-			const applicationErrorMessage = getApplicationErrorMessage(err);
-			if (applicationErrorMessage) await sweetErrorAlert(applicationErrorMessage);
-			else await sweetErrorHandling(err);
+			await sweetErrorHandling(err);
 		}
 	};
 
@@ -567,16 +581,19 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 							<span className="kg-rating-pill">4.8</span>
 							<span>{commentTotal || kindergarten?.kindergartenComments || 0} reviews</span>
 							<span className="kg-view-stat"><RemoveRedEyeIcon /> {formatCount(kindergarten?.kindergartenViews, '0')} views</span>
+							<span className="kg-view-stat"><FavoriteIcon /> {formatCount(kindergarten?.kindergartenLikes, '0')} likes</span>
 						</Stack>
 						<Stack className="kg-detail-title-row">
 							<Typography component="h1">{title}</Typography>
 							<button
 								type="button"
-								className={`kg-like-button ${kindergarten?.meLiked?.[0]?.myFavorite ? 'active' : ''}`}
+								className={`kg-like-button ${kindergartenLiked ? 'active' : ''}`}
 								onClick={() => likeKindergartenHandler(user, kindergarten?._id || '')}
-								aria-label="Like kindergarten"
+								disabled={likingKindergarten || !kindergarten?._id}
+								aria-label={kindergartenLiked ? 'Unlike kindergarten' : 'Like kindergarten'}
+								aria-pressed={kindergartenLiked}
 							>
-								{kindergarten?.meLiked?.[0]?.myFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+								{kindergartenLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
 							</button>
 						</Stack>
 						<Typography className="kg-detail-location">{locationText || kindergarten?.kindergartenLocation}</Typography>
@@ -589,10 +606,19 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 							<div><strong>Languages</strong><span>Uzbek, English</span></div>
 							<div><strong>Center Type</strong><span>{getKindergartenTypeLabel(kindergarten?.kindergartenType)}</span></div>
 						</Stack>
-						<Stack className="kg-detail-actions">
-							<Button onClick={() => handleParentApplicationIntent('contact')} className="primary">Contact Center</Button>
-							<Button onClick={() => handleParentApplicationIntent('visit')} className="secondary">Request a Visit</Button>
-						</Stack>
+						{canUseParentDetailActions && (
+							<Stack className="kg-detail-actions">
+								<Button onClick={() => handleParentApplicationIntent('contact')} className="primary">Contact Center</Button>
+								<Button onClick={() => handleParentApplicationIntent('visit')} className="secondary">Request a Visit</Button>
+							</Stack>
+						)}
+						{!canUseParentDetailActions && canManageThisKindergarten && (
+							<Stack className="kg-detail-actions">
+								<Button className="primary" onClick={() => router.push('/mypage?category=kindergartenProfile')}>
+									Manage Center
+								</Button>
+							</Stack>
+						)}
 					</Stack>
 				</Stack>
 
@@ -729,7 +755,9 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 								title={title}
 								locationText={locationText}
 							/>
-							<Button className="primary" onClick={() => handleParentApplicationIntent('contact')}>Contact Center</Button>
+							{canUseParentDetailActions && (
+								<Button className="primary" onClick={() => handleParentApplicationIntent('contact')}>Contact Center</Button>
+							)}
 						</Stack>
 						<Stack className="kg-detail-side-card kg-fee-card">
 							<Typography component="h3">Monthly Fee</Typography>
@@ -842,52 +870,51 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 								)}
 							</Stack>
 						)}
-						<Stack className="kg-detail-side-card kg-teacher-apply-card">
-							<Typography component="h3">Apply as Teacher</Typography>
-							{!user?._id && (
-								<>
-									<p>Sign in as a parent to apply for a teacher role at this kindergarten.</p>
-									<Button className="primary" onClick={applyAsTeacherHandler}>Login to Apply</Button>
-								</>
-							)}
-							{user?._id && user.memberType === MemberType.PARENT && (
-								<>
-									{hasPendingStaffApplication && <p className="status pending">Application pending</p>}
-									{hasApprovedStaffApplication && <p className="status approved">Application approved</p>}
-									{currentStaffApplication?.applicationStatus === StaffApplicationStatus.REJECTED && (
-										<p className="status rejected">Previous application rejected. You can apply again.</p>
-									)}
-									{currentStaffApplication?.applicationStatus === StaffApplicationStatus.CANCELED && (
-										<p className="status">Previous application canceled. You can apply again.</p>
-									)}
-									<TextField
-										multiline
-										minRows={3}
-										placeholder="Optional message for the kindergarten admin"
-										value={staffApplicationMessage}
-										onChange={(event) => setStaffApplicationMessage(event.target.value)}
-										disabled={!canApplyAsTeacher}
-										fullWidth
-									/>
-									<Button
-										className="primary"
-										disabled={!canApplyAsTeacher || creatingStaffApplication}
-										onClick={applyAsTeacherHandler}
-									>
-										{creatingStaffApplication
-											? 'Submitting...'
-											: hasPendingStaffApplication
-											? 'Application Pending'
-											: hasApprovedStaffApplication
-											? 'Application Approved'
-											: 'Apply as Teacher'}
-									</Button>
-								</>
-							)}
-							{user?._id && user.memberType !== MemberType.PARENT && (
-								<p>Teacher applications are available from parent accounts.</p>
-							)}
-						</Stack>
+						{canViewTeacherApplicationCard && (
+							<Stack className="kg-detail-side-card kg-teacher-apply-card">
+								<Typography component="h3">Apply as Teacher</Typography>
+								{!user?._id && (
+									<>
+										<p>Sign in as a parent to apply for a teacher role at this kindergarten.</p>
+										<Button className="primary" onClick={applyAsTeacherHandler}>Login to Apply</Button>
+									</>
+								)}
+								{user?._id && user.memberType === MemberType.PARENT && (
+									<>
+										{hasPendingStaffApplication && <p className="status pending">Application pending</p>}
+										{hasApprovedStaffApplication && <p className="status approved">Application approved</p>}
+										{currentStaffApplication?.applicationStatus === StaffApplicationStatus.REJECTED && (
+											<p className="status rejected">Previous application rejected. You can apply again.</p>
+										)}
+										{currentStaffApplication?.applicationStatus === StaffApplicationStatus.CANCELED && (
+											<p className="status">Previous application canceled. You can apply again.</p>
+										)}
+										<TextField
+											multiline
+											minRows={3}
+											placeholder="Optional message for the kindergarten admin"
+											value={staffApplicationMessage}
+											onChange={(event) => setStaffApplicationMessage(event.target.value)}
+											disabled={!canApplyAsTeacher}
+											fullWidth
+										/>
+										<Button
+											className="primary"
+											disabled={!canApplyAsTeacher || creatingStaffApplication}
+											onClick={applyAsTeacherHandler}
+										>
+											{creatingStaffApplication
+												? 'Submitting...'
+												: hasPendingStaffApplication
+												? 'Application Pending'
+												: hasApprovedStaffApplication
+												? 'Application Approved'
+												: 'Apply as Teacher'}
+										</Button>
+									</>
+								)}
+							</Stack>
+						)}
 					</aside>
 				</Stack>
 			</div>
