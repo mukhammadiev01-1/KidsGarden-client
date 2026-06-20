@@ -89,12 +89,10 @@ const PopularKindergartens = (props: PopularKindergartensProps) => {
 							<p>Most viewed active centers from the KidsGarden database</p>
 						</Box>
 						<Box component={'div'} className={'right'}>
-							<div className={'more-box'}>
-								<Link href={'/kindergartens'}>
-									<span>See All Kindergartens</span>
-								</Link>
-								<img src="/img/icons/rightup.svg" alt="" />
-							</div>
+							<Link className={'more-box'} href={'/kindergartens'}>
+								<span>See All Kindergartens</span>
+								<img src="/img/icons/rightup.svg" alt="" aria-hidden="true" />
+							</Link>
 						</Box>
 					</Stack>
 					<Stack className={'card-box'}>

@@ -96,12 +96,10 @@ const CommunityBoards = () => {
 					) : (
 						<Stack className="community-main">
 							<Stack className={'community-left'}>
-								<Stack className={'content-top'}>
-									<Link href={'/community?articleCategory=NEWS'}>
-										<span>News</span>
-									</Link>
-									<img src="/img/icons/arrowBig.svg" alt="" />
-								</Stack>
+								<Link className={'content-top'} href={'/community?articleCategory=NEWS'}>
+									<span>News</span>
+									<img src="/img/icons/arrowBig.svg" alt="" aria-hidden="true" />
+								</Link>
 								<Stack className={'card-wrap'}>
 									{newsArticles.length === 0
 										? renderCommunityEmptyState('Kindergarten news will appear here soon.')
@@ -111,12 +109,10 @@ const CommunityBoards = () => {
 								</Stack>
 							</Stack>
 							<Stack className={'community-right'}>
-								<Stack className={'content-top'}>
-									<Link href={'/community?articleCategory=FREE'}>
-										<span>Parent Board</span>
-									</Link>
-									<img src="/img/icons/arrowBig.svg" alt="" />
-								</Stack>
+								<Link className={'content-top'} href={'/community?articleCategory=FREE'}>
+									<span>Parent Board</span>
+									<img src="/img/icons/arrowBig.svg" alt="" aria-hidden="true" />
+								</Link>
 								<Stack className={'card-wrap vertical'}>
 									{freeArticles.length === 0
 										? renderCommunityEmptyState('Parent community posts will appear here soon.', true)

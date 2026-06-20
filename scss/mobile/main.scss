@@ -4316,12 +4316,27 @@
         display: flex;
         gap: 10px;
         color: #2f7d4a;
+
+        span {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: default;
+        }
       }
 
       .second {
         margin-top: 24px;
         padding-top: 16px;
         border-top: 1px solid rgba(47, 125, 74, 0.1);
+
+        .footer-legal-links {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
       }
     }
   }

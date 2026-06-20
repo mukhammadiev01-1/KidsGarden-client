@@ -1314,6 +1314,13 @@ body #pc-wrap {
 					display: flex;
 					gap: 10px;
 
+					span {
+						display: inline-flex;
+						align-items: center;
+						justify-content: center;
+						cursor: default;
+					}
+
 					svg {
 						width: 20px;
 						height: 20px;
@@ -1373,6 +1380,14 @@ body #pc-wrap {
 					font-size: 12px;
 					font-weight: 650;
 					line-height: 18px;
+				}
+
+				.footer-legal-links {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					gap: 8px;
+					flex-wrap: wrap;
 				}
 			}
 		}

@@ -19,6 +19,10 @@ import { REACT_APP_API_URL } from '../config';
 import { MemberType } from '../enums/member.enum';
 import NotificationBell from './notification/NotificationBell';
 
+const supportedLocales = ['en', 'kr', 'ru'];
+
+const normalizeLocale = (locale?: string | null) => (locale && supportedLocales.includes(locale) ? locale : 'en');
+
 const Top = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
@@ -33,15 +37,13 @@ const Top = () => {
 	const logoutOpen = Boolean(logoutAnchor);
 	const accountHref = user.memberType === MemberType.SUPER_ADMIN ? '/_admin' : '/mypage';
 	const accountLabel = user.memberType === MemberType.SUPER_ADMIN ? 'Admin' : t('My Page');
+	const selectedLang = normalizeLocale(lang);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (localStorage.getItem('locale') === null) {
-			localStorage.setItem('locale', 'en');
-			setLang('en');
-		} else {
-			setLang(localStorage.getItem('locale'));
-		}
+		const storedLocale = normalizeLocale(localStorage.getItem('locale'));
+		localStorage.setItem('locale', storedLocale);
+		setLang(storedLocale);
 	}, [router]);
 
 	useEffect(() => {
@@ -70,11 +72,12 @@ const Top = () => {
 	};
 
 	const langChoice = useCallback(
-		async (e: any) => {
-			setLang(e.target.id);
-			localStorage.setItem('locale', e.target.id);
+		async (locale: string) => {
+			const nextLocale = normalizeLocale(locale);
+			setLang(nextLocale);
+			localStorage.setItem('locale', nextLocale);
 			setAnchorEl2(null);
-			await router.push(router.asPath, router.asPath, { locale: e.target.id });
+			await router.push(router.asPath, router.asPath, { locale: nextLocale });
 		},
 		[router],
 	);
@@ -231,42 +234,32 @@ const Top = () => {
 									endIcon={<CaretDown size={14} color="#616161" weight="fill" />}
 								>
 									<Box component={'div'} className={'flag'}>
-										{lang !== null ? (
-											<img src={`/img/flag/lang${lang}.png`} alt={'usaFlag'} />
-										) : (
-											<img src={`/img/flag/langen.png`} alt={'usaFlag'} />
-										)}
+										<img src={`/img/flag/lang${selectedLang}.png`} alt={`${selectedLang} flag`} />
 									</Box>
 								</Button>
 
 								<StyledMenu anchorEl={anchorEl2} open={drop} onClose={langClose} sx={{ position: 'absolute' }}>
-									<MenuItem disableRipple onClick={langChoice} id="en">
+									<MenuItem disableRipple onClick={() => langChoice('en')} selected={selectedLang === 'en'}>
 										<img
 											className="img-flag"
 											src={'/img/flag/langen.png'}
-											onClick={langChoice}
-											id="en"
-											alt={'usaFlag'}
+											alt={'English flag'}
 										/>
 										{t('English')}
 									</MenuItem>
-									<MenuItem disableRipple onClick={langChoice} id="kr">
+									<MenuItem disableRipple onClick={() => langChoice('kr')} selected={selectedLang === 'kr'}>
 										<img
 											className="img-flag"
 											src={'/img/flag/langkr.png'}
-											onClick={langChoice}
-											id="uz"
-											alt={'koreanFlag'}
+											alt={'Korean flag'}
 										/>
 										{t('Korean')}
 									</MenuItem>
-									<MenuItem disableRipple onClick={langChoice} id="ru">
+									<MenuItem disableRipple onClick={() => langChoice('ru')} selected={selectedLang === 'ru'}>
 										<img
 											className="img-flag"
 											src={'/img/flag/langru.png'}
-											onClick={langChoice}
-											id="ru"
-											alt={'russiaFlag'}
+											alt={'Russian flag'}
 										/>
 										{t('Russian')}
 									</MenuItem>

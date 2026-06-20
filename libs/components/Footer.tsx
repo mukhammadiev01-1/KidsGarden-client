@@ -18,10 +18,18 @@ const Footer = () => {
 					</Link>
 					<p>All-in-one platform for kindergartens, teachers, parents, and communities.</p>
 					<div className={'media-box'} aria-label={'KidsGarden social links'}>
-						<FacebookOutlinedIcon />
-						<TelegramIcon />
-						<InstagramIcon />
-						<TwitterIcon />
+						<span role="img" aria-label="Facebook coming soon" title="Facebook coming soon">
+							<FacebookOutlinedIcon aria-hidden />
+						</span>
+						<span role="img" aria-label="Telegram coming soon" title="Telegram coming soon">
+							<TelegramIcon aria-hidden />
+						</span>
+						<span role="img" aria-label="Instagram coming soon" title="Instagram coming soon">
+							<InstagramIcon aria-hidden />
+						</span>
+						<span role="img" aria-label="X coming soon" title="X coming soon">
+							<TwitterIcon aria-hidden />
+						</span>
 					</div>
 				</Box>
 
@@ -47,14 +55,18 @@ const Footer = () => {
 					<div>
 						<strong>Support</strong>
 						<Link href={'/cs'}>Help</Link>
-						<span>support@kidsgarden.com</span>
+						<a href="mailto:support@kidsgarden.com">support@kidsgarden.com</a>
 						<span>Mon - Fri, 9am - 6pm KST</span>
 					</div>
 				</Box>
 			</Stack>
 			<Stack className={'second'}>
 				<span>© {moment().year()} KidsGarden. All rights reserved.</span>
-				<span>Terms of Service · Privacy Policy</span>
+				<div className="footer-legal-links" aria-label="Legal pages coming soon">
+					<span title="Terms of Service coming soon">Terms of Service (Coming Soon)</span>
+					<span aria-hidden="true">·</span>
+					<span title="Privacy Policy coming soon">Privacy Policy (Coming Soon)</span>
+				</div>
 			</Stack>
 		</Stack>
 	);
