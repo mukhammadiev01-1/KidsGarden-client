@@ -342,17 +342,22 @@
 			#fffaf2;
 
 		.dashboard-page-header {
-			padding: 2px 4px;
+			padding: 0 2px;
 
 			h1,
 			h2,
 			.MuiTypography-root:first-child {
 				color: #24332d;
+				font-size: 22px !important;
+				font-weight: 800 !important;
+				line-height: 28px !important;
 				letter-spacing: 0;
 			}
 
 			.MuiTypography-root:last-child {
 				color: #64746b;
+				font-size: 14px !important;
+				line-height: 21px !important;
 			}
 		}
 
@@ -370,9 +375,10 @@
 		.dashboard-panel,
 		.parent-application-form-panel {
 			border: 1px solid #e4ecd9;
-			border-radius: 24px !important;
+			border-radius: 18px !important;
 			background: rgba(255, 255, 255, 0.96) !important;
-			box-shadow: 0 16px 40px rgba(72, 101, 79, 0.1);
+			box-shadow: 0 12px 28px rgba(72, 101, 79, 0.08);
+			padding: 18px !important;
 		}
 
 		.dashboard-panel-header {
@@ -380,9 +386,16 @@
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: flex-start;
-			gap: 16px;
-			padding-bottom: 12px;
+			gap: 12px;
+			padding-bottom: 10px;
 			border-bottom: 1px solid #edf2e8;
+
+			.MuiTypography-root:first-child {
+				color: #24332d;
+				font-size: 18px !important;
+				font-weight: 800 !important;
+				line-height: 23px !important;
+			}
 		}
 
 		.dashboard-panel-subtitle,
@@ -394,17 +407,19 @@
 
 		.dashboard-count-chip,
 		.MuiChip-root.dashboard-count-chip {
+			height: 26px;
 			border: 1px solid #cfe0c8;
 			background: #e7f5ec;
 			color: #2f7d4a;
 			font-family: $font;
+			font-size: 11px;
 			font-weight: 900;
 		}
 
 		.dashboard-empty-state,
 		.no-data {
-			min-height: 92px;
-			padding: 22px;
+			min-height: 72px;
+			padding: 18px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -433,6 +448,7 @@
 
 		.dashboard-table-container {
 			max-width: 100%;
+			overflow: auto;
 			border-radius: 20px !important;
 			border: 1px solid #e4ecd9 !important;
 			box-shadow: 0 14px 34px rgba(72, 101, 79, 0.08) !important;
@@ -471,8 +487,39 @@
 		}
 
 		.MuiTextField-root .MuiOutlinedInput-root {
-			border-radius: 14px;
+			min-height: 46px;
+			border-radius: 12px;
 			background: #fffdf8;
+			font-size: 14px;
+		}
+
+		.MuiInputBase-input {
+			padding: 11px 13px !important;
+			font-size: 14px !important;
+			line-height: 20px !important;
+		}
+
+		.MuiSelect-select {
+			padding: 11px 34px 11px 13px !important;
+			font-size: 14px !important;
+			line-height: 20px !important;
+		}
+
+		.MuiInputLabel-root {
+			font-size: 14px !important;
+		}
+
+		.MuiFormHelperText-root {
+			margin-top: 4px;
+			font-size: 12px;
+			line-height: 16px;
+		}
+
+		.MuiButton-root {
+			min-height: 38px;
+			padding: 7px 14px;
+			font-size: 14px;
+			line-height: 18px;
 		}
 	}
 }
@@ -481,8 +528,10 @@
 	#my-page {
 		.parent-dashboard-screen {
 			width: 100%;
+			padding-top: 16px;
+			box-sizing: border-box;
 			.dashboard-page-header {
-				padding: 4px 2px 2px;
+				padding: 0 2px 2px;
 				h1,
 				h2,
 				h3,
@@ -492,14 +541,14 @@
 				p {
 					max-width: 720px;
 					color: #667568;
-					font-size: 15px;
+					font-size: 14px;
 					font-weight: 600;
-					line-height: 24px;
+					line-height: 21px;
 				}
 			}
 			.dashboard-panel {
 				border: 1px solid #e4ecd9;
-				box-shadow: 0 16px 38px rgba(72, 101, 79, 0.1);
+				box-shadow: 0 12px 28px rgba(72, 101, 79, 0.08);
 			}
 			.dashboard-panel-header {
 				width: 100%;
@@ -507,22 +556,22 @@
 				flex-direction: row;
 				align-items: flex-start;
 				justify-content: space-between;
-				gap: 18px;
+				gap: 12px;
 				.dashboard-panel-subtitle {
-					margin-top: 4px;
+					margin-top: 2px;
 					color: #6f7b70;
 					font-family: $font;
 					font-size: 13px;
 					font-weight: 700;
-					line-height: 20px;
+					line-height: 18px;
 				}
 			}
 			.dashboard-count-chip,
 			.dashboard-warning-chip {
-				height: 30px;
+				height: 26px;
 				border-radius: 999px;
 				font-family: $font;
-				font-size: 12px;
+				font-size: 11px;
 				font-weight: 900;
 			}
 			.dashboard-count-chip {
@@ -538,21 +587,21 @@
 				box-shadow: 0 14px 30px rgba(22, 101, 52, 0.08);
 			}
 			.dashboard-context-card {
-				padding: 14px 16px;
+				padding: 11px 13px;
 				border: 1px solid #dfe9d7;
-				border-radius: 16px;
+				border-radius: 14px;
 				background: #f8fbf4;
 			}
 			.dashboard-empty-state {
-				padding: 28px 22px;
+				padding: 18px;
 				border: 1px dashed #cdddc5;
-				border-radius: 18px;
+				border-radius: 16px;
 				background: #fffaf2;
 				color: #667568 !important;
 				font-family: $font;
 				font-size: 14px;
 				font-weight: 700;
-				line-height: 22px;
+				line-height: 20px;
 			}
 			.dashboard-table-container {
 				border-radius: 18px;
@@ -592,6 +641,120 @@
 			.dashboard-form-grid {
 				width: 100%;
 			}
+			.parent-card-list {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+			.parent-record-card {
+				width: 100%;
+				min-width: 0;
+				padding: 16px;
+				border: 1px solid #e4ecd9;
+				border-radius: 16px;
+				background:
+					radial-gradient(circle at 96% 0%, rgba(246, 196, 83, 0.1), transparent 24%),
+					#fffdf8;
+				box-shadow: 0 10px 24px rgba(72, 101, 79, 0.07);
+				box-sizing: border-box;
+			}
+			.parent-record-card-header {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				align-items: flex-start;
+				justify-content: space-between;
+				gap: 12px;
+
+				.MuiChip-root {
+					flex: 0 0 auto;
+					border-radius: 999px;
+					font-family: $font;
+					font-weight: 900;
+				}
+			}
+			.parent-record-title-block {
+				flex: 1;
+				min-width: 0;
+			}
+			.parent-record-title {
+				font-size: 16px;
+				line-height: 21px;
+				overflow-wrap: anywhere;
+			}
+			.parent-nowrap {
+				white-space: nowrap;
+			}
+			.parent-record-grid {
+				width: 100%;
+				display: grid;
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				gap: 10px;
+			}
+			.parent-application-grid {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+			.parent-attendance-grid {
+				grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+			}
+			.parent-meta-item {
+				min-width: 0;
+				padding: 10px 12px;
+				border: 1px solid #edf2e8;
+				border-radius: 14px;
+				background: #ffffff;
+			}
+			.parent-meta-label {
+				margin-bottom: 5px;
+				color: #879181;
+				font-family: $font;
+				font-size: 11px;
+				font-weight: 900;
+				line-height: 15px;
+				text-transform: uppercase;
+			}
+			.parent-meta-value {
+				color: #24332d;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 800;
+				line-height: 19px;
+				overflow-wrap: anywhere;
+			}
+			.parent-record-actions {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 8px;
+
+				.MuiButton-root {
+					min-width: 122px;
+					min-height: 36px;
+					white-space: nowrap;
+				}
+			}
+			.parent-child-card {
+				.parent-record-actions {
+					justify-content: flex-start;
+					padding-top: 2px;
+					border-top: 1px solid #edf2e8;
+				}
+			}
+			.parent-action-status,
+			.MuiChip-root.parent-action-status {
+				min-width: 92px;
+				height: 30px;
+				border-radius: 999px;
+				background: #f3f4f6;
+				color: #4b5563;
+				font-family: $font;
+				font-size: 12px;
+				font-weight: 900;
+			}
 			.parent-children-table,
 			.parent-attendance-table,
 			.parent-applications-table {
@@ -604,12 +767,12 @@
 			.parent-attendance-dashboard,
 			.parent-staff-applications-dashboard,
 			.parent-admin-applications-dashboard {
-				gap: 24px;
+				gap: 20px;
 
 				.MuiButton-contained {
 					border-radius: 999px;
 					background: #2f7d4a;
-					box-shadow: 0 10px 22px rgba(47, 125, 74, 0.18);
+					box-shadow: 0 8px 18px rgba(47, 125, 74, 0.16);
 					font-family: $font;
 					font-weight: 900;
 					text-transform: none;
@@ -654,7 +817,7 @@
 		.teacher-dashboard-screen {
 			width: 100%;
 			.dashboard-page-header {
-				padding: 4px 2px 2px;
+				padding: 0 2px 2px;
 				h1,
 				h2,
 				h3,
@@ -664,14 +827,14 @@
 				p {
 					max-width: 720px;
 					color: #667568;
-					font-size: 15px;
+					font-size: 14px;
 					font-weight: 600;
-					line-height: 24px;
+					line-height: 21px;
 				}
 			}
 			.dashboard-panel {
 				border: 1px solid #e4ecd9;
-				box-shadow: 0 16px 38px rgba(72, 101, 79, 0.1);
+				box-shadow: 0 12px 28px rgba(72, 101, 79, 0.08);
 			}
 			.dashboard-panel-header {
 				width: 100%;
@@ -679,41 +842,41 @@
 				flex-direction: row;
 				align-items: flex-start;
 				justify-content: space-between;
-				gap: 18px;
+				gap: 12px;
 				.dashboard-panel-subtitle {
-					margin-top: 4px;
+					margin-top: 2px;
 					color: #6f7b70;
 					font-family: $font;
 					font-size: 13px;
 					font-weight: 700;
-					line-height: 20px;
+					line-height: 18px;
 				}
 			}
 			.dashboard-count-chip {
-				height: 30px;
+				height: 26px;
 				border-radius: 999px;
 				background: #e6f4df;
 				color: #4f7c5b;
 				font-family: $font;
-				font-size: 12px;
+				font-size: 11px;
 				font-weight: 900;
 			}
 			.dashboard-context-card {
-				padding: 14px 16px;
+				padding: 11px 13px;
 				border: 1px solid #dfe9d7;
-				border-radius: 16px;
+				border-radius: 14px;
 				background: #f8fbf4;
 			}
 			.dashboard-empty-state {
-				padding: 28px 22px;
+				padding: 18px;
 				border: 1px dashed #cdddc5;
-				border-radius: 18px;
+				border-radius: 16px;
 				background: #fffaf2;
 				color: #667568 !important;
 				font-family: $font;
 				font-size: 14px;
 				font-weight: 700;
-				line-height: 22px;
+				line-height: 20px;
 			}
 			.dashboard-table-container {
 				border-radius: 18px;
@@ -746,6 +909,102 @@
 			.dashboard-form-grid {
 				width: 100%;
 			}
+			.teacher-card-list {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+			.teacher-record-card {
+				width: 100%;
+				min-width: 0;
+				padding: 16px;
+				border: 1px solid #e4ecd9;
+				border-radius: 16px;
+				background:
+					radial-gradient(circle at 96% 0%, rgba(246, 196, 83, 0.1), transparent 24%),
+					#fffdf8;
+				box-shadow: 0 10px 24px rgba(72, 101, 79, 0.07);
+				box-sizing: border-box;
+			}
+			.teacher-record-card-header {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				align-items: flex-start;
+				justify-content: space-between;
+				gap: 12px;
+
+				.MuiChip-root {
+					flex: 0 0 auto;
+					border-radius: 999px;
+					font-family: $font;
+					font-weight: 900;
+				}
+			}
+			.teacher-record-title-block {
+				flex: 1;
+				min-width: 0;
+			}
+			.teacher-record-title {
+				font-size: 16px;
+				line-height: 21px;
+				overflow-wrap: anywhere;
+			}
+			.teacher-record-grid {
+				width: 100%;
+				display: grid;
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				gap: 10px;
+			}
+			.teacher-attendance-grid {
+				grid-template-columns: minmax(190px, 0.75fr) minmax(0, 1.25fr);
+			}
+			.teacher-meta-item {
+				min-width: 0;
+				padding: 10px 12px;
+				border: 1px solid #edf2e8;
+				border-radius: 14px;
+				background: #ffffff;
+
+				.MuiTextField-root {
+					min-width: 0;
+				}
+			}
+			.teacher-meta-label {
+				margin-bottom: 6px;
+				color: #879181;
+				font-family: $font;
+				font-size: 11px;
+				font-weight: 900;
+				line-height: 15px;
+				text-transform: uppercase;
+			}
+			.teacher-meta-value {
+				color: #24332d;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 800;
+				line-height: 19px;
+				overflow-wrap: anywhere;
+			}
+			.teacher-record-actions {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 8px;
+				padding-top: 2px;
+				border-top: 1px solid #edf2e8;
+
+				.MuiButton-root {
+					min-width: 132px;
+					min-height: 36px;
+					white-space: nowrap;
+				}
+			}
 			.teacher-groups-table,
 			.teacher-attendance-table {
 				.MuiChip-root {
@@ -759,12 +1018,12 @@
 			}
 			.teacher-groups-dashboard,
 			.teacher-attendance-dashboard {
-				gap: 24px;
+				gap: 20px;
 
 				.MuiButton-contained {
 					border-radius: 999px;
 					background: #2f7d4a;
-					box-shadow: 0 10px 22px rgba(47, 125, 74, 0.18);
+					box-shadow: 0 8px 18px rgba(47, 125, 74, 0.16);
 					font-family: $font;
 					font-weight: 900;
 					text-transform: none;
@@ -808,7 +1067,7 @@
 		.admin-dashboard-screen {
 			width: 100%;
 			.dashboard-page-header {
-				padding: 4px 2px 2px;
+				padding: 0 2px 2px;
 				h1,
 				h2,
 				h3,
@@ -818,14 +1077,14 @@
 				p {
 					max-width: 760px;
 					color: #667568;
-					font-size: 15px;
+					font-size: 14px;
 					font-weight: 600;
-					line-height: 24px;
+					line-height: 21px;
 				}
 			}
 			.dashboard-panel {
 				border: 1px solid #e4ecd9;
-				box-shadow: 0 16px 38px rgba(72, 101, 79, 0.1);
+				box-shadow: 0 12px 28px rgba(72, 101, 79, 0.08);
 			}
 			.dashboard-panel-header {
 				width: 100%;
@@ -833,50 +1092,50 @@
 				flex-direction: row;
 				align-items: flex-start;
 				justify-content: space-between;
-				gap: 18px;
+				gap: 12px;
 				.dashboard-panel-subtitle {
-					margin-top: 4px;
+					margin-top: 2px;
 					color: #6f7b70;
 					font-family: $font;
 					font-size: 13px;
 					font-weight: 700;
-					line-height: 20px;
+					line-height: 18px;
 				}
 			}
 			.dashboard-count-chip {
-				height: 30px;
+				height: 26px;
 				border-radius: 999px;
 				background: #e6f4df;
 				color: #4f7c5b;
 				font-family: $font;
-				font-size: 12px;
+				font-size: 11px;
 				font-weight: 900;
 			}
 			.dashboard-empty-state {
-				padding: 28px 22px;
+				padding: 18px;
 				border: 1px dashed #cdddc5;
-				border-radius: 18px;
+				border-radius: 16px;
 				background: #fffaf2;
 				color: #667568 !important;
 				font-family: $font;
 				font-size: 14px;
 				font-weight: 700;
-				line-height: 22px;
+				line-height: 20px;
 			}
 			.dashboard-context-card {
 				flex: 1;
 				min-width: 0;
-				padding: 14px 16px;
+				padding: 11px 13px;
 				border: 1px solid #dfe9d7;
-				border-radius: 16px;
+				border-radius: 14px;
 				background: #f8fbf4;
 			}
 			.dashboard-primary-text {
 				color: #24332d;
 				font-family: $font;
-				font-size: 15px;
-				font-weight: 900;
-				line-height: 20px;
+				font-size: 14px;
+				font-weight: 800;
+				line-height: 19px;
 			}
 			.dashboard-muted-text {
 				color: #819083;
@@ -887,9 +1146,9 @@
 			}
 			.admin-selector-card {
 				width: 100%;
-				padding: 16px;
+				padding: 14px;
 				border: 1px solid #e4ecd9;
-				border-radius: 20px;
+				border-radius: 16px;
 				background: #fbfdf8;
 				transition:
 					border-color 0.18s ease,
@@ -898,21 +1157,21 @@
 				&.is-selected {
 					border-color: #f0c36f;
 					background: #fffaf2;
-					box-shadow: 0 14px 30px rgba(154, 99, 53, 0.1);
+					box-shadow: 0 10px 24px rgba(154, 99, 53, 0.09);
 				}
 				.admin-selector-card-image {
-					width: 116px;
-					height: 88px;
+					width: 96px;
+					height: 72px;
 					flex: 0 0 auto;
 					object-fit: cover;
-					border-radius: 16px;
+					border-radius: 14px;
 					border: 1px solid #e4ecd9;
 					background: #f3f8ef;
 				}
 				.admin-selector-card-content {
 					flex: 1;
 					min-width: 0;
-					gap: 6px;
+					gap: 4px;
 				}
 				.admin-selector-card-title-row {
 					width: 100%;
@@ -920,17 +1179,17 @@
 					flex-direction: row;
 					align-items: flex-start;
 					justify-content: space-between;
-					gap: 12px;
+					gap: 10px;
 				}
 				.admin-center-card-details {
-					margin-top: 6px;
+					margin-top: 4px;
 					display: grid;
 					grid-template-columns: repeat(3, minmax(0, 1fr));
-					gap: 8px;
+					gap: 6px;
 				}
 				.admin-meta-item {
-					padding: 10px 12px;
-					border-radius: 14px;
+					padding: 9px 10px;
+					border-radius: 12px;
 					background: #ffffff;
 					border: 1px solid #edf2e8;
 				}
@@ -946,12 +1205,12 @@
 				text-transform: uppercase;
 			}
 			.admin-meta-value {
-				margin-top: 3px;
+				margin-top: 2px;
 				color: #24332d;
 				font-family: $font;
-				font-size: 15px;
-				font-weight: 900;
-				line-height: 20px;
+				font-size: 14px;
+				font-weight: 800;
+				line-height: 19px;
 			}
 			.admin-profile-form-panel {
 				.admin-form-section-title {
@@ -969,28 +1228,212 @@
 			}
 			.admin-readonly-selector {
 				justify-content: center;
-				min-height: 58px;
+				min-height: 46px;
 			}
 			.admin-form-grid {
 				width: 100%;
 			}
-			.admin-teacher-assignment {
+			.admin-card-list {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+			.admin-record-card {
+				width: 100%;
+				min-width: 0;
 				padding: 16px;
 				border: 1px solid #e4ecd9;
-				border-radius: 18px;
-				background: #fbfdf8;
+				border-radius: 16px;
+				background:
+					radial-gradient(circle at 96% 0%, rgba(246, 196, 83, 0.1), transparent 24%),
+					#fffdf8;
+				box-shadow: 0 10px 24px rgba(72, 101, 79, 0.07);
+				box-sizing: border-box;
 			}
-			.admin-teacher-list {
+			.admin-record-card-header {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				align-items: flex-start;
+				justify-content: space-between;
+				gap: 12px;
+
+				.MuiChip-root {
+					flex: 0 0 auto;
+					border-radius: 999px;
+					font-family: $font;
+					font-weight: 900;
+				}
+			}
+			.admin-record-title-block {
+				flex: 1;
+				min-width: 0;
+			}
+			.admin-record-title {
+				font-size: 16px;
+				line-height: 21px;
+				overflow-wrap: anywhere;
+			}
+			.admin-record-grid {
+				width: 100%;
+				display: grid;
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				gap: 10px;
+			}
+			.admin-application-grid,
+			.admin-staff-grid,
+			.admin-child-grid,
+			.admin-attendance-grid {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+			.admin-group-grid {
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+			}
+			.admin-meta-wide {
+				grid-column: span 2;
+			}
+			.admin-meta-item {
+				min-width: 0;
+				padding: 10px 12px;
+				border: 1px solid #edf2e8;
+				border-radius: 14px;
+				background: #ffffff;
+
+				.MuiTextField-root {
+					min-width: 0;
+				}
+			}
+			.admin-note-field {
+				.MuiInputBase-root {
+					background: #fffdf8;
+				}
+			}
+			.admin-record-actions {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 8px;
+				padding-top: 2px;
+				border-top: 1px solid #edf2e8;
+
+				.MuiButton-root {
+					min-width: 118px;
+					min-height: 36px;
+					white-space: nowrap;
+				}
+			}
+			.admin-advanced-panel {
+				width: 100%;
+				padding: 12px;
+				border: 1px dashed #cdddc5;
+				border-radius: 14px;
+				background: #fffaf2;
+				box-sizing: border-box;
+			}
+			.admin-list-panel-header {
+				width: 100%;
+				align-items: flex-start;
+
+				.dashboard-panel-header {
+					flex: 1;
+					min-width: 0;
+				}
+
+				.MuiTextField-root {
+					flex: 0 0 260px;
+				}
+			}
+			.admin-children-list-panel {
+				background:
+					radial-gradient(circle at 98% 2%, rgba(47, 125, 74, 0.08), transparent 24%),
+					#ffffff;
+			}
+			.admin-children-form-panel {
+				background: #fffdf8;
+
+				.admin-form-grid {
+					max-width: 920px;
+				}
+			}
+			.admin-parent-link-section {
+				max-width: 920px;
 				padding: 12px;
 				border: 1px solid #edf2e8;
 				border-radius: 16px;
+				background: #fbfdf8;
+			}
+			.admin-attendance-scope-panel {
+				background:
+					radial-gradient(circle at 96% 0%, rgba(246, 196, 83, 0.12), transparent 26%),
+					#fffdf8;
+			}
+			.admin-attendance-context {
+				.dashboard-context-card {
+					border-color: #cfe0c8;
+					background: #ffffff;
+					box-shadow: 0 10px 24px rgba(72, 101, 79, 0.07);
+				}
+			}
+			.admin-polished-empty-state {
+				width: 100%;
+				align-items: center;
+				padding: 24px 20px;
+				border: 1px dashed #cdddc5;
+				border-radius: 16px;
+				background:
+					radial-gradient(circle at 14% 16%, rgba(246, 196, 83, 0.1), transparent 22%),
+					#fffaf2;
+				text-align: center;
+				box-sizing: border-box;
+			}
+			.admin-empty-indicator {
+				width: 44px;
+				height: 44px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 15px;
+				background: #e6f4df;
+				box-shadow: inset 0 0 0 1px #cfe0c8;
+
+				span {
+					width: 18px;
+					height: 18px;
+					border-radius: 50%;
+					background: #2f7d4a;
+					box-shadow:
+						-13px 10px 0 #f0c36f,
+						11px 9px 0 #8dbf6f;
+				}
+			}
+			.admin-empty-title {
+				color: #24332d;
+				font-family: $font;
+				font-size: 16px;
+				font-weight: 900;
+				line-height: 21px;
+			}
+			.admin-teacher-assignment {
+				padding: 12px;
+				border: 1px solid #e4ecd9;
+				border-radius: 16px;
+				background: #fbfdf8;
+			}
+			.admin-teacher-list {
+				padding: 10px;
+				border: 1px solid #edf2e8;
+				border-radius: 14px;
 				background: #ffffff;
 			}
 			.admin-teacher-option {
 				width: 100%;
 				margin: 0;
-				padding: 8px 10px;
-				border-radius: 14px;
+				padding: 7px 9px;
+				border-radius: 12px;
 				align-items: flex-start;
 				transition: background 0.18s ease;
 				&:hover {
@@ -1019,11 +1462,11 @@
 			}
 			.admin-candidate-card {
 				width: 100%;
-				padding: 16px;
+				padding: 12px;
 				border: 1px solid #e4ecd9;
-				border-radius: 18px;
+				border-radius: 16px;
 				background: #fbfdf8;
-				box-shadow: 0 10px 24px rgba(72, 101, 79, 0.07);
+				box-shadow: 0 8px 18px rgba(72, 101, 79, 0.06);
 				&.admin-selected-member-card {
 					background: #fffaf2;
 					border-color: #f0c36f;
@@ -1036,7 +1479,7 @@
 				flex-wrap: wrap;
 				gap: 6px;
 				.MuiChip-root {
-					height: 24px;
+					height: 22px;
 					border-radius: 999px;
 					font-family: $font;
 					font-size: 11px;
@@ -1048,8 +1491,8 @@
 				color: #405346;
 			}
 			.admin-protected-badge {
-				height: 24px;
-				margin-top: 6px;
+				height: 22px;
+				margin-top: 4px;
 				border-radius: 999px;
 				background: #fff4e6;
 				color: #9a6335;
@@ -1100,14 +1543,15 @@
 			.admin-groups-dashboard,
 			.admin-children-dashboard,
 			.admin-attendance-dashboard,
-			.admin-staff-dashboard {
-				gap: 24px;
+			.admin-staff-dashboard,
+			.admin-staff-applications-dashboard {
+				gap: 20px;
 
 				.MuiButton-containedPrimary,
 				.MuiButton-contained {
 					border-radius: 999px;
 					background: #2f7d4a;
-					box-shadow: 0 10px 22px rgba(47, 125, 74, 0.18);
+					box-shadow: 0 8px 18px rgba(47, 125, 74, 0.16);
 					font-family: $font;
 					font-weight: 900;
 					text-transform: none;
@@ -1379,19 +1823,19 @@
 					.left-config {
 						.my-menu {
 							width: 100%;
-							padding: 22px;
-							gap: 22px;
+							padding: 16px;
+							gap: 16px;
 							.profile {
 								width: 100%;
 								margin: 0;
-								padding: 0 0 20px;
+								padding: 0 0 16px;
 								align-items: center;
-								gap: 14px;
+								gap: 12px;
 								border-bottom: 1px solid #e4ecd9;
 								.profile-img img {
-									width: 58px;
-									height: 58px;
-									border-radius: 20px;
+									width: 50px;
+									height: 50px;
+									border-radius: 16px;
 									object-fit: cover;
 								}
 								.user-info {
@@ -1406,13 +1850,13 @@
 							}
 							.sections {
 								height: auto;
-								gap: 18px;
+								gap: 14px;
 								margin: 0;
 								.section {
 									width: 100%;
 									height: auto !important;
 									margin: 0 !important;
-									gap: 9px;
+									gap: 7px;
 									.title {
 										color: #879181;
 										font-size: 11px;
@@ -1454,9 +1898,9 @@
 									.sub-title {
 										margin: 0;
 										color: #33483a;
-										font-size: 14px;
+										font-size: 13px;
 										font-weight: 800;
-										line-height: 18px;
+										line-height: 16px;
 									}
 								}
 							}
@@ -1481,14 +1925,14 @@
 			margin: 0 auto;
 			.my-page {
 				width: 100%;
-				padding: 72px 0 72px;
+				padding: 56px 0 56px;
 				flex-direction: column;
 				gap: 0;
 				.back-frame {
 					width: 100%;
 					display: grid;
 					grid-template-columns: 260px minmax(0, 1fr);
-					gap: 24px;
+					gap: 20px;
 					margin: 0;
 					border: 0;
 					border-radius: 0;
@@ -1496,16 +1940,16 @@
 					box-shadow: none;
 					.left-config {
 						position: sticky;
-						top: 110px;
+						top: 96px;
 						width: 260px;
 						height: fit-content;
 						margin: 0;
 						padding: 0;
 						overflow: hidden;
 						border: 1px solid #e4ecd9;
-						border-radius: 24px;
+						border-radius: 20px;
 						background: rgba(255, 255, 255, 0.92);
-						box-shadow: 0 18px 44px rgba(72, 101, 79, 0.12);
+						box-shadow: 0 14px 34px rgba(72, 101, 79, 0.1);
 						backdrop-filter: blur(10px);
 					}
 					.main-config {
@@ -1521,7 +1965,7 @@
 							display: flex;
 							flex-direction: column;
 							flex-wrap: nowrap;
-							gap: 24px;
+							gap: 20px;
 						}
 					}
 				}
@@ -1530,23 +1974,23 @@
 
 		.my-menu {
 			width: 100%;
-			padding: 20px;
-			gap: 20px;
+			padding: 16px;
+			gap: 16px;
 			.profile {
 				width: 100%;
 				margin: 0;
-				padding: 0 0 20px;
+				padding: 0 0 16px;
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				gap: 14px;
+				gap: 12px;
 				border-bottom: 1px solid #e4ecd9;
 				.profile-img {
 					flex: 0 0 auto;
 					img {
-						width: 56px;
-						height: 56px;
-						border-radius: 18px;
+						width: 50px;
+						height: 50px;
+						border-radius: 16px;
 						object-fit: cover;
 						background: #f3f8ef;
 						border: 1px solid #dfe9d7;
@@ -1559,9 +2003,9 @@
 					.user-name {
 						color: #24332d;
 						font-family: $font;
-						font-size: 17px;
-						font-weight: 900;
-						line-height: 22px;
+						font-size: 15px;
+						font-weight: 800;
+						line-height: 20px;
 						overflow: hidden;
 						text-overflow: ellipsis;
 						white-space: nowrap;
@@ -1604,13 +2048,13 @@
 			.sections {
 				width: 100%;
 				height: auto;
-				gap: 18px;
+				gap: 14px;
 				margin: 0;
 				.section {
 					width: 100%;
 					height: auto !important;
 					margin: 0 !important;
-					gap: 9px;
+					gap: 7px;
 					.title {
 						color: #879181;
 						font-family: $font;
@@ -1640,15 +2084,26 @@
 								display: block;
 								width: 100%;
 								text-decoration: none;
+
+								&:focus:not(:focus-visible) {
+									outline: none;
+								}
+
+								&:focus-visible {
+									outline: 2px solid rgba(47, 125, 74, 0.38);
+									outline-offset: 3px;
+									border-radius: 16px;
+								}
 							}
 						}
 						.flex-box {
 							width: 100%;
-							min-height: 42px;
-							padding: 0 12px;
+							min-height: 38px;
+							padding: 7px 10px;
 							display: flex;
 							align-items: center;
 							gap: 10px;
+							box-sizing: border-box;
 							border-radius: 14px;
 							transition:
 								background 0.2s ease,
@@ -1675,12 +2130,15 @@
 						}
 					}
 					.sub-title {
+						min-width: 0;
 						margin: 0;
 						color: #33483a;
 						font-family: $font;
-						font-size: 14px;
+						font-size: 13px;
 						font-weight: 800;
-						line-height: 18px;
+						line-height: 16px;
+						overflow-wrap: anywhere;
+						white-space: normal;
 					}
 				}
 			}
@@ -1693,16 +2151,16 @@
 				min-width: 0;
 			}
 			.coming-soon-state {
-				min-height: 180px;
-				padding: 34px 28px;
+				min-height: 140px;
+				padding: 24px 22px;
 				border-style: dashed;
 				background:
 					radial-gradient(circle at 14% 18%, rgba(255, 207, 89, 0.16), transparent 28%),
 					#fffdf8;
 
 				img {
-					width: 34px;
-					height: 34px;
+					width: 28px;
+					height: 28px;
 					opacity: 0.75;
 				}
 
@@ -1710,9 +2168,9 @@
 					margin: 0;
 					color: #24332d;
 					font-family: $font;
-					font-size: 17px;
-					font-weight: 900;
-					line-height: 24px;
+					font-size: 16px;
+					font-weight: 800;
+					line-height: 22px;
 				}
 
 				span {

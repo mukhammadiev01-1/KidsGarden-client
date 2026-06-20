@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
-import { Chip, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Chip, Stack, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { userVar } from '../../../apollo/store';
 import { GET_GROUPS } from '../../../apollo/user/query';
@@ -8,7 +8,16 @@ import { GroupStatus } from '../../enums/group.enum';
 import { MemberType } from '../../enums/member.enum';
 import { Group } from '../../types/group/group';
 import { sweetErrorHandling } from '../../sweetAlert';
-import { getStatusChipSx, getStatusLabel, truncateId } from './dashboardUtils';
+import { getStatusChipSx, getStatusLabel } from './dashboardUtils';
+
+const getKindergartenLabel = (group: Group) => {
+	const groupWithKindergarten = group as Group & {
+		kindergartenTitle?: string;
+		kindergartenData?: { kindergartenTitle?: string };
+	};
+
+	return groupWithKindergarten.kindergartenData?.kindergartenTitle || groupWithKindergarten.kindergartenTitle || 'Assigned kindergarten';
+};
 
 const TeacherGroups = () => {
 	const router = useRouter();
@@ -66,42 +75,34 @@ const TeacherGroups = () => {
 					</Typography>
 				)}
 				{groups.length > 0 && (
-					<TableContainer className="dashboard-table-container teacher-groups-table">
-						<Table size="small">
-							<TableHead>
-								<TableRow>
-									<TableCell>Name</TableCell>
-									<TableCell>Kindergarten</TableCell>
-									<TableCell>Age range</TableCell>
-									<TableCell>Capacity</TableCell>
-									<TableCell>Status</TableCell>
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{groups.map((group) => (
-									<TableRow key={group._id}>
-										<TableCell>
-											<Stack spacing={0.25}>
-												<Typography className="dashboard-primary-text">{group.groupName}</Typography>
-												<Typography className="dashboard-muted-text">Group ID {truncateId(group._id)}</Typography>
-											</Stack>
-										</TableCell>
-										<TableCell>
-											<Stack spacing={0.25}>
-												<Typography className="dashboard-primary-text">Kindergarten reference</Typography>
-												<Typography className="dashboard-muted-text">{truncateId(group.kindergartenId)}</Typography>
-											</Stack>
-										</TableCell>
-										<TableCell>{group.groupAgeRange}</TableCell>
-										<TableCell>{group.groupCapacity} children</TableCell>
-										<TableCell>
-											<Chip label={getStatusLabel(group.groupStatus)} size="small" sx={getStatusChipSx(group.groupStatus)} />
-										</TableCell>
-									</TableRow>
-								))}
-							</TableBody>
-						</Table>
-					</TableContainer>
+					<Stack className="teacher-card-list teacher-groups-list">
+						{groups.map((group) => (
+							<Stack key={group._id} className="teacher-record-card teacher-group-card" spacing={2}>
+								<Stack className="teacher-record-card-header">
+									<Stack className="teacher-record-title-block" spacing={0.5}>
+										<Typography className="dashboard-primary-text teacher-record-title">{group.groupName}</Typography>
+										<Typography className="dashboard-muted-text">{getKindergartenLabel(group)}</Typography>
+									</Stack>
+									<Chip label={getStatusLabel(group.groupStatus)} size="small" sx={getStatusChipSx(group.groupStatus)} />
+								</Stack>
+
+								<Stack className="teacher-record-grid teacher-group-grid">
+									<Stack className="teacher-meta-item">
+										<Typography className="teacher-meta-label">Kindergarten</Typography>
+										<Typography className="teacher-meta-value">{getKindergartenLabel(group)}</Typography>
+									</Stack>
+									<Stack className="teacher-meta-item">
+										<Typography className="teacher-meta-label">Age range</Typography>
+										<Typography className="teacher-meta-value">{group.groupAgeRange || '-'}</Typography>
+									</Stack>
+									<Stack className="teacher-meta-item">
+										<Typography className="teacher-meta-label">Capacity</Typography>
+										<Typography className="teacher-meta-value">{group.groupCapacity} children</Typography>
+									</Stack>
+								</Stack>
+							</Stack>
+						))}
+					</Stack>
 				)}
 			</Stack>
 		</Stack>

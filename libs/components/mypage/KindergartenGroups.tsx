@@ -7,12 +7,6 @@ import {
 	FormControlLabel,
 	MenuItem,
 	Stack,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
 	TextField,
 	Typography,
 } from '@mui/material';
@@ -36,7 +30,6 @@ import {
 	getStatusChipSx,
 	getStatusLabel,
 	shouldHideKindergartenSelector,
-	truncateId,
 } from './dashboardUtils';
 
 const groupStatusOptions = [GroupStatus.ACTIVE, GroupStatus.INACTIVE, GroupStatus.FULL];
@@ -66,6 +59,7 @@ const KindergartenGroups = () => {
 	const [teacherIdsInput, setTeacherIdsInput] = useState('');
 	const [selectedTeacherIds, setSelectedTeacherIds] = useState<string[]>([]);
 	const [teacherNames, setTeacherNames] = useState<Record<string, string>>({});
+	const [showAdvancedTeacherEntry, setShowAdvancedTeacherEntry] = useState(false);
 	const [form, setForm] = useState<GroupInput>(emptyForm);
 
 	const [createGroup] = useMutation(CREATE_GROUP);
@@ -180,9 +174,9 @@ const KindergartenGroups = () => {
 						fetchPolicy: 'cache-first',
 					});
 
-					return [memberId, result.data?.getMember?.memberNick || memberId] as const;
+					return [memberId, result.data?.getMember?.memberNick || 'Teacher'] as const;
 				} catch (err) {
-					return [memberId, memberId] as const;
+					return [memberId, 'Teacher'] as const;
 				}
 			}),
 		).then((entries) => {
@@ -286,7 +280,7 @@ const KindergartenGroups = () => {
 			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Groups</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Create class groups for a selected kindergarten. Teacher IDs must already be ACTIVE TEACHER staff records.
+					Create class groups for a selected kindergarten and assign active teacher staff.
 				</Typography>
 			</Stack>
 
@@ -409,25 +403,34 @@ const KindergartenGroups = () => {
 									label={
 										<Stack>
 											<Typography className="dashboard-primary-text">
-												{teacherNames[staff.memberId] || staff.memberId}
+												{teacherNames[staff.memberId] || 'Teacher'}
 											</Typography>
-											<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
-												{truncateId(staff.memberId)}
-											</Typography>
+											<Typography className="dashboard-muted-text">Active teacher staff</Typography>
 										</Stack>
 									}
 								/>
 							))}
 						</Stack>
 					)}
-					<TextField
-						fullWidth
-						label="Additional teacher IDs"
-						placeholder="teacherId1, teacherId2"
-						value={teacherIdsInput}
-						onChange={(event) => setTeacherIdsInput(event.target.value)}
-						helperText="Optional fallback for comma-separated teacher member IDs."
-					/>
+					<Button
+						variant="text"
+						onClick={() => setShowAdvancedTeacherEntry((prev) => !prev)}
+						sx={{ width: 'fit-content' }}
+					>
+						{showAdvancedTeacherEntry ? 'Hide advanced teacher link' : 'Advanced: link teacher by member ID'}
+					</Button>
+					{showAdvancedTeacherEntry && (
+						<Stack className="admin-advanced-panel">
+							<TextField
+								fullWidth
+								label="Teacher member IDs (advanced)"
+								placeholder="teacherId1, teacherId2"
+								value={teacherIdsInput}
+								onChange={(event) => setTeacherIdsInput(event.target.value)}
+								helperText="Optional fallback for comma-separated teacher member IDs."
+							/>
+						</Stack>
+					)}
 				</Stack>
 				<Button variant="contained" onClick={submitGroupHandler} disabled={!selectedKindergartenId} sx={{ width: 'fit-content' }}>
 					{selectedGroupId ? 'Save Group' : 'Create Group'}
@@ -451,72 +454,63 @@ const KindergartenGroups = () => {
 					</Typography>
 				)}
 				{groups.length > 0 && (
-					<TableContainer className="dashboard-table-container admin-groups-table">
-						<Table size="small">
-							<TableHead>
-								<TableRow>
-									<TableCell>Name</TableCell>
-									<TableCell>Age range</TableCell>
-									<TableCell>Capacity</TableCell>
-									<TableCell>Teachers</TableCell>
-									<TableCell>Status</TableCell>
-									<TableCell>Created</TableCell>
-									<TableCell align="right">Actions</TableCell>
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{groups.map((group) => {
-									const isArchived = group.groupStatus === GroupStatus.ARCHIVED;
+					<Stack className="admin-card-list admin-groups-list">
+						{groups.map((group) => {
+							const isArchived = group.groupStatus === GroupStatus.ARCHIVED;
 
-									return (
-										<TableRow key={group._id} sx={{ opacity: isArchived ? 0.55 : 1 }}>
-											<TableCell>
-												<Stack spacing={0.25}>
-													<Typography className="dashboard-primary-text">{group.groupName}</Typography>
-													<Typography className="dashboard-muted-text">Group ID {truncateId(group._id)}</Typography>
-												</Stack>
-											</TableCell>
-											<TableCell>{group.groupAgeRange}</TableCell>
-											<TableCell>{group.groupCapacity} children</TableCell>
-											<TableCell sx={{ maxWidth: 280 }}>
+							return (
+								<Stack
+									key={group._id}
+									className="admin-record-card admin-group-card"
+									spacing={2}
+									sx={{ opacity: isArchived ? 0.55 : 1 }}
+								>
+									<Stack className="admin-record-card-header">
+										<Stack className="admin-record-title-block" spacing={0.5}>
+											<Typography className="dashboard-primary-text admin-record-title">{group.groupName}</Typography>
+											<Typography className="dashboard-muted-text">Class group</Typography>
+										</Stack>
+										<Chip label={getStatusLabel(group.groupStatus)} size="small" sx={getStatusChipSx(group.groupStatus)} />
+									</Stack>
+									<Stack className="admin-record-grid admin-group-grid">
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Age range</Typography>
+											<Typography className="admin-meta-value">{group.groupAgeRange}</Typography>
+										</Stack>
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Capacity</Typography>
+											<Typography className="admin-meta-value">{group.groupCapacity} children</Typography>
+										</Stack>
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Created</Typography>
+											<Typography className="admin-meta-value">{formatDate(group.createdAt)}</Typography>
+										</Stack>
+										<Stack className="admin-meta-item admin-meta-wide">
+											<Typography className="admin-meta-label">Teachers</Typography>
+											<Typography className="admin-meta-value">
 												{group.teacherIds?.length
-													? group.teacherIds.map((teacherId) => (
-															<Stack key={teacherId} sx={{ mb: 0.5 }}>
-																<Typography className="dashboard-primary-text">
-																	{teacherNames[teacherId] || truncateId(teacherId)}
-																</Typography>
-																<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
-																	{truncateId(teacherId)}
-																</Typography>
-															</Stack>
-													  ))
-													: '-'}
-											</TableCell>
-											<TableCell>
-												<Chip label={getStatusLabel(group.groupStatus)} size="small" sx={getStatusChipSx(group.groupStatus)} />
-											</TableCell>
-											<TableCell>{formatDate(group.createdAt)}</TableCell>
-											<TableCell align="right">
-												<Stack className="admin-danger-actions" direction={'row'} spacing={1} justifyContent={'flex-end'}>
-													<Button variant="outlined" disabled={isArchived} onClick={() => editGroupHandler(group)}>
-														Edit
-													</Button>
-													<Button
-														variant="outlined"
-														color="error"
-														disabled={isArchived}
-														onClick={() => removeGroupHandler(group._id)}
-													>
-														{isArchived ? 'Archived' : 'Archive'}
-													</Button>
-												</Stack>
-											</TableCell>
-										</TableRow>
-									);
-								})}
-							</TableBody>
-						</Table>
-					</TableContainer>
+													? group.teacherIds.map((teacherId) => teacherNames[teacherId] || 'Assigned teacher').join(', ')
+													: 'No teachers assigned'}
+											</Typography>
+										</Stack>
+									</Stack>
+									<Stack className="admin-record-actions admin-danger-actions">
+										<Button variant="outlined" disabled={isArchived} onClick={() => editGroupHandler(group)}>
+											Edit
+										</Button>
+										<Button
+											variant="outlined"
+											color="error"
+											disabled={isArchived}
+											onClick={() => removeGroupHandler(group._id)}
+										>
+											{isArchived ? 'Archived' : 'Archive'}
+										</Button>
+									</Stack>
+								</Stack>
+							);
+						})}
+					</Stack>
 				)}
 			</Stack>
 		</Stack>

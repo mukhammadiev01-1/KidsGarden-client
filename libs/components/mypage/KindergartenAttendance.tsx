@@ -5,12 +5,6 @@ import {
 	Chip,
 	MenuItem,
 	Stack,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
 	TextField,
 	Typography,
 } from '@mui/material';
@@ -36,7 +30,6 @@ import {
 	getStatusChipSx,
 	getStatusLabel,
 	shouldHideKindergartenSelector,
-	truncateId,
 } from './dashboardUtils';
 
 interface AttendanceDraft {
@@ -377,16 +370,16 @@ const KindergartenAttendance = () => {
 			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Attendance</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Mark daily attendance by group. Each child can be saved independently.
+					Prepare the daily classroom roll call and save each child independently.
 				</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel admin-attendance-scope-panel" spacing={2}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select attendance scope</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Daily attendance setup</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Choose the kindergarten, group, and date before reviewing attendance.
+							Choose the center, classroom, and date before marking attendance.
 						</Typography>
 					</Stack>
 				</Stack>
@@ -483,9 +476,9 @@ const KindergartenAttendance = () => {
 			<Stack className="dashboard-panel" spacing={2}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Daily attendance</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Classroom roll call</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Choose a status for each child, add an optional note, then click Mark or Update.
+							Choose a status, add a short note if needed, then mark or update the record.
 						</Typography>
 					</Stack>
 					<Chip label={`${children.length} children`} size="small" className="dashboard-count-chip" />
@@ -500,103 +493,104 @@ const KindergartenAttendance = () => {
 					<Typography className="dashboard-empty-state">No group selected.</Typography>
 				)}
 				{!childrenLoading && selectedGroupId && children.length === 0 && (
-					<Typography className="dashboard-empty-state">No active children found in this group.</Typography>
+					<Stack className="admin-polished-empty-state admin-attendance-empty-state" spacing={1.25}>
+						<Stack className="admin-empty-indicator" aria-hidden="true">
+							<span />
+						</Stack>
+						<Typography className="admin-empty-title">No active children in this classroom</Typography>
+						<Typography className="dashboard-note-text">
+							No active children are assigned to this group yet. Add children or choose another group to mark attendance.
+						</Typography>
+						<Button variant="outlined" onClick={() => router.push('/mypage?category=children')} sx={{ width: 'fit-content' }}>
+							Go to Children
+						</Button>
+					</Stack>
 				)}
 				{children.length > 0 && (
-					<TableContainer className="dashboard-table-container admin-attendance-table">
-						<Table size="small">
-							<TableHead>
-								<TableRow>
-									<TableCell>Child</TableCell>
-									<TableCell>Saved status</TableCell>
-									<TableCell>New status</TableCell>
-									<TableCell>Note</TableCell>
-									<TableCell align="right">Actions</TableCell>
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{children.map((child) => {
-									const attendance = attendanceByChildId[child._id];
-									const hasExistingRecord = Boolean(attendance);
-									const draft = drafts[child._id] ?? {
-										attendanceStatus: attendance?.attendanceStatus ?? AttendanceStatus.PRESENT,
-										note: attendance?.note ?? '',
-									};
+					<Stack className="admin-card-list admin-attendance-list">
+						{children.map((child) => {
+							const attendance = attendanceByChildId[child._id];
+							const hasExistingRecord = Boolean(attendance);
+							const draft = drafts[child._id] ?? {
+								attendanceStatus: attendance?.attendanceStatus ?? AttendanceStatus.PRESENT,
+								note: attendance?.note ?? '',
+							};
 
-									return (
-										<TableRow key={child._id}>
-											<TableCell>
-												<Stack spacing={0.25}>
-													<Typography className="dashboard-primary-text">{child.childFullName}</Typography>
-													<Typography className="dashboard-muted-text">
-														Child ID {truncateId(child._id)}
-													</Typography>
-												</Stack>
-											</TableCell>
-											<TableCell>
-												{hasExistingRecord ? (
-													<Stack spacing={0.5}>
-														<Chip
-															label={getStatusLabel(attendance?.attendanceStatus)}
-															size="small"
-															sx={getStatusChipSx(attendance?.attendanceStatus)}
-														/>
-														<Typography className="dashboard-muted-text">
-															Updated {formatDate(attendance?.updatedAt)}
-														</Typography>
-													</Stack>
-												) : (
-													<Chip label="Not marked yet" size="small" sx={getStatusChipSx('INACTIVE')} />
-												)}
-											</TableCell>
-											<TableCell>
-												<TextField
-													select
-													size="small"
-													value={draft.attendanceStatus}
-													onChange={(event) =>
-														updateDraft(child._id, { attendanceStatus: event.target.value as AttendanceStatus })
-													}
-													sx={{ minWidth: 140 }}
-												>
-													{attendanceStatusOptions.map((status) => (
-														<MenuItem key={status} value={status}>
-															{status}
-														</MenuItem>
-													))}
-												</TextField>
-											</TableCell>
-											<TableCell>
-												<TextField
-													fullWidth
-													size="small"
-													placeholder="Optional note"
-													value={draft.note}
-													onChange={(event) => updateDraft(child._id, { note: event.target.value })}
-												/>
-											</TableCell>
-											<TableCell align="right">
-												<Stack className="admin-danger-actions" direction={'row'} spacing={1} justifyContent={'flex-end'}>
-													<Button variant="contained" onClick={() => saveAttendanceHandler(child)}>
-														{hasExistingRecord ? 'Update attendance' : 'Mark attendance'}
-													</Button>
-													{hasExistingRecord && (
-														<Button
-															variant="outlined"
-															color="error"
-															onClick={() => attendance && removeAttendanceHandler(attendance._id)}
-														>
-															Remove
-														</Button>
-													)}
-												</Stack>
-											</TableCell>
-										</TableRow>
-									);
-								})}
-							</TableBody>
-						</Table>
-					</TableContainer>
+							return (
+								<Stack key={child._id} className="admin-record-card admin-attendance-card" spacing={2}>
+									<Stack className="admin-record-card-header">
+										<Stack className="admin-record-title-block" spacing={0.5}>
+											<Typography className="dashboard-primary-text admin-record-title">{child.childFullName}</Typography>
+											<Typography className="dashboard-muted-text">{selectedGroupName}</Typography>
+										</Stack>
+										{hasExistingRecord ? (
+											<Chip
+												label={getStatusLabel(attendance?.attendanceStatus)}
+												size="small"
+												sx={getStatusChipSx(attendance?.attendanceStatus)}
+											/>
+										) : (
+											<Chip label="Not marked yet" size="small" sx={getStatusChipSx('INACTIVE')} />
+										)}
+									</Stack>
+									<Stack className="admin-record-grid admin-attendance-grid">
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Saved status</Typography>
+											<Typography className="admin-meta-value">
+												{hasExistingRecord ? getStatusLabel(attendance?.attendanceStatus) : 'Not marked yet'}
+											</Typography>
+											{hasExistingRecord && (
+												<Typography className="dashboard-muted-text">
+													Updated {formatDate(attendance?.updatedAt)}
+												</Typography>
+											)}
+										</Stack>
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">New status</Typography>
+											<TextField
+												select
+												size="small"
+												value={draft.attendanceStatus}
+												onChange={(event) =>
+													updateDraft(child._id, { attendanceStatus: event.target.value as AttendanceStatus })
+												}
+											>
+												{attendanceStatusOptions.map((status) => (
+													<MenuItem key={status} value={status}>
+														{status}
+													</MenuItem>
+												))}
+											</TextField>
+										</Stack>
+										<Stack className="admin-meta-item admin-meta-wide">
+											<Typography className="admin-meta-label">Note</Typography>
+											<TextField
+												fullWidth
+												size="small"
+												placeholder="Optional note"
+												value={draft.note}
+												onChange={(event) => updateDraft(child._id, { note: event.target.value })}
+											/>
+										</Stack>
+									</Stack>
+									<Stack className="admin-record-actions admin-danger-actions">
+										<Button variant="contained" onClick={() => saveAttendanceHandler(child)}>
+											{hasExistingRecord ? 'Update attendance' : 'Mark attendance'}
+										</Button>
+										{hasExistingRecord && (
+											<Button
+												variant="outlined"
+												color="error"
+												onClick={() => attendance && removeAttendanceHandler(attendance._id)}
+											>
+												Remove
+											</Button>
+										)}
+									</Stack>
+								</Stack>
+							);
+						})}
+					</Stack>
 				)}
 			</Stack>
 		</Stack>

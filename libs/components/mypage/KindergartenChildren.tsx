@@ -5,12 +5,6 @@ import {
 	Chip,
 	MenuItem,
 	Stack,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
 	TextField,
 	Typography,
 } from '@mui/material';
@@ -41,7 +35,6 @@ import {
 	getStatusChipSx,
 	getStatusLabel,
 	shouldHideKindergartenSelector,
-	truncateId,
 } from './dashboardUtils';
 
 const childGenderOptions = [ChildGender.BOY, ChildGender.GIRL];
@@ -86,6 +79,7 @@ const KindergartenChildren = () => {
 	const [parentPreview, setParentPreview] = useState<ParentPreview | null>(null);
 	const [parentPreviewError, setParentPreviewError] = useState('');
 	const [parentNames, setParentNames] = useState<Record<string, string>>({});
+	const [showAdvancedParentLink, setShowAdvancedParentLink] = useState(false);
 
 	const [createChild] = useMutation(CREATE_CHILD);
 	const [updateChild] = useMutation(UPDATE_CHILD);
@@ -183,6 +177,7 @@ const KindergartenChildren = () => {
 		setSelectedGroupFilter('');
 		setParentPreview(null);
 		setParentPreviewError('');
+		setShowAdvancedParentLink(false);
 		setForm({ ...emptyForm, kindergartenId: selectedKindergartenId });
 	}, [selectedKindergartenId]);
 
@@ -207,9 +202,9 @@ const KindergartenChildren = () => {
 						fetchPolicy: 'cache-first',
 					});
 
-					return [parentId, result.data?.getMember?.memberNick || parentId] as const;
+					return [parentId, result.data?.getMember?.memberNick || 'Linked parent'] as const;
 				} catch (err) {
-					return [parentId, parentId] as const;
+					return [parentId, 'Linked parent'] as const;
 				}
 			}),
 		).then((entries) => {
@@ -229,6 +224,7 @@ const KindergartenChildren = () => {
 		setSelectedChildId('');
 		setParentPreview(null);
 		setParentPreviewError('');
+		setShowAdvancedParentLink(false);
 		setForm({ ...emptyForm, kindergartenId: selectedKindergartenId, groupId: selectableGroups[0]?._id ?? '' });
 	};
 
@@ -242,7 +238,7 @@ const KindergartenChildren = () => {
 		try {
 			const parentId = form.parentId.trim();
 			if (!selectedKindergartenId) throw new Error('Please select a kindergarten first.');
-			if (!parentId) throw new Error('Please enter a parent member ID.');
+			if (!parentId) throw new Error('Please enter the parent link value.');
 
 			const result = await apolloClient.query({
 				query: PREVIEW_KINDERGARTEN_MEMBER,
@@ -263,7 +259,7 @@ const KindergartenChildren = () => {
 			setParentPreviewError(member.memberType !== MemberType.PARENT ? 'Selected member is not a PARENT account.' : '');
 			setParentNames((prev) => ({
 				...prev,
-				[parentId]: member.memberNick || parentId,
+				[parentId]: member.memberNick || 'Linked parent',
 			}));
 		} catch (err: any) {
 			setParentPreview(null);
@@ -275,6 +271,7 @@ const KindergartenChildren = () => {
 		setSelectedChildId(child._id);
 		setParentPreview(null);
 		setParentPreviewError('');
+		setShowAdvancedParentLink(true);
 		setForm({
 			childFullName: child.childFullName,
 			childBirthDate: String(child.childBirthDate).slice(0, 10),
@@ -294,7 +291,7 @@ const KindergartenChildren = () => {
 			if (!form.groupId) throw new Error('Please select a group.');
 			if (!form.childFullName.trim()) throw new Error('Please enter the child full name.');
 			if (!form.childBirthDate) throw new Error('Please enter the child birth date.');
-			if (!parentId) throw new Error('Please enter a parent member ID.');
+			if (!parentId) throw new Error('Please link a parent account.');
 			if (parentPreviewInvalid) throw new Error('Selected member is not a PARENT account.');
 
 			if (selectedChildId) {
@@ -353,7 +350,7 @@ const KindergartenChildren = () => {
 			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Children</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Manage enrolled children by group. Parent IDs are entered manually in this first version.
+					Review enrolled children, classroom placement, and parent links for your center.
 				</Typography>
 			</Stack>
 
@@ -392,6 +389,96 @@ const KindergartenChildren = () => {
 				)}
 			</Stack>
 
+			<Stack className="dashboard-panel admin-children-list-panel" spacing={2}>
+				<Stack className="admin-list-panel-header" direction={{ xs: 'column', md: 'row' }} justifyContent={'space-between'} spacing={2}>
+					<Stack className="dashboard-panel-header" spacing={0.5}>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Children list</Typography>
+						<Typography className="dashboard-panel-subtitle">
+							Review enrollment status, parent links, and group assignments.
+						</Typography>
+					</Stack>
+					<TextField
+						select
+						label="Group filter"
+						value={selectedGroupFilter}
+						onChange={(event) => setSelectedGroupFilter(event.target.value)}
+						sx={{ minWidth: 260 }}
+					>
+						<MenuItem value="">All groups</MenuItem>
+						{groups.map((group) => (
+							<MenuItem key={group._id} value={group._id}>
+								{group.groupName}
+							</MenuItem>
+						))}
+					</TextField>
+				</Stack>
+				{childrenLoading && <Typography sx={{ color: '#6b7280' }}>Loading children...</Typography>}
+				{!childrenLoading && selectedKindergartenId && children.length === 0 && (
+					<Typography className="dashboard-empty-state">No children found for this kindergarten.</Typography>
+				)}
+				{children.length > 0 && (
+					<Stack className="admin-card-list admin-children-list">
+						{children.map((child) => {
+							const isInactive = child.childStatus === ChildStatus.INACTIVE;
+
+							return (
+								<Stack
+									key={child._id}
+									className="admin-record-card admin-child-card"
+									spacing={2}
+									sx={{ opacity: isInactive ? 0.55 : 1 }}
+								>
+									<Stack className="admin-record-card-header">
+										<Stack className="admin-record-title-block" spacing={0.5}>
+											<Typography className="dashboard-primary-text admin-record-title">{child.childFullName}</Typography>
+											<Typography className="dashboard-muted-text">
+												{getAge(child.childBirthDate)} years old · {child.childGender}
+											</Typography>
+										</Stack>
+										<Chip label={getStatusLabel(child.childStatus)} size="small" sx={getStatusChipSx(child.childStatus)} />
+									</Stack>
+									<Stack className="admin-record-grid admin-child-grid">
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Birth date</Typography>
+											<Typography className="admin-meta-value">{formatDate(child.childBirthDate)}</Typography>
+										</Stack>
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Kindergarten</Typography>
+											<Typography className="admin-meta-value">{selectedKindergartenTitle}</Typography>
+										</Stack>
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Group</Typography>
+											<Typography className="admin-meta-value">
+												{groupNameById[child.groupId] || 'Unassigned group'}
+											</Typography>
+										</Stack>
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Parent</Typography>
+											<Typography className="admin-meta-value">
+												{parentNames[child.parentId] || 'Linked parent'}
+											</Typography>
+										</Stack>
+									</Stack>
+									<Stack className="admin-record-actions admin-danger-actions">
+										<Button variant="outlined" onClick={() => editChildHandler(child)}>
+											Edit
+										</Button>
+										<Button
+											variant="outlined"
+											color="error"
+											disabled={isInactive}
+											onClick={() => removeChildHandler(child._id)}
+										>
+											{isInactive ? 'Inactive' : 'Set inactive'}
+										</Button>
+									</Stack>
+								</Stack>
+							);
+						})}
+					</Stack>
+				)}
+			</Stack>
+
 			<Stack className="dashboard-panel admin-children-form-panel" spacing={2}>
 				<Stack className="dashboard-panel-header" direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
 					<Stack spacing={0.5}>
@@ -399,7 +486,7 @@ const KindergartenChildren = () => {
 							{selectedChildId ? 'Edit child' : 'Create child'}
 						</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Link a child to a group and a verified parent account.
+							Add or update a child record after checking the existing list above.
 						</Typography>
 					</Stack>
 					{selectedChildId && (
@@ -457,7 +544,7 @@ const KindergartenChildren = () => {
 						))}
 					</TextField>
 				</Stack>
-				<Typography className="admin-form-section-title">Enrollment and parent</Typography>
+				<Typography className="admin-form-section-title">Enrollment</Typography>
 				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
@@ -472,28 +559,48 @@ const KindergartenChildren = () => {
 							</MenuItem>
 						))}
 					</TextField>
-					<TextField
-						fullWidth
-						label="Parent member ID"
-						value={form.parentId}
-						onChange={(event) => updateParentId(event.target.value)}
-					/>
-					<Button variant="outlined" onClick={previewParentHandler} sx={{ minWidth: 160 }}>
-						Preview Parent
-					</Button>
 				</Stack>
-				{parentPreview && (
-					<Stack className="admin-candidate-card admin-selected-member-card" spacing={0.5}>
-						<Typography className="admin-form-section-title">Parent preview</Typography>
-						<Typography className="dashboard-primary-text">{parentPreview.memberNick || 'Unnamed parent'}</Typography>
-						<Typography className="dashboard-muted-text">{parentPreview.memberPhone || 'No phone'}</Typography>
-						<Stack className="admin-chip-row">
-							<Chip label={getStatusLabel(parentPreview.memberType)} size="small" className="admin-info-chip" />
-							<Chip label={getStatusLabel(parentPreview.memberStatus)} size="small" sx={getStatusChipSx(parentPreview.memberStatus)} />
+				<Stack className="admin-parent-link-section" spacing={1.25}>
+					<Typography className="admin-form-section-title">Parent link</Typography>
+					<Typography className="dashboard-panel-subtitle">
+						Parent search is not available in this screen yet. Use Advanced options only when manually linking an existing parent account.
+					</Typography>
+					<Button
+						variant="text"
+						onClick={() => setShowAdvancedParentLink((prev) => !prev)}
+						sx={{ width: 'fit-content' }}
+					>
+						{showAdvancedParentLink ? 'Hide advanced options' : 'Advanced options'}
+					</Button>
+					{showAdvancedParentLink && (
+						<Stack className="admin-advanced-panel" spacing={1.5}>
+							<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
+								<TextField
+									fullWidth
+									label="Manual parent link"
+									value={form.parentId}
+									onChange={(event) => updateParentId(event.target.value)}
+									helperText="Use only when the parent cannot be found through normal search or selection."
+								/>
+								<Button variant="outlined" onClick={previewParentHandler} sx={{ minWidth: 160 }}>
+									Preview Parent
+								</Button>
+							</Stack>
+							{parentPreview && (
+								<Stack className="admin-candidate-card admin-selected-member-card" spacing={0.5}>
+									<Typography className="admin-form-section-title">Parent preview</Typography>
+									<Typography className="dashboard-primary-text">{parentPreview.memberNick || 'Unnamed parent'}</Typography>
+									<Typography className="dashboard-muted-text">{parentPreview.memberPhone || 'No phone'}</Typography>
+									<Stack className="admin-chip-row">
+										<Chip label={getStatusLabel(parentPreview.memberType)} size="small" className="admin-info-chip" />
+										<Chip label={getStatusLabel(parentPreview.memberStatus)} size="small" sx={getStatusChipSx(parentPreview.memberStatus)} />
+									</Stack>
+								</Stack>
+							)}
+							{parentPreviewError && <Typography sx={{ color: '#dc2626' }}>{parentPreviewError}</Typography>}
 						</Stack>
-					</Stack>
-				)}
-				{parentPreviewError && <Typography sx={{ color: '#dc2626' }}>{parentPreviewError}</Typography>}
+					)}
+				</Stack>
 				<Button
 					variant="contained"
 					onClick={submitChildHandler}
@@ -502,115 +609,6 @@ const KindergartenChildren = () => {
 				>
 					{selectedChildId ? 'Save Child' : 'Create Child'}
 				</Button>
-			</Stack>
-
-			<Stack className="dashboard-panel" spacing={2}>
-				<Stack direction={{ xs: 'column', md: 'row' }} justifyContent={'space-between'} spacing={2}>
-					<Stack className="dashboard-panel-header" spacing={0.5}>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Children list</Typography>
-						<Typography className="dashboard-panel-subtitle">
-							Review enrollment status, parent links, and group assignments.
-						</Typography>
-					</Stack>
-					<TextField
-						select
-						label="Group filter"
-						value={selectedGroupFilter}
-						onChange={(event) => setSelectedGroupFilter(event.target.value)}
-						sx={{ minWidth: 260 }}
-					>
-						<MenuItem value="">All groups</MenuItem>
-						{groups.map((group) => (
-							<MenuItem key={group._id} value={group._id}>
-								{group.groupName}
-							</MenuItem>
-						))}
-					</TextField>
-				</Stack>
-				{childrenLoading && <Typography sx={{ color: '#6b7280' }}>Loading children...</Typography>}
-				{!childrenLoading && selectedKindergartenId && children.length === 0 && (
-					<Typography className="dashboard-empty-state">No children found for this kindergarten.</Typography>
-				)}
-				{children.length > 0 && (
-					<TableContainer className="dashboard-table-container admin-children-table">
-						<Table size="small">
-							<TableHead>
-								<TableRow>
-									<TableCell>Name</TableCell>
-									<TableCell>Kindergarten</TableCell>
-									<TableCell>Birth date</TableCell>
-									<TableCell>Age</TableCell>
-									<TableCell>Gender</TableCell>
-									<TableCell>Status</TableCell>
-									<TableCell>Parent</TableCell>
-									<TableCell>Group reference</TableCell>
-									<TableCell align="right">Actions</TableCell>
-								</TableRow>
-							</TableHead>
-							<TableBody>
-									{children.map((child) => {
-										const isInactive = child.childStatus === ChildStatus.INACTIVE;
-
-										return (
-											<TableRow key={child._id} sx={{ opacity: isInactive ? 0.55 : 1 }}>
-												<TableCell>
-													<Stack spacing={0.25}>
-														<Typography className="dashboard-primary-text">{child.childFullName}</Typography>
-														<Typography className="dashboard-muted-text">Child ID {truncateId(child._id)}</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell>
-													<Stack spacing={0.25}>
-														<Typography className="dashboard-primary-text">{selectedKindergartenTitle}</Typography>
-														<Typography className="dashboard-muted-text">{truncateId(child.kindergartenId)}</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell>{formatDate(child.childBirthDate)}</TableCell>
-												<TableCell>{getAge(child.childBirthDate)}</TableCell>
-												<TableCell>{child.childGender}</TableCell>
-												<TableCell>
-													<Chip label={getStatusLabel(child.childStatus)} size="small" sx={getStatusChipSx(child.childStatus)} />
-												</TableCell>
-												<TableCell sx={{ maxWidth: 220 }}>
-													<Stack>
-														<Typography className="dashboard-primary-text">
-															{parentNames[child.parentId] || truncateId(child.parentId)}
-														</Typography>
-														<Typography className="dashboard-muted-text">
-															{truncateId(child.parentId)}
-														</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell>
-													<Stack spacing={0.25}>
-														<Typography className="dashboard-primary-text">
-															{groupNameById[child.groupId] || 'Group reference'}
-														</Typography>
-														<Typography className="dashboard-muted-text">{truncateId(child.groupId)}</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell align="right">
-													<Stack className="admin-danger-actions" direction={'row'} spacing={1} justifyContent={'flex-end'}>
-														<Button variant="outlined" onClick={() => editChildHandler(child)}>
-															Edit
-													</Button>
-													<Button
-														variant="outlined"
-														color="error"
-														disabled={isInactive}
-														onClick={() => removeChildHandler(child._id)}
-													>
-														{isInactive ? 'Inactive' : 'Set inactive'}
-													</Button>
-												</Stack>
-											</TableCell>
-										</TableRow>
-									);
-								})}
-							</TableBody>
-						</Table>
-					</TableContainer>
-				)}
 			</Stack>
 		</Stack>
 	);

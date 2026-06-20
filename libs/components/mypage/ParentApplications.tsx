@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import { Button, Chip, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Button, Chip, Stack, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { CANCEL_APPLICATION } from '../../../apollo/user/mutation';
 import { GET_MY_APPLICATIONS } from '../../../apollo/user/query';
@@ -10,7 +10,7 @@ import { MemberType } from '../../enums/member.enum';
 import { Application, ApplicationDocument } from '../../types/application/application';
 import { getImageUrl } from '../../config';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
-import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from './dashboardUtils';
+import { formatDate, getStatusChipSx, getStatusLabel } from './dashboardUtils';
 import ApplicationChatPanel from '../chat/ApplicationChatPanel';
 
 const formatDocumentSize = (size: number) => {
@@ -19,7 +19,7 @@ const formatDocumentSize = (size: number) => {
 };
 
 const renderApplicationDocuments = (documents?: ApplicationDocument[]) => {
-	if (!documents?.length) return <Typography className="dashboard-muted-text">-</Typography>;
+	if (!documents?.length) return <Typography className="dashboard-muted-text">No documents</Typography>;
 
 	return (
 		<Stack spacing={0.5}>
@@ -112,88 +112,74 @@ const ParentApplications = () => {
 					</Typography>
 				)}
 				{applications.length > 0 && (
-					<TableContainer className="dashboard-table-container parent-applications-table">
-						<Table size="small">
-							<TableHead>
-								<TableRow>
-									<TableCell>Kindergarten</TableCell>
-									<TableCell>Child</TableCell>
-									<TableCell>Status</TableCell>
-									<TableCell>Message</TableCell>
-									<TableCell>Documents</TableCell>
-									<TableCell>Admin note</TableCell>
-									<TableCell>Created</TableCell>
-									<TableCell align="right">Actions</TableCell>
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{applications.map((application) => {
-									const isFinal = FINAL_APPLICATION_STATUSES.includes(application.status);
-									return (
-										<React.Fragment key={application._id}>
-											<TableRow>
-												<TableCell sx={{ maxWidth: 240 }}>
-													<Stack spacing={0.25}>
-														<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
-															{application.kindergartenData?.kindergartenTitle || 'Kindergarten reference'}
-														</Typography>
-														<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
-															{truncateId(application.kindergartenId)}
-														</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell>
-													<Stack spacing={0.25}>
-														<Typography className="dashboard-primary-text">{application.childName}</Typography>
-														<Typography className="dashboard-muted-text">{application.childAge} years old</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell>
-													<Chip label={getStatusLabel(application.status)} size="small" sx={getStatusChipSx(application.status)} />
-												</TableCell>
-												<TableCell sx={{ maxWidth: 220 }}>
-													<Typography className="dashboard-note-text">{application.parentMessage || '-'}</Typography>
-												</TableCell>
-												<TableCell sx={{ maxWidth: 240 }}>
-													{renderApplicationDocuments(application.documents)}
-												</TableCell>
-												<TableCell sx={{ maxWidth: 220 }}>
-													<Typography className="dashboard-note-text">{application.adminNote || '-'}</Typography>
-												</TableCell>
-												<TableCell>{formatDate(application.createdAt)}</TableCell>
-												<TableCell align="right">
-													<Stack spacing={1} alignItems="flex-end">
-														<Button variant="outlined" onClick={() => toggleChatHandler(application._id)}>
-															{activeChatApplicationId === application._id ? 'Close Chat' : 'Open Chat'}
-														</Button>
-														<Button
-															variant="outlined"
-															color="error"
-															disabled={isFinal || application.status === ApplicationStatus.CANCELED}
-															onClick={() => cancelApplicationHandler(application._id)}
-														>
-															{isFinal ? 'Closed' : 'Cancel'}
-														</Button>
-													</Stack>
-												</TableCell>
-											</TableRow>
-											{activeChatApplicationId === application._id && (
-												<TableRow>
-													<TableCell colSpan={8}>
-														<ApplicationChatPanel
-															applicationId={application._id}
-															title="Application chat"
-															onClose={() => setActiveChatApplicationId('')}
-														/>
-													</TableCell>
-												</TableRow>
-											)}
-										</React.Fragment>
-									);
-								})}
-							</TableBody>
-						</Table>
-					</TableContainer>
+					<Stack className="parent-card-list parent-applications-list">
+						{applications.map((application) => {
+							const isFinal = FINAL_APPLICATION_STATUSES.includes(application.status);
+
+							return (
+								<Stack key={application._id} className="parent-record-card parent-application-card" spacing={2}>
+									<Stack className="parent-record-card-header">
+										<Stack className="parent-record-title-block" spacing={0.5}>
+											<Typography className="dashboard-primary-text parent-record-title">
+												{application.kindergartenData?.kindergartenTitle || 'Kindergarten'}
+											</Typography>
+											<Typography className="dashboard-muted-text parent-nowrap">
+												Created {formatDate(application.createdAt)}
+											</Typography>
+										</Stack>
+										<Chip label={getStatusLabel(application.status)} size="small" sx={getStatusChipSx(application.status)} />
+									</Stack>
+
+									<Stack className="parent-record-grid parent-application-grid">
+										<Stack className="parent-meta-item">
+											<Typography className="parent-meta-label">Child</Typography>
+											<Typography className="parent-meta-value">{application.childName}</Typography>
+											<Typography className="dashboard-muted-text">{application.childAge} years old</Typography>
+										</Stack>
+										<Stack className="parent-meta-item parent-meta-wide">
+											<Typography className="parent-meta-label">Message</Typography>
+											<Typography className="dashboard-note-text">
+												{application.parentMessage || 'No message provided'}
+											</Typography>
+										</Stack>
+										<Stack className="parent-meta-item">
+											<Typography className="parent-meta-label">Documents</Typography>
+											{renderApplicationDocuments(application.documents)}
+										</Stack>
+										<Stack className="parent-meta-item parent-meta-wide">
+											<Typography className="parent-meta-label">Admin note</Typography>
+											<Typography className="dashboard-note-text">{application.adminNote || 'No admin note yet'}</Typography>
+										</Stack>
+									</Stack>
+
+									<Stack className="parent-record-actions">
+										<Button variant="outlined" onClick={() => toggleChatHandler(application._id)}>
+											{activeChatApplicationId === application._id ? 'Close Chat' : 'Open Chat'}
+										</Button>
+										{isFinal || application.status === ApplicationStatus.CANCELED ? (
+											<Chip label="Closed" size="small" className="parent-action-status" />
+										) : (
+											<Button
+												variant="outlined"
+												color="error"
+												onClick={() => cancelApplicationHandler(application._id)}
+											>
+												Cancel
+											</Button>
+										)}
+									</Stack>
+
+									{activeChatApplicationId === application._id && (
+										<ApplicationChatPanel
+											applicationId={application._id}
+											title="Application chat"
+											onClose={() => setActiveChatApplicationId('')}
+										/>
+									)}
+								</Stack>
+							);
+						})}
+					</Stack>
 				)}
 			</Stack>
 		</Stack>

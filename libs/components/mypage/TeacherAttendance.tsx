@@ -5,12 +5,6 @@ import {
 	Chip,
 	MenuItem,
 	Stack,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
 	TextField,
 	Typography,
 } from '@mui/material';
@@ -29,7 +23,7 @@ import { Child } from '../../types/child/child';
 import { Group } from '../../types/group/group';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../sweetAlert';
 import ParentTeacherChatPanel from '../chat/ParentTeacherChatPanel';
-import { getStatusChipSx, getStatusLabel, truncateId } from './dashboardUtils';
+import { getStatusChipSx, getStatusLabel } from './dashboardUtils';
 
 interface AttendanceDraft {
 	attendanceStatus: AttendanceStatus;
@@ -378,8 +372,7 @@ const TeacherAttendance = () => {
 							{selectedGroup.groupName} for {selectedDate}
 						</Typography>
 						<Typography className="dashboard-muted-text">
-							Age range {selectedGroup.groupAgeRange} · Capacity {selectedGroup.groupCapacity} · Group ID{' '}
-							{truncateId(selectedGroup._id)}
+							Age range {selectedGroup.groupAgeRange} · Capacity {selectedGroup.groupCapacity} children
 						</Typography>
 					</Stack>
 				)}
@@ -404,101 +397,86 @@ const TeacherAttendance = () => {
 					</Typography>
 				)}
 				{children.length > 0 && (
-					<TableContainer className="dashboard-table-container teacher-attendance-table">
-						<Table size="small">
-							<TableHead>
-								<TableRow>
-									<TableCell>Child</TableCell>
-									<TableCell>Status</TableCell>
-									<TableCell>Note</TableCell>
-									<TableCell>Saved record</TableCell>
-									<TableCell align="right">Actions</TableCell>
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{children.map((child) => {
-									const attendance = attendanceByChildId[child._id];
-									const hasExistingRecord = Boolean(attendance);
-									const draft = drafts[child._id] ?? {
-										attendanceStatus: attendance?.attendanceStatus ?? AttendanceStatus.PRESENT,
-										note: attendance?.note ?? '',
-									};
-									const isChatOpen = activeChatChildId === child._id;
+					<Stack className="teacher-card-list teacher-attendance-list">
+						{children.map((child) => {
+							const attendance = attendanceByChildId[child._id];
+							const hasExistingRecord = Boolean(attendance);
+							const draft = drafts[child._id] ?? {
+								attendanceStatus: attendance?.attendanceStatus ?? AttendanceStatus.PRESENT,
+								note: attendance?.note ?? '',
+							};
+							const isChatOpen = activeChatChildId === child._id;
 
-									return (
-										<React.Fragment key={child._id}>
-											<TableRow>
-												<TableCell>
-													<Stack spacing={0.25}>
-														<Typography className="dashboard-primary-text">{child.childFullName}</Typography>
-														<Typography className="dashboard-muted-text">Child ID {truncateId(child._id)}</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell>
-													<TextField
-														select
-														size="small"
-														value={draft.attendanceStatus}
-														onChange={(event) =>
-															updateDraft(child._id, { attendanceStatus: event.target.value as AttendanceStatus })
-														}
-														sx={{ minWidth: 140 }}
-													>
-														{attendanceStatusOptions.map((status) => (
-															<MenuItem key={status} value={status}>
-																{status}
-															</MenuItem>
-														))}
-													</TextField>
-												</TableCell>
-												<TableCell>
-													<TextField
-														fullWidth
-														size="small"
-														placeholder="Optional note"
-														value={draft.note}
-														onChange={(event) => updateDraft(child._id, { note: event.target.value })}
-													/>
-												</TableCell>
-												<TableCell>
-													{hasExistingRecord ? (
-														<Chip
-															label={`Saved: ${getStatusLabel(attendance?.attendanceStatus)}`}
-															size="small"
-															sx={getStatusChipSx(attendance?.attendanceStatus)}
-														/>
-													) : (
-														<Chip label="Not marked yet" size="small" sx={getStatusChipSx('INACTIVE')} />
-													)}
-												</TableCell>
-												<TableCell align="right">
-													<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="flex-end">
-														<Button variant="outlined" onClick={() => toggleChat(child._id)}>
-															{isChatOpen ? 'Close Parent Chat' : 'Open Parent Chat'}
-														</Button>
-														<Button variant="contained" onClick={() => saveAttendanceHandler(child)}>
-															{hasExistingRecord ? 'Update attendance' : 'Mark attendance'}
-														</Button>
-													</Stack>
-												</TableCell>
-											</TableRow>
-											{isChatOpen && (
-												<TableRow>
-													<TableCell colSpan={5}>
-														<ParentTeacherChatPanel
-															childId={child._id}
-															title="Parent chat"
-															onClose={() => setActiveChatChildId(null)}
-														/>
-													</TableCell>
-												</TableRow>
-											)}
-										</React.Fragment>
-									);
-								})}
-							</TableBody>
-						</Table>
-					</TableContainer>
+							return (
+								<Stack key={child._id} className="teacher-record-card teacher-attendance-card" spacing={2}>
+									<Stack className="teacher-record-card-header">
+										<Stack className="teacher-record-title-block" spacing={0.5}>
+											<Typography className="dashboard-primary-text teacher-record-title">
+												{child.childFullName}
+											</Typography>
+										</Stack>
+										{hasExistingRecord ? (
+											<Chip
+												label={`Saved: ${getStatusLabel(attendance?.attendanceStatus)}`}
+												size="small"
+												sx={getStatusChipSx(attendance?.attendanceStatus)}
+											/>
+										) : (
+											<Chip label="Not marked yet" size="small" sx={getStatusChipSx('INACTIVE')} />
+										)}
+									</Stack>
+
+									<Stack className="teacher-record-grid teacher-attendance-grid">
+										<Stack className="teacher-meta-item">
+											<Typography className="teacher-meta-label">Attendance status</Typography>
+											<TextField
+												fullWidth
+												select
+												size="small"
+												value={draft.attendanceStatus}
+												onChange={(event) =>
+													updateDraft(child._id, { attendanceStatus: event.target.value as AttendanceStatus })
+												}
+											>
+												{attendanceStatusOptions.map((status) => (
+													<MenuItem key={status} value={status}>
+														{getStatusLabel(status)}
+													</MenuItem>
+												))}
+											</TextField>
+										</Stack>
+										<Stack className="teacher-meta-item teacher-meta-wide">
+											<Typography className="teacher-meta-label">Optional note</Typography>
+											<TextField
+												fullWidth
+												size="small"
+												placeholder="Optional note"
+												value={draft.note}
+												onChange={(event) => updateDraft(child._id, { note: event.target.value })}
+											/>
+										</Stack>
+									</Stack>
+
+									<Stack className="teacher-record-actions">
+										<Button variant="outlined" onClick={() => toggleChat(child._id)}>
+											{isChatOpen ? 'Close Parent Chat' : 'Open Parent Chat'}
+										</Button>
+										<Button variant="contained" onClick={() => saveAttendanceHandler(child)}>
+											{hasExistingRecord ? 'Update attendance' : 'Mark attendance'}
+										</Button>
+									</Stack>
+
+									{isChatOpen && (
+										<ParentTeacherChatPanel
+											childId={child._id}
+											title="Parent chat"
+											onClose={() => setActiveChatChildId(null)}
+										/>
+									)}
+								</Stack>
+							);
+						})}
+					</Stack>
 				)}
 			</Stack>
 		</Stack>

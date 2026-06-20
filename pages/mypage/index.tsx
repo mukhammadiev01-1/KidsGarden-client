@@ -17,6 +17,7 @@ import MemberFollowings from '../../libs/components/member/MemberFollowings';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import MyKindergarten from '../../libs/components/mypage/MyKindergarten';
 import { MemberType } from '../../libs/enums/member.enum';
+import { getJwtToken, updateUserInfo } from '../../libs/auth';
 import KindergartenStaff from '../../libs/components/mypage/KindergartenStaff';
 import KindergartenGroups from '../../libs/components/mypage/KindergartenGroups';
 import KindergartenChildren from '../../libs/components/mypage/KindergartenChildren';
@@ -96,9 +97,24 @@ const MyPage: NextPage = () => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (!user._id) router.push('/account/login').then();
-		else if (isSuperAdmin) router.push('/_admin').then();
-	}, [user, isSuperAdmin, router]);
+		if (!user._id) {
+			const jwt = getJwtToken();
+			if (jwt) {
+				try {
+					updateUserInfo(jwt);
+					return;
+				} catch (error) {
+					router.push('/account/login').then();
+					return;
+				}
+			}
+
+			router.push('/account/login').then();
+			return;
+		}
+
+		if (isSuperAdmin) router.push('/_admin').then();
+	}, [user._id, isSuperAdmin, router]);
 
 	/** HANDLERS **/
 	const subscribeHandler = async (id: string, refetch: any, query: any) => {
@@ -126,7 +142,7 @@ const MyPage: NextPage = () => {
 		}
 	};
 
-	if (isSuperAdmin) return null;
+	if (!user._id || isSuperAdmin) return null;
 
 	return (
 		<div id="my-page">

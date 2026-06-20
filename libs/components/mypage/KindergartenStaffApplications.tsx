@@ -5,12 +5,6 @@ import {
 	Chip,
 	MenuItem,
 	Stack,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
 	TextField,
 	Typography,
 } from '@mui/material';
@@ -30,7 +24,6 @@ import {
 	getStatusChipSx,
 	getStatusLabel,
 	shouldHideKindergartenSelector,
-	truncateId,
 } from './dashboardUtils';
 
 const applicationStatusOptions = [
@@ -215,113 +208,100 @@ const KindergartenStaffApplications = () => {
 					</Typography>
 				)}
 				{applications.length > 0 && (
-					<TableContainer className="dashboard-table-container admin-applications-table">
-						<Table size="small">
-							<TableHead>
-								<TableRow>
-									<TableCell>Applicant</TableCell>
-									<TableCell>Role</TableCell>
-									<TableCell>Status</TableCell>
-									<TableCell>Message</TableCell>
-									<TableCell>Created</TableCell>
-									<TableCell>Reject reason</TableCell>
-									<TableCell align="right">Actions</TableCell>
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{applications.map((application) => {
-									const applicant = application.applicantData;
-									const isPending = application.applicationStatus === StaffApplicationStatus.PENDING;
+					<Stack className="admin-card-list admin-staff-applications-list">
+						{applications.map((application) => {
+							const applicant = application.applicantData;
+							const isPending = application.applicationStatus === StaffApplicationStatus.PENDING;
+							const applicantName = applicant?.memberNick
+								? `${applicant.memberNick}${applicant.memberFullName ? ` (${applicant.memberFullName})` : ''}`
+								: applicant?.memberFullName || 'Applicant';
 
-									return (
-										<TableRow key={application._id}>
-											<TableCell sx={{ maxWidth: 220 }}>
+							return (
+								<Stack key={application._id} className="admin-record-card admin-staff-application-card" spacing={2}>
+									<Stack className="admin-record-card-header">
+										<Stack className="admin-record-title-block" spacing={0.5}>
+											<Typography className="dashboard-primary-text admin-record-title">{applicantName}</Typography>
+											<Typography className="dashboard-muted-text">{applicant?.memberPhone || 'No phone'}</Typography>
+											<Stack className="admin-chip-row">
+												{applicant?.memberType && (
+													<Chip label={getStatusLabel(applicant.memberType)} size="small" className="admin-info-chip" />
+												)}
+												{applicant?.memberStatus && (
+													<Chip
+														label={getStatusLabel(applicant.memberStatus)}
+														size="small"
+														sx={getStatusChipSx(applicant.memberStatus)}
+													/>
+												)}
+											</Stack>
+										</Stack>
+										<Chip
+											label={getStatusLabel(application.applicationStatus)}
+											size="small"
+											sx={getStatusChipSx(application.applicationStatus)}
+										/>
+									</Stack>
+									<Stack className="admin-record-grid admin-application-grid">
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Requested role</Typography>
+											<Typography className="admin-meta-value">{application.requestedRole}</Typography>
+										</Stack>
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Created</Typography>
+											<Typography className="admin-meta-value">{formatDate(application.createdAt)}</Typography>
+										</Stack>
+										<Stack className="admin-meta-item admin-meta-wide">
+											<Typography className="admin-meta-label">Message</Typography>
+											<Typography className="dashboard-note-text">{application.message || 'No message provided.'}</Typography>
+										</Stack>
+										<Stack className="admin-meta-item admin-meta-wide">
+											<Typography className="admin-meta-label">Reject reason</Typography>
+											{isPending ? (
+												<TextField
+													fullWidth
+													size="small"
+													placeholder="Reason for rejection"
+													value={rejectReasons[application._id] || ''}
+													onChange={(event) =>
+														setRejectReasons((prev) => ({
+															...prev,
+															[application._id]: event.target.value,
+														}))
+													}
+												/>
+											) : (
 												<Stack spacing={0.25}>
-													<Typography className="dashboard-primary-text">
-														{applicant?.memberNick
-															? `${applicant.memberNick}${applicant.memberFullName ? ` (${applicant.memberFullName})` : ''}`
-															: applicant?.memberFullName || 'Applicant reference'}
+													<Typography className="dashboard-note-text">
+														{application.rejectReason || 'No reject reason recorded.'}
 													</Typography>
 													<Typography className="dashboard-muted-text">
-														{applicant?.memberPhone || 'No phone'}
-													</Typography>
-													<Stack className="admin-chip-row">
-														{applicant?.memberType && (
-															<Chip label={getStatusLabel(applicant.memberType)} size="small" className="admin-info-chip" />
-														)}
-														{applicant?.memberStatus && (
-															<Chip
-																label={getStatusLabel(applicant.memberStatus)}
-																size="small"
-																sx={getStatusChipSx(applicant.memberStatus)}
-															/>
-														)}
-													</Stack>
-													<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
-														{truncateId(application.applicantId)}
+														Reviewed {formatDate(application.reviewedAt)}
 													</Typography>
 												</Stack>
-											</TableCell>
-											<TableCell>{application.requestedRole}</TableCell>
-											<TableCell>
-												<Chip
-													label={getStatusLabel(application.applicationStatus)}
-													size="small"
-													sx={getStatusChipSx(application.applicationStatus)}
-												/>
-											</TableCell>
-											<TableCell sx={{ maxWidth: 220 }}>
-												<Typography className="dashboard-note-text">{application.message || '-'}</Typography>
-											</TableCell>
-											<TableCell>{formatDate(application.createdAt)}</TableCell>
-											<TableCell sx={{ minWidth: 220 }}>
-												{isPending ? (
-													<TextField
-														fullWidth
-														size="small"
-														placeholder="Reason for rejection"
-														value={rejectReasons[application._id] || ''}
-														onChange={(event) =>
-															setRejectReasons((prev) => ({
-																...prev,
-																[application._id]: event.target.value,
-															}))
-														}
-													/>
-												) : (
-													<Stack spacing={0.25}>
-														<Typography className="dashboard-note-text">{application.rejectReason || '-'}</Typography>
-														<Typography className="dashboard-muted-text">
-															{formatDate(application.reviewedAt)}
-														</Typography>
-													</Stack>
-												)}
-											</TableCell>
-											<TableCell align="right">
-												<Stack className="admin-review-actions" direction="row" spacing={1} justifyContent="flex-end">
-													<Button
-														variant="contained"
-														disabled={!isPending}
-														onClick={() => approveApplicationHandler(application._id)}
-													>
-														Approve
-													</Button>
-													<Button
-														variant="outlined"
-														color="error"
-														disabled={!isPending}
-														onClick={() => rejectApplicationHandler(application._id)}
-													>
-														Reject
-													</Button>
-												</Stack>
-											</TableCell>
-										</TableRow>
-									);
-								})}
-							</TableBody>
-						</Table>
-					</TableContainer>
+											)}
+										</Stack>
+									</Stack>
+									<Stack className="admin-record-actions admin-review-actions">
+										<Button
+											variant="contained"
+											disabled={!isPending}
+											onClick={() => approveApplicationHandler(application._id)}
+										>
+											Approve
+										</Button>
+										<Button
+											variant="outlined"
+											color="error"
+											disabled={!isPending}
+											onClick={() => rejectApplicationHandler(application._id)}
+										>
+											Reject
+										</Button>
+									</Stack>
+								</Stack>
+							);
+						})}
+					</Stack>
 				)}
 			</Stack>
 		</Stack>

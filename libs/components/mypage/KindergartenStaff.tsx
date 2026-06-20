@@ -5,12 +5,6 @@ import {
 	Chip,
 	MenuItem,
 	Stack,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
 	TextField,
 	Typography,
 } from '@mui/material';
@@ -43,7 +37,6 @@ import {
 	getStatusChipSx,
 	getStatusLabel,
 	shouldHideKindergartenSelector,
-	truncateId,
 } from './dashboardUtils';
 
 const staffRoleOptions = [StaffRole.ADMIN, StaffRole.TEACHER];
@@ -187,9 +180,9 @@ const KindergartenStaff = () => {
 						fetchPolicy: 'cache-first',
 					});
 
-					return [memberId, result.data?.getMember?.memberNick || memberId] as const;
+					return [memberId, result.data?.getMember?.memberNick || 'Staff member'] as const;
 				} catch (err) {
-					return [memberId, memberId] as const;
+					return [memberId, 'Staff member'] as const;
 				}
 			}),
 		).then((entries) => {
@@ -245,7 +238,7 @@ const KindergartenStaff = () => {
 		setForm((prev) => ({ ...prev, memberId: candidate._id }));
 		setMemberNames((prev) => ({
 			...prev,
-			[candidate._id]: candidate.memberNick || candidate._id,
+			[candidate._id]: candidate.memberNick || 'Selected member',
 		}));
 	};
 
@@ -274,7 +267,7 @@ const KindergartenStaff = () => {
 			setMemberPreviewError('');
 			setMemberNames((prev) => ({
 				...prev,
-				[memberId]: member.memberNick || memberId,
+				[memberId]: member.memberNick || 'Selected member',
 			}));
 		} catch (err: any) {
 			setMemberPreview(null);
@@ -464,9 +457,6 @@ const KindergartenStaff = () => {
 										<Chip label={getStatusLabel(candidate.memberType)} size="small" className="admin-info-chip" />
 										<Chip label={getStatusLabel(candidate.memberStatus)} size="small" sx={getStatusChipSx(candidate.memberStatus)} />
 									</Stack>
-									<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
-										{truncateId(candidate._id)}
-									</Typography>
 								</Stack>
 								<Button variant="contained" onClick={() => selectCandidate(candidate)}>
 									Select
@@ -486,9 +476,6 @@ const KindergartenStaff = () => {
 							<Chip label={getStatusLabel(memberPreview.memberType)} size="small" className="admin-info-chip" />
 							<Chip label={getStatusLabel(memberPreview.memberStatus)} size="small" sx={getStatusChipSx(memberPreview.memberStatus)} />
 						</Stack>
-						<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
-							{truncateId(memberPreview._id)}
-						</Typography>
 					</Stack>
 				)}
 				{memberPreviewError && <Typography sx={{ color: '#dc2626' }}>{memberPreviewError}</Typography>}
@@ -497,15 +484,16 @@ const KindergartenStaff = () => {
 					<Typography sx={{ color: '#6b7280' }}>Select a member before adding.</Typography>
 				)}
 				<Button variant="text" onClick={() => setShowManualFallback((prev) => !prev)} sx={{ width: 'fit-content' }}>
-					{showManualFallback ? 'Hide advanced member ID entry' : 'Advanced: enter member ID manually'}
+					{showManualFallback ? 'Hide advanced member link' : 'Advanced: link member by ID'}
 				</Button>
 				{showManualFallback && (
-					<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
+					<Stack className="admin-form-grid admin-advanced-panel" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 						<TextField
 							fullWidth
-							label="Member ID"
+							label="Member ID (advanced)"
 							value={form.memberId}
 							onChange={(event) => updateMemberId(event.target.value)}
+							helperText="Use this fallback only when search cannot find an approved staff account."
 						/>
 						<Button
 							variant="outlined"
@@ -539,96 +527,91 @@ const KindergartenStaff = () => {
 					</Typography>
 				)}
 				{staffRecords.length > 0 && (
-					<TableContainer className="dashboard-table-container admin-staff-table">
-						<Table size="small">
-							<TableHead>
-								<TableRow>
-									<TableCell>Staff member</TableCell>
-									<TableCell>Role</TableCell>
-									<TableCell>Status</TableCell>
-									<TableCell>Created</TableCell>
-									<TableCell align="right">Actions</TableCell>
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{staffRecords.map((staff) => {
-									const isRemoved = staff.staffStatus === StaffStatus.REMOVED;
-									const isOwner = staff.staffRole === StaffRole.OWNER;
+					<Stack className="admin-card-list admin-staff-list">
+						{staffRecords.map((staff) => {
+							const isRemoved = staff.staffStatus === StaffStatus.REMOVED;
+							const isOwner = staff.staffRole === StaffRole.OWNER;
 
-									return (
-										<TableRow key={staff._id} sx={{ opacity: isRemoved ? 0.55 : 1 }}>
-											<TableCell sx={{ maxWidth: 230 }}>
-												<Stack>
-													<Typography className="dashboard-primary-text">
-														{memberNames[staff.memberId] || truncateId(staff.memberId)}
-													</Typography>
-													<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
-														{truncateId(staff.memberId)}
-													</Typography>
-												</Stack>
-											</TableCell>
-											<TableCell>
-												<TextField
-													select
-													size="small"
-													value={staff.staffRole}
-													disabled={isRemoved || isOwner}
-													onChange={(event) =>
-														updateStaffHandler({ _id: staff._id, staffRole: event.target.value as StaffRole })
-													}
-													sx={{ minWidth: 130 }}
-												>
-													{staff.staffRole === StaffRole.OWNER && (
-														<MenuItem value={StaffRole.OWNER}>{StaffRole.OWNER}</MenuItem>
-													)}
-													{staffRoleOptions.map((role) => (
-														<MenuItem key={role} value={role}>
-															{role}
-														</MenuItem>
-													))}
-												</TextField>
-											</TableCell>
-											<TableCell>
-												<TextField
-													select
-													size="small"
-													value={staff.staffStatus}
-													disabled={isRemoved || isOwner}
-													onChange={(event) =>
-														updateStaffHandler({ _id: staff._id, staffStatus: event.target.value as StaffStatus })
-													}
-													sx={{ minWidth: 130 }}
-												>
-													{staffStatusOptions.map((status) => (
-														<MenuItem key={status} value={status}>
-															{status}
-														</MenuItem>
-													))}
-													{isRemoved && <MenuItem value={StaffStatus.REMOVED}>{StaffStatus.REMOVED}</MenuItem>}
-												</TextField>
-												{isOwner && (
-													<Chip label="Protected Owner" size="small" className="admin-protected-badge" />
+							return (
+								<Stack
+									key={staff._id}
+									className="admin-record-card admin-staff-card"
+									spacing={2}
+									sx={{ opacity: isRemoved ? 0.55 : 1 }}
+								>
+									<Stack className="admin-record-card-header">
+										<Stack className="admin-record-title-block" spacing={0.5}>
+											<Typography className="dashboard-primary-text admin-record-title">
+												{memberNames[staff.memberId] || 'Staff member'}
+											</Typography>
+											<Typography className="dashboard-muted-text">Team member</Typography>
+										</Stack>
+										<Stack className="admin-chip-row">
+											<Chip label={getStatusLabel(staff.staffRole)} size="small" className="admin-info-chip" />
+											<Chip label={getStatusLabel(staff.staffStatus)} size="small" sx={getStatusChipSx(staff.staffStatus)} />
+											{isOwner && <Chip label="Protected Owner" size="small" className="admin-protected-badge" />}
+										</Stack>
+									</Stack>
+									<Stack className="admin-record-grid admin-staff-grid">
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Role</Typography>
+											<TextField
+												select
+												size="small"
+												value={staff.staffRole}
+												disabled={isRemoved || isOwner}
+												onChange={(event) =>
+													updateStaffHandler({ _id: staff._id, staffRole: event.target.value as StaffRole })
+												}
+											>
+												{staff.staffRole === StaffRole.OWNER && (
+													<MenuItem value={StaffRole.OWNER}>{StaffRole.OWNER}</MenuItem>
 												)}
-											</TableCell>
-											<TableCell>{formatDate(staff.createdAt)}</TableCell>
-											<TableCell align="right">
-												<Stack className="admin-danger-actions">
-													<Button
-														variant="outlined"
-														color="error"
-														disabled={isRemoved || isOwner}
-														onClick={() => removeStaffHandler(staff._id)}
-													>
-														{isRemoved ? 'Removed' : 'Remove'}
-													</Button>
-												</Stack>
-											</TableCell>
-										</TableRow>
-									);
-								})}
-							</TableBody>
-						</Table>
-					</TableContainer>
+												{staffRoleOptions.map((role) => (
+													<MenuItem key={role} value={role}>
+														{role}
+													</MenuItem>
+												))}
+											</TextField>
+										</Stack>
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Status</Typography>
+											<TextField
+												select
+												size="small"
+												value={staff.staffStatus}
+												disabled={isRemoved || isOwner}
+												onChange={(event) =>
+													updateStaffHandler({ _id: staff._id, staffStatus: event.target.value as StaffStatus })
+												}
+											>
+												{staffStatusOptions.map((status) => (
+													<MenuItem key={status} value={status}>
+														{status}
+													</MenuItem>
+												))}
+												{isRemoved && <MenuItem value={StaffStatus.REMOVED}>{StaffStatus.REMOVED}</MenuItem>}
+											</TextField>
+										</Stack>
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Created</Typography>
+											<Typography className="admin-meta-value">{formatDate(staff.createdAt)}</Typography>
+										</Stack>
+									</Stack>
+									<Stack className="admin-record-actions admin-danger-actions">
+										<Button
+											variant="outlined"
+											color="error"
+											disabled={isRemoved || isOwner}
+											onClick={() => removeStaffHandler(staff._id)}
+										>
+											{isRemoved ? 'Removed' : 'Remove'}
+										</Button>
+									</Stack>
+								</Stack>
+							);
+						})}
+					</Stack>
 				)}
 			</Stack>
 		</Stack>

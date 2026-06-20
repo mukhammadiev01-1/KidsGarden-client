@@ -20,7 +20,7 @@ import { getImageUrl, KAKAO_MAP_JS_KEY, REACT_APP_API_GRAPHQL_URL } from '../../
 import { getKindergartenTypeLabel } from '../../utils';
 import { getJwtToken } from '../../auth';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
-import { getStatusChipSx, getStatusLabel, truncateId } from './dashboardUtils';
+import { getStatusChipSx, getStatusLabel } from './dashboardUtils';
 import { loadKakaoMapSdk } from '../../utils/kakaoMapLoader';
 
 const emptyForm: KindergartenInput = {
@@ -392,7 +392,6 @@ const MyKindergarten = () => {
 							<Stack className="admin-selector-card-title-row">
 								<Stack>
 									<Typography className="dashboard-primary-text">{kindergarten.kindergartenTitle}</Typography>
-									<Typography className="dashboard-muted-text">Profile ID {truncateId(kindergarten._id)}</Typography>
 								</Stack>
 								<Chip
 									label={getStatusLabel(kindergarten.kindergartenStatus)}

@@ -4,12 +4,6 @@ import {
 	Button,
 	Chip,
 	Stack,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
 	TextField,
 	Typography,
 } from '@mui/material';
@@ -22,7 +16,7 @@ import { MemberType } from '../../enums/member.enum';
 import { Application, ApplicationDocument } from '../../types/application/application';
 import { getImageUrl } from '../../config';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
-import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from './dashboardUtils';
+import { formatDate, getStatusChipSx, getStatusLabel } from './dashboardUtils';
 import ApplicationChatPanel from '../chat/ApplicationChatPanel';
 
 const reviewStatuses = [
@@ -38,7 +32,7 @@ const formatDocumentSize = (size: number) => {
 };
 
 const renderApplicationDocuments = (documents?: ApplicationDocument[]) => {
-	if (!documents?.length) return <Typography className="dashboard-muted-text">-</Typography>;
+	if (!documents?.length) return <Typography className="dashboard-muted-text">No documents</Typography>;
 
 	return (
 		<Stack spacing={0.5}>
@@ -142,116 +136,84 @@ const KindergartenApplications = () => {
 					</Typography>
 				)}
 				{applications.length > 0 && (
-					<TableContainer className="dashboard-table-container admin-applications-table">
-						<Table size="small">
-							<TableHead>
-								<TableRow>
-									<TableCell>Parent</TableCell>
-									<TableCell>Kindergarten</TableCell>
-									<TableCell>Child</TableCell>
-									<TableCell>Status</TableCell>
-									<TableCell>Message</TableCell>
-									<TableCell>Documents</TableCell>
-									<TableCell>Created</TableCell>
-									<TableCell>Admin note</TableCell>
-									<TableCell align="right">Actions</TableCell>
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{applications.map((application) => {
-									const parent = application.parentData;
-									const isFinal = FINAL_APPLICATION_STATUSES.includes(application.status);
+					<Stack className="admin-card-list admin-applications-list">
+						{applications.map((application) => {
+							const parent = application.parentData;
+							const isFinal = FINAL_APPLICATION_STATUSES.includes(application.status);
+							const parentName = parent?.memberNick || parent?.memberFullName || 'Parent applicant';
+							const kindergartenTitle = application.kindergartenData?.kindergartenTitle || 'Kindergarten';
 
-									return (
-										<React.Fragment key={application._id}>
-											<TableRow>
-												<TableCell sx={{ maxWidth: 220 }}>
-													<Stack spacing={0.25}>
-														<Typography className="dashboard-primary-text">
-															{parent?.memberNick || parent?.memberFullName || 'Parent reference'}
-														</Typography>
-														<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
-															{truncateId(application.parentId)}
-														</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell sx={{ maxWidth: 240 }}>
-													<Stack spacing={0.25}>
-														<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
-															{application.kindergartenData?.kindergartenTitle || 'Kindergarten reference'}
-														</Typography>
-														<Typography className="dashboard-muted-text" sx={{ wordBreak: 'break-all' }}>
-															{truncateId(application.kindergartenId)}
-														</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell>
-													<Stack spacing={0.25}>
-														<Typography className="dashboard-primary-text">{application.childName}</Typography>
-														<Typography className="dashboard-muted-text">{application.childAge} years old</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell>
-													<Chip label={getStatusLabel(application.status)} size="small" sx={getStatusChipSx(application.status)} />
-												</TableCell>
-												<TableCell sx={{ maxWidth: 220 }}>
-													<Typography className="dashboard-note-text">{application.parentMessage || '-'}</Typography>
-												</TableCell>
-												<TableCell sx={{ maxWidth: 240 }}>
-													{renderApplicationDocuments(application.documents)}
-												</TableCell>
-												<TableCell>{formatDate(application.createdAt)}</TableCell>
-												<TableCell sx={{ minWidth: 220 }}>
-													<TextField
-														fullWidth
-														size="small"
-														placeholder={application.adminNote || 'Optional note'}
-														value={adminNotes[application._id] || ''}
-														onChange={(event) =>
-															setAdminNotes((prev) => ({
-																...prev,
-																[application._id]: event.target.value,
-															}))
-														}
-														disabled={isFinal}
-													/>
-												</TableCell>
-												<TableCell align="right">
-													<Stack className="admin-review-actions" direction="row" spacing={1} justifyContent="flex-end">
-														<Button variant="outlined" onClick={() => toggleChatHandler(application._id)}>
-															{activeChatApplicationId === application._id ? 'Close Chat' : 'Open Chat'}
-														</Button>
-														{reviewStatuses.map((status) => (
-															<Button
-																key={status}
-																variant={status === ApplicationStatus.APPROVED ? 'contained' : 'outlined'}
-																color={status === ApplicationStatus.REJECTED ? 'error' : 'primary'}
-																disabled={isFinal || application.status === status}
-																onClick={() => updateStatusHandler(application, status)}
-															>
-																{getStatusLabel(status)}
-															</Button>
-														))}
-													</Stack>
-												</TableCell>
-											</TableRow>
-											{activeChatApplicationId === application._id && (
-												<TableRow>
-													<TableCell colSpan={9}>
-														<ApplicationChatPanel
-															applicationId={application._id}
-															title="Application chat"
-															onClose={() => setActiveChatApplicationId('')}
-														/>
-													</TableCell>
-												</TableRow>
-											)}
-										</React.Fragment>
-									);
-								})}
-							</TableBody>
-						</Table>
-					</TableContainer>
+							return (
+								<Stack key={application._id} className="admin-record-card admin-application-card" spacing={2}>
+									<Stack className="admin-record-card-header">
+										<Stack className="admin-record-title-block" spacing={0.5}>
+											<Typography className="dashboard-primary-text admin-record-title">{parentName}</Typography>
+											<Typography className="dashboard-muted-text">{kindergartenTitle}</Typography>
+										</Stack>
+										<Chip label={getStatusLabel(application.status)} size="small" sx={getStatusChipSx(application.status)} />
+									</Stack>
+									<Stack className="admin-record-grid admin-application-grid">
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Child</Typography>
+											<Typography className="admin-meta-value">{application.childName}</Typography>
+											<Typography className="dashboard-muted-text">{application.childAge} years old</Typography>
+										</Stack>
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Created</Typography>
+											<Typography className="admin-meta-value">{formatDate(application.createdAt)}</Typography>
+										</Stack>
+										<Stack className="admin-meta-item admin-meta-wide">
+											<Typography className="admin-meta-label">Message</Typography>
+											<Typography className="dashboard-note-text">{application.parentMessage || 'No message provided.'}</Typography>
+										</Stack>
+										<Stack className="admin-meta-item">
+											<Typography className="admin-meta-label">Documents</Typography>
+											{renderApplicationDocuments(application.documents)}
+										</Stack>
+										<Stack className="admin-meta-item admin-note-field">
+											<Typography className="admin-meta-label">Admin note</Typography>
+											<TextField
+												fullWidth
+												size="small"
+												placeholder={application.adminNote || 'Optional note'}
+												value={adminNotes[application._id] || ''}
+												onChange={(event) =>
+													setAdminNotes((prev) => ({
+														...prev,
+														[application._id]: event.target.value,
+													}))
+												}
+												disabled={isFinal}
+											/>
+										</Stack>
+									</Stack>
+									<Stack className="admin-record-actions admin-review-actions">
+										<Button variant="outlined" onClick={() => toggleChatHandler(application._id)}>
+											{activeChatApplicationId === application._id ? 'Close Chat' : 'Open Chat'}
+										</Button>
+										{reviewStatuses.map((status) => (
+											<Button
+												key={status}
+												variant={status === ApplicationStatus.APPROVED ? 'contained' : 'outlined'}
+												color={status === ApplicationStatus.REJECTED ? 'error' : 'primary'}
+												disabled={isFinal || application.status === status}
+												onClick={() => updateStatusHandler(application, status)}
+											>
+												{getStatusLabel(status)}
+											</Button>
+										))}
+									</Stack>
+									{activeChatApplicationId === application._id && (
+										<ApplicationChatPanel
+											applicationId={application._id}
+											title="Application chat"
+											onClose={() => setActiveChatApplicationId('')}
+										/>
+									)}
+								</Stack>
+							);
+						})}
+					</Stack>
 				)}
 			</Stack>
 		</Stack>
