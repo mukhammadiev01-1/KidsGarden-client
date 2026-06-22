@@ -74,9 +74,9 @@ const TopKindergartenCard = (props: TopKindergartenCardProps) => {
 				<div className={'bott'}>
 					<p>Recommended center</p>
 					<div className="view-like-box" onClick={(event) => event.stopPropagation()}>
-						<IconButton color={'default'}>
-							<RemoveRedEyeIcon />
-						</IconButton>
+						<Box component="span" className="view-stat-icon" aria-hidden="true">
+							<RemoveRedEyeIcon sx={{ fontSize: 16 }} />
+						</Box>
 							<Typography className="view-cnt">{kindergartenDetails.views}</Typography>
 							<IconButton color={'default'} onClick={() => likeKindergartenHandler?.(user, kindergarten._id)}>
 								{kindergartenDetails?.meLiked && kindergartenDetails?.meLiked[0]?.myFavorite ? (
@@ -122,9 +122,9 @@ const TopKindergartenCard = (props: TopKindergartenCardProps) => {
 				<div className={'bott'}>
 					<p>Recommended center</p>
 					<div className="view-like-box" onClick={(event) => event.stopPropagation()}>
-						<IconButton color={'default'}>
-							<RemoveRedEyeIcon />
-						</IconButton>
+						<Box component="span" className="view-stat-icon" aria-hidden="true">
+							<RemoveRedEyeIcon sx={{ fontSize: 16 }} />
+						</Box>
 							<Typography className="view-cnt">{kindergartenDetails.views}</Typography>
 							<IconButton color={'default'} onClick={() => likeKindergartenHandler?.(user, kindergarten._id)}>
 								{kindergartenDetails?.meLiked && kindergartenDetails?.meLiked[0]?.myFavorite ? (

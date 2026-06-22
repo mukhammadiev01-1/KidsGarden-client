@@ -121,6 +121,53 @@ export const GET_KINDERGARTENS = gql`
 	}
 `;
 
+export const GET_NEARBY_KINDERGARTENS = gql`
+	query GetNearbyKindergartens($input: NearbyKindergartensInput!) {
+		getNearbyKindergartens(input: $input) {
+			list {
+				_id
+				kindergartenType
+				kindergartenStatus
+				kindergartenLocation
+				kindergartenAddress
+				kindergartenLatitude
+				kindergartenLongitude
+				kindergartenTitle
+				monthlyFee
+				kindergartenPrice
+				kindergartenCapacity
+				kindergartenAgeRange
+				kindergartenPrograms
+				kindergartenViews
+				kindergartenLikes
+				kindergartenComments
+				kindergartenRank
+				kindergartenImages
+				kindergartenDesc
+				memberId
+				createdAt
+				updatedAt
+				distanceMeters
+				memberData {
+					_id
+					memberNick
+					memberFullName
+					memberImage
+					memberDesc
+				}
+				meLiked {
+					memberId
+					likeRefId
+					myFavorite
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
 export const GET_OWNER_KINDERGARTENS = gql`
 	query GetOwnerKindergartens($input: OwnerKindergartensInquiry!) {
 		getOwnerKindergartens(input: $input) {

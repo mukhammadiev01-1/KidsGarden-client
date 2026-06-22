@@ -37,7 +37,7 @@ import { StaffApplicationStatus } from '../../enums/staff-application.enum';
 import { StaffApplication } from '../../types/staff-application/staff-application';
 import { ACTIVE_APPLICATION_STATUSES } from '../../enums/application.enum';
 import { Application, ApplicationDocument } from '../../types/application/application';
-import KakaoKindergartenMap from '../maps/KakaoKindergartenMap';
+import NaverKindergartenMap from '../maps/NaverKindergartenMap';
 import PageSeo from '../seo/PageSeo';
 
 const programLabels = ['Montessori', 'Bilingual', 'Play-based', 'STEM', 'Art & Music'];
@@ -749,11 +749,11 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 						<Stack className="kg-detail-side-card kg-detail-contact-card">
 							<Typography component="h3">Contact & Location</Typography>
 							<p>{locationText || 'Location available after center confirmation.'}</p>
-							<KakaoKindergartenMap
+							<NaverKindergartenMap
 								latitude={kindergarten?.kindergartenLatitude}
 								longitude={kindergarten?.kindergartenLongitude}
+								address={kindergarten?.kindergartenAddress}
 								title={title}
-								locationText={locationText}
 							/>
 							{canUseParentDetailActions && (
 								<Button className="primary" onClick={() => handleParentApplicationIntent('contact')}>Contact Center</Button>

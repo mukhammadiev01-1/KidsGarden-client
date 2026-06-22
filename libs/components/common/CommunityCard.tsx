@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Stack, Typography } from '@mui/material';
 import { BoardArticle } from '../../types/board-article/board-article';
 import Moment from 'react-moment';
-import { REACT_APP_API_URL } from '../../config';
+import { getImageUrl } from '../../config';
 import IconButton from '@mui/material/IconButton';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -14,12 +14,15 @@ interface CommunityCardProps {
 	size?: string;
 }
 
+const ARTICLE_IMAGE_FALLBACK = '/img/kidsgarden/articles/article-play-based-learning.png';
+
 const CommunityCard = (props: CommunityCardProps) => {
 	const { boardArticle, size = 'normal' } = props;
 	const router = useRouter();
-	const imagePath: string = boardArticle?.articleImage
-		? `${REACT_APP_API_URL}/${boardArticle?.articleImage}`
-		: '/img/community/communityImg.png';
+	const rawImage = Array.isArray((boardArticle as any)?.articleImage)
+		? (boardArticle as any).articleImage[0]
+		: boardArticle?.articleImage;
+	const imagePath: string = getImageUrl(rawImage, ARTICLE_IMAGE_FALLBACK);
 
 	/** HANDLERS **/
 	const chooseArticleHandler = (e: React.SyntheticEvent, boardArticle: BoardArticle) => {
@@ -40,7 +43,7 @@ const CommunityCard = (props: CommunityCardProps) => {
 			onClick={(e) => chooseArticleHandler(e, boardArticle)}
 		>
 			<Stack className="image-box">
-				<img src={imagePath} alt="" className="card-img" />
+				<img src={imagePath} alt={boardArticle?.articleTitle || 'KidsGarden community article'} className="card-img" />
 			</Stack>
 			<Stack className="desc-box" sx={{ marginTop: '-20px' }}>
 				<Stack>

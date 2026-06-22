@@ -148,7 +148,8 @@ const withAdminLayout = (Component: ComponentType) => {
 						>
 							<Toolbar className="admin-sidebar-header">
 								<Stack className={'logo-box'}>
-									<img src={'/img/logo/logoText.svg'} alt={'logo'} />
+									<img src={'/img/logo/kidsgarden-logo.svg'} alt={'KidsGarden'} />
+									<Typography className="admin-console-label">Super Admin Console</Typography>
 								</Stack>
 
 								<Stack

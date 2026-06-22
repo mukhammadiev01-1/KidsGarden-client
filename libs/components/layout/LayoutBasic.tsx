@@ -17,7 +17,12 @@ const withLayoutBasic = (Component: any) => {
 		const { t } = useTranslation('common');
 		const device = useDeviceDetect();
 		const [authHeader, setAuthHeader] = useState<boolean>(false);
-		const hideBasicHero = router.pathname === '/property' || router.pathname === '/kindergartens' || router.pathname === '/cs';
+		const hideBasicHero =
+			router.pathname === '/property' ||
+			router.pathname === '/kindergartens' ||
+			router.pathname === '/cs' ||
+			router.pathname === '/store' ||
+			router.pathname === '/about';
 		const isMyPageHeader = router.pathname === '/mypage';
 
 		const memoizedValues = useMemo(() => {

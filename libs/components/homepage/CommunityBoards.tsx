@@ -13,7 +13,7 @@ const CommunityBoards = () => {
 	const device = useDeviceDetect();
 	const [searchCommunity, setSearchCommunity] = useState({
 		page: 1,
-		sort: 'articleViews',
+		sort: 'createdAt',
 		direction: 'DESC',
 	});
 	const [newsArticles, setNewsArticles] = useState<BoardArticle[]>([]);
@@ -22,7 +22,7 @@ const CommunityBoards = () => {
 	/** APOLLO REQUESTS **/
 	const { loading: getNewsArticlesLoading } = useQuery(GET_BOARD_ARTICLES, {
 		fetchPolicy: 'network-only',
-		variables: { input: { ...searchCommunity, limit: 6, search: { articleCategory: BoardArticleCategory.NEWS } } },
+		variables: { input: { ...searchCommunity, limit: 3, search: { articleCategory: BoardArticleCategory.NEWS } } },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
 			setNewsArticles(data?.getBoardArticles?.list ?? []);
@@ -45,13 +45,16 @@ const CommunityBoards = () => {
 		</Box>
 	);
 
+	const latestNewsArticles = newsArticles.slice(0, 3);
+	const latestFreeArticles = freeArticles.slice(0, 3);
+
 	if (device === 'mobile') {
-		const mobileArticles = [...newsArticles.slice(0, 2), ...freeArticles.slice(0, 2)];
+		const mobileArticles = [...latestNewsArticles.slice(0, 2), ...latestFreeArticles.slice(0, 2)];
 
 		return (
 			<Stack className={'community-board'}>
 				<Stack className={'container'}>
-					<Typography variant={'h1'}>PARENT COMMUNITY HIGHLIGHTS</Typography>
+					<Typography variant={'h1'}>Parent Community Highlights</Typography>
 					<Stack className={'community-main'}>
 						{getNewsArticlesLoading || getFreeArticlesLoading ? (
 							renderCommunityEmptyState('Loading community posts...')
@@ -69,13 +72,13 @@ const CommunityBoards = () => {
 			</Stack>
 		);
 	} else {
-		const hasCommunityArticles = newsArticles.length > 0 || freeArticles.length > 0;
+		const hasCommunityArticles = latestNewsArticles.length > 0 || latestFreeArticles.length > 0;
 
 		return (
 			<Stack className={'community-board'}>
 				<Stack className={'container'}>
 					<Stack>
-						<Typography variant={'h1'}>PARENT COMMUNITY HIGHLIGHTS</Typography>
+						<Typography variant={'h1'}>Parent Community Highlights</Typography>
 						<Typography className={'community-section-copy'}>
 							Helpful updates and parent conversations from the KidsGarden community.
 						</Typography>
@@ -103,7 +106,7 @@ const CommunityBoards = () => {
 								<Stack className={'card-wrap'}>
 									{newsArticles.length === 0
 										? renderCommunityEmptyState('Kindergarten news will appear here soon.')
-										: newsArticles.map((article, index) => {
+										: latestNewsArticles.map((article, index) => {
 												return <CommunityCard vertical={true} article={article} index={index} key={article?._id} />;
 										  })}
 								</Stack>
@@ -116,7 +119,7 @@ const CommunityBoards = () => {
 								<Stack className={'card-wrap vertical'}>
 									{freeArticles.length === 0
 										? renderCommunityEmptyState('Parent community posts will appear here soon.', true)
-										: freeArticles.map((article, index) => {
+										: latestFreeArticles.map((article, index) => {
 												return <CommunityCard vertical={false} article={article} index={index} key={article?._id} />;
 										  })}
 								</Stack>

@@ -1326,6 +1326,27 @@
 					white-space: nowrap;
 				}
 			}
+			.admin-review-actions {
+				gap: 10px;
+				padding-top: 10px;
+
+				.MuiButton-root {
+					height: 36px;
+					min-height: 36px;
+					padding: 0 16px;
+					font-size: 13px;
+					line-height: 18px;
+				}
+
+				.admin-chat-action {
+					min-width: 110px;
+				}
+
+				.admin-change-status-button {
+					min-width: 136px;
+					box-shadow: 0 8px 16px rgba(47, 125, 74, 0.14);
+				}
+			}
 			.admin-advanced-panel {
 				width: 100%;
 				padding: 12px;

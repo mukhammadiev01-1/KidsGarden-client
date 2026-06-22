@@ -1,6 +1,5 @@
 import React from 'react';
 import { Stack, Box, Divider, Typography } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Kindergarten } from '../../types/kindergarten/kindergarten';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
@@ -85,9 +84,9 @@ const PopularKindergartenCard = (props: PopularKindergartenCardProps) => {
 					<p>Popular with parents</p>
 					<span className={'details-cta'}>View Details</span>
 					<div className="view-like-box" onClick={(event) => event.stopPropagation()}>
-						<IconButton color={'default'}>
-							<RemoveRedEyeIcon />
-						</IconButton>
+						<Box component="span" className="view-stat-icon" aria-hidden="true">
+							<RemoveRedEyeIcon sx={{ fontSize: 16 }} />
+						</Box>
 						<Typography className="view-cnt">{kindergartenDetails.views || 0}</Typography>
 					</div>
 				</div>

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
 	Button,
 	Chip,
+	Menu,
 	MenuItem,
 	Stack,
 	TextField,
@@ -33,14 +34,20 @@ const applicationStatusOptions = [
 	StaffApplicationStatus.CANCELED,
 ];
 
+const staffReviewStatuses = [StaffApplicationStatus.APPROVED, StaffApplicationStatus.REJECTED];
+
 const KindergartenStaffApplications = () => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [selectedKindergartenId, setSelectedKindergartenId] = useState('');
 	const [statusFilter, setStatusFilter] = useState<StaffApplicationStatus | 'ALL'>(StaffApplicationStatus.PENDING);
 	const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({});
-	const [approveStaffApplication] = useMutation(APPROVE_STAFF_APPLICATION);
-	const [rejectStaffApplication] = useMutation(REJECT_STAFF_APPLICATION);
+	const [statusMenu, setStatusMenu] = useState<{ applicationId: string; anchorEl: HTMLElement | null }>({
+		applicationId: '',
+		anchorEl: null,
+	});
+	const [approveStaffApplication, { loading: approvingStaffApplication }] = useMutation(APPROVE_STAFF_APPLICATION);
+	const [rejectStaffApplication, { loading: rejectingStaffApplication }] = useMutation(REJECT_STAFF_APPLICATION);
 
 	const ownerKindergartensInput = useMemo(
 		() => ({
@@ -107,6 +114,14 @@ const KindergartenStaffApplications = () => {
 		}
 	};
 
+	const openStatusMenuHandler = (event: React.MouseEvent<HTMLButtonElement>, applicationId: string) => {
+		setStatusMenu({ applicationId, anchorEl: event.currentTarget });
+	};
+
+	const closeStatusMenuHandler = () => {
+		setStatusMenu({ applicationId: '', anchorEl: null });
+	};
+
 	const rejectApplicationHandler = async (applicationId: string) => {
 		try {
 			const rejectReason = rejectReasons[applicationId]?.trim();
@@ -118,6 +133,17 @@ const KindergartenStaffApplications = () => {
 			await sweetMixinSuccessAlert('Application rejected');
 		} catch (err: any) {
 			await sweetErrorHandling(err);
+		}
+	};
+
+	const selectStatusHandler = async (applicationId: string, status: StaffApplicationStatus) => {
+		closeStatusMenuHandler();
+		if (status === StaffApplicationStatus.APPROVED) {
+			await approveApplicationHandler(applicationId);
+			return;
+		}
+		if (status === StaffApplicationStatus.REJECTED) {
+			await rejectApplicationHandler(applicationId);
 		}
 	};
 
@@ -212,6 +238,8 @@ const KindergartenStaffApplications = () => {
 						{applications.map((application) => {
 							const applicant = application.applicantData;
 							const isPending = application.applicationStatus === StaffApplicationStatus.PENDING;
+							const isUpdatingApplicationStatus = approvingStaffApplication || rejectingStaffApplication;
+							const isStatusMenuOpen = statusMenu.applicationId === application._id && Boolean(statusMenu.anchorEl);
 							const applicantName = applicant?.memberNick
 								? `${applicant.memberNick}${applicant.memberFullName ? ` (${applicant.memberFullName})` : ''}`
 								: applicant?.memberFullName || 'Applicant';
@@ -283,20 +311,52 @@ const KindergartenStaffApplications = () => {
 									</Stack>
 									<Stack className="admin-record-actions admin-review-actions">
 										<Button
+											className="admin-change-status-button"
 											variant="contained"
-											disabled={!isPending}
-											onClick={() => approveApplicationHandler(application._id)}
+											disabled={!isPending || isUpdatingApplicationStatus}
+											aria-haspopup="menu"
+											aria-expanded={isStatusMenuOpen ? 'true' : undefined}
+											onClick={(event) => openStatusMenuHandler(event, application._id)}
 										>
-											Approve
+											Change Status
 										</Button>
-										<Button
-											variant="outlined"
-											color="error"
-											disabled={!isPending}
-											onClick={() => rejectApplicationHandler(application._id)}
+										<Menu
+											anchorEl={statusMenu.anchorEl}
+											open={isStatusMenuOpen}
+											onClose={closeStatusMenuHandler}
+											anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+											transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+											PaperProps={{
+												sx: {
+													mt: 0.75,
+													minWidth: 180,
+													borderRadius: '14px',
+													border: '1px solid #dbe9d5',
+													boxShadow: '0 14px 34px rgba(36, 51, 45, 0.16)',
+													backgroundColor: '#fffdf8',
+													p: 0.5,
+												},
+											}}
 										>
-											Reject
-										</Button>
+											{staffReviewStatuses.map((status) => (
+												<MenuItem
+													key={status}
+													disabled={isUpdatingApplicationStatus}
+													onClick={() => selectStatusHandler(application._id, status)}
+													sx={{
+														minHeight: 34,
+														borderRadius: '10px',
+														my: 0.25,
+														color: status === StaffApplicationStatus.REJECTED ? '#9f3c3c' : '#405346',
+														fontFamily: 'inherit',
+														fontSize: 13,
+														fontWeight: 800,
+													}}
+												>
+													{getStatusLabel(status)}
+												</MenuItem>
+											))}
+										</Menu>
 									</Stack>
 								</Stack>
 							);

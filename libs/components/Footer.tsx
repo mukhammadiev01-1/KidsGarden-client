@@ -49,6 +49,7 @@ const Footer = () => {
 					<div>
 						<strong>Company</strong>
 						<Link href={'/'}>Home</Link>
+						<Link href={'/about'}>About</Link>
 						<Link href={'/kindergartens'}>Kindergartens</Link>
 						<Link href={'/community?articleCategory=FREE'}>Community</Link>
 					</div>

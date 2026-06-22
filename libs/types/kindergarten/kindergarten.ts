@@ -38,6 +38,7 @@ export interface Kindergarten {
 	updatedAt: Date;
 	meLiked?: MeLiked[];
 	memberData?: Member;
+	distanceMeters?: number;
 }
 
 export interface Kindergartens {

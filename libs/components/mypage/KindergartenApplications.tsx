@@ -3,6 +3,8 @@ import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
 	Button,
 	Chip,
+	Menu,
+	MenuItem,
 	Stack,
 	TextField,
 	Typography,
@@ -56,7 +58,11 @@ const KindergartenApplications = () => {
 	const user = useReactiveVar(userVar);
 	const [activeChatApplicationId, setActiveChatApplicationId] = useState<string>('');
 	const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
-	const [updateApplicationStatus] = useMutation(UPDATE_APPLICATION_STATUS);
+	const [statusMenu, setStatusMenu] = useState<{ applicationId: string; anchorEl: HTMLElement | null }>({
+		applicationId: '',
+		anchorEl: null,
+	});
+	const [updateApplicationStatus, { loading: updatingApplicationStatus }] = useMutation(UPDATE_APPLICATION_STATUS);
 
 	const applicationsInput = useMemo(
 		() => ({
@@ -82,6 +88,14 @@ const KindergartenApplications = () => {
 		setActiveChatApplicationId((currentId) => (currentId === applicationId ? '' : applicationId));
 	};
 
+	const openStatusMenuHandler = (event: React.MouseEvent<HTMLButtonElement>, applicationId: string) => {
+		setStatusMenu({ applicationId, anchorEl: event.currentTarget });
+	};
+
+	const closeStatusMenuHandler = () => {
+		setStatusMenu({ applicationId: '', anchorEl: null });
+	};
+
 	const updateStatusHandler = async (application: Application, status: ApplicationStatus) => {
 		try {
 			const adminNote = adminNotes[application._id]?.trim();
@@ -101,6 +115,12 @@ const KindergartenApplications = () => {
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
+	};
+
+	const selectStatusHandler = async (application: Application, status: ApplicationStatus) => {
+		closeStatusMenuHandler();
+		if (application.status === status) return;
+		await updateStatusHandler(application, status);
 	};
 
 	if (user.memberType !== MemberType.KINDERGARTEN_ADMIN) {
@@ -140,6 +160,7 @@ const KindergartenApplications = () => {
 						{applications.map((application) => {
 							const parent = application.parentData;
 							const isFinal = FINAL_APPLICATION_STATUSES.includes(application.status);
+							const isStatusMenuOpen = statusMenu.applicationId === application._id && Boolean(statusMenu.anchorEl);
 							const parentName = parent?.memberNick || parent?.memberFullName || 'Parent applicant';
 							const kindergartenTitle = application.kindergartenData?.kindergartenTitle || 'Kindergarten';
 
@@ -188,20 +209,77 @@ const KindergartenApplications = () => {
 										</Stack>
 									</Stack>
 									<Stack className="admin-record-actions admin-review-actions">
-										<Button variant="outlined" onClick={() => toggleChatHandler(application._id)}>
+										<Button className="admin-chat-action" variant="outlined" onClick={() => toggleChatHandler(application._id)}>
 											{activeChatApplicationId === application._id ? 'Close Chat' : 'Open Chat'}
 										</Button>
-										{reviewStatuses.map((status) => (
-											<Button
-												key={status}
-												variant={status === ApplicationStatus.APPROVED ? 'contained' : 'outlined'}
-												color={status === ApplicationStatus.REJECTED ? 'error' : 'primary'}
-												disabled={isFinal || application.status === status}
-												onClick={() => updateStatusHandler(application, status)}
-											>
-												{getStatusLabel(status)}
-											</Button>
-										))}
+										<Button
+											className="admin-change-status-button"
+											variant="contained"
+											disabled={isFinal || updatingApplicationStatus}
+											aria-haspopup="menu"
+											aria-expanded={isStatusMenuOpen ? 'true' : undefined}
+											onClick={(event) => openStatusMenuHandler(event, application._id)}
+										>
+											Change Status
+										</Button>
+										<Menu
+											anchorEl={statusMenu.anchorEl}
+											open={isStatusMenuOpen}
+											onClose={closeStatusMenuHandler}
+											anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+											transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+											PaperProps={{
+												sx: {
+													mt: 0.75,
+													minWidth: 190,
+													borderRadius: '14px',
+													border: '1px solid #dbe9d5',
+													boxShadow: '0 14px 34px rgba(36, 51, 45, 0.16)',
+													backgroundColor: '#fffdf8',
+													p: 0.5,
+												},
+											}}
+										>
+											{reviewStatuses.map((status) => {
+												const isCurrentStatus = application.status === status;
+
+												return (
+													<MenuItem
+														key={status}
+														selected={isCurrentStatus}
+														disabled={updatingApplicationStatus}
+														onClick={() => selectStatusHandler(application, status)}
+														sx={{
+															minHeight: 34,
+															borderRadius: '10px',
+															my: 0.25,
+															gap: 2,
+															justifyContent: 'space-between',
+															color: status === ApplicationStatus.REJECTED ? '#9f3c3c' : '#405346',
+															fontFamily: 'inherit',
+															fontSize: 13,
+															fontWeight: 800,
+															'&.Mui-selected': {
+																backgroundColor: '#edf7e9',
+															},
+															'&.Mui-selected:hover': {
+																backgroundColor: '#e2f1dd',
+															},
+														}}
+													>
+														{getStatusLabel(status)}
+														{isCurrentStatus && (
+															<Typography
+																component="span"
+																sx={{ color: '#6d856f', fontSize: 11, fontWeight: 900, lineHeight: 1 }}
+															>
+																Current
+															</Typography>
+														)}
+													</MenuItem>
+												);
+											})}
+										</Menu>
 									</Stack>
 									{activeChatApplicationId === application._id && (
 										<ApplicationChatPanel

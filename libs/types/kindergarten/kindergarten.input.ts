@@ -50,6 +50,12 @@ export interface KindergartensInquiry {
 	search: KISearch;
 }
 
+export interface NearbyKindergartensInput {
+	latitude: number;
+	longitude: number;
+	radiusMeters?: number;
+}
+
 interface OKISearch {
 	kindergartenStatus?: KindergartenStatus;
 }

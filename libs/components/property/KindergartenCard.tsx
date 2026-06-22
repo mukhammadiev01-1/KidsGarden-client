@@ -12,6 +12,7 @@ import IconButton from '@mui/material/IconButton';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
+import NearMeRoundedIcon from '@mui/icons-material/NearMeRounded';
 
 interface LegacyKindergartenApiFields {
 	_id?: string;
@@ -58,6 +59,12 @@ const mapLegacyKindergartenApiFields = (legacyKindergarten?: LegacyKindergartenA
 	};
 };
 
+export const formatDistanceAway = (distanceMeters?: number): string => {
+	if (typeof distanceMeters !== 'number' || !Number.isFinite(distanceMeters)) return '';
+	if (distanceMeters < 1000) return `${Math.max(0, Math.round(distanceMeters))} m away`;
+	return `${(distanceMeters / 1000).toFixed(1)} km away`;
+};
+
 const KindergartenCard = (props: KindergartenCardProps) => {
 	const { likeKindergartenHandler, myFavorites, recentlyVisited } = props;
 	const kindergarten = props.kindergarten || mapLegacyKindergartenApiFields(props.property);
@@ -81,6 +88,7 @@ const KindergartenCard = (props: KindergartenCardProps) => {
 	const kindergartenTypeLabel = kindergarten?.kindergartenType
 		? getKindergartenTypeLabel(kindergarten.kindergartenType)
 		: 'Kindergarten';
+	const distanceLabel = formatDistanceAway(kindergarten?.distanceMeters);
 
 	return (
 		<Stack className="card-config">
@@ -96,6 +104,12 @@ const KindergartenCard = (props: KindergartenCardProps) => {
 				<Box component={'div'} className={`top-badge ${badgeLabel.toLowerCase().replace(/\s/g, '-')}`}>
 					<Typography>{badgeLabel}</Typography>
 				</Box>
+				{distanceLabel && (
+					<Box component="div" className="kg-distance-badge">
+						<NearMeRoundedIcon />
+						<Typography>{distanceLabel}</Typography>
+					</Box>
+				)}
 				<IconButton
 					className="kg-card-like"
 					color={'default'}

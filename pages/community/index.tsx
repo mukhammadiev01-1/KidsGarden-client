@@ -1,7 +1,8 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { NextPage } from 'next';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Button, Pagination, Stack, Typography } from '@mui/material';
+import { Pagination, Stack, Typography } from '@mui/material';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { BoardArticle } from '../../libs/types/board-article/board-article';
 import { T } from '../../libs/types/common';
@@ -11,9 +12,7 @@ import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import { GET_BOARD_ARTICLES } from '../../apollo/user/query';
 import { userVar } from '../../apollo/store';
-import { MemberType } from '../../libs/enums/member.enum';
-import { sweetLoginConfirmAlert } from '../../libs/sweetAlert';
-import { REACT_APP_API_URL } from '../../libs/config';
+import { getImageUrl } from '../../libs/config';
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
@@ -38,26 +37,21 @@ type CommunityTopic = {
 };
 
 const topics: CommunityTopic[] = [
-	{ key: 'all', label: 'All', category: BoardArticleCategory.FREE },
-	{ key: 'parenting', label: 'Parenting Tips', category: BoardArticleCategory.FREE },
-	{ key: 'learning', label: 'Learning & Development', category: BoardArticleCategory.FREE },
-	{ key: 'health', label: 'Health & Nutrition', category: BoardArticleCategory.FREE },
-	{ key: 'activities', label: 'Activities', category: BoardArticleCategory.FREE },
-	{ key: 'qa', label: 'Q&A', category: BoardArticleCategory.FREE },
-	{ key: 'news', label: 'Platform News', category: BoardArticleCategory.NEWS },
+	{ key: 'free', label: 'Parent Board', category: BoardArticleCategory.FREE },
+	{ key: 'news', label: 'News', category: BoardArticleCategory.NEWS },
 ];
 
 const categoryLabels: Record<string, string> = {
-	FREE: 'Parenting Tips',
-	NEWS: 'Platform News',
+	FREE: 'Parent Board',
+	NEWS: 'News',
 	RECOMMEND: 'Learning & Development',
 	HUMOR: 'Activities',
 };
 
 const fallbackImages = [
-	'/img/community/communityImg.png',
-	'/img/community/articleImg.png',
-	'/img/homepage/kidsgarden-hero-classroom.png',
+	'/img/kidsgarden/articles/article-play-based-learning.png',
+	'/img/kidsgarden/articles/article-parent-teacher-communication.png',
+	'/img/kidsgarden/articles/article-first-day-kindergarten.png',
 ];
 
 const stripText = (content?: string, max = 118) => {
@@ -77,9 +71,17 @@ const formatDate = (date?: Date) => {
 };
 
 const getArticleImage = (article: BoardArticle, index = 0) => {
-	if (article?.articleImage) return `${REACT_APP_API_URL}/${article.articleImage}`;
-	return fallbackImages[index % fallbackImages.length];
+	const rawImage = Array.isArray((article as any)?.articleImage)
+		? (article as any).articleImage[0]
+		: article?.articleImage;
+
+	return getImageUrl(rawImage, fallbackImages[index % fallbackImages.length]);
 };
+
+const getCommunityHref = (category: BoardArticleCategory) => ({
+	pathname: '/community',
+	query: { articleCategory: category },
+});
 
 const getSafeAuthor = (article: BoardArticle) => {
 	return article?.memberData?.memberFullName || article?.memberData?.memberNick || 'KidsGarden Team';
@@ -89,11 +91,10 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	const router = useRouter();
 	const { query } = router;
 	const user = useReactiveVar(userVar);
-	const isParent = user.memberType === MemberType.PARENT;
 	const isLoggedIn = Boolean(user?._id);
 	const routeCategory = query?.articleCategory as string;
 
-	const initialTopic = routeCategory === BoardArticleCategory.NEWS ? 'news' : 'all';
+	const initialTopic = routeCategory === BoardArticleCategory.NEWS ? 'news' : 'free';
 	const [activeTopic, setActiveTopic] = useState<string>(initialTopic);
 	const [searchText, setSearchText] = useState<string>('');
 	const [searchCommunity, setSearchCommunity] = useState<BoardArticlesInquiry>(initialInput);
@@ -121,7 +122,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 
 	useEffect(() => {
 		if (!router.isReady) return;
-		const nextTopic = routeCategory === BoardArticleCategory.NEWS ? 'news' : 'all';
+		const nextTopic = routeCategory === BoardArticleCategory.NEWS ? 'news' : 'free';
 		const nextCategory = nextTopic === 'news' ? BoardArticleCategory.NEWS : BoardArticleCategory.FREE;
 
 		setActiveTopic(nextTopic);
@@ -145,22 +146,6 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		}));
 	};
 
-	const topicChangeHandler = async (topic: CommunityTopic) => {
-		setActiveTopic(topic.key);
-		updateCommunitySearch(topic, searchText, 1);
-
-		if (topic.category === BoardArticleCategory.NEWS || routeCategory === BoardArticleCategory.NEWS) {
-			await router.push(
-				{
-					pathname: '/community',
-					query: { articleCategory: topic.category },
-				},
-				router.pathname,
-				{ shallow: true },
-			);
-		}
-	};
-
 	const searchChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
 		const value = event.target.value;
 		setSearchText(value);
@@ -171,21 +156,9 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		updateCommunitySearch(activeTopicConfig, searchText, value);
 	};
 
-	const writeButtonHandler = async () => {
-		if (!isLoggedIn) {
-			const confirmed = await sweetLoginConfirmAlert('Please login first');
-			if (confirmed) await router.push('/account/join');
-			return;
-		}
-
-		if (!isParent) return;
-		await router.push({
-			pathname: '/mypage',
-			query: {
-				category: 'writeArticle',
-			},
-		});
-	};
+	const writeArticleHref = isLoggedIn
+		? { pathname: '/mypage', query: { category: 'writeArticle' } }
+		: { pathname: '/account/join', query: { mode: 'login' } };
 
 	const openArticleHandler = (article: BoardArticle) => {
 		router.push({
@@ -195,8 +168,9 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	};
 
 	const featuredArticles = boardArticles.slice(0, 3);
-	const questionArticles = boardArticles.slice(3, 7);
+	const secondaryArticles = boardArticles.slice(3, 7);
 	const hasArticles = totalCount > 0;
+	const isNewsTopic = activeTopicConfig.category === BoardArticleCategory.NEWS;
 
 	const renderArticleCard = (article: BoardArticle, index: number) => (
 		<button type="button" className="kg-community-card" key={article._id} onClick={() => openArticleHandler(article)}>
@@ -230,15 +204,21 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 
 	const renderQuestionCard = (article: BoardArticle, index: number) => (
 		<button type="button" className="kg-question-card" key={article._id} onClick={() => openArticleHandler(article)}>
-			<span className="kg-question-icon">Q</span>
+			<span className="kg-question-icon">{article.articleCategory === BoardArticleCategory.NEWS ? 'N' : 'P'}</span>
 			<div>
 				<h3>{article.articleTitle}</h3>
 				<p>
-					{article.articleComments || 0} answers · Asked by {getSafeAuthor(article)}
+					{article.articleComments || 0} comments · By {getSafeAuthor(article)}
 				</p>
 			</div>
 			<span className={`kg-question-status ${article.articleComments > 5 ? 'popular' : ''}`}>
-				{article.articleComments > 5 ? 'Popular' : article.articleComments > 0 ? 'Answered' : 'New'}
+				{article.articleCategory === BoardArticleCategory.NEWS
+					? 'News'
+					: article.articleComments > 5
+					? 'Popular'
+					: article.articleComments > 0
+					? 'Active'
+					: 'New'}
 			</span>
 			<ArrowForwardIosIcon />
 		</button>
@@ -259,10 +239,10 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 							Tips, ideas and support for your parenting journey.
 						</Typography>
 					</div>
-					<Button onClick={writeButtonHandler} className="kg-write-button">
+					<Link href={writeArticleHref} className="kg-write-button">
 						<EditIcon />
-						{isParent ? 'Write an Article' : isLoggedIn ? 'Parent accounts only' : 'Write an Article'}
-					</Button>
+						Write an Article
+					</Link>
 				</section>
 
 				<section className="kg-community-shell">
@@ -278,24 +258,23 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 							</label>
 							<div className="kg-community-tabs">
 								{topics.map((topic) => (
-									<button
-										type="button"
+									<Link
+										href={getCommunityHref(topic.category)}
 										key={topic.key}
 										className={activeTopic === topic.key ? 'active' : ''}
-										onClick={() => topicChangeHandler(topic)}
 									>
 										{topic.label}
-									</button>
+									</Link>
 								))}
 							</div>
 						</div>
 
 						<section className="kg-community-section">
 							<div className="kg-community-section-title">
-								<h2>Featured Articles</h2>
-								<button type="button" onClick={() => topicChangeHandler(activeTopicConfig)}>
+								<h2>{isNewsTopic ? 'Latest News' : 'Parent Board Posts'}</h2>
+								<Link href={getCommunityHref(activeTopicConfig.category)}>
 									View all
-								</button>
+								</Link>
 							</div>
 							{getBoardArticlesLoading && (
 								<div className="kg-community-empty">Loading parent community articles...</div>
@@ -317,20 +296,19 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 						<section className="kg-community-lower-grid">
 							<div className="kg-community-section kg-questions-section">
 								<div className="kg-community-section-title">
-									<h2>Recent Questions & Answers</h2>
-									<button
-										type="button"
-										onClick={() => topicChangeHandler(topics.find((item) => item.key === 'qa') || topics[0])}
-									>
+									<h2>{isNewsTopic ? 'More News' : 'Recent Parent Board Activity'}</h2>
+									<Link href={getCommunityHref(activeTopicConfig.category)}>
 										View all
-									</button>
+									</Link>
 								</div>
 								<div className="kg-question-list">
-									{(questionArticles.length ? questionArticles : featuredArticles).map((article, index) =>
+									{(secondaryArticles.length ? secondaryArticles : featuredArticles).map((article, index) =>
 										renderQuestionCard(article, index),
 									)}
 									{!hasArticles && !getBoardArticlesLoading && (
-										<div className="kg-community-empty compact">Questions from parents will appear here soon.</div>
+										<div className="kg-community-empty compact">
+											{isNewsTopic ? 'More KidsGarden news will appear here soon.' : 'Parent posts will appear here soon.'}
+										</div>
 									)}
 								</div>
 							</div>
@@ -407,15 +385,15 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 						<div className="kg-sidebar-card">
 							<h2>Platform Updates</h2>
 							<p>Read KidsGarden news, parent board updates and practical tips in one safe place.</p>
-							<Button onClick={() => topicChangeHandler(topics.find((item) => item.key === 'news') || topics[0])}>
+							<Link href={getCommunityHref(BoardArticleCategory.NEWS)}>
 								See all updates
-							</Button>
+							</Link>
 						</div>
 
 						<div className="kg-sidebar-card kg-sidebar-cta">
 							<h2>Community Guidelines</h2>
 							<p>Share experiences, avoid private child data and keep every conversation respectful.</p>
-							<Button onClick={writeButtonHandler}>Write Article</Button>
+							<Link href={writeArticleHref}>Write Article</Link>
 						</div>
 					</aside>
 				</section>
@@ -427,7 +405,9 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 					</div>
 					<form>
 						<input type="email" placeholder="Enter your email" />
-						<button type="button">Subscribe</button>
+						<button type="button" disabled title="Email updates are coming soon">
+							Coming Soon
+						</button>
 					</form>
 				</section>
 			</div>

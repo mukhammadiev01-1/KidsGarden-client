@@ -9,13 +9,7 @@ import {
 	List,
 	ListItem,
 	Stack,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
 	TablePagination,
-	TableRow,
 	TextField,
 	Typography,
 } from '@mui/material';
@@ -30,7 +24,7 @@ import { KindergartenAdminApplicationStatus } from '../../../libs/enums/kinderga
 import { KindergartenAdminApplication } from '../../../libs/types/kindergarten-admin-application/kindergarten-admin-application';
 import { KindergartenAdminApplicationsInquiry } from '../../../libs/types/kindergarten-admin-application/kindergarten-admin-application.input';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
-import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from '../../../libs/components/mypage/dashboardUtils';
+import { formatDate, getStatusChipSx, getStatusLabel } from '../../../libs/components/mypage/dashboardUtils';
 
 const statusTabs = [
 	'ALL',
@@ -40,6 +34,25 @@ const statusTabs = [
 	KindergartenAdminApplicationStatus.CANCELED,
 ];
 
+const getApplicantName = (application: KindergartenAdminApplication) => {
+	const applicant = application.applicantData;
+	if (applicant?.memberNick && applicant?.memberFullName) return `${applicant.memberNick} (${applicant.memberFullName})`;
+	return applicant?.memberNick || applicant?.memberFullName || 'Applicant';
+};
+
+const getFinalStateCopy = (status: KindergartenAdminApplicationStatus) => {
+	switch (status) {
+		case KindergartenAdminApplicationStatus.APPROVED:
+			return 'Approved applications are final in this review queue.';
+		case KindergartenAdminApplicationStatus.REJECTED:
+			return 'Rejected applications are final in this review queue.';
+		case KindergartenAdminApplicationStatus.CANCELED:
+			return 'Canceled applications cannot be reviewed.';
+		default:
+			return '';
+	}
+};
+
 const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) => {
 	const [applicationsInquiry, setApplicationsInquiry] =
 		useState<KindergartenAdminApplicationsInquiry>(initialInquiry);
@@ -48,7 +61,7 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 	const [approveKindergartenAdminApplication] = useMutation(APPROVE_KINDERGARTEN_ADMIN_APPLICATION);
 	const [rejectKindergartenAdminApplication] = useMutation(REJECT_KINDERGARTEN_ADMIN_APPLICATION);
 
-	const { data, loading, refetch } = useQuery(GET_KINDERGARTEN_ADMIN_APPLICATIONS, {
+	const { data, loading, error, refetch } = useQuery(GET_KINDERGARTEN_ADMIN_APPLICATIONS, {
 		variables: { input: applicationsInquiry },
 		fetchPolicy: 'network-only',
 		onError: (err) => sweetErrorHandling(err).then(),
@@ -109,11 +122,21 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 	};
 
 	return (
-		<Box component={'div'} className={'content'}>
-			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Kindergarten Admin Applications
-			</Typography>
-			<Box component={'div'} className={'table-wrap'}>
+		<Box component={'div'} className={'content admin-kindergarten-admin-applications'}>
+			<Stack className="admin-review-page-header">
+				<Stack spacing={0.75}>
+					<Typography className="admin-review-kicker">Super Admin Review Queue</Typography>
+					<Typography variant={'h2'} className={'tit'}>
+						Kindergarten Admin Applications
+					</Typography>
+					<Typography className="admin-review-subtitle">
+						Review center admin access requests without exposing raw technical identifiers in the normal workflow.
+					</Typography>
+				</Stack>
+				<Chip className="admin-review-count-chip" label={`${total} total`} />
+			</Stack>
+
+			<Box component={'div'} className={'table-wrap admin-review-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
 					<TabContext value={value}>
 						<Box component={'div'}>
@@ -131,130 +154,134 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 							</List>
 							<Divider />
 						</Box>
-						<TableContainer>
-							<Table sx={{ minWidth: 1200 }} size="medium">
-								<TableHead>
-									<TableRow>
-										<TableCell>Applicant</TableCell>
-										<TableCell>Kindergarten Draft</TableCell>
-										<TableCell>Business Info</TableCell>
-										<TableCell>Message</TableCell>
-										<TableCell>Status</TableCell>
-										<TableCell>Created</TableCell>
-										<TableCell>Review</TableCell>
-										<TableCell align="right">Actions</TableCell>
-									</TableRow>
-								</TableHead>
-								<TableBody>
-									{loading && (
-										<TableRow>
-											<TableCell align="center" colSpan={8}>
-												Loading applications...
-											</TableCell>
-										</TableRow>
-									)}
-									{!loading && applications.length === 0 && (
-										<TableRow>
-											<TableCell align="center" colSpan={8}>
-												<span className={'no-data'}>data not found!</span>
-											</TableCell>
-										</TableRow>
-									)}
-									{applications.map((application) => {
-										const applicant = application.applicantData;
-										const isPending = application.applicationStatus === KindergartenAdminApplicationStatus.PENDING;
+						<div className="admin-review-list">
+							{loading && (
+								<Stack className="admin-review-state-card">
+									<Typography className="admin-review-state-title">Loading applications...</Typography>
+									<Typography className="admin-review-state-copy">Fetching the latest Super Admin review queue.</Typography>
+								</Stack>
+							)}
+							{!loading && error && (
+								<Stack className="admin-review-state-card">
+									<Typography className="admin-review-state-title">Unable to load applications.</Typography>
+									<Typography className="admin-review-state-copy">
+										Check the backend connection and try refreshing the review queue.
+									</Typography>
+								</Stack>
+							)}
+							{!loading && !error && applications.length === 0 && (
+								<Stack className="admin-review-state-card">
+									<Typography className="admin-review-state-title">
+										No kindergarten admin applications yet.
+									</Typography>
+									<Typography className="admin-review-state-copy">
+										Applications will appear here when a parent or center user requests admin access.
+									</Typography>
+								</Stack>
+							)}
+							{!error && applications.map((application) => {
+								const applicant = application.applicantData;
+								const isPending = application.applicationStatus === KindergartenAdminApplicationStatus.PENDING;
+								const finalStateCopy = getFinalStateCopy(application.applicationStatus);
 
-										return (
-											<TableRow hover key={application._id}>
-												<TableCell sx={{ maxWidth: 220 }}>
-													<Stack spacing={0.25}>
-														<Typography sx={{ fontWeight: 700 }}>
-															{applicant?.memberNick
-																? `${applicant.memberNick}${applicant.memberFullName ? ` (${applicant.memberFullName})` : ''}`
-																: applicant?.memberFullName || 'Applicant reference'}
-														</Typography>
-														<Typography sx={{ fontSize: '13px', color: '#6b7280' }}>
-															{applicant?.memberPhone || 'No phone'}
-														</Typography>
-														<Typography sx={{ fontSize: '12px', color: '#6b7280' }}>
-															{[applicant?.memberType, applicant?.memberStatus].filter(Boolean).join(' · ') || '-'}
-														</Typography>
-														<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
-															{truncateId(application.applicantId)}
-														</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell sx={{ maxWidth: 260 }}>
-													<Stack spacing={0.25}>
-														<Typography sx={{ fontWeight: 700 }}>
-															{application.kindergartenTitle || 'Kindergarten draft'}
-														</Typography>
-														<Typography sx={{ fontSize: '13px', color: '#6b7280' }}>
-															{application.kindergartenAddress || '-'}
-														</Typography>
-														<Typography sx={{ fontSize: '12px', color: '#9ca3af' }}>
-															{application.kindergartenPhone || '-'}
-														</Typography>
-													</Stack>
-												</TableCell>
-												<TableCell sx={{ maxWidth: 220 }}>{application.businessInfo || '-'}</TableCell>
-												<TableCell sx={{ maxWidth: 220 }}>{application.message || '-'}</TableCell>
-												<TableCell>
-													<Chip
-														label={getStatusLabel(application.applicationStatus)}
+								return (
+									<Stack className="admin-review-card" key={application._id}>
+										<Stack className="admin-review-card-header">
+											<Stack spacing={0.4}>
+												<Typography className="admin-review-card-title">
+													{application.kindergartenTitle || 'Kindergarten draft'}
+												</Typography>
+												<Typography className="admin-review-card-meta">
+													Created {formatDate(application.createdAt)}
+												</Typography>
+											</Stack>
+											<Chip
+												label={getStatusLabel(application.applicationStatus)}
+												size="small"
+												sx={getStatusChipSx(application.applicationStatus)}
+											/>
+										</Stack>
+
+										<Stack className="admin-review-card-grid">
+											<Stack className="admin-review-info-box">
+												<Typography className="admin-review-label">Applicant</Typography>
+												<Typography className="admin-review-primary">{getApplicantName(application)}</Typography>
+												<Typography className="admin-review-muted">{applicant?.memberPhone || 'No phone provided'}</Typography>
+												<Typography className="admin-review-muted">
+													{[applicant?.memberType, applicant?.memberStatus].filter(Boolean).join(' · ') ||
+														'Account details unavailable'}
+												</Typography>
+											</Stack>
+
+											<Stack className="admin-review-info-box admin-review-wide">
+												<Typography className="admin-review-label">Kindergarten Draft</Typography>
+												<Typography className="admin-review-primary">
+													{application.kindergartenTitle || 'Untitled center'}
+												</Typography>
+												<Typography className="admin-review-muted">
+													{application.kindergartenAddress || 'No address provided'}
+												</Typography>
+												<Typography className="admin-review-muted">
+													{application.kindergartenPhone || 'No center phone provided'}
+												</Typography>
+											</Stack>
+
+											<Stack className="admin-review-info-box">
+												<Typography className="admin-review-label">Review</Typography>
+												<Typography className="admin-review-muted">
+													Reviewed: {formatDate(application.reviewedAt)}
+												</Typography>
+												<Typography className="admin-review-muted">
+													{application.rejectReason ? `Reason: ${application.rejectReason}` : 'No review note yet'}
+												</Typography>
+											</Stack>
+										</Stack>
+
+										<Stack className="admin-review-text-grid">
+											<Stack className="admin-review-text-panel">
+												<Typography className="admin-review-label">Business info</Typography>
+												<Typography className="admin-review-body">{application.businessInfo || 'No business info provided.'}</Typography>
+											</Stack>
+											<Stack className="admin-review-text-panel">
+												<Typography className="admin-review-label">Applicant message</Typography>
+												<Typography className="admin-review-body">{application.message || 'No message provided.'}</Typography>
+											</Stack>
+										</Stack>
+
+										<Stack className="admin-review-footer">
+											{isPending ? (
+												<>
+													<TextField
+														className="admin-review-reject-field"
 														size="small"
-														sx={getStatusChipSx(application.applicationStatus)}
+														placeholder="Reason required to reject"
+														value={rejectReasons[application._id] || ''}
+														onChange={(event) =>
+															setRejectReasons((prev) => ({
+																...prev,
+																[application._id]: event.target.value,
+															}))
+														}
 													/>
-												</TableCell>
-												<TableCell>{formatDate(application.createdAt)}</TableCell>
-												<TableCell sx={{ minWidth: 220 }}>
-													{isPending ? (
-														<TextField
-															fullWidth
-															size="small"
-															placeholder="Reason for rejection"
-															value={rejectReasons[application._id] || ''}
-															onChange={(event) =>
-																setRejectReasons((prev) => ({
-																	...prev,
-																	[application._id]: event.target.value,
-																}))
-															}
-														/>
-													) : (
-														<Stack spacing={0.25}>
-															<Typography sx={{ fontSize: '13px' }}>{application.rejectReason || '-'}</Typography>
-															<Typography sx={{ fontSize: '12px', color: '#9ca3af' }}>
-																{formatDate(application.reviewedAt)}
-															</Typography>
-														</Stack>
-													)}
-												</TableCell>
-												<TableCell align="right">
-													<Stack direction="row" spacing={1} justifyContent="flex-end">
-														<Button
-															variant="contained"
-															disabled={!isPending}
-															onClick={() => approveApplicationHandler(application._id)}
-														>
+													<Stack className="admin-review-actions">
+														<Button variant="contained" onClick={() => approveApplicationHandler(application._id)}>
 															Approve
 														</Button>
-														<Button
-															variant="outlined"
-															color="error"
-															disabled={!isPending}
-															onClick={() => rejectApplicationHandler(application._id)}
-														>
+														<Button variant="outlined" color="error" onClick={() => rejectApplicationHandler(application._id)}>
 															Reject
 														</Button>
 													</Stack>
-												</TableCell>
-											</TableRow>
-										);
-									})}
-								</TableBody>
-							</Table>
-						</TableContainer>
+												</>
+											) : (
+												<Stack className="admin-review-final-state">
+													<Typography>{finalStateCopy || 'This application is no longer pending.'}</Typography>
+												</Stack>
+											)}
+										</Stack>
+									</Stack>
+								);
+							})}
+						</div>
 						<TablePagination
 							rowsPerPageOptions={[10, 20, 40, 60]}
 							component="div"

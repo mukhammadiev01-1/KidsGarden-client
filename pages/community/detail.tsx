@@ -28,6 +28,16 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { getImageUrl } from '../../libs/config';
 const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
 
+const ARTICLE_IMAGE_FALLBACK = '/img/kidsgarden/articles/article-play-based-learning.png';
+
+const resolveArticleImage = (article?: BoardArticle): string => {
+	const rawImage = Array.isArray((article as any)?.articleImage)
+		? (article as any).articleImage[0]
+		: article?.articleImage;
+
+	return getImageUrl(rawImage, ARTICLE_IMAGE_FALLBACK);
+};
+
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
 		...(await serverSideTranslations(locale, ['common'])),
@@ -57,7 +67,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	const [searchFilter, setSearchFilter] = useState<CommentsInquiry>({
 		...initialInput,
 	});
-	const [memberImage, setMemberImage] = useState<string>('/img/community/articleImg.png');
+	const [memberImage, setMemberImage] = useState<string>(ARTICLE_IMAGE_FALLBACK);
 	const [anchorEl, setAnchorEl] = useState<any | null>(null);
 	const open = Boolean(anchorEl);
 	const id = open ? 'simple-popover' : undefined;
@@ -179,7 +189,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	};
 
 	const getCommentMemberImage = (imageUrl: string | undefined) => {
-		return getImageUrl(imageUrl, '/img/community/articleImg.png');
+		return getImageUrl(imageUrl, ARTICLE_IMAGE_FALLBACK);
 	};
 
 	const cancelButtonHandler = () => {
@@ -234,6 +244,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	};
 
 	const articleLiked = Boolean(boardArticle?.meLiked?.[0]?.myFavorite);
+	const articleCoverImage = resolveArticleImage(boardArticle);
 
 	return (
 			<div id="community-detail-page">
@@ -241,7 +252,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 					<Stack className="main-box">
 						<Stack className="left-config">
 							<Stack className={'image-info'}>
-								<img src={'/img/logo/logoText.svg'} />
+								<span className="community-detail-icon" aria-hidden="true">KG</span>
 								<Stack className={'community-name'}>
 									<Typography className={'name'}>Community Article</Typography>
 								</Stack>
@@ -343,6 +354,9 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 												</Stack>
 											</Stack>
 										</Stack>
+										<figure className="article-cover">
+											<img src={articleCoverImage} alt={boardArticle?.articleTitle || 'KidsGarden community article'} />
+										</figure>
 										<Stack>
 											<ToastViewerComponent markdown={boardArticle?.articleContent} className={'ytb_play'} />
 										</Stack>

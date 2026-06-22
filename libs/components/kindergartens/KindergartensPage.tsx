@@ -1,23 +1,22 @@
 import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Box, Button, Menu, MenuItem, Pagination, Stack, Typography } from '@mui/material';
-import KindergartenCard from '../property/KindergartenCard';
+import KindergartenCard, { formatDistanceAway } from '../property/KindergartenCard';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import withLayoutBasic from '../layout/LayoutBasic';
 import Filter from '../property/Filter';
 import { useRouter } from 'next/router';
-import { KindergartensInquiry } from '../../types/kindergarten/kindergarten.input';
+import { KindergartensInquiry, NearbyKindergartensInput } from '../../types/kindergarten/kindergarten.input';
 import { Kindergarten } from '../../types/kindergarten/kindergarten';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import { Direction } from '../../enums/common.enum';
-import { useMutation, useQuery } from '@apollo/client';
-import { GET_KINDERGARTENS } from '../../../apollo/user/query';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { GET_KINDERGARTENS, GET_NEARBY_KINDERGARTENS } from '../../../apollo/user/query';
 import { LIKE_TARGET_KINDERGARTEN } from '../../../apollo/user/mutation';
 import { sweetErrorHandling, sweetLoginConfirmAlert } from '../../sweetAlert';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import Link from 'next/link';
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
@@ -28,12 +27,20 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import MyLocationRoundedIcon from '@mui/icons-material/MyLocationRounded';
+import NearMeRoundedIcon from '@mui/icons-material/NearMeRounded';
 import { getImageUrl } from '../../config';
 import { formatMonthlyFee, getKindergartenTypeLabel } from '../../utils';
-import KakaoKindergartenListMap from '../maps/KakaoKindergartenListMap';
+import NaverKindergartenListMap from '../maps/NaverKindergartenListMap';
 
 type ListingView = 'grid' | 'list';
 type MapPresetKey = 'all' | 'trending' | 'popular' | 'topRank';
+type NearbyStatus = 'idle' | 'locating' | 'loading' | 'active' | 'error';
+
+interface NearbyLocation {
+	latitude: number;
+	longitude: number;
+}
 
 interface MapPreset {
 	key: MapPresetKey;
@@ -46,7 +53,15 @@ const mapPresetTabs: MapPreset[] = [
 	{ key: 'all', label: 'All', sort: 'createdAt', direction: Direction.DESC },
 	{ key: 'trending', label: 'Trending', sort: 'kindergartenViews', direction: Direction.DESC },
 	{ key: 'popular', label: 'Popular', sort: 'kindergartenLikes', direction: Direction.DESC },
-	{ key: 'topRank', label: 'Top Rank', sort: 'kindergartenRank', direction: Direction.DESC },
+	{ key: 'topRank', label: 'Top Rated', sort: 'kindergartenRank', direction: Direction.DESC },
+];
+
+const nearbyRadiusOptions = [
+	{ label: '1 km', value: 1000 },
+	{ label: '3 km', value: 3000 },
+	{ label: '5 km', value: 5000 },
+	{ label: '10 km', value: 10000 },
+	{ label: '30 km', value: 30000 },
 ];
 
 const getActivePresetKey = (filter: KindergartensInquiry): MapPresetKey | null => {
@@ -83,6 +98,11 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	const [sortingOpen, setSortingOpen] = useState(false);
 	const [filterSortName, setFilterSortName] = useState('New');
 	const [listingView, setListingView] = useState<ListingView>('grid');
+	const [nearbyMode, setNearbyMode] = useState(false);
+	const [nearbyStatus, setNearbyStatus] = useState<NearbyStatus>('idle');
+	const [nearbyError, setNearbyError] = useState('');
+	const [nearbyLocation, setNearbyLocation] = useState<NearbyLocation | null>(null);
+	const [nearbyRadiusMeters, setNearbyRadiusMeters] = useState(5000);
 	const listingBasePath = router.pathname.startsWith('/kindergartens') ? '/kindergartens' : '/property';
 
 	const getListingHref = (input: KindergartensInquiry) => `${listingBasePath}?input=${JSON.stringify(input)}`;
@@ -92,15 +112,32 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 
 	const {
 		loading: getKindergartensLoading,
-		data: getKindergartensData,
 		refetch: getKindergartensRefetch,
 	} = useQuery(GET_KINDERGARTENS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: any) => {
+			if (nearbyMode) return;
 			setKindergartens(data?.getKindergartens?.list || []);
 			setTotal(data?.getKindergartens?.metaCounter?.[0]?.total || 0);
+		},
+	});
+
+	const [loadNearbyKindergartens, { loading: nearbyQueryLoading }] = useLazyQuery(GET_NEARBY_KINDERGARTENS, {
+		fetchPolicy: 'network-only',
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: any) => {
+			setKindergartens(data?.getNearbyKindergartens?.list || []);
+			setTotal(data?.getNearbyKindergartens?.metaCounter?.[0]?.total || 0);
+			setNearbyMode(true);
+			setNearbyStatus('active');
+			setNearbyError('');
+			setCurrentPage(1);
+		},
+		onError: () => {
+			setNearbyStatus('error');
+			setNearbyError('Could not load nearby kindergartens.');
 		},
 	});
 
@@ -123,7 +160,91 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	}, [searchFilter.sort, searchFilter.direction]);
 
 	/** HANDLERS **/
+	const resetNearbyState = () => {
+		setNearbyMode(false);
+		setNearbyStatus('idle');
+		setNearbyError('');
+		setNearbyLocation(null);
+	};
+
+	const fetchNearbyKindergartens = async (location: NearbyLocation, radiusMeters: number) => {
+		const input: NearbyKindergartensInput = {
+			latitude: location.latitude,
+			longitude: location.longitude,
+			radiusMeters,
+		};
+
+		setNearbyStatus('loading');
+		await loadNearbyKindergartens({ variables: { input } });
+	};
+
+	const getGeolocationErrorMessage = (error?: GeolocationPositionError): string => {
+		if (!error) return 'Could not detect your location.';
+		if (error.code === error.PERMISSION_DENIED) return 'Location permission was denied.';
+		if (error.code === error.POSITION_UNAVAILABLE || error.code === error.TIMEOUT) {
+			return 'Could not detect your location.';
+		}
+
+		return 'Could not detect your location.';
+	};
+
+	const nearbySearchHandler = () => {
+		if (typeof window === 'undefined') return;
+
+		if (!navigator.geolocation) {
+			setNearbyMode(false);
+			setNearbyStatus('error');
+			setNearbyError('Geolocation is not supported by this browser.');
+			return;
+		}
+
+		setNearbyStatus('locating');
+		setNearbyError('');
+
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				const location = {
+					latitude: position.coords.latitude,
+					longitude: position.coords.longitude,
+				};
+
+				setNearbyLocation(location);
+				setNearbyMode(true);
+				fetchNearbyKindergartens(location, nearbyRadiusMeters).catch(() => {
+					setNearbyStatus('error');
+					setNearbyError('Could not load nearby kindergartens.');
+				});
+			},
+			(error) => {
+				setNearbyMode(false);
+				setNearbyStatus('error');
+				setNearbyError(getGeolocationErrorMessage(error));
+			},
+			{ enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
+		);
+	};
+
+	const nearbyRadiusChangeHandler = (event: ChangeEvent<HTMLSelectElement>) => {
+		const nextRadius = Number(event.target.value);
+		setNearbyRadiusMeters(nextRadius);
+
+		if (!nearbyMode || !nearbyLocation) return;
+
+		fetchNearbyKindergartens(nearbyLocation, nextRadius).catch(() => {
+			setNearbyStatus('error');
+			setNearbyError('Could not load nearby kindergartens.');
+		});
+	};
+
+	const clearNearbyModeHandler = async () => {
+		resetNearbyState();
+		const result = await getKindergartensRefetch({ input: searchFilter });
+		setKindergartens(result?.data?.getKindergartens?.list || []);
+		setTotal(result?.data?.getKindergartens?.metaCounter?.[0]?.total || 0);
+	};
+
 	const handlePaginationChange = async (event: ChangeEvent<unknown>, value: number) => {
+		resetNearbyState();
 		const nextFilter = { ...searchFilter, page: value };
 		const href = getListingHref(nextFilter);
 		setSearchFilter(nextFilter);
@@ -142,6 +263,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const sortingHandler = async (e: React.MouseEvent<HTMLLIElement>) => {
+		resetNearbyState();
 		let nextFilter = searchFilter;
 
 		switch (e.currentTarget.id) {
@@ -169,6 +291,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const mapPresetClickHandler = async (preset: MapPreset) => {
+		resetNearbyState();
 		const nextFilter = {
 			...searchFilter,
 			page: 1,
@@ -182,31 +305,13 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		await router.push(href, href, { scroll: false });
 	};
 
-	const searchButtonHandler = async () => {
-		const nextFilter = { ...searchFilter, page: 1 };
-		const href = getListingHref(nextFilter);
-		setSearchFilter(nextFilter);
-		await router.push(href, href, { scroll: false });
-	};
-
-	const selectedLocation = searchFilter?.search?.locationList?.[0] || 'All locations';
-	const selectedType = searchFilter?.search?.typeList?.[0]
-		? getKindergartenTypeLabel(searchFilter.search.typeList[0])
-		: 'All types';
-	const selectedAge = searchFilter?.search?.ageRangeList?.[0]
-		? `${searchFilter.search.ageRangeList[0]} years`
-		: 'All ages';
-	const selectedPrograms = searchFilter?.search?.programsList?.[0]
-		? `${searchFilter.search.programsList[0]}+ programs`
-		: 'All programs';
-	const activeMonthlyFeeRange = searchFilter?.search?.monthlyFeeRange ?? searchFilter?.search?.pricesRange;
-	const selectedFee =
-		activeMonthlyFeeRange?.end && activeMonthlyFeeRange.end < 2000000
-			? `Up to ${formatMonthlyFee(activeMonthlyFeeRange.end)}`
-			: 'Any fee';
-
 	const topKindergartens = kindergartens.slice(0, 4);
 	const activePresetKey = getActivePresetKey(searchFilter);
+	const nearbyLoading = nearbyStatus === 'locating' || nearbyStatus === 'loading' || nearbyQueryLoading;
+	const nearbyRadiusLabel = nearbyRadiusOptions.find((option) => option.value === nearbyRadiusMeters)?.label || '5 km';
+	const listingCountLabel = nearbyMode
+		? `${total || kindergartens.length} nearby kindergarten${(total || kindergartens.length) === 1 ? '' : 's'} found within ${nearbyRadiusLabel}`
+		: `${total || kindergartens.length} kindergartens found in this area`;
 
 	const likeKindergartenHandler = async (user: any, id: string) => {
 		try {
@@ -217,7 +322,11 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 				return;
 			}
 			await likeTargetKindergarten({ variables: { input: id } });
-			await getKindergartensRefetch({ input: searchFilter });
+			if (nearbyMode && nearbyLocation) {
+				await fetchNearbyKindergartens(nearbyLocation, nearbyRadiusMeters);
+			} else {
+				await getKindergartensRefetch({ input: searchFilter });
+			}
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -229,6 +338,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		const description = kindergarten?.kindergartenDesc?.trim();
 		const kindergartenTypeLabel = getKindergartenTypeLabel(kindergarten?.kindergartenType);
 		const isLiked = Boolean(kindergarten?.meLiked?.[0]?.myFavorite);
+		const distanceLabel = formatDistanceAway(kindergarten?.distanceMeters);
 		const detailHref = {
 			pathname: '/kindergartens/detail',
 			query: { id: kindergarten?._id },
@@ -262,6 +372,12 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 						<LocationOnOutlinedIcon />
 						{location}
 					</Typography>
+					{distanceLabel && (
+						<span className="kg-list-distance">
+							<NearMeRoundedIcon />
+							{distanceLabel}
+						</span>
+					)}
 					{description && <Typography className="kg-list-description">{description}</Typography>}
 					<Stack className="kg-list-meta">
 						{kindergartenTypeLabel && <span>{kindergartenTypeLabel}</span>}
@@ -318,22 +434,40 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 			</Stack>
 
 			<div className="container kg-kindergarten-container">
-				<Stack className="kg-search-panel">
-					{[
-						['Location', selectedLocation],
-						['Center Type', selectedType],
-						['Age Range', selectedAge],
-						['Programs', selectedPrograms],
-						['Monthly Fee', selectedFee],
-					].map(([label, value]) => (
-						<Box component="div" className="kg-search-field" key={label}>
-							<span>{label}</span>
-							<strong>{value}</strong>
-						</Box>
-					))}
-					<Button className="kg-search-button" onClick={searchButtonHandler} endIcon={<SearchRoundedIcon />}>
-						Search
-					</Button>
+				<Stack className={`kg-nearby-panel ${nearbyMode ? 'active' : ''}`}>
+					<Stack className="kg-nearby-copy">
+						<span>
+							<MyLocationRoundedIcon /> Nearby search
+						</span>
+						<strong>Find kindergartens close to your current location.</strong>
+						<p>Your precise location is used only for this search and is not saved.</p>
+					</Stack>
+					<Stack className="kg-nearby-actions">
+						<label>
+							Radius
+							<select value={nearbyRadiusMeters} onChange={nearbyRadiusChangeHandler} disabled={nearbyLoading}>
+								{nearbyRadiusOptions.map((option) => (
+									<option value={option.value} key={option.value}>
+										{option.label}
+									</option>
+								))}
+							</select>
+						</label>
+						<Button
+							className="kg-nearby-button"
+							onClick={nearbySearchHandler}
+							disabled={nearbyLoading}
+							startIcon={<NearMeRoundedIcon />}
+						>
+							{nearbyLoading ? 'Finding nearby...' : 'Find kindergartens near me'}
+						</Button>
+						{nearbyMode && (
+							<Button className="kg-nearby-reset" onClick={clearNearbyModeHandler} disabled={nearbyLoading}>
+								Show all kindergartens
+							</Button>
+						)}
+					</Stack>
+					{nearbyError && <div className="kg-nearby-error">{nearbyError}</div>}
 				</Stack>
 
 				<Stack className="kg-map-preview kg-map-preview-live">
@@ -351,9 +485,9 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 						))}
 					</Stack>
 					<Box component="div" className="kg-map-count">
-						{total || kindergartens.length} kindergartens found in this area
+						{listingCountLabel}
 					</Box>
-					<KakaoKindergartenListMap kindergartens={kindergartens} />
+					<NaverKindergartenListMap kindergartens={kindergartens} userLocation={nearbyMode ? nearbyLocation : null} />
 				</Stack>
 
 				<Stack className={'kindergartens-page kg-listing-area'}>
@@ -419,8 +553,10 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 							) : kindergartens?.length === 0 ? (
 								<div className={'no-data'}>
 									<img src="/img/icons/icoAlert.svg" alt="" />
-									<p>No kindergartens found yet.</p>
-									<span>Try adjusting your filters or check back soon.</span>
+									<p>{nearbyMode ? 'No kindergartens found within this radius.' : 'No kindergartens found yet.'}</p>
+									<span>
+										{nearbyMode ? 'Try a larger radius or show all kindergartens.' : 'Try adjusting your filters or check back soon.'}
+									</span>
 								</div>
 							) : (
 								kindergartens.map((kindergarten: Kindergarten) => {
@@ -437,7 +573,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 							)}
 						</Stack>
 						<Stack className="pagination-config">
-							{kindergartens.length !== 0 && (
+							{kindergartens.length !== 0 && !nearbyMode && (
 								<Stack className="pagination-box">
 									<Pagination
 										page={currentPage}
@@ -452,7 +588,9 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 							{kindergartens.length !== 0 && (
 								<Stack className="total-result">
 									<Typography>
-										{total} kindergarten{total > 1 ? 's' : ''} found
+										{nearbyMode
+											? listingCountLabel
+											: `${total} kindergarten${total > 1 ? 's' : ''} found`}
 									</Typography>
 								</Stack>
 							)}
@@ -503,12 +641,12 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 
 				#kindergartens-list-page .kg-kindergarten-hero-inner,
 				#kindergartens-list-page .container.kg-kindergarten-container,
-				#kindergartens-list-page .kg-search-panel,
+				#kindergartens-list-page .kg-nearby-panel,
 				#kindergartens-list-page .kg-map-preview,
 				#kindergartens-list-page .kg-listing-area.kindergartens-page,
 				#kindergartens-list-page .kg-top-kindergartens {
-					width: min(1200px, calc(100vw - 24px)) !important;
-					max-width: calc(100vw - 24px) !important;
+					width: min(1280px, calc(100vw - 32px)) !important;
+					max-width: calc(100vw - 32px) !important;
 					min-width: 0 !important;
 					box-sizing: border-box;
 				}
@@ -529,16 +667,132 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					overflow-wrap: anywhere !important;
 				}
 
-				#kindergartens-list-page .kg-search-panel {
+				#kindergartens-list-page .kg-nearby-panel {
+					margin: 0 auto 22px;
+					padding: 18px 20px;
 					display: grid !important;
-					grid-template-columns: repeat(auto-fit, minmax(min(158px, 100%), 1fr)) !important;
-					gap: 12px !important;
+					grid-template-columns: minmax(0, 1fr) auto;
+					align-items: center;
+					gap: 18px;
+					border: 1px solid #dfead6;
+					border-radius: 22px;
+					background: linear-gradient(135deg, #fbfff6 0%, #fffaf0 100%);
+					box-shadow: 0 14px 34px rgba(42, 105, 60, 0.08);
 				}
 
-				#kindergartens-list-page .kg-search-panel .kg-search-button,
-				#kindergartens-list-page .kg-search-panel .kg-search-field {
-					width: 100% !important;
-					min-width: 0 !important;
+				#kindergartens-list-page .kg-nearby-panel.active {
+					border-color: #b9dca9;
+					box-shadow: 0 18px 40px rgba(42, 105, 60, 0.12);
+				}
+
+				#kindergartens-list-page .kg-nearby-copy {
+					min-width: 0;
+					gap: 5px;
+				}
+
+				#kindergartens-list-page .kg-nearby-copy span {
+					display: inline-flex;
+					align-items: center;
+					gap: 7px;
+					color: #2f7d4a;
+					font-size: 12px;
+					font-weight: 950;
+					text-transform: uppercase;
+					letter-spacing: 0.04em;
+				}
+
+				#kindergartens-list-page .kg-nearby-copy span svg {
+					width: 18px;
+					height: 18px;
+				}
+
+				#kindergartens-list-page .kg-nearby-copy strong {
+					color: #24362a;
+					font-size: 18px;
+					font-weight: 950;
+					line-height: 24px;
+				}
+
+				#kindergartens-list-page .kg-nearby-copy p {
+					margin: 0;
+					color: #66746a;
+					font-size: 13px;
+					font-weight: 700;
+					line-height: 20px;
+				}
+
+				#kindergartens-list-page .kg-nearby-actions {
+					flex-direction: row;
+					flex-wrap: wrap;
+					align-items: flex-end;
+					justify-content: flex-end;
+					gap: 10px;
+				}
+
+				#kindergartens-list-page .kg-nearby-actions label {
+					display: flex;
+					flex-direction: column;
+					gap: 6px;
+					color: #526252;
+					font-size: 12px;
+					font-weight: 900;
+				}
+
+				#kindergartens-list-page .kg-nearby-actions select {
+					height: 42px;
+					min-width: 108px;
+					padding: 0 36px 0 13px;
+					border: 1px solid #d8e5cf;
+					border-radius: 14px;
+					background: #fff;
+					color: #26382b;
+					font-size: 14px;
+					font-weight: 900;
+					outline: none;
+				}
+
+				#kindergartens-list-page .kg-nearby-actions select:focus-visible,
+				#kindergartens-list-page .kg-nearby-actions button:focus-visible {
+					outline: 3px solid rgba(47, 125, 74, 0.24);
+					outline-offset: 2px;
+				}
+
+				#kindergartens-list-page .kg-nearby-button {
+					height: 42px;
+					padding: 0 17px;
+					border-radius: 14px;
+					background: #23823f;
+					color: #fff;
+					font-size: 13px;
+					font-weight: 950;
+					text-transform: none;
+					box-shadow: 0 10px 20px rgba(35, 130, 63, 0.18);
+				}
+
+				#kindergartens-list-page .kg-nearby-button:hover {
+					background: #1b6e34;
+				}
+
+				#kindergartens-list-page .kg-nearby-reset {
+					height: 42px;
+					padding: 0 15px;
+					border: 1px solid #d8e5cf;
+					border-radius: 14px;
+					background: #fff;
+					color: #2f7d4a;
+					font-size: 13px;
+					font-weight: 950;
+					text-transform: none;
+				}
+
+				#kindergartens-list-page .kg-nearby-error {
+					grid-column: 1 / -1;
+					padding: 10px 12px;
+					border-radius: 14px;
+					background: #fff4ed;
+					color: #a24f1d;
+					font-size: 13px;
+					font-weight: 900;
 				}
 
 				#kindergartens-list-page .kg-map-tabs button,
@@ -550,11 +804,12 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 				}
 
 				#kindergartens-list-page .kg-map-tabs button {
-					padding: 9px 15px;
+					padding: 8px 14px;
 					border-radius: 999px;
-					background: transparent;
+					background: rgba(255, 255, 255, 0.86);
 					color: #26382b;
 					font-weight: 900;
+					box-shadow: 0 8px 18px rgba(32, 79, 43, 0.08);
 				}
 
 				#kindergartens-list-page .kg-map-tabs button.active {
@@ -566,17 +821,18 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					display: flex !important;
 					flex-wrap: wrap !important;
 					align-items: flex-start !important;
+					gap: 18px !important;
 				}
 
 				#kindergartens-list-page .kg-listing-area.kindergartens-page .filter-config {
-					flex: 0 0 260px !important;
-					width: 260px !important;
+					flex: 0 0 230px !important;
+					width: 230px !important;
 					max-width: 100% !important;
 					min-width: 0 !important;
 				}
 
 				#kindergartens-list-page .kg-listing-area.kindergartens-page .main-config {
-					flex: 1 1 620px !important;
+					flex: 1 1 0 !important;
 					width: auto !important;
 					max-width: 100% !important;
 					min-width: 0 !important;
@@ -600,8 +856,9 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 
 				#kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-grid-view {
 					display: grid !important;
-					grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 320px)) !important;
-					justify-content: start !important;
+					grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+					gap: 18px !important;
+					justify-content: stretch !important;
 				}
 
 				#kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-list-view {
@@ -612,8 +869,42 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 
 				#kindergartens-list-page .kg-listing-area.kindergartens-page .kg-grid-view .card-config {
 					width: 100% !important;
-					max-width: 320px !important;
+					max-width: none !important;
 					min-width: 0 !important;
+				}
+
+				#pc-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page,
+				#mobile-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page {
+					display: flex !important;
+					flex-wrap: wrap !important;
+					gap: 18px !important;
+				}
+
+				#pc-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .filter-config,
+				#mobile-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .filter-config {
+					flex: 0 0 230px !important;
+					width: 230px !important;
+					max-width: 230px !important;
+				}
+
+				#pc-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .main-config,
+				#mobile-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .main-config {
+					flex: 1 1 0 !important;
+					width: auto !important;
+					min-width: 0 !important;
+				}
+
+				#pc-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-grid-view,
+				#mobile-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-grid-view {
+					display: grid !important;
+					grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+					gap: 18px !important;
+				}
+
+				#pc-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .kg-grid-view .card-config,
+				#mobile-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .kg-grid-view .card-config {
+					width: 100% !important;
+					max-width: none !important;
 				}
 
 				#kindergartens-list-page .kg-list-card {
@@ -645,6 +936,32 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					height: 100%;
 					display: block;
 					object-fit: cover;
+				}
+
+				#kindergartens-list-page .kg-distance-badge {
+					position: absolute;
+					left: 12px;
+					bottom: 12px;
+					display: inline-flex;
+					align-items: center;
+					gap: 5px;
+					padding: 7px 10px;
+					border-radius: 999px;
+					background: rgba(255, 255, 255, 0.94);
+					color: #2f7d4a;
+					box-shadow: 0 8px 18px rgba(32, 79, 43, 0.14);
+				}
+
+				#kindergartens-list-page .kg-distance-badge svg {
+					width: 16px;
+					height: 16px;
+				}
+
+				#kindergartens-list-page .kg-distance-badge p {
+					margin: 0;
+					font-size: 12px;
+					font-weight: 950;
+					line-height: 1;
 				}
 
 				#kindergartens-list-page .kg-list-card-main {
@@ -709,6 +1026,24 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					width: 17px;
 					height: 17px;
 					color: #2f7d4a;
+				}
+
+				#kindergartens-list-page .kg-list-distance {
+					width: fit-content;
+					display: inline-flex;
+					align-items: center;
+					gap: 5px;
+					padding: 7px 10px;
+					border-radius: 999px;
+					background: #edf8e7;
+					color: #2f7d4a;
+					font-size: 12px;
+					font-weight: 950;
+				}
+
+				#kindergartens-list-page .kg-list-distance svg {
+					width: 15px;
+					height: 15px;
 				}
 
 				#kindergartens-list-page .kg-list-description {
@@ -800,7 +1135,60 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)) !important;
 				}
 
+				#kindergartens-list-page .kg-list-map-user-marker {
+					width: 36px;
+					height: 36px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					border: 2px solid #fff;
+					border-radius: 999px;
+					background: #23823f;
+					color: #fff;
+					font-size: 11px;
+					font-weight: 950;
+					box-shadow: 0 8px 18px rgba(32, 79, 43, 0.22);
+				}
+
+				@media (max-width: 1180px) {
+					#kindergartens-list-page .kg-listing-area.kindergartens-page {
+						flex-direction: column !important;
+					}
+
+					#kindergartens-list-page .kg-listing-area.kindergartens-page .filter-config,
+					#kindergartens-list-page .kg-listing-area.kindergartens-page .main-config {
+						width: 100% !important;
+						flex: 0 0 auto !important;
+					}
+
+					#kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-grid-view {
+						grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+					}
+
+					#pc-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .filter-config,
+					#mobile-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .filter-config,
+					#pc-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .main-config,
+					#mobile-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .main-config {
+						width: 100% !important;
+						max-width: 100% !important;
+						flex: 0 0 auto !important;
+					}
+
+					#pc-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-grid-view,
+					#mobile-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-grid-view {
+						grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+					}
+				}
+
 				@media (max-width: 900px) {
+					#kindergartens-list-page .kg-nearby-panel {
+						grid-template-columns: 1fr;
+					}
+
+					#kindergartens-list-page .kg-nearby-actions {
+						justify-content: flex-start;
+					}
+
 					#kindergartens-list-page .kg-list-card {
 						grid-template-columns: 1fr;
 					}
@@ -808,6 +1196,27 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					#kindergartens-list-page .kg-list-card-side {
 						align-items: flex-start;
 						text-align: left;
+					}
+				}
+
+				@media (max-width: 700px) {
+					#kindergartens-list-page .kg-kindergarten-hero-inner,
+					#kindergartens-list-page .container.kg-kindergarten-container,
+					#kindergartens-list-page .kg-nearby-panel,
+					#kindergartens-list-page .kg-map-preview,
+					#kindergartens-list-page .kg-listing-area.kindergartens-page,
+					#kindergartens-list-page .kg-top-kindergartens {
+						width: calc(100vw - 24px) !important;
+						max-width: calc(100vw - 24px) !important;
+					}
+
+					#kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-grid-view {
+						grid-template-columns: 1fr !important;
+					}
+
+					#pc-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-grid-view,
+					#mobile-wrap #kindergartens-list-page .kg-listing-area.kindergartens-page .list-config.kg-grid-view {
+						grid-template-columns: 1fr !important;
 					}
 				}
 			`}</style>

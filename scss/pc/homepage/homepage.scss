@@ -1113,8 +1113,25 @@
 /* Final desktop guard for dynamic homepage showcase and roadmap cards. */
 @media (min-width: 1025px) {
 	body #pc-wrap .home-page {
+		.popular-kindergartens .card-box,
+		.events.communication-roadmap .card-wrapper,
+		.video-frame.kg-store-section .store-product-grid,
+		.community-board .community-main {
+			width: 100% !important;
+			max-width: 100% !important;
+			min-width: 0 !important;
+			box-sizing: border-box !important;
+		}
+
+		.popular-kindergartens .card-box {
+			display: block !important;
+			margin-top: 0 !important;
+		}
+
 		.popular-kindergarten-grid {
 			display: grid !important;
+			width: 100% !important;
+			max-width: 100% !important;
 			grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 			gap: 24px !important;
 			align-items: stretch !important;
@@ -1373,7 +1390,105 @@
 		}
 
 		.community-board .community-main {
+			display: grid !important;
+			grid-template-columns: minmax(0, 1fr) minmax(340px, 0.74fr) !important;
+			gap: 22px !important;
 			margin-top: 0 !important;
+		}
+
+		.community-board .community-left,
+		.community-board .community-right,
+		.community-board .card-wrap,
+		.community-board .vertical-card,
+		.community-board .horizontal-card {
+			min-width: 0 !important;
+			box-sizing: border-box !important;
+		}
+
+		.community-board .community-left .card-wrap {
+			display: grid !important;
+			grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+			gap: 14px !important;
+		}
+
+		.community-board .community-right .card-wrap.vertical {
+			display: flex !important;
+			flex-direction: column !important;
+			gap: 14px !important;
+		}
+
+		.community-board .vertical-card {
+			width: 100% !important;
+			margin: 0 !important;
+			padding: 0 !important;
+			overflow: hidden !important;
+			border-radius: 18px !important;
+		}
+
+		.community-board .vertical-card .community-img {
+			width: 100% !important;
+			height: 152px !important;
+			border-radius: 18px !important;
+			background-position: center !important;
+			background-size: cover !important;
+			background-repeat: no-repeat !important;
+		}
+
+		.community-board .vertical-card .community-img div {
+			background: rgba(15, 139, 61, 0.92) !important;
+			color: #ffffff !important;
+			font-size: 14px !important;
+			font-weight: 900 !important;
+			letter-spacing: 0 !important;
+		}
+
+		.community-board .vertical-card strong,
+		.community-board .horizontal-card strong {
+			display: -webkit-box !important;
+			overflow: hidden !important;
+			-webkit-box-orient: vertical !important;
+			-webkit-line-clamp: 2 !important;
+			letter-spacing: 0 !important;
+			text-overflow: ellipsis !important;
+			overflow-wrap: anywhere !important;
+		}
+
+		.community-board .vertical-card strong {
+			margin-top: 12px !important;
+			color: #20342a !important;
+			font-size: 17px !important;
+			font-weight: 900 !important;
+			line-height: 23px !important;
+		}
+
+		.community-board .vertical-card span {
+			margin-top: 6px !important;
+			color: #647168 !important;
+			font-size: 13px !important;
+			font-weight: 800 !important;
+			line-height: 18px !important;
+			letter-spacing: 0 !important;
+		}
+
+		.community-board .horizontal-card {
+			width: 100% !important;
+			display: grid !important;
+			grid-template-columns: 126px minmax(0, 1fr) !important;
+			align-items: center !important;
+			gap: 14px !important;
+			margin: 0 !important;
+		}
+
+		.community-board .horizontal-card img {
+			width: 126px !important;
+			height: 92px !important;
+			object-fit: cover !important;
+			border-radius: 16px !important;
+		}
+
+		.community-board .horizontal-card div {
+			min-width: 0 !important;
+			margin-left: 0 !important;
 		}
 
 		.final-cta-section {
@@ -3198,7 +3313,7 @@ body #pc-wrap {
 			border-radius: 18px;
 			background:
 				linear-gradient(105deg, rgba(240, 250, 232, 0.94), rgba(255, 248, 234, 0.84)),
-				url('/img/homepage/kidsgarden-hero-classroom.png');
+				url('/img/kidsgarden/kindergartens/kg-01-classroom.png');
 			background-size: cover;
 			background-position: center 58%;
 			box-shadow: 0 18px 46px rgba(31, 81, 50, 0.08);
@@ -3270,7 +3385,7 @@ body #pc-wrap {
 		background:
 			linear-gradient(90deg, rgba(255, 250, 242, 0.98) 0%, rgba(255, 250, 242, 0.86) 34%, rgba(255, 250, 242, 0.42) 55%, rgba(255, 250, 242, 0.08) 78%),
 			linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 221, 153, 0.14)),
-			url('/img/homepage/kidsgarden-hero-classroom.png');
+			url('/img/kidsgarden/kindergartens/kg-01-classroom.png');
 		background-size: cover;
 		background-position: center right;
 
@@ -4182,7 +4297,7 @@ body #pc-wrap {
 		min-height: 790px;
 		background:
 			linear-gradient(115deg, rgba(255, 250, 242, 0.9) 0%, rgba(244, 251, 239, 0.68) 48%, rgba(36, 51, 45, 0.18) 100%),
-			url('/img/homepage/kidsgarden-hero-classroom.png');
+			url('/img/kidsgarden/kindergartens/kg-01-classroom.png');
 		background-size: cover;
 		background-position: center;
 
@@ -4297,7 +4412,7 @@ body #pc-wrap {
 				border-radius: 30px;
 				background:
 					linear-gradient(110deg, rgba(255, 250, 242, 0.96), rgba(255, 250, 242, 0.78)),
-					url('/img/events/BUSAN.webp');
+					url('/img/kidsgarden/articles/article-family-school-partnership.png');
 				background-size: cover;
 				background-position: center;
 				box-shadow: 0 22px 58px rgba(72, 101, 79, 0.14);
@@ -4645,7 +4760,7 @@ body #pc-wrap .home-page {
 		border-radius: 18px;
 		background:
 			linear-gradient(105deg, rgba(240, 250, 232, 0.94), rgba(255, 248, 234, 0.84)),
-			url('/img/homepage/kidsgarden-hero-classroom.png');
+			url('/img/kidsgarden/kindergartens/kg-01-classroom.png');
 		background-size: cover;
 		background-position: center 58%;
 		box-shadow: 0 18px 46px rgba(31, 81, 50, 0.08);
@@ -4855,7 +4970,7 @@ body #pc-wrap .home-page {
 				border-radius: 30px;
 				background:
 					linear-gradient(110deg, rgba(255, 250, 242, 0.96), rgba(255, 250, 242, 0.78)),
-					url('/img/events/BUSAN.webp');
+					url('/img/kidsgarden/articles/article-family-school-partnership.png');
 				background-size: cover;
 				background-position: center;
 				box-shadow: 0 22px 58px rgba(72, 101, 79, 0.14);
@@ -5467,7 +5582,7 @@ body #pc-wrap .home-page {
 		min-height: 790px;
 		background:
 			linear-gradient(115deg, rgba(255, 250, 242, 0.9) 0%, rgba(244, 251, 239, 0.68) 48%, rgba(36, 51, 45, 0.18) 100%),
-			url('/img/homepage/kidsgarden-hero-classroom.png');
+			url('/img/kidsgarden/kindergartens/kg-01-classroom.png');
 		background-size: cover;
 		background-position: center;
 
@@ -5561,7 +5676,7 @@ body #pc-wrap .home-page {
 				border-radius: 30px;
 				background:
 					linear-gradient(110deg, rgba(255, 250, 242, 0.96), rgba(255, 250, 242, 0.78)),
-					url('/img/events/BUSAN.webp');
+					url('/img/kidsgarden/articles/article-family-school-partnership.png');
 				background-size: cover;
 				background-position: center;
 				box-shadow: 0 22px 58px rgba(72, 101, 79, 0.14);
@@ -5826,6 +5941,14 @@ body #pc-wrap {
 			text-align: center !important;
 		}
 
+		.platform-roles-section {
+			gap: 18px !important;
+		}
+
+		.platform-roles-section .platform-section-heading {
+			margin-bottom: 0 !important;
+		}
+
 		.platform-role-grid,
 		.feature-grid-list,
 		.privacy-list,
@@ -5845,6 +5968,67 @@ body #pc-wrap {
 		.popular-card-box {
 			height: 100% !important;
 			border-radius: 20px !important;
+		}
+
+		.platform-role-card {
+			height: auto !important;
+			min-height: 0 !important;
+			padding: 16px !important;
+			gap: 13px !important;
+			border-radius: 18px !important;
+			box-shadow: 0 14px 34px rgba(31, 81, 50, 0.08) !important;
+		}
+
+		.platform-role-card .role-card-top {
+			display: grid !important;
+			grid-template-columns: 44px minmax(0, 1fr) !important;
+			gap: 12px !important;
+			align-items: center !important;
+			min-width: 0 !important;
+			margin-top: 0 !important;
+			padding-top: 0 !important;
+		}
+
+		.platform-role-card .role-card-top > div {
+			display: block !important;
+			min-width: 0 !important;
+			margin-top: 0 !important;
+			padding-top: 0 !important;
+		}
+
+		.platform-role-card .role-icon {
+			width: 44px !important;
+			height: 44px !important;
+		}
+
+		.platform-role-card .role-icon svg {
+			width: 24px !important;
+			height: 24px !important;
+		}
+
+		.platform-role-card h3 {
+			margin: 0 0 3px !important;
+			font-size: 18px !important;
+			line-height: 22px !important;
+		}
+
+		.platform-role-card p {
+			font-size: 12px !important;
+			line-height: 17px !important;
+		}
+
+		.platform-role-card .role-image {
+			display: block !important;
+			flex: 0 0 auto !important;
+			width: 100% !important;
+			height: auto !important;
+			aspect-ratio: 2.15 / 1 !important;
+			min-height: 0 !important;
+			margin-top: 0 !important;
+			padding-top: 0 !important;
+			border-radius: 14px !important;
+			background-size: cover !important;
+			background-position: center !important;
 		}
 
 		.trending-kindergartens,
@@ -6079,7 +6263,7 @@ body #mobile-wrap {
 		overflow: hidden !important;
 		background:
 			linear-gradient(90deg, rgba(255, 251, 242, 0.94) 0%, rgba(255, 251, 242, 0.82) 48%, rgba(255, 251, 242, 0.58) 100%),
-			url('/img/homepage/kidsgarden-hero-classroom.png') center / cover no-repeat !important;
+			url('/img/kidsgarden/kindergartens/kg-01-classroom.png') center / cover no-repeat !important;
 
 		.kg-hero-video {
 			position: absolute !important;
@@ -6115,10 +6299,110 @@ body #mobile-wrap {
 		.header-main {
 			background:
 				linear-gradient(90deg, rgba(255, 251, 242, 0.94) 0%, rgba(255, 251, 242, 0.76) 100%),
-				url('/img/homepage/kidsgarden-hero-classroom.png') center / cover no-repeat !important;
+				url('/img/kidsgarden/kindergartens/kg-01-classroom.png') center / cover no-repeat !important;
 
 			.kg-hero-video {
 				display: none !important;
+			}
+		}
+
+		.home-page .community-board {
+			.community-main {
+				display: flex !important;
+				flex-direction: column !important;
+				gap: 14px !important;
+				margin-top: 0 !important;
+			}
+
+			.community-left,
+			.community-right,
+			.card-wrap,
+			.vertical-card,
+			.horizontal-card {
+				width: 100% !important;
+				min-width: 0 !important;
+				box-sizing: border-box !important;
+			}
+
+			.community-left .card-wrap {
+				display: flex !important;
+				flex-direction: column !important;
+				gap: 12px !important;
+			}
+
+			.content-top {
+				justify-content: space-between !important;
+				gap: 10px !important;
+			}
+
+			.content-top span {
+				font-size: 16px !important;
+				line-height: 22px !important;
+				white-space: nowrap !important;
+			}
+
+			.vertical-card {
+				margin: 0 !important;
+				overflow: hidden !important;
+				border-radius: 16px !important;
+			}
+
+			.vertical-card .community-img {
+				width: 100% !important;
+				height: 148px !important;
+				border-radius: 16px !important;
+				background-position: center !important;
+				background-size: cover !important;
+				background-repeat: no-repeat !important;
+			}
+
+			.vertical-card strong,
+			.horizontal-card strong {
+				display: -webkit-box !important;
+				overflow: hidden !important;
+				-webkit-box-orient: vertical !important;
+				-webkit-line-clamp: 2 !important;
+				letter-spacing: 0 !important;
+				text-overflow: ellipsis !important;
+				overflow-wrap: anywhere !important;
+			}
+
+			.vertical-card strong {
+				margin-top: 10px !important;
+				color: #20342a !important;
+				font-size: 15px !important;
+				font-weight: 900 !important;
+				line-height: 20px !important;
+			}
+
+			.vertical-card span {
+				margin-top: 5px !important;
+				color: #647168 !important;
+				font-size: 12px !important;
+				font-weight: 800 !important;
+				line-height: 17px !important;
+				letter-spacing: 0 !important;
+			}
+
+			.horizontal-card {
+				display: grid !important;
+				grid-template-columns: 92px minmax(0, 1fr) !important;
+				align-items: center !important;
+				gap: 12px !important;
+				margin: 0 !important;
+				padding: 12px !important;
+			}
+
+			.horizontal-card img {
+				width: 92px !important;
+				height: 74px !important;
+				border-radius: 14px !important;
+				object-fit: cover !important;
+			}
+
+			.horizontal-card div {
+				min-width: 0 !important;
+				margin-left: 0 !important;
 			}
 		}
 	}

@@ -12,10 +12,20 @@ interface CommunityCardProps {
 	index: number;
 }
 
+const ARTICLE_IMAGE_FALLBACK = '/img/kidsgarden/articles/article-play-based-learning.png';
+
+const resolveArticleImage = (article: BoardArticle): string => {
+	const rawImage = Array.isArray((article as any)?.articleImage)
+		? (article as any).articleImage[0]
+		: article?.articleImage;
+
+	return getImageUrl(rawImage, ARTICLE_IMAGE_FALLBACK);
+};
+
 const CommunityCard = (props: CommunityCardProps) => {
 	const { vertical, article, index } = props;
 	const device = useDeviceDetect();
-	const articleImage = getImageUrl(article?.articleImage, '/img/event.svg');
+	const articleImage = resolveArticleImage(article);
 	const categoryLabels: Record<string, string> = {
 		FREE: 'Parent Board',
 		NEWS: 'News',
@@ -27,7 +37,7 @@ const CommunityCard = (props: CommunityCardProps) => {
 		return (
 			<Link href={`/community/detail?articleCategory=${article?.articleCategory}&id=${article?._id}`}>
 				<Box component={'div'} className="horizontal-card">
-					<img src={articleImage} alt="" />
+					<img src={articleImage} alt={article?.articleTitle || 'KidsGarden community article'} />
 					<div>
 						<strong>{article.articleTitle}</strong>
 						<span>

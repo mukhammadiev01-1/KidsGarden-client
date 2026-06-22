@@ -1,5 +1,6 @@
 import React from 'react';
 import { Stack, Box } from '@mui/material';
+import Link from 'next/link';
 import MenuBookRoundedIcon from '@mui/icons-material/MenuBookRounded';
 import ToysRoundedIcon from '@mui/icons-material/ToysRounded';
 import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
@@ -45,7 +46,14 @@ const Advertisement = () => {
 					<Box component={'div'} className={'store-feature-copy'}>
 						<h3>Everything they need for a happy day</h3>
 						<p>Books, toys, lunch supplies, uniforms and more.</p>
-						<span>Coming Soon</span>
+						<Link
+							href="/store"
+							className="store-feature-link"
+							aria-label="Open KidsGarden Store coming soon page"
+							style={{ display: 'inline-flex', width: 'fit-content', textDecoration: 'none' }}
+						>
+							<span>Explore Store</span>
+						</Link>
 					</Box>
 					<Box component={'div'} className={'store-feature-visual'} aria-hidden>
 						<BackpackRoundedIcon />
