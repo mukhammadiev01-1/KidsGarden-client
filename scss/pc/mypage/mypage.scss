@@ -1615,6 +1615,126 @@
 					padding-top: 8px;
 					border-top: 1px solid #edf2e8;
 				}
+
+				.kg-location-picker {
+					position: relative;
+					width: 100%;
+				}
+
+				.kg-location-picker-map {
+					position: relative;
+					width: 100%;
+					min-height: 300px;
+					overflow: hidden;
+					border: 1px solid #dfe9d9;
+					border-radius: 18px;
+					background: linear-gradient(135deg, #f7fbf2 0%, #fffdf8 100%);
+					box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+				}
+
+				.kg-location-picker-fallback {
+					position: absolute;
+					inset: 0;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					padding: 18px;
+					border-radius: 18px;
+					color: #6b7280;
+					font-family: $font;
+					font-size: 14px;
+					font-weight: 700;
+					text-align: center;
+					pointer-events: none;
+				}
+
+				.kg-location-picker-helper {
+					margin: 8px 0 0;
+					color: #69766b;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 600;
+					line-height: 19px;
+				}
+			}
+			&.admin-kindergarten-profile-dashboard {
+				.admin-address-search-block {
+					.dashboard-muted-text {
+						max-width: 720px;
+						font-size: 12px;
+						line-height: 17px;
+					}
+				}
+
+				.admin-location-map-section {
+					width: 100%;
+				}
+
+				.kg-location-picker {
+					width: 100%;
+				}
+
+				.kg-location-picker-map {
+					min-height: 260px;
+					border-radius: 16px;
+				}
+
+				.kg-location-picker-helper {
+					margin: 6px 0 0;
+					color: #69766b;
+					font-family: $font;
+					font-size: 12px;
+					font-weight: 600;
+					line-height: 17px;
+				}
+
+				.admin-center-details-grid {
+					align-items: stretch;
+
+					.MuiTextField-root {
+						flex: 1 1 0;
+					}
+
+					.MuiOutlinedInput-root {
+						min-height: 46px;
+						background: #fffdf8;
+					}
+
+					.MuiInputBase-input {
+						padding-top: 10px !important;
+						padding-bottom: 10px !important;
+					}
+				}
+
+				.kindergarten-description-field {
+					width: 100%;
+					min-height: 132px;
+
+					.MuiOutlinedInput-root {
+						min-height: 132px;
+						align-items: flex-start;
+						overflow: hidden;
+						box-sizing: border-box;
+					}
+
+					.MuiInputBase-inputMultiline {
+						height: 100px !important;
+						min-height: 100px;
+						max-height: 100px;
+						overflow: auto !important;
+						box-sizing: border-box;
+						resize: none;
+					}
+				}
+
+				.admin-photo-actions {
+					.dashboard-muted-text {
+						flex: 1 1 260px;
+						min-width: 220px;
+						font-size: 12px;
+						line-height: 17px;
+					}
+				}
 			}
 			.admin-selector-card {
 				cursor: pointer;

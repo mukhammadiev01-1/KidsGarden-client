@@ -31,7 +31,9 @@ const getFallbackText = (reason: string, address?: string): string => {
 };
 
 const NaverKindergartenMap = ({ latitude, longitude, address, title }: NaverKindergartenMapProps) => {
-	const mapRef = useRef<HTMLDivElement | null>(null);
+	const mapContainerRef = useRef<HTMLDivElement | null>(null);
+	const markerRef = useRef<any>(null);
+	const mapInstanceRef = useRef<any>(null);
 	const [mapReady, setMapReady] = useState(false);
 	const [statusText, setStatusText] = useState('Loading map...');
 
@@ -61,20 +63,23 @@ const NaverKindergartenMap = ({ latitude, longitude, address, title }: NaverKind
 
 			try {
 				await loadNaverMapSdk();
-				if (disposed || !mapRef.current || !window.naver?.maps) return;
+				if (disposed || !mapContainerRef.current || !window.naver?.maps) return;
 
 				const markerPosition = new window.naver.maps.LatLng(parsedLatitude, parsedLongitude);
-				const map = new window.naver.maps.Map(mapRef.current, {
+				mapContainerRef.current.innerHTML = '';
+				const map = new window.naver.maps.Map(mapContainerRef.current, {
 					center: markerPosition,
 					zoom: 16,
 				});
 
-				new window.naver.maps.Marker({
+				const marker = new window.naver.maps.Marker({
 					position: markerPosition,
 					map,
 					title: title || 'Kindergarten location',
 				});
 
+				mapInstanceRef.current = map;
+				markerRef.current = marker;
 				setMapReady(true);
 				setStatusText(address || '');
 			} catch (err) {
@@ -90,14 +95,24 @@ const NaverKindergartenMap = ({ latitude, longitude, address, title }: NaverKind
 
 		return () => {
 			disposed = true;
+			if (markerRef.current) {
+				try {
+					markerRef.current.setMap(null);
+				} catch (_err) {
+					// Ignore stale SDK instances during route changes.
+				}
+			}
+			markerRef.current = null;
+			mapInstanceRef.current = null;
+			if (mapContainerRef.current) {
+				mapContainerRef.current.innerHTML = '';
+			}
 		};
 	}, [latitude, longitude, address, title]);
 
 	return (
 		<>
-			<div ref={mapRef} className="kg-detail-map-placeholder" aria-label={title || 'Kindergarten map'}>
-				{!mapReady && <span></span>}
-			</div>
+			<div ref={mapContainerRef} className="kg-detail-map-placeholder" aria-label={title || 'Kindergarten map'} />
 			{statusText && <p className="kg-map-helper-text">{statusText}</p>}
 		</>
 	);

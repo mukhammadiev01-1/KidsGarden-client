@@ -148,6 +148,15 @@ export const KAKAO_LOGIN = gql`
 	}
 `;
 
+export const ASK_AI_ASSISTANT = gql`
+	mutation AskAiAssistant($input: AiAssistantInput!) {
+		askAiAssistant(input: $input) {
+			answer
+			model
+		}
+	}
+`;
+
 export const UPDATE_MEMBER = gql`
 	mutation UpdateMember($input: MemberUpdate!) {
 		updateMember(input: $input) {

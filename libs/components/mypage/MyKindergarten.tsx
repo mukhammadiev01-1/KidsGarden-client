@@ -1,12 +1,12 @@
-import React, { useMemo, useState } from 'react';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useLazyQuery, useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import { CREATE_KINDERGARTEN, UPDATE_KINDERGARTEN } from '../../../apollo/user/mutation';
-import { GET_OWNER_KINDERGARTENS } from '../../../apollo/user/query';
+import { GEOCODE_KINDERGARTEN_ADDRESS, GET_OWNER_KINDERGARTENS } from '../../../apollo/user/query';
 import { userVar } from '../../../apollo/store';
-import { Kindergarten } from '../../types/kindergarten/kindergarten';
+import { Kindergarten, KindergartenAddressLocation } from '../../types/kindergarten/kindergarten';
 import { KindergartenInput } from '../../types/kindergarten/kindergarten.input';
 import { KindergartenUpdate } from '../../types/kindergarten/kindergarten.update';
 import {
@@ -16,12 +16,12 @@ import {
 	MANAGE_KINDERGARTEN_TYPES,
 } from '../../enums/kindergarten.enum';
 import { MemberType } from '../../enums/member.enum';
-import { getImageUrl, KAKAO_MAP_JS_KEY, REACT_APP_API_GRAPHQL_URL } from '../../config';
+import { getImageUrl, REACT_APP_API_GRAPHQL_URL } from '../../config';
 import { getKindergartenTypeLabel } from '../../utils';
 import { getJwtToken } from '../../auth';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { getStatusChipSx, getStatusLabel } from './dashboardUtils';
-import { loadKakaoMapSdk } from '../../utils/kakaoMapLoader';
+import NaverLocationPicker from '../maps/NaverLocationPicker';
 
 const emptyForm: KindergartenInput = {
 	kindergartenType: KindergartenType.PRIVATE_KINDERGARTEN,
@@ -38,17 +38,13 @@ const emptyForm: KindergartenInput = {
 
 const maxKindergartenImages = 10;
 
-interface KakaoAddressSearchResult {
-	address_name: string;
-	road_address_name?: string;
-	x: string;
-	y: string;
-}
+const numericInputValue = (value?: number | null): number | '' => (typeof value === 'number' ? value : '');
 
-const parseOptionalCoordinate = (value: string): number | undefined => {
-	const trimmedValue = value.trim();
-	if (!trimmedValue) return undefined;
-	return Number(trimmedValue);
+const parseNumericInput = (value: string): number | undefined => {
+	if (value === '') return undefined;
+
+	const parsedValue = Number(value);
+	return Number.isFinite(parsedValue) ? parsedValue : undefined;
 };
 
 const validateCoordinates = (latitude?: number, longitude?: number): void => {
@@ -87,12 +83,18 @@ const MyKindergarten = () => {
 	const [selectedId, setSelectedId] = useState<string>('');
 	const [form, setForm] = useState<KindergartenInput>(emptyForm);
 	const [addressSearchQuery, setAddressSearchQuery] = useState<string>('');
-	const [addressSearchResults, setAddressSearchResults] = useState<KakaoAddressSearchResult[]>([]);
 	const [addressSearchLoading, setAddressSearchLoading] = useState<boolean>(false);
 	const [addressSearchMessage, setAddressSearchMessage] = useState<string>('');
+	const [addressSearchError, setAddressSearchError] = useState<boolean>(false);
 	const [uploadingKindergartenImages, setUploadingKindergartenImages] = useState<boolean>(false);
 	const [createKindergarten] = useMutation(CREATE_KINDERGARTEN);
 	const [updateKindergarten] = useMutation(UPDATE_KINDERGARTEN);
+	const [geocodeKindergartenAddress] = useLazyQuery<{ geocodeKindergartenAddress: KindergartenAddressLocation }>(
+		GEOCODE_KINDERGARTEN_ADDRESS,
+		{
+			fetchPolicy: 'network-only',
+		},
+	);
 
 	const queryInput = useMemo(
 		() => ({
@@ -237,88 +239,78 @@ const MyKindergarten = () => {
 			establishedAt: kindergarten.establishedAt,
 		});
 		setAddressSearchQuery(kindergarten.kindergartenAddress || '');
-		setAddressSearchResults([]);
 		setAddressSearchMessage('');
+		setAddressSearchError(false);
 	};
 
 	const resetForm = () => {
 		setSelectedId('');
 		setForm(emptyForm);
 		setAddressSearchQuery('');
-		setAddressSearchResults([]);
 		setAddressSearchMessage('');
+		setAddressSearchError(false);
 	};
 
 	const searchAddress = async () => {
 		const query = (addressSearchQuery || form.kindergartenAddress || '').trim();
 
 		if (!query) {
-			setAddressSearchResults([]);
 			setAddressSearchMessage('Please enter an address to search.');
+			setAddressSearchError(true);
 			return;
 		}
 
-		if (!KAKAO_MAP_JS_KEY) {
-			setAddressSearchResults([]);
-			setAddressSearchMessage('Kakao address search is unavailable. Enter coordinates manually.');
+		if (query.length > 200) {
+			setAddressSearchMessage('Please enter an address under 200 characters.');
+			setAddressSearchError(true);
 			return;
 		}
 
 		try {
 			setAddressSearchLoading(true);
 			setAddressSearchMessage('');
-			await loadKakaoMapSdk({ services: true });
-
-			if (!window.kakao?.maps?.services?.Geocoder) {
-				throw new Error('services unavailable');
-			}
-
-			const geocoder = new window.kakao.maps.services.Geocoder();
-			const results = await new Promise<KakaoAddressSearchResult[]>((resolve, reject) => {
-				geocoder.addressSearch(query, (data: KakaoAddressSearchResult[], status: string) => {
-					if (status === window.kakao.maps.services.Status.OK) {
-						resolve(data ?? []);
-						return;
-					}
-
-					if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
-						resolve([]);
-						return;
-					}
-
-					reject(new Error('search failed'));
-				});
+			setAddressSearchError(false);
+			const { data: geocodeData } = await geocodeKindergartenAddress({
+				variables: {
+					address: query,
+				},
 			});
+			const result = geocodeData?.geocodeKindergartenAddress;
+			if (!result) throw new Error('Address could not be found. Please try a more specific address.');
 
-			setAddressSearchResults(results);
-			setAddressSearchMessage(results.length ? '' : 'No address results found.');
-		} catch (_err) {
-			setAddressSearchResults([]);
-			setAddressSearchMessage('Address search could not be loaded. Enter coordinates manually.');
+			const resolvedAddress = result.roadAddress || result.address || result.jibunAddress || query;
+			setForm((prev) => ({
+				...prev,
+				kindergartenAddress: resolvedAddress,
+				kindergartenLatitude: result.latitude,
+				kindergartenLongitude: result.longitude,
+			}));
+			setAddressSearchQuery(resolvedAddress);
+			setAddressSearchMessage('Address selected. You can move the marker on the map if needed.');
+			setAddressSearchError(false);
+		} catch (err: any) {
+			const fallbackMessage = 'Address could not be found. Please try a more specific address.';
+			const errorMessage = err?.message && err.message !== 'Bad Request' ? err.message : fallbackMessage;
+			setAddressSearchMessage(errorMessage);
+			setAddressSearchError(true);
 		} finally {
 			setAddressSearchLoading(false);
 		}
 	};
 
-	const selectAddressSearchResult = (result: KakaoAddressSearchResult) => {
-		const latitude = Number(result.y);
-		const longitude = Number(result.x);
-		const address = result.road_address_name || result.address_name;
-
+	const updateLocationFromMap = useCallback(({ latitude, longitude }: { latitude: number; longitude: number }) => {
 		setForm((prev) => ({
 			...prev,
-			kindergartenAddress: address,
 			kindergartenLatitude: latitude,
 			kindergartenLongitude: longitude,
 		}));
-		setAddressSearchQuery(address);
-		setAddressSearchResults([]);
-		setAddressSearchMessage('Address selected. Click Update Kindergarten to save changes.');
-	};
+		setAddressSearchMessage('Marker updated. Coordinates will be saved with this kindergarten.');
+		setAddressSearchError(false);
+	}, []);
 
 	const submitKindergarten = async () => {
 		try {
-			if (!form.kindergartenTitle || !form.kindergartenAddress || !form.kindergartenDesc) {
+			if (!form.kindergartenTitle?.trim() || !form.kindergartenAddress?.trim() || !form.kindergartenDesc?.trim()) {
 				throw new Error('Please fill title, address, and description.');
 			}
 			if (!form.kindergartenImages.length) {
@@ -447,15 +439,15 @@ const MyKindergarten = () => {
 					<TextField
 						fullWidth
 						label="Kindergarten name"
-						value={form.kindergartenTitle}
+						value={form.kindergartenTitle ?? ''}
 						onChange={(e) => updateForm('kindergartenTitle', e.target.value)}
 					/>
 					<TextField
 						fullWidth
 						label="Monthly fee"
 						type="number"
-						value={form.monthlyFee}
-						onChange={(e) => updateForm('monthlyFee', Number(e.target.value))}
+						value={numericInputValue(form.monthlyFee)}
+						onChange={(e) => updateForm('monthlyFee', parseNumericInput(e.target.value))}
 					/>
 				</Stack>
 
@@ -465,7 +457,7 @@ const MyKindergarten = () => {
 						select
 						SelectProps={{ native: true }}
 						label="Center type"
-						value={form.kindergartenType}
+						value={form.kindergartenType ?? KindergartenType.PRIVATE_KINDERGARTEN}
 						onChange={(e) => updateForm('kindergartenType', e.target.value as KindergartenType)}
 					>
 						{MANAGE_KINDERGARTEN_TYPES.map((type) => (
@@ -479,7 +471,7 @@ const MyKindergarten = () => {
 						select
 						SelectProps={{ native: true }}
 						label="Location"
-						value={form.kindergartenLocation}
+						value={form.kindergartenLocation ?? KindergartenLocation.SEOUL}
 						onChange={(e) => updateForm('kindergartenLocation', e.target.value as KindergartenLocation)}
 					>
 						{Object.values(KindergartenLocation).map((location) => (
@@ -493,14 +485,14 @@ const MyKindergarten = () => {
 				<TextField
 					fullWidth
 					label="Address"
-					value={form.kindergartenAddress}
+					value={form.kindergartenAddress ?? ''}
 					onChange={(e) => {
 						updateForm('kindergartenAddress', e.target.value);
 						setAddressSearchQuery(e.target.value);
 					}}
 				/>
 
-				<Stack spacing={1.25}>
+				<Stack className="admin-address-search-block" spacing={1}>
 					<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 						<TextField
 							fullWidth
@@ -513,7 +505,7 @@ const MyKindergarten = () => {
 									searchAddress().then();
 								}
 							}}
-							placeholder="Search address with Kakao"
+							placeholder="Search address"
 						/>
 						<Button
 							variant="outlined"
@@ -525,107 +517,69 @@ const MyKindergarten = () => {
 						</Button>
 					</Stack>
 					<Typography className="dashboard-muted-text">
-						Use Kakao address search to fill address and coordinates, or enter coordinates manually below.
+						Search by address first, then adjust the marker if needed. Coordinates are saved internally.
 					</Typography>
 					{addressSearchMessage && (
-						<Typography className="dashboard-muted-text" sx={{ color: '#2f7d4a' }}>
+						<Typography className="dashboard-muted-text" sx={{ color: addressSearchError ? '#b42318' : '#2f7d4a' }}>
 							{addressSearchMessage}
 						</Typography>
 					)}
-					{addressSearchResults.length > 0 && (
-						<Stack spacing={1}>
-							{addressSearchResults.slice(0, 5).map((result, index) => {
-								const address = result.road_address_name || result.address_name;
-
-								return (
-									<Button
-										key={`${result.x}-${result.y}-${index}`}
-										variant="outlined"
-										onClick={() => selectAddressSearchResult(result)}
-										sx={{
-											justifyContent: 'flex-start',
-											textAlign: 'left',
-											textTransform: 'none',
-										}}
-									>
-										<Stack alignItems="flex-start">
-											<Typography sx={{ fontSize: 14, fontWeight: 700 }}>{address}</Typography>
-											{result.road_address_name && result.address_name && (
-												<Typography sx={{ fontSize: 12, color: '#6b7280' }}>{result.address_name}</Typography>
-											)}
-										</Stack>
-									</Button>
-								);
-							})}
-						</Stack>
-					)}
 				</Stack>
 
-				<Typography className="admin-form-section-title">Map coordinates</Typography>
-				<Stack spacing={1}>
-					<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
-						<TextField
-							fullWidth
-							label="Latitude"
-							type="number"
-							inputProps={{ step: 'any', min: -90, max: 90 }}
-							value={form.kindergartenLatitude ?? ''}
-							onChange={(e) => updateForm('kindergartenLatitude', parseOptionalCoordinate(e.target.value))}
-						/>
-						<TextField
-							fullWidth
-							label="Longitude"
-							type="number"
-							inputProps={{ step: 'any', min: -180, max: 180 }}
-							value={form.kindergartenLongitude ?? ''}
-							onChange={(e) => updateForm('kindergartenLongitude', parseOptionalCoordinate(e.target.value))}
-						/>
-					</Stack>
-					<Typography className="dashboard-muted-text">
-						Coordinates are used to display your kindergarten on the map.
-						{typeof form.kindergartenLatitude === 'number' && typeof form.kindergartenLongitude === 'number'
-							? ` Current coordinates: ${form.kindergartenLatitude}, ${form.kindergartenLongitude}.`
-							: ''}
-					</Typography>
+				<Typography className="admin-form-section-title">Location on map</Typography>
+				<Stack className="admin-location-map-section" spacing={0.75}>
+					<NaverLocationPicker
+						latitude={form.kindergartenLatitude}
+						longitude={form.kindergartenLongitude}
+						address={form.kindergartenAddress}
+						title={form.kindergartenTitle || 'Kindergarten location'}
+						onChange={updateLocationFromMap}
+					/>
 				</Stack>
 
 				<Typography className="admin-form-section-title">Center details</Typography>
-				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
+				<Stack className="admin-form-grid admin-center-details-grid" direction={{ xs: 'column', md: 'row' }} spacing={1.5}>
 					<TextField
 						fullWidth
 						label="Capacity"
 						type="number"
-						value={form.kindergartenCapacity}
-						onChange={(e) => updateForm('kindergartenCapacity', Number(e.target.value))}
+						value={numericInputValue(form.kindergartenCapacity)}
+						onChange={(e) => updateForm('kindergartenCapacity', parseNumericInput(e.target.value))}
 					/>
 					<TextField
 						fullWidth
 						label="Age range"
 						type="number"
-						value={form.kindergartenAgeRange}
-						onChange={(e) => updateForm('kindergartenAgeRange', Number(e.target.value))}
+						value={numericInputValue(form.kindergartenAgeRange)}
+						onChange={(e) => updateForm('kindergartenAgeRange', parseNumericInput(e.target.value))}
 					/>
 					<TextField
 						fullWidth
 						label="Programs"
 						type="number"
-						value={form.kindergartenPrograms}
-						onChange={(e) => updateForm('kindergartenPrograms', Number(e.target.value))}
+						value={numericInputValue(form.kindergartenPrograms)}
+						onChange={(e) => updateForm('kindergartenPrograms', parseNumericInput(e.target.value))}
 					/>
 				</Stack>
 
 				<TextField
+					className="kindergarten-description-field"
 					fullWidth
 					multiline
 					minRows={4}
 					label="Programs and center description"
-					value={form.kindergartenDesc}
+					value={form.kindergartenDesc ?? ''}
 					onChange={(e) => updateForm('kindergartenDesc', e.target.value)}
 				/>
 
 				<Typography className="admin-form-section-title">Photos</Typography>
 				<Stack spacing={1.5}>
-					<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ xs: 'stretch', sm: 'center' }}>
+					<Stack
+						className="admin-photo-actions"
+						direction={{ xs: 'column', sm: 'row' }}
+						spacing={1.5}
+						alignItems={{ xs: 'stretch', sm: 'center' }}
+					>
 						<Button
 							variant="outlined"
 							component="label"

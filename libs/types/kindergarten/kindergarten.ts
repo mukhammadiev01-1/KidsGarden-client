@@ -44,4 +44,16 @@ export interface Kindergarten {
 export interface Kindergartens {
 	list: Kindergarten[];
 	metaCounter: TotalCounter[];
+	searchCenterLatitude?: number;
+	searchCenterLongitude?: number;
+	searchAddress?: string;
+	resolvedAddress?: string;
+}
+
+export interface KindergartenAddressLocation {
+	address: string;
+	roadAddress?: string;
+	jibunAddress?: string;
+	latitude: number;
+	longitude: number;
 }

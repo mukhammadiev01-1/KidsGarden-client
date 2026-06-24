@@ -168,6 +168,69 @@ export const GET_NEARBY_KINDERGARTENS = gql`
 	}
 `;
 
+export const GET_NEARBY_KINDERGARTENS_BY_ADDRESS = gql`
+	query GetNearbyKindergartensByAddress($input: NearbyKindergartensByAddressInput!) {
+		getNearbyKindergartensByAddress(input: $input) {
+			list {
+				_id
+				kindergartenType
+				kindergartenStatus
+				kindergartenLocation
+				kindergartenAddress
+				kindergartenLatitude
+				kindergartenLongitude
+				kindergartenTitle
+				monthlyFee
+				kindergartenPrice
+				kindergartenCapacity
+				kindergartenAgeRange
+				kindergartenPrograms
+				kindergartenViews
+				kindergartenLikes
+				kindergartenComments
+				kindergartenRank
+				kindergartenImages
+				kindergartenDesc
+				memberId
+				createdAt
+				updatedAt
+				distanceMeters
+				memberData {
+					_id
+					memberNick
+					memberFullName
+					memberImage
+					memberDesc
+				}
+				meLiked {
+					memberId
+					likeRefId
+					myFavorite
+				}
+			}
+			metaCounter {
+				total
+			}
+			searchCenterLatitude
+			searchCenterLongitude
+			searchAddress
+			resolvedAddress
+		}
+	}
+`;
+
+export const GEOCODE_KINDERGARTEN_ADDRESS = gql`
+	query GeocodeKindergartenAddress($address: String!) {
+		geocodeKindergartenAddress(address: $address) {
+			address
+			roadAddress
+			jibunAddress
+			latitude
+			longitude
+		}
+	}
+`;
+
 export const GET_OWNER_KINDERGARTENS = gql`
 	query GetOwnerKindergartens($input: OwnerKindergartensInquiry!) {
 		getOwnerKindergartens(input: $input) {

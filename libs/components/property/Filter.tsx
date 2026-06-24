@@ -9,17 +9,18 @@ import {
 	Tooltip,
 	IconButton,
 } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { DISCOVERY_KINDERGARTEN_TYPES, KindergartenLocation, KindergartenType } from '../../enums/kindergarten.enum';
 import { KindergartensInquiry } from '../../types/kindergarten/kindergarten.input';
 import { useRouter } from 'next/router';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 
 interface FilterType {
 	searchFilter: KindergartensInquiry;
 	setSearchFilter: any;
 	initialInput: KindergartensInquiry;
+	onFilterChange?: () => void;
 }
 
 const centerTypeLabels: Record<string, string> = {
@@ -47,13 +48,16 @@ const formatYears = (value: number) => {
 const formatFee = (value: number) => `${value.toLocaleString()} UZS`;
 
 const Filter = (props: FilterType) => {
-	const { searchFilter, setSearchFilter, initialInput } = props;
-	const device = useDeviceDetect();
+	const { searchFilter, setSearchFilter, initialInput, onFilterChange } = props;
 	const router = useRouter();
 	const [kindergartenLocation, setKindergartenLocation] = useState<KindergartenLocation[]>(Object.values(KindergartenLocation));
 	const [kindergartenType, setKindergartenType] = useState<KindergartenType[]>(DISCOVERY_KINDERGARTEN_TYPES);
 	const [searchText, setSearchText] = useState<string>('');
-	const [showMore, setShowMore] = useState<boolean>(false);
+	const [openSections, setOpenSections] = useState({
+		location: false,
+		type: false,
+		programs: false,
+	});
 	const selectedAgeRange = Number(searchFilter?.search?.ageRangeList?.[0] || 0);
 	const selectedCapacityRange: [number, number] = [
 		Number(searchFilter?.search?.capacityRange?.start ?? 0),
@@ -77,7 +81,6 @@ const Filter = (props: FilterType) => {
 
 		if (searchFilter?.search?.locationList?.length == 0) {
 			delete searchFilter.search.locationList;
-			setShowMore(false);
 			router.push(`${listingBasePath}?input=${queryParams}`, `${listingBasePath}?input=${queryParams}`, { scroll: false }).then();
 		}
 
@@ -96,12 +99,16 @@ const Filter = (props: FilterType) => {
 			router.push(`${listingBasePath}?input=${queryParams}`, `${listingBasePath}?input=${queryParams}`, { scroll: false }).then();
 		}
 
-		if (searchFilter?.search?.locationList) setShowMore(true);
 	}, [searchFilter]);
 
 	/** HANDLERS **/
+	const toggleFilterSection = (section: 'location' | 'type' | 'programs') => {
+		setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+	};
+
 	const pushFilter = useCallback(
 		async (nextFilter: KindergartensInquiry) => {
+			onFilterChange?.();
 			const href = `${listingBasePath}?input=${JSON.stringify(nextFilter)}`;
 			await router.push(
 				href,
@@ -109,12 +116,13 @@ const Filter = (props: FilterType) => {
 				{ scroll: false },
 			);
 		},
-		[listingBasePath, router],
+		[listingBasePath, onFilterChange, router],
 	);
 
 	const kindergartenLocationSelectHandler = useCallback(
 		async (e: any) => {
 			try {
+				onFilterChange?.();
 				const isChecked = e.target.checked;
 				const value = e.target.value;
 				if (isChecked) {
@@ -158,12 +166,13 @@ const Filter = (props: FilterType) => {
 				console.log('ERROR, kindergartenLocationSelectHandler:', err);
 			}
 		},
-		[listingBasePath, searchFilter],
+		[listingBasePath, onFilterChange, searchFilter],
 	);
 
 	const kindergartenTypeSelectHandler = useCallback(
 		async (e: any) => {
 			try {
+				onFilterChange?.();
 				const isChecked = e.target.checked;
 				const value = e.target.value;
 				if (isChecked) {
@@ -207,12 +216,13 @@ const Filter = (props: FilterType) => {
 				console.log('ERROR, kindergartenTypeSelectHandler:', err);
 			}
 		},
-		[listingBasePath, searchFilter],
+		[listingBasePath, onFilterChange, searchFilter],
 	);
 
 	const kindergartenProgramSelectHandler = useCallback(
 		async (number: Number) => {
 			try {
+				onFilterChange?.();
 				if (number != 0) {
 					if (searchFilter?.search?.programsList?.includes(number)) {
 						await router.push(
@@ -270,12 +280,13 @@ const Filter = (props: FilterType) => {
 				console.log('ERROR, kindergartenProgramSelectHandler:', err);
 			}
 		},
-		[listingBasePath, searchFilter],
+		[listingBasePath, onFilterChange, searchFilter],
 	);
 
 	const kindergartenAgeRangeSelectHandler = useCallback(
 		async (number: Number) => {
 			try {
+				onFilterChange?.();
 				if (number != 0) {
 					if (searchFilter?.search?.ageRangeList?.includes(number)) {
 						await router.push(
@@ -333,7 +344,7 @@ const Filter = (props: FilterType) => {
 				console.log('ERROR, kindergartenAgeRangeSelectHandler:', err);
 			}
 		},
-		[listingBasePath, searchFilter],
+		[listingBasePath, onFilterChange, searchFilter],
 	);
 
 	const kindergartenAgeRangeSliderHandler = useCallback(
@@ -368,6 +379,7 @@ const Filter = (props: FilterType) => {
 
 	const refreshHandler = async () => {
 		try {
+			onFilterChange?.();
 			setSearchText('');
 			const href = `${listingBasePath}?input=${JSON.stringify(initialInput)}`;
 			await router.push(
@@ -393,6 +405,7 @@ const Filter = (props: FilterType) => {
 							onChange={(e: any) => setSearchText(e.target.value)}
 							onKeyDown={(event: any) => {
 								if (event.key == 'Enter') {
+									onFilterChange?.();
 									setSearchFilter({
 										...searchFilter,
 										search: { ...searchFilter.search, text: searchText },
@@ -403,6 +416,7 @@ const Filter = (props: FilterType) => {
 								<>
 									<CancelRoundedIcon
 										onClick={() => {
+											onFilterChange?.();
 											setSearchText('');
 											setSearchFilter({
 												...searchFilter,
@@ -422,82 +436,106 @@ const Filter = (props: FilterType) => {
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<p className={'title'}>District / Location</p>
-					<Stack
-						className={`kindergarten-location`}
-						style={{ height: showMore || device === 'mobile' ? 'auto' : '115px' }}
-						onMouseEnter={() => setShowMore(true)}
-						onMouseLeave={() => {
-							if (!searchFilter?.search?.locationList) {
-								setShowMore(false);
-							}
-						}}
+					<button
+						type="button"
+						className={`kg-filter-section-toggle ${openSections.location ? 'open' : ''}`}
+						onClick={() => toggleFilterSection('location')}
+						aria-expanded={openSections.location}
 					>
-						{kindergartenLocation.map((location: string) => {
-							return (
-								<Stack className={'input-box'} key={location}>
-									<Checkbox
-										id={location}
-										className="kindergarten-checkbox"
-										color="default"
-										size="small"
-										value={location}
-										checked={(searchFilter?.search?.locationList || []).includes(location as KindergartenLocation)}
-										onChange={kindergartenLocationSelectHandler}
-									/>
-									<label htmlFor={location} style={{ cursor: 'pointer' }}>
-										<Typography className="kindergarten-type">{location}</Typography>
+						<span>Location</span>
+						{Boolean(searchFilter?.search?.locationList?.length) && <em>{searchFilter?.search?.locationList?.length}</em>}
+						<ExpandMoreRoundedIcon />
+					</button>
+					{openSections.location && (
+						<Stack className={`kindergarten-location kg-filter-section-body`}>
+							{kindergartenLocation.map((location: string) => {
+								return (
+									<Stack className={'input-box'} key={location}>
+										<Checkbox
+											id={location}
+											className="kindergarten-checkbox"
+											color="default"
+											size="small"
+											value={location}
+											checked={(searchFilter?.search?.locationList || []).includes(location as KindergartenLocation)}
+											onChange={kindergartenLocationSelectHandler}
+										/>
+										<label htmlFor={location} style={{ cursor: 'pointer' }}>
+											<Typography className="kindergarten-type">{location}</Typography>
+										</label>
+									</Stack>
+								);
+							})}
+						</Stack>
+					)}
+				</Stack>
+				<Stack className={'find-your-home'} mb={'30px'}>
+					<button
+						type="button"
+						className={`kg-filter-section-toggle ${openSections.type ? 'open' : ''}`}
+						onClick={() => toggleFilterSection('type')}
+						aria-expanded={openSections.type}
+					>
+						<span>Center Type</span>
+						{Boolean(searchFilter?.search?.typeList?.length) && <em>{searchFilter?.search?.typeList?.length}</em>}
+						<ExpandMoreRoundedIcon />
+					</button>
+					{openSections.type && (
+						<Stack className="kg-filter-chip-list kg-filter-section-body">
+							{kindergartenType.map((type: string) => {
+								const checked = (searchFilter?.search?.typeList || []).includes(type as KindergartenType);
+								return (
+									<label className={`kg-filter-chip ${checked ? 'active' : ''}`} key={type}>
+										<Checkbox
+											className="kindergarten-checkbox"
+											color="default"
+											size="small"
+											value={type}
+											onChange={kindergartenTypeSelectHandler}
+											checked={checked}
+										/>
+										<span>{centerTypeLabels[type] || type}</span>
 									</label>
-								</Stack>
-							);
-						})}
-					</Stack>
+								);
+							})}
+						</Stack>
+					)}
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Center Type</Typography>
-					<Stack className="kg-filter-chip-list">
-						{kindergartenType.map((type: string) => {
-							const checked = (searchFilter?.search?.typeList || []).includes(type as KindergartenType);
-							return (
-								<label className={`kg-filter-chip ${checked ? 'active' : ''}`} key={type}>
-									<Checkbox
-										className="kindergarten-checkbox"
-										color="default"
-										size="small"
-										value={type}
-										onChange={kindergartenTypeSelectHandler}
-										checked={checked}
-									/>
-									<span>{centerTypeLabels[type] || type}</span>
-								</label>
-							);
-						})}
-					</Stack>
-				</Stack>
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Programs</Typography>
-					<Stack className="kg-filter-chip-list">
-						<button
-							type="button"
-							className={`kg-filter-chip clear ${!searchFilter?.search?.programsList ? 'active' : ''}`}
-							onClick={() => kindergartenProgramSelectHandler(0)}
-						>
-							Any program
-						</button>
-						{programOptions.map((program) => {
-							const active = searchFilter?.search?.programsList?.includes(program.value);
-							return (
-								<button
-									type="button"
-									key={program.value}
-									className={`kg-filter-chip ${active ? 'active' : ''}`}
-									onClick={() => kindergartenProgramSelectHandler(program.value)}
-								>
-									{program.label}
-								</button>
-							);
-						})}
-					</Stack>
+					<button
+						type="button"
+						className={`kg-filter-section-toggle ${openSections.programs ? 'open' : ''}`}
+						onClick={() => toggleFilterSection('programs')}
+						aria-expanded={openSections.programs}
+					>
+						<span>Programs</span>
+						{Boolean(searchFilter?.search?.programsList?.length) && <em>{searchFilter?.search?.programsList?.length}</em>}
+						<ExpandMoreRoundedIcon />
+					</button>
+					{openSections.programs && (
+						<Stack className="kg-filter-chip-list kg-filter-section-body">
+							<button
+								type="button"
+								className={`kg-filter-chip clear ${!searchFilter?.search?.programsList ? 'active' : ''}`}
+								onClick={() => kindergartenProgramSelectHandler(0)}
+							>
+								Any program
+							</button>
+							{programOptions.map((program) => {
+								const active = searchFilter?.search?.programsList?.includes(program.value);
+								return (
+									<button
+										type="button"
+										key={program.value}
+										className={`kg-filter-chip ${active ? 'active' : ''}`}
+										onClick={() => kindergartenProgramSelectHandler(program.value)}
+									>
+										{program.label}
+									</button>
+								);
+							})}
+						</Stack>
+					)}
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
 					<Stack className="kg-filter-title-row">

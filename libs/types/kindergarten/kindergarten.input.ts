@@ -56,6 +56,11 @@ export interface NearbyKindergartensInput {
 	radiusMeters?: number;
 }
 
+export interface NearbyKindergartensByAddressInput {
+	address: string;
+	radiusMeters?: number;
+}
+
 interface OKISearch {
 	kindergartenStatus?: KindergartenStatus;
 }
