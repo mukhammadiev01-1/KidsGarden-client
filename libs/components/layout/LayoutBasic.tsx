@@ -22,7 +22,8 @@ const withLayoutBasic = (Component: any) => {
 			router.pathname === '/kindergartens' ||
 			router.pathname === '/cs' ||
 			router.pathname === '/store' ||
-			router.pathname === '/about';
+			router.pathname === '/about' ||
+			router.pathname === '/messages';
 		const isMyPageHeader = router.pathname === '/mypage';
 
 		const memoizedValues = useMemo(() => {

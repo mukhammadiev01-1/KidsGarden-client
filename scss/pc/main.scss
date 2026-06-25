@@ -168,7 +168,8 @@ body::-webkit-scrollbar {
 						margin-left: 28px;
 						display: flex;
 						align-items: center;
-						.notification-icon {
+						.notification-icon,
+						.message-icon {
 							color: #fffaf2;
 						}
 						.btn-lang {
@@ -1213,7 +1214,8 @@ body #pc-wrap {
 							background: rgba(255, 255, 255, 0.86);
 							box-shadow: 0 12px 28px rgba(36, 51, 45, 0.08);
 
-							.notification-icon {
+							.notification-icon,
+							.message-icon {
 								color: #10233a;
 							}
 						}

@@ -159,7 +159,17 @@ const NotificationBell = () => {
 				anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
 				transformOrigin={{ vertical: 'top', horizontal: 'right' }}
 			>
-				<Stack className="notification-panel" sx={{ width: 340, maxWidth: 'calc(100vw - 24px)', p: 2, gap: 1.5 }}>
+				<Stack
+					className="notification-panel"
+					sx={{
+						width: 430,
+						maxWidth: 'calc(100vw - 24px)',
+						maxHeight: '70vh',
+						p: 2,
+						gap: 1.5,
+						overflow: 'hidden',
+					}}
+				>
 					<Stack className="notification-panel-header" direction="row" justifyContent="space-between" alignItems="center" gap={1}>
 						<Typography sx={{ fontWeight: 700, color: '#24332d' }}>Notifications</Typography>
 						<Button
@@ -189,47 +199,51 @@ const NotificationBell = () => {
 						</Typography>
 					)}
 
-					{notifications.map((notification) => (
-						<Box
-							className={`notification-list-item ${notification.isRead ? 'is-read' : 'is-unread'}`}
-							component="button"
-							key={notification._id}
-							type="button"
-							onClick={() => markReadHandler(notification)}
-							sx={{
-								width: '100%',
-								textAlign: 'left',
-								border: '1px solid #e5eee8',
-								borderRadius: '10px',
-								p: '10px',
-								background: notification.isRead ? '#fff' : '#f0faef',
-								cursor: 'pointer',
-							}}
-						>
-							<Stack gap={0.5}>
-								<Stack direction="row" justifyContent="space-between" alignItems="center" gap={1}>
-									<Typography sx={{ fontSize: '13px', fontWeight: 700, color: '#24332d' }}>
-										{notification.title}
-									</Typography>
-									{!notification.isRead && (
-										<span
-											style={{
-												width: 8,
-												height: 8,
-												borderRadius: '50%',
-												background: '#2f7d4a',
-												flexShrink: 0,
-											}}
-										/>
-									)}
-								</Stack>
-								<Typography sx={{ fontSize: '12px', color: '#64746b' }}>{notification.message}</Typography>
-								<Typography sx={{ fontSize: '11px', color: '#9ca3af' }}>
-									{new Date(notification.createdAt).toLocaleString()}
-								</Typography>
-							</Stack>
-						</Box>
-					))}
+					{notifications.length > 0 && (
+						<Stack className="notification-list-scroll" gap={1} sx={{ maxHeight: 390, overflowY: 'auto', pr: 0.5 }}>
+							{notifications.map((notification) => (
+								<Box
+									className={`notification-list-item ${notification.isRead ? 'is-read' : 'is-unread'}`}
+									component="button"
+									key={notification._id}
+									type="button"
+									onClick={() => markReadHandler(notification)}
+									sx={{
+										width: '100%',
+										textAlign: 'left',
+										border: '1px solid #e5eee8',
+										borderRadius: '10px',
+										p: '10px',
+										background: notification.isRead ? '#fff' : '#f0faef',
+										cursor: 'pointer',
+									}}
+								>
+									<Stack gap={0.5}>
+										<Stack direction="row" justifyContent="space-between" alignItems="center" gap={1}>
+											<Typography sx={{ fontSize: '13px', fontWeight: 700, color: '#24332d' }}>
+												{notification.title}
+											</Typography>
+											{!notification.isRead && (
+												<span
+													style={{
+														width: 8,
+														height: 8,
+														borderRadius: '50%',
+														background: '#2f7d4a',
+														flexShrink: 0,
+													}}
+												/>
+											)}
+										</Stack>
+										<Typography sx={{ fontSize: '12px', color: '#64746b' }}>{notification.message}</Typography>
+										<Typography sx={{ fontSize: '11px', color: '#9ca3af' }}>
+											{new Date(notification.createdAt).toLocaleString()}
+										</Typography>
+									</Stack>
+								</Box>
+							))}
+						</Stack>
+					)}
 				</Stack>
 			</Popover>
 		</>

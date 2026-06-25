@@ -18,6 +18,7 @@ import { Logout } from '@mui/icons-material';
 import { REACT_APP_API_URL } from '../config';
 import { MemberType } from '../enums/member.enum';
 import NotificationBell from './notification/NotificationBell';
+import MessageBell from './chat/MessageBell';
 
 const supportedLocales = ['en', 'kr', 'ru'];
 
@@ -154,6 +155,7 @@ const Top = () => {
 					<div>{user?._id ? accountLabel : t('Login')}</div>
 				</Link>
 				{user?._id && <NotificationBell />}
+				{user?._id && <MessageBell />}
 			</Stack>
 		);
 	} else {
@@ -191,45 +193,9 @@ const Top = () => {
 							</Link>
 						</Box>
 						<Box component={'div'} className={'user-box'}>
-							{user?._id ? (
-								<>
-									<div className={'login-user'} onClick={(event: any) => setLogoutAnchor(event.currentTarget)}>
-										<img
-											src={
-												user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
-											}
-											alt=""
-										/>
-									</div>
-
-									<Menu
-										id="basic-menu"
-										anchorEl={logoutAnchor}
-										open={logoutOpen}
-										onClose={() => {
-											setLogoutAnchor(null);
-										}}
-										sx={{ mt: '5px' }}
-									>
-										<MenuItem onClick={() => logOut()}>
-											<Logout fontSize="small" style={{ color: 'blue', marginRight: '10px' }} />
-											Logout
-										</MenuItem>
-									</Menu>
-								</>
-							) : (
-								<Link href={'/account/join'}>
-									<div className={'join-box'}>
-										<AccountCircleOutlinedIcon />
-										<span>
-											{t('Login')} / {t('Register')}
-										</span>
-									</div>
-								</Link>
-							)}
-
 							<div className={'lan-box'}>
 								{user?._id && <NotificationBell />}
+								{user?._id && <MessageBell />}
 								<Button
 									disableRipple
 									className="btn-lang"
@@ -268,6 +234,43 @@ const Top = () => {
 									</MenuItem>
 								</StyledMenu>
 							</div>
+
+							{user?._id ? (
+								<>
+									<div className={'login-user'} onClick={(event: any) => setLogoutAnchor(event.currentTarget)}>
+										<img
+											src={
+												user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
+											}
+											alt=""
+										/>
+									</div>
+
+									<Menu
+										id="basic-menu"
+										anchorEl={logoutAnchor}
+										open={logoutOpen}
+										onClose={() => {
+											setLogoutAnchor(null);
+										}}
+										sx={{ mt: '5px' }}
+									>
+										<MenuItem onClick={() => logOut()}>
+											<Logout fontSize="small" style={{ color: 'blue', marginRight: '10px' }} />
+											Logout
+										</MenuItem>
+									</Menu>
+								</>
+							) : (
+								<Link href={'/account/join'}>
+									<div className={'join-box'}>
+										<AccountCircleOutlinedIcon />
+										<span>
+											{t('Login')} / {t('Register')}
+										</span>
+									</div>
+								</Link>
+							)}
 						</Box>
 					</Stack>
 				</Stack>

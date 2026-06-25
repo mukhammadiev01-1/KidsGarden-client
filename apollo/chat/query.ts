@@ -18,6 +18,26 @@ const CONVERSATION_FIELDS = gql`
 	}
 `;
 
+const MY_CONVERSATION_SUMMARY_FIELDS = gql`
+	fragment MyConversationSummaryFields on MyConversationSummary {
+		conversationId
+		conversationType
+		title
+		subtitle
+		avatar
+		kindergartenId
+		childId
+		teacherId
+		parentId
+		applicationId
+		lastMessage
+		lastMessageAt
+		unreadCount
+		targetRoute
+		participantLabel
+	}
+`;
+
 const MESSAGE_FIELDS = gql`
 	fragment MessageFields on Message {
 		_id
@@ -57,6 +77,24 @@ export const GET_MESSAGES = gql`
 		}
 	}
 	${MESSAGE_FIELDS}
+`;
+
+export const GET_MY_CONVERSATIONS = gql`
+	query GetMyConversations($input: MyConversationsInput) {
+		getMyConversations(input: $input) {
+			list {
+				...MyConversationSummaryFields
+			}
+			total
+		}
+	}
+	${MY_CONVERSATION_SUMMARY_FIELDS}
+`;
+
+export const GET_MY_UNREAD_MESSAGE_COUNT = gql`
+	query GetMyUnreadMessageCount {
+		getMyUnreadMessageCount
+	}
 `;
 
 export const GET_PARENT_TEACHER_CONVERSATION = gql`
