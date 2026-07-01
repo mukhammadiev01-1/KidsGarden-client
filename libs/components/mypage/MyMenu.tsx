@@ -8,9 +8,10 @@ import { REACT_APP_API_URL } from '../../config';
 import { logOut } from '../../auth';
 import { sweetConfirmAlert } from '../../sweetAlert';
 import { getMemberTypeLabel, MemberType } from '../../enums/member.enum';
-import { getDashboardRoleHeading } from './dashboardUtils';
+import { useTranslation } from 'next-i18next';
 
 const MyMenu = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const isKindergartenAdmin = user.memberType === MemberType.KINDERGARTEN_ADMIN;
@@ -22,27 +23,35 @@ const MyMenu = () => {
 		router.query?.category ??
 		(isKindergartenAdmin ? 'kindergartenProfile' : isTeacher ? 'teacherGroups' : isParent ? 'parentChildren' : 'myProfile');
 	const pathname = category;
+	const dashboardHeading = isKindergartenAdmin
+		? t('mypage.roleHeading.kindergartenAdmin')
+		: isTeacher
+		? t('mypage.roleHeading.teacher')
+		: isParent
+		? t('mypage.roleHeading.parent')
+		: t('mypage.roleHeading.fallback');
+	const memberTypeLabel = user?.memberType ? t(`roles.${user.memberType}`, getMemberTypeLabel(user.memberType)) : '';
 	const kindergartenAdminMenus = [
-		{ category: 'kindergartenProfile', title: 'My Kindergarten', icon: 'home', activeIcon: 'homeWhite' },
-		{ category: 'applications', title: 'Kindergarten Applications', icon: 'newTab', activeIcon: 'whiteTab' },
-		{ category: 'staff', title: 'Staff', icon: 'newTab', activeIcon: 'whiteTab' },
-		{ category: 'staffApplications', title: 'Teacher Access Requests', icon: 'newTab', activeIcon: 'whiteTab' },
-		{ category: 'groups', title: 'Groups', icon: 'discovery', activeIcon: 'discoveryWhite' },
-		{ category: 'children', title: 'Children', icon: 'like', activeIcon: 'likeWhite' },
-		{ category: 'attendance', title: 'Attendance', icon: 'search', activeIcon: 'searchWhite' },
+		{ category: 'kindergartenProfile', title: t('mypage.menu.myKindergarten'), icon: 'home', activeIcon: 'homeWhite' },
+		{ category: 'applications', title: t('mypage.menu.kindergartenApplications'), icon: 'newTab', activeIcon: 'whiteTab' },
+		{ category: 'staff', title: t('mypage.menu.staff'), icon: 'newTab', activeIcon: 'whiteTab' },
+		{ category: 'staffApplications', title: t('mypage.menu.teacherAccessRequests'), icon: 'newTab', activeIcon: 'whiteTab' },
+		{ category: 'groups', title: t('mypage.menu.groups'), icon: 'discovery', activeIcon: 'discoveryWhite' },
+		{ category: 'children', title: t('mypage.menu.children'), icon: 'like', activeIcon: 'likeWhite' },
+		{ category: 'attendance', title: t('mypage.menu.attendance'), icon: 'search', activeIcon: 'searchWhite' },
 	];
 	const teacherMenus = [
-		{ category: 'teacherGroups', title: 'My Groups', icon: 'discovery', activeIcon: 'discoveryWhite' },
-		{ category: 'teacherAttendance', title: 'Attendance', icon: 'search', activeIcon: 'searchWhite' },
+		{ category: 'teacherGroups', title: t('mypage.menu.myGroups'), icon: 'discovery', activeIcon: 'discoveryWhite' },
+		{ category: 'teacherAttendance', title: t('mypage.menu.attendance'), icon: 'search', activeIcon: 'searchWhite' },
 	];
 	const parentMenus = [
-		{ category: 'parentChildren', title: 'My Children', icon: 'like', activeIcon: 'likeWhite' },
-		{ category: 'applications', title: 'Kindergarten Applications', icon: 'newTab', activeIcon: 'whiteTab' },
-		{ category: 'parentAttendance', title: 'Attendance', icon: 'search', activeIcon: 'searchWhite' },
-		{ category: 'staffApplications', title: 'Teacher Access Request', icon: 'newTab', activeIcon: 'whiteTab' },
+		{ category: 'parentChildren', title: t('mypage.menu.myChildren'), icon: 'like', activeIcon: 'likeWhite' },
+		{ category: 'applications', title: t('mypage.menu.kindergartenApplications'), icon: 'newTab', activeIcon: 'whiteTab' },
+		{ category: 'parentAttendance', title: t('mypage.menu.attendance'), icon: 'search', activeIcon: 'searchWhite' },
+		{ category: 'staffApplications', title: t('mypage.menu.teacherAccessRequest'), icon: 'newTab', activeIcon: 'whiteTab' },
 		{
 			category: 'kindergartenAdminApplications',
-			title: 'Center Admin Access Request',
+			title: t('mypage.menu.centerAdminAccessRequest'),
 			icon: 'home',
 			activeIcon: 'homeWhite',
 		},
@@ -51,7 +60,7 @@ const MyMenu = () => {
 	/** HANDLERS **/
 	const logoutHandler = async () => {
 		try {
-			if (await sweetConfirmAlert('Do you want to logout?')) logOut();
+			if (await sweetConfirmAlert(t('mypage.alerts.logoutConfirm'))) logOut();
 		} catch (err: any) {
 			console.log('ERROR, logoutHandler:', err.message);
 		}
@@ -74,17 +83,17 @@ const MyMenu = () => {
 						</Box>
 						{user?.memberType === MemberType.SUPER_ADMIN ? (
 							<a href="/_admin/users" target={'_blank'}>
-								<Typography className={'view-list'}>{getMemberTypeLabel(user?.memberType)}</Typography>
+								<Typography className={'view-list'}>{memberTypeLabel}</Typography>
 							</a>
 						) : (
-							<Typography className={'view-list'}>{getMemberTypeLabel(user?.memberType)}</Typography>
+							<Typography className={'view-list'}>{memberTypeLabel}</Typography>
 						)}
 					</Stack>
 				</Stack>
 				<Stack className={'sections'}>
 					<Stack className={'section'}>
 						<Typography className="title" variant={'h5'}>
-							{getDashboardRoleHeading(user.memberType)}
+							{dashboardHeading}
 						</Typography>
 						<List className={'sub-section'}>
 							{isKindergartenAdmin &&
@@ -174,7 +183,7 @@ const MyMenu = () => {
 										)}
 
 										<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-											My Favorites
+											{t('mypage.menu.myFavorites')}
 										</Typography>
 									</div>
 								</Link>
@@ -195,7 +204,7 @@ const MyMenu = () => {
 										)}
 
 										<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-											Recently Visited
+											{t('mypage.menu.recentlyVisited')}
 										</Typography>
 									</div>
 								</Link>
@@ -242,7 +251,7 @@ const MyMenu = () => {
 											</g>
 										</svg>
 										<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-											My Followers
+											{t('mypage.menu.myFollowers')}
 										</Typography>
 									</div>
 								</Link>
@@ -290,7 +299,7 @@ const MyMenu = () => {
 										</svg>
 
 										<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-											My Followings
+											{t('mypage.menu.myFollowings')}
 										</Typography>
 									</div>
 								</Link>
@@ -299,35 +308,33 @@ const MyMenu = () => {
 							)}
 						</List>
 					</Stack>
-						{(isParent || showFallbackMenus) && (
+						{(isKnownDashboardRole || showFallbackMenus) && (
 							<Stack className={'section'} sx={{ marginTop: '10px' }}>
 								<div>
 									<Typography className="title" variant={'h5'}>
-										Community
+										{t('myPosts.menuSection')}
 									</Typography>
 									<List className={'sub-section'}>
-										{showFallbackMenus && (
-											<ListItem className={pathname === 'myArticles' ? 'focus' : ''}>
-												<Link
-													href={{
-														pathname: '/mypage',
-														query: { category: 'myArticles' },
-													}}
-													scroll={false}
-												>
-													<div className={'flex-box'}>
-														{category === 'myArticles' ? (
-															<img className={'com-icon'} src={'/img/icons/discoveryWhite.svg'} alt={'com-icon'} />
-														) : (
-															<img className={'com-icon'} src={'/img/icons/discovery.svg'} alt={'com-icon'} />
-														)}
-														<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-															Articles
-														</Typography>
-													</div>
-												</Link>
-											</ListItem>
-										)}
+										<ListItem className={pathname === 'myPosts' || pathname === 'myArticles' ? 'focus' : ''}>
+											<Link
+												href={{
+													pathname: '/mypage',
+													query: { category: 'myPosts' },
+												}}
+												scroll={false}
+											>
+												<div className={'flex-box'}>
+													{category === 'myPosts' || category === 'myArticles' ? (
+														<img className={'com-icon'} src={'/img/icons/discoveryWhite.svg'} alt={'com-icon'} />
+													) : (
+														<img className={'com-icon'} src={'/img/icons/discovery.svg'} alt={'com-icon'} />
+													)}
+													<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
+														{t('myPosts.menuTitle')}
+													</Typography>
+												</div>
+											</Link>
+										</ListItem>
 										{isParent && (
 											<ListItem className={pathname === 'writeArticle' ? 'focus' : ''}>
 												<Link
@@ -344,7 +351,7 @@ const MyMenu = () => {
 															<img className={'com-icon'} src={'/img/icons/newTab.svg'} alt={'com_icon'} />
 														)}
 														<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-															Write Article
+															{t('myPosts.menuWriteArticle')}
 														</Typography>
 													</div>
 												</Link>
@@ -356,7 +363,7 @@ const MyMenu = () => {
 						)}
 						<Stack className={'section'} sx={{ marginTop: '30px' }}>
 							<Typography className="title" variant={'h5'}>
-								MANAGE ACCOUNT
+								{t('mypage.account')}
 							</Typography>
 							<List className={'sub-section'}>
 								<ListItem className={pathname === 'myProfile' ? 'focus' : ''}>
@@ -374,7 +381,7 @@ const MyMenu = () => {
 												<img className={'com-icon'} src={'/img/icons/user.svg'} alt={'com-icon'} />
 											)}
 											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-												My Profile
+												{t('mypage.menu.myProfile')}
 											</Typography>
 										</div>
 									</Link>
@@ -383,7 +390,7 @@ const MyMenu = () => {
 									<div className={'flex-box'}>
 										<img className={'com-icon'} src={'/img/icons/logout.svg'} alt={'com-icon'} />
 										<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-											Logout
+											{t('mypage.menu.logout')}
 										</Typography>
 									</div>
 								</ListItem>

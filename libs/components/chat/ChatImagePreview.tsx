@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Button, Dialog, Stack } from '@mui/material';
+import { useTranslation } from 'next-i18next';
 
 interface Props {
 	open: boolean;
@@ -8,20 +9,21 @@ interface Props {
 	onClose: () => void;
 }
 
-const ChatImagePreview = ({ open, imageUrl, alt = 'Chat image preview', onClose }: Props) => {
+const ChatImagePreview = ({ open, imageUrl, alt, onClose }: Props) => {
+	const { t } = useTranslation('common');
 	return (
 		<Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
 			<Stack spacing={1.5} sx={{ p: 2, background: '#101814' }}>
 				<Stack direction="row" justifyContent="flex-end">
 					<Button variant="outlined" size="small" onClick={onClose} sx={{ color: '#fff', borderColor: '#dce7df' }}>
-						Close
+						{t('messages.closePreview')}
 					</Button>
 				</Stack>
 				{imageUrl && (
 					<Box
 						component="img"
 						src={imageUrl}
-						alt={alt}
+						alt={alt || t('messages.chatImagePreviewAlt')}
 						sx={{
 							display: 'block',
 							width: '100%',

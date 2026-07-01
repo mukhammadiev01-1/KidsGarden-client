@@ -94,3 +94,13 @@ export const MARK_PARENT_TEACHER_CONVERSATION_READ = gql`
 		markParentTeacherConversationRead(conversationId: $conversationId)
 	}
 `;
+
+export const TRANSLATE_CHAT_MESSAGE = gql`
+	mutation TranslateChatMessage($input: TranslateChatMessageInput!) {
+		translateChatMessage(input: $input) {
+			messageId
+			targetLang
+			translatedText
+		}
+	}
+`;

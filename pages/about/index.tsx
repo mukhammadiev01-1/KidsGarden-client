@@ -7,11 +7,16 @@ import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
 import FamilyRestroomRoundedIcon from '@mui/icons-material/FamilyRestroomRounded';
 import AssignmentTurnedInRoundedIcon from '@mui/icons-material/AssignmentTurnedInRounded';
 import ChatBubbleRoundedIcon from '@mui/icons-material/ChatBubbleRounded';
+import TranslateRoundedIcon from '@mui/icons-material/TranslateRounded';
 import ManageAccountsRoundedIcon from '@mui/icons-material/ManageAccountsRounded';
 import ShieldRoundedIcon from '@mui/icons-material/ShieldRounded';
 import StorefrontRoundedIcon from '@mui/icons-material/StorefrontRounded';
 import MapRoundedIcon from '@mui/icons-material/MapRounded';
 import AdminPanelSettingsRoundedIcon from '@mui/icons-material/AdminPanelSettingsRounded';
+import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
+import PhotoLibraryRoundedIcon from '@mui/icons-material/PhotoLibraryRounded';
+import CallRoundedIcon from '@mui/icons-material/CallRounded';
+import PhoneIphoneRoundedIcon from '@mui/icons-material/PhoneIphoneRounded';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
@@ -99,22 +104,26 @@ const roleCards: RoleCard[] = [
 const availableFeatures: IconItem[] = [
 	{ title: 'Kindergarten listing', icon: SearchRoundedIcon },
 	{ title: 'Kindergarten detail pages', icon: HomeWorkRoundedIcon },
+	{ title: 'Map & address search', icon: MapRoundedIcon },
 	{ title: 'Applications & contact flow', icon: AssignmentTurnedInRoundedIcon },
-	{ title: 'Likes & comments', icon: ChatBubbleRoundedIcon },
+	{ title: 'Likes, reviews & comments', icon: ChatBubbleRoundedIcon },
+	{ title: 'Messages inbox', icon: ChatBubbleRoundedIcon },
+	{ title: 'Private chat', icon: GroupsRoundedIcon },
+	{ title: 'One-click translation', icon: TranslateRoundedIcon },
+	{ title: 'Notifications', icon: NotificationsRoundedIcon },
 	{ title: 'Parent dashboard', icon: FamilyRestroomRoundedIcon },
 	{ title: 'Teacher dashboard', icon: SchoolRoundedIcon },
 	{ title: 'KAdmin dashboard', icon: ManageAccountsRoundedIcon },
 	{ title: 'Staff, groups, children, attendance', icon: AdminPanelSettingsRoundedIcon },
+	{ title: 'Super Admin approvals', icon: ShieldRoundedIcon },
 ];
 
 const plannedFeatures: IconItem[] = [
 	{ title: 'KidsGarden Store', icon: StorefrontRoundedIcon },
-	{ title: 'Messages inbox', icon: ChatBubbleRoundedIcon },
-	{ title: 'Map & address experience', icon: MapRoundedIcon },
-	{ title: 'Super Admin approvals', icon: ShieldRoundedIcon },
-	{ title: 'Realtime communication', icon: GroupsRoundedIcon },
+	{ title: 'Daily Reports & Albums', icon: PhotoLibraryRoundedIcon },
 	{ title: 'Calendar & scheduling', icon: CalendarMonthRoundedIcon },
-	{ title: 'Communication polish', icon: ChatBubbleRoundedIcon },
+	{ title: 'In-app Calls', icon: CallRoundedIcon },
+	{ title: 'Mobile polish', icon: PhoneIphoneRoundedIcon },
 	{ title: 'More tools coming soon', icon: AdminPanelSettingsRoundedIcon },
 ];
 

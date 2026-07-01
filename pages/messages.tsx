@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { CircularProgress, Typography } from '@mui/material';
 import { useReactiveVar } from '@apollo/client';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import { userVar } from '../apollo/store';
 import { getJwtToken, updateUserInfo } from '../libs/auth';
 import MessagesPage from '../libs/components/chat/MessagesPage';
@@ -40,6 +41,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const Messages: NextPage = () => {
 	const router = useRouter();
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 
 	useEffect(() => {
@@ -64,7 +66,7 @@ const Messages: NextPage = () => {
 			<div style={sessionLoaderStyle}>
 				<div style={sessionLoaderInnerStyle}>
 					<CircularProgress size={24} style={{ color: '#2f7d4a' }} />
-					<Typography style={sessionLoaderTextStyle}>Checking your session...</Typography>
+					<Typography style={sessionLoaderTextStyle}>{t('messages.checkingSession')}</Typography>
 				</div>
 			</div>
 		);
@@ -73,8 +75,8 @@ const Messages: NextPage = () => {
 	return (
 		<>
 			<PageSeo
-				title="Messages"
-				description="View your private KidsGarden application and parent-teacher conversations."
+				title={t('messages.seoTitle')}
+				description={t('messages.seoDescription')}
 				canonicalPath="/messages"
 			/>
 			<MessagesPage />

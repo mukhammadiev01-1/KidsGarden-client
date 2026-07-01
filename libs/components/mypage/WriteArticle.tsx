@@ -6,9 +6,11 @@ import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { MemberType } from '../../enums/member.enum';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 const TuiEditor = dynamic(() => import('../community/Teditor'), { ssr: false });
 
 const WriteArticle: NextPage = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const isParent = user.memberType === MemberType.PARENT;
@@ -18,12 +20,12 @@ const WriteArticle: NextPage = () => {
 			<div id="write-article-page">
 				<Stack className="main-title-box">
 					<Stack className="right-box">
-						<Typography className="main-title">Parent Board</Typography>
+						<Typography className="main-title">{t('myPosts.parentBoard')}</Typography>
 						<Typography className="sub-title">
-							Parent Board posting is available only for parent accounts in this MVP.
+							{t('myPosts.parentOnly')}
 						</Typography>
 						<Button variant="contained" onClick={() => router.push('/community?articleCategory=FREE')}>
-							Back to Community
+							{t('myPosts.backToCommunity')}
 						</Button>
 					</Stack>
 				</Stack>
@@ -35,9 +37,9 @@ const WriteArticle: NextPage = () => {
 		<div id="write-article-page">
 			<Stack className="main-title-box">
 				<Stack className="right-box">
-					<Typography className="main-title">Write a Parent Board post</Typography>
+					<Typography className="main-title">{t('myPosts.writeTitle')}</Typography>
 					<Typography className="sub-title">
-						Share a question, experience, or helpful tip with other parents.
+						{t('myPosts.writeSubtitle')}
 					</Typography>
 				</Stack>
 			</Stack>

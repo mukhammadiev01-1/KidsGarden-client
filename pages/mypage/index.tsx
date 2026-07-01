@@ -15,6 +15,7 @@ import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import { sweetErrorHandling } from '../../libs/sweetAlert';
 import MemberFollowings from '../../libs/components/member/MemberFollowings';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import MyKindergarten from '../../libs/components/mypage/MyKindergarten';
 import { MemberType } from '../../libs/enums/member.enum';
 import { getJwtToken, updateUserInfo } from '../../libs/auth';
@@ -39,6 +40,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 const MyPage: NextPage = () => {
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
 	const isKindergartenAdmin = user.memberType === MemberType.KINDERGARTEN_ADMIN;
@@ -55,19 +57,30 @@ const MyPage: NextPage = () => {
 		'groups',
 		'children',
 		'attendance',
+		'myPosts',
 		'myProfile',
 	];
-	const teacherCategories = ['teacherGroups', 'teacherAttendance', 'myProfile'];
+	const teacherCategories = ['teacherGroups', 'teacherAttendance', 'myPosts', 'myProfile'];
 	const parentCategories = [
 		'parentChildren',
 		'applications',
 		'parentAttendance',
 		'staffApplications',
 		'kindergartenAdminApplications',
+		'myPosts',
 		'writeArticle',
 		'myProfile',
 	];
-	const fallbackCategories = ['myFavorites', 'recentlyVisited', 'myArticles', 'writeArticle', 'myProfile', 'followers', 'followings'];
+	const fallbackCategories = [
+		'myFavorites',
+		'recentlyVisited',
+		'myPosts',
+		'myArticles',
+		'writeArticle',
+		'myProfile',
+		'followers',
+		'followings',
+	];
 	const category: any =
 		rawCategory ??
 		(isKindergartenAdmin
@@ -119,7 +132,7 @@ const MyPage: NextPage = () => {
 	/** HANDLERS **/
 	const subscribeHandler = async (id: string, refetch: any, query: any) => {
 		try {
-			await sweetErrorHandling(new Error('Following is coming soon for KidsGarden profiles.'));
+			await sweetErrorHandling(new Error(t('mypage.alerts.followingComingSoon')));
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -127,7 +140,7 @@ const MyPage: NextPage = () => {
 
 	const unsubscribeHandler = async (id: string, refetch: any, query: any) => {
 		try {
-			await sweetErrorHandling(new Error('Following is coming soon for KidsGarden profiles.'));
+			await sweetErrorHandling(new Error(t('mypage.alerts.followingComingSoon')));
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -136,7 +149,7 @@ const MyPage: NextPage = () => {
 	const redirectToMemberPageHandler = async (memberId: string) => {
 		try {
 			if (memberId === user?._id) await router.push(`/mypage?memberId=${memberId}`);
-			else await sweetErrorHandling(new Error('Public member profiles are coming soon.'));
+			else await sweetErrorHandling(new Error(t('mypage.alerts.publicProfilesComingSoon')));
 		} catch (error) {
 			await sweetErrorHandling(error);
 		}
@@ -172,7 +185,7 @@ const MyPage: NextPage = () => {
 								)}
 								{dashboardCategory === 'myFavorites' && <MyFavorites />}
 								{dashboardCategory === 'recentlyVisited' && <RecentlyVisited />}
-								{dashboardCategory === 'myArticles' && <MyArticles />}
+								{(dashboardCategory === 'myPosts' || dashboardCategory === 'myArticles') && <MyArticles />}
 								{dashboardCategory === 'writeArticle' && <WriteArticle />}
 								{dashboardCategory === 'myProfile' && <MyProfile />}
 								{dashboardCategory === 'followers' && (

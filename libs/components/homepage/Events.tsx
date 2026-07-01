@@ -4,6 +4,7 @@ import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import TranslateRoundedIcon from '@mui/icons-material/TranslateRounded';
 import CallRoundedIcon from '@mui/icons-material/CallRounded';
 import CollectionsRoundedIcon from '@mui/icons-material/CollectionsRounded';
+import { useTranslation } from 'next-i18next';
 
 interface EventData {
 	eventTitle: string;
@@ -13,38 +14,6 @@ interface EventData {
 	icon: React.ElementType;
 	available?: boolean;
 }
-
-const eventsData: EventData[] = [
-	{
-		eventTitle: 'Private Chat',
-		label: 'Available',
-		description: 'Secure parent-teacher and application conversations are already built into KidsGarden.',
-		tone: 'green',
-		icon: ForumRoundedIcon,
-		available: true,
-	},
-	{
-		eventTitle: 'Auto Translation',
-		label: 'Coming Soon',
-		description: 'Break language barriers with instant translation.',
-		tone: 'purple',
-		icon: TranslateRoundedIcon,
-	},
-	{
-		eventTitle: 'In-app Calls',
-		label: 'Coming Soon',
-		description: 'Talk directly without leaving the app.',
-		tone: 'blue',
-		icon: CallRoundedIcon,
-	},
-	{
-		eventTitle: 'Daily Reports & Albums',
-		label: 'Coming Soon',
-		description: 'Capture and celebrate every special moment.',
-		tone: 'pink',
-		icon: CollectionsRoundedIcon,
-	},
-];
 
 const EventCard = ({ event }: { event: EventData }) => {
 	const Icon = event.icon;
@@ -62,15 +31,23 @@ const EventCard = ({ event }: { event: EventData }) => {
 };
 
 const Events = () => {
+	const { t } = useTranslation('common');
+	const eventsData: EventData[] = [
+		{ eventTitle: t('home.roadmap.privateChatTitle'), label: t('home.available'), description: t('home.roadmap.privateChatCopy'), tone: 'green', icon: ForumRoundedIcon, available: true },
+		{ eventTitle: t('home.roadmap.translationTitle'), label: t('home.available'), description: t('home.roadmap.translationCopy'), tone: 'purple', icon: TranslateRoundedIcon, available: true },
+		{ eventTitle: t('home.roadmap.callsTitle'), label: t('home.comingSoon'), description: t('home.roadmap.callsCopy'), tone: 'blue', icon: CallRoundedIcon },
+		{ eventTitle: t('home.roadmap.reportsTitle'), label: t('home.available'), description: t('home.roadmap.reportsCopy'), tone: 'pink', icon: CollectionsRoundedIcon, available: true },
+	];
+
 	return (
 		<Stack className={'events communication-roadmap'}>
 			<Stack className={'container'}>
 				<Stack className={'info-box'}>
 					<Box component={'div'} className={'left'}>
 						<span>
-							Communication Roadmap <em className={'sprout-accent'} aria-hidden />
+							{t('home.roadmapTitle')} <em className={'sprout-accent'} aria-hidden />
 						</span>
-						<p>Private chat is live today, with family communication upgrades planned next.</p>
+						<p>{t('home.roadmapSubtitle')}</p>
 					</Box>
 				</Stack>
 				<Stack className={'card-wrapper'}>

@@ -19,10 +19,23 @@ import { REACT_APP_API_URL } from '../config';
 import { MemberType } from '../enums/member.enum';
 import NotificationBell from './notification/NotificationBell';
 import MessageBell from './chat/MessageBell';
+import {
+	DEFAULT_LOCALE,
+	LANGUAGES,
+	LEGACY_KOREAN_LOCALE,
+	LanguageMeta,
+	getLanguageMeta,
+	hasLocalePathPrefix,
+	normalizeLocale,
+} from '../i18n/languages';
 
-const supportedLocales = ['en', 'kr', 'ru'];
+const LanguageMark = ({ language, className }: { language: LanguageMeta; className?: string }) => {
+	if (language.flagSrc) {
+		return <img className={className} src={language.flagSrc} alt={`${language.label} flag`} />;
+	}
 
-const normalizeLocale = (locale?: string | null) => (locale && supportedLocales.includes(locale) ? locale : 'en');
+	return <span className={`lang-badge ${className || ''}`}>{language.shortLabel}</span>;
+};
 
 const Top = () => {
 	const device = useDeviceDetect();
@@ -37,14 +50,32 @@ const Top = () => {
 	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null);
 	const logoutOpen = Boolean(logoutAnchor);
 	const accountHref = user.memberType === MemberType.SUPER_ADMIN ? '/_admin' : '/mypage';
-	const accountLabel = user.memberType === MemberType.SUPER_ADMIN ? 'Admin' : t('My Page');
+	const accountLabel = user.memberType === MemberType.SUPER_ADMIN ? t('header.admin') : t('header.myPage');
 	const selectedLang = normalizeLocale(lang);
+	const selectedLanguage = getLanguageMeta(selectedLang);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
+		if (typeof window === 'undefined') return;
+
+		if (router.locale === LEGACY_KOREAN_LOCALE) {
+			setLang('ko');
+			localStorage.setItem('locale', 'ko');
+			router.replace(router.asPath, router.asPath, { locale: 'ko' }).catch(() => undefined);
+			return;
+		}
+
 		const storedLocale = normalizeLocale(localStorage.getItem('locale'));
-		localStorage.setItem('locale', storedLocale);
-		setLang(storedLocale);
+		const routeLocale = normalizeLocale(router.locale || DEFAULT_LOCALE);
+		const hasRouteLocale = hasLocalePathPrefix(window.location.pathname);
+		const nextLocale = hasRouteLocale ? routeLocale : storedLocale;
+
+		setLang(nextLocale);
+		localStorage.setItem('locale', nextLocale);
+
+		if (!hasRouteLocale && nextLocale !== routeLocale) {
+			router.replace(router.asPath, router.asPath, { locale: nextLocale }).catch(() => undefined);
+		}
 	}, [router]);
 
 	useEffect(() => {
@@ -140,19 +171,19 @@ const Top = () => {
 					</div>
 				</Link>
 				<Link href={'/'}>
-					<div>{t('Home')}</div>
+					<div>{t('header.home')}</div>
 				</Link>
 				<Link href={'/kindergartens'}>
-					<div>{t('Kindergartens')}</div>
+					<div>{t('header.kindergartens')}</div>
 				</Link>
 				<Link href={'/community?articleCategory=FREE'}>
-					<div> {t('Community')} </div>
+					<div> {t('header.community')} </div>
 				</Link>
 				<Link href={'/cs'}>
-					<div>{t('CS')}</div>
+					<div>{t('header.help')}</div>
 				</Link>
 				<Link href={user?._id ? accountHref : '/account/join'}>
-					<div>{user?._id ? accountLabel : t('Login')}</div>
+					<div>{user?._id ? accountLabel : t('header.login')}</div>
 				</Link>
 				{user?._id && <NotificationBell />}
 				{user?._id && <MessageBell />}
@@ -172,16 +203,16 @@ const Top = () => {
 							</Box>
 						<Box component={'div'} className={'router-box'}>
 							<Link href={'/'}>
-								<div>{t('Home')}</div>
+								<div>{t('header.home')}</div>
 							</Link>
 							<Link href={'/kindergartens'}>
-								<div>{t('Kindergartens')}</div>
+								<div>{t('header.kindergartens')}</div>
 							</Link>
 							<Link href={'/community?articleCategory=FREE'}>
-								<div> {t('Community')} </div>
+								<div> {t('header.community')} </div>
 							</Link>
 							<Link href={'/about'}>
-								<div>About</div>
+								<div>{t('header.about')}</div>
 							</Link>
 							{user?._id && (
 								<Link href={accountHref}>
@@ -189,7 +220,7 @@ const Top = () => {
 								</Link>
 							)}
 							<Link href={'/cs'}>
-								<div>{t('CS')}</div>
+								<div>{t('header.help')}</div>
 							</Link>
 						</Box>
 						<Box component={'div'} className={'user-box'}>
@@ -203,35 +234,22 @@ const Top = () => {
 									endIcon={<CaretDown size={14} color="#616161" weight="fill" />}
 								>
 									<Box component={'div'} className={'flag'}>
-										<img src={`/img/flag/lang${selectedLang}.png`} alt={`${selectedLang} flag`} />
+										<LanguageMark language={selectedLanguage} />
 									</Box>
 								</Button>
 
 								<StyledMenu anchorEl={anchorEl2} open={drop} onClose={langClose} sx={{ position: 'absolute' }}>
-									<MenuItem disableRipple onClick={() => langChoice('en')} selected={selectedLang === 'en'}>
-										<img
-											className="img-flag"
-											src={'/img/flag/langen.png'}
-											alt={'English flag'}
-										/>
-										{t('English')}
-									</MenuItem>
-									<MenuItem disableRipple onClick={() => langChoice('kr')} selected={selectedLang === 'kr'}>
-										<img
-											className="img-flag"
-											src={'/img/flag/langkr.png'}
-											alt={'Korean flag'}
-										/>
-										{t('Korean')}
-									</MenuItem>
-									<MenuItem disableRipple onClick={() => langChoice('ru')} selected={selectedLang === 'ru'}>
-										<img
-											className="img-flag"
-											src={'/img/flag/langru.png'}
-											alt={'Russian flag'}
-										/>
-										{t('Russian')}
-									</MenuItem>
+									{LANGUAGES.map((language) => (
+										<MenuItem
+											disableRipple
+											onClick={() => langChoice(language.code)}
+											selected={selectedLang === language.code}
+											key={language.code}
+										>
+											<LanguageMark language={language} className="img-flag" />
+											{language.label}
+										</MenuItem>
+									))}
 								</StyledMenu>
 							</div>
 
@@ -257,7 +275,7 @@ const Top = () => {
 									>
 										<MenuItem onClick={() => logOut()}>
 											<Logout fontSize="small" style={{ color: 'blue', marginRight: '10px' }} />
-											Logout
+											{t('header.logout')}
 										</MenuItem>
 									</Menu>
 								</>
@@ -266,7 +284,7 @@ const Top = () => {
 									<div className={'join-box'}>
 										<AccountCircleOutlinedIcon />
 										<span>
-											{t('Login')} / {t('Register')}
+											{t('header.login')} / {t('header.join')}
 										</span>
 									</div>
 								</Link>

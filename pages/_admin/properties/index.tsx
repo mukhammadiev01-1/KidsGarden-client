@@ -17,8 +17,10 @@ import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetA
 import { KindergartenUpdate } from '../../../libs/types/kindergarten/kindergarten.update';
 import { GET_ALL_KINDERGARTENS_BY_ADMIN } from '../../../apollo/admin/query';
 import { UPDATE_KINDERGARTEN_BY_ADMIN } from '../../../apollo/admin/mutation';
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
 
 const AdminKindergartens: NextPage = ({ initialInquiry, ...props }: any) => {
+	const { t, statusLabel } = useAdminTranslation();
 	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
 	const [kindergartensInquiry, setKindergartensInquiry] = useState<AllKindergartensInquiry>(initialInquiry);
 	const [kindergartens, setKindergartens] = useState<Kindergarten[]>([]);
@@ -109,7 +111,7 @@ const AdminKindergartens: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	const updateKindergartenHandler = async (updateData: KindergartenUpdate) => {
 		try {
-			if (!updateData.kindergartenStatus) throw new Error('Only kindergarten status updates are available.');
+			if (!updateData.kindergartenStatus) throw new Error(t('adminPages.kindergartens.statusOnlyError'));
 			await updateKindergartenByAdmin({
 				variables: {
 					input: {
@@ -122,7 +124,7 @@ const AdminKindergartens: NextPage = ({ initialInquiry, ...props }: any) => {
 			setKindergartens(refreshed?.data?.getAllKindergartensByAdmin?.list ?? []);
 			setKindergartensTotal(refreshed?.data?.getAllKindergartensByAdmin?.metaCounter?.[0]?.total ?? 0);
 			menuIconCloseHandler();
-			await sweetMixinSuccessAlert('Kindergarten status updated');
+			await sweetMixinSuccessAlert(t('adminPages.kindergartens.statusUpdated'));
 		} catch (err: any) {
 			menuIconCloseHandler();
 			sweetErrorHandling(err).then();
@@ -132,7 +134,7 @@ const AdminKindergartens: NextPage = ({ initialInquiry, ...props }: any) => {
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Kindergarten List
+				{t('adminPages.kindergartens.title')}
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
@@ -144,35 +146,35 @@ const AdminKindergartens: NextPage = ({ initialInquiry, ...props }: any) => {
 									value="ALL"
 									className={value === 'ALL' ? 'li on' : 'li'}
 								>
-									All
+									{t('statuses.ALL')}
 								</ListItem>
 								<ListItem
 									onClick={(e) => tabChangeHandler(e, 'ACTIVE')}
 									value="ACTIVE"
 									className={value === 'ACTIVE' ? 'li on' : 'li'}
 								>
-									Active
+									{statusLabel(KindergartenStatus.ACTIVE)}
 								</ListItem>
 								<ListItem
 									onClick={(e) => tabChangeHandler(e, 'CLOSED')}
 									value="CLOSED"
 									className={value === 'CLOSED' ? 'li on' : 'li'}
 								>
-									Closed
+									{statusLabel(KindergartenStatus.CLOSED)}
 								</ListItem>
 								<ListItem
 									onClick={(e) => tabChangeHandler(e, 'DELETE')}
 									value="DELETE"
 									className={value === 'DELETE' ? 'li on' : 'li'}
 								>
-									Deleted
+									{statusLabel(KindergartenStatus.DELETE)}
 								</ListItem>
 							</List>
 							<Divider />
 							<Stack className={'search-area'} sx={{ m: '24px' }}>
 								<Select sx={{ width: '180px', mr: '20px' }} value={searchType}>
 									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										All Locations
+										{t('adminFilters.allLocations')}
 									</MenuItem>
 									{Object.values(KindergartenLocation).map((location: string) => (
 										<MenuItem value={location} onClick={() => searchTypeHandler(location)} key={location}>

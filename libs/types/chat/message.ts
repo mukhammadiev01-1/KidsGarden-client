@@ -1,4 +1,5 @@
 import { Direction } from '../../enums/common.enum';
+import { ConversationType } from '../../enums/chat.enum';
 import { TotalCounter } from '../kindergarten/kindergarten';
 
 export interface Message {
@@ -40,6 +41,18 @@ export interface SendMessageInput {
 	conversationId: string;
 	text?: string;
 	attachments?: ChatAttachment[];
+}
+
+export interface TranslateChatMessageInput {
+	conversationType: ConversationType;
+	messageId: string;
+	targetLang: 'en' | 'ko' | 'ru' | 'uz';
+}
+
+export interface TranslatedMessage {
+	messageId: string;
+	targetLang: string;
+	translatedText: string;
 }
 
 export interface ParentTeacherConversationInput {

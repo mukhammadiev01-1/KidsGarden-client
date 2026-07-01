@@ -21,8 +21,9 @@ import { Application, ApplicationDocument } from '../../../types/application/app
 import { ApplicationsInquiry } from '../../../types/application/application.input';
 import { getImageUrl } from '../../../config';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../../sweetAlert';
-import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from '../../mypage/dashboardUtils';
+import { formatDate, getStatusChipSx, truncateId } from '../../mypage/dashboardUtils';
 import ApplicationChatPanel from '../../chat/ApplicationChatPanel';
+import { useAdminTranslation } from '../../../i18n/adminTranslator';
 
 const reviewStatuses = [
 	ApplicationStatus.REVIEWING,
@@ -36,8 +37,8 @@ const formatDocumentSize = (size: number) => {
 	return `${Math.max(1, Math.round(size / 1024))} KB`;
 };
 
-const renderApplicationDocuments = (documents?: ApplicationDocument[]) => {
-	if (!documents?.length) return <Typography sx={{ fontSize: '12px', color: '#9ca3af' }}>-</Typography>;
+const renderApplicationDocuments = (documents: ApplicationDocument[] | undefined, emptyLabel: string) => {
+	if (!documents?.length) return <Typography sx={{ fontSize: '12px', color: '#9ca3af' }}>{emptyLabel}</Typography>;
 
 	return (
 		<Stack spacing={0.5}>
@@ -61,6 +62,7 @@ interface Props {
 }
 
 const ApplicationList = ({ initialInquiry }: Props) => {
+	const { t, statusLabel } = useAdminTranslation();
 	const [applicationsInquiry, setApplicationsInquiry] = useState<ApplicationsInquiry>(initialInquiry);
 	const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
 	const [activeChatApplicationId, setActiveChatApplicationId] = useState<string>('');
@@ -94,7 +96,7 @@ const ApplicationList = ({ initialInquiry }: Props) => {
 	const updateStatusHandler = async (application: Application, status: ApplicationStatus) => {
 		try {
 			const adminNote = adminNotes[application._id]?.trim();
-			if (!(await sweetConfirmAlert(`Set this application to ${getStatusLabel(status)}?`))) return;
+			if (!(await sweetConfirmAlert(t('adminDialogs.setApplicationStatus', { status: statusLabel(status) })))) return;
 			await updateApplicationStatus({
 				variables: {
 					input: {
@@ -106,7 +108,7 @@ const ApplicationList = ({ initialInquiry }: Props) => {
 			});
 			setAdminNotes((prev) => ({ ...prev, [application._id]: '' }));
 			await refetch();
-			await sweetMixinSuccessAlert('Application updated');
+			await sweetMixinSuccessAlert(t('adminPages.applications.updated'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -116,48 +118,48 @@ const ApplicationList = ({ initialInquiry }: Props) => {
 		<Stack spacing={3}>
 			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography variant="h2" className="tit">
-					Kindergarten Applications
+					{t('adminPages.applications.title')}
 				</Typography>
 				<Typography sx={{ color: '#64746b' }}>
-					Review child admission applications and inquiries across all kindergartens.
+					{t('adminPages.applications.subtitle')}
 				</Typography>
 			</Stack>
 
 			<Stack className="table-wrap" spacing={2} sx={{ p: '24px' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Applications</Typography>
-						<Typography className="dashboard-panel-subtitle">Super Admin review list.</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('adminPages.applications.panelTitle')}</Typography>
+						<Typography className="dashboard-panel-subtitle">{t('adminPages.applications.panelSubtitle')}</Typography>
 					</Stack>
-					<Chip label={`${total} total`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('adminTables.totalCount', { count: total })} size="small" className="dashboard-count-chip" />
 				</Stack>
 				<TableContainer>
 					<Table sx={{ minWidth: 1220 }} size="medium">
 						<TableHead>
 							<TableRow>
-								<TableCell>Parent</TableCell>
-								<TableCell>Kindergarten</TableCell>
-								<TableCell>Child</TableCell>
-								<TableCell>Status</TableCell>
-								<TableCell>Message</TableCell>
-								<TableCell>Documents</TableCell>
-								<TableCell>Created</TableCell>
-								<TableCell>Admin note</TableCell>
-								<TableCell align="right">Actions</TableCell>
+								<TableCell>{t('adminTables.parent')}</TableCell>
+								<TableCell>{t('adminTables.kindergarten')}</TableCell>
+								<TableCell>{t('adminTables.child')}</TableCell>
+								<TableCell>{t('adminTables.status')}</TableCell>
+								<TableCell>{t('adminTables.message')}</TableCell>
+								<TableCell>{t('adminTables.documents')}</TableCell>
+								<TableCell>{t('adminTables.created')}</TableCell>
+								<TableCell>{t('adminTables.adminNote')}</TableCell>
+								<TableCell align="right">{t('adminTables.actions')}</TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>
 							{loading && (
 								<TableRow>
 									<TableCell align="center" colSpan={9}>
-										Loading applications...
+										{t('adminPages.applications.loading')}
 									</TableCell>
 								</TableRow>
 							)}
 							{!loading && applications.length === 0 && (
 								<TableRow>
 									<TableCell align="center" colSpan={9}>
-										<span className="no-data">No kindergarten applications found.</span>
+										<span className="no-data">{t('adminPages.applications.empty')}</span>
 									</TableCell>
 								</TableRow>
 							)}
@@ -171,7 +173,7 @@ const ApplicationList = ({ initialInquiry }: Props) => {
 											<TableCell sx={{ maxWidth: 220 }}>
 												<Stack spacing={0.25}>
 													<Typography sx={{ fontWeight: 700 }}>
-														{parent?.memberNick || parent?.memberFullName || 'Parent reference'}
+														{parent?.memberNick || parent?.memberFullName || t('adminPages.applications.parentReference')}
 													</Typography>
 													<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
 														{truncateId(application.parentId)}
@@ -181,7 +183,7 @@ const ApplicationList = ({ initialInquiry }: Props) => {
 											<TableCell sx={{ maxWidth: 240 }}>
 												<Stack spacing={0.25}>
 													<Typography sx={{ fontWeight: 700 }}>
-														{application.kindergartenData?.kindergartenTitle || 'Kindergarten reference'}
+														{application.kindergartenData?.kindergartenTitle || t('adminPages.applications.kindergartenReference')}
 													</Typography>
 													<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
 														{truncateId(application.kindergartenId)}
@@ -191,22 +193,24 @@ const ApplicationList = ({ initialInquiry }: Props) => {
 											<TableCell>
 												<Stack spacing={0.25}>
 													<Typography sx={{ fontWeight: 700 }}>{application.childName}</Typography>
-													<Typography sx={{ fontSize: '12px', color: '#64746b' }}>{application.childAge} years old</Typography>
+													<Typography sx={{ fontSize: '12px', color: '#64746b' }}>
+														{t('adminTables.ageYears', { age: application.childAge })}
+													</Typography>
 												</Stack>
 											</TableCell>
 											<TableCell>
-												<Chip label={getStatusLabel(application.status)} size="small" sx={getStatusChipSx(application.status)} />
+												<Chip label={statusLabel(application.status)} size="small" sx={getStatusChipSx(application.status)} />
 											</TableCell>
 											<TableCell sx={{ maxWidth: 220 }}>{application.parentMessage || '-'}</TableCell>
 											<TableCell sx={{ maxWidth: 240 }}>
-												{renderApplicationDocuments(application.documents)}
+												{renderApplicationDocuments(application.documents, t('adminTables.none'))}
 											</TableCell>
 											<TableCell>{formatDate(application.createdAt)}</TableCell>
 											<TableCell sx={{ minWidth: 220 }}>
 												<TextField
 													fullWidth
 													size="small"
-													placeholder={application.adminNote || 'Optional note'}
+													placeholder={application.adminNote || t('adminForms.optionalNote')}
 													value={adminNotes[application._id] || ''}
 													onChange={(event) =>
 														setAdminNotes((prev) => ({
@@ -220,7 +224,7 @@ const ApplicationList = ({ initialInquiry }: Props) => {
 											<TableCell align="right">
 												<Stack direction="row" spacing={1} justifyContent="flex-end">
 													<Button variant="outlined" onClick={() => toggleChatHandler(application._id)}>
-														{activeChatApplicationId === application._id ? 'Close Chat' : 'Open Chat'}
+														{activeChatApplicationId === application._id ? t('adminActions.closeChat') : t('adminActions.openChat')}
 													</Button>
 													{reviewStatuses.map((status) => (
 														<Button
@@ -230,7 +234,7 @@ const ApplicationList = ({ initialInquiry }: Props) => {
 															disabled={isFinal || application.status === status}
 															onClick={() => updateStatusHandler(application, status)}
 														>
-															{getStatusLabel(status)}
+															{statusLabel(status)}
 														</Button>
 													))}
 												</Stack>
@@ -241,7 +245,7 @@ const ApplicationList = ({ initialInquiry }: Props) => {
 												<TableCell colSpan={9}>
 													<ApplicationChatPanel
 														applicationId={application._id}
-														title="Application chat"
+														title={t('messages.conversationTypes.APPLICATION_CHAT')}
 														onClose={() => setActiveChatApplicationId('')}
 													/>
 												</TableCell>

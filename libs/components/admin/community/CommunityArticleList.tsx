@@ -21,6 +21,8 @@ import { BoardArticle } from '../../../types/board-article/board-article';
 import { REACT_APP_API_URL } from '../../../config';
 import Typography from '@mui/material/Typography';
 import { BoardArticleCategory, BoardArticleStatus } from '../../../enums/board-article.enum';
+import { getArticleExcerpt } from '../../../utils/articleExcerpt';
+import { useAdminTranslation } from '../../../i18n/adminTranslator';
 
 interface Data {
 	category: string;
@@ -38,7 +40,7 @@ interface Data {
 interface HeadCell {
 	disablePadding: boolean;
 	id: keyof Data;
-	label: string;
+	labelKey: string;
 	numeric: boolean;
 }
 
@@ -47,61 +49,61 @@ const headCells: readonly HeadCell[] = [
 		id: 'article_id',
 		numeric: true,
 		disablePadding: false,
-		label: 'ARTICLE ID',
+		labelKey: 'adminTables.articleId',
 	},
 	{
 		id: 'title',
 		numeric: true,
 		disablePadding: false,
-		label: 'TITLE',
+		labelKey: 'adminTables.title',
 	},
 	{
 		id: 'category',
 		numeric: true,
 		disablePadding: false,
-		label: 'CATEGORY',
+		labelKey: 'adminTables.category',
 	},
 	{
 		id: 'writer',
 		numeric: true,
 		disablePadding: false,
-		label: 'AUTHOR',
+		labelKey: 'adminTables.author',
 	},
 	{
 		id: 'content',
 		numeric: true,
 		disablePadding: false,
-		label: 'PREVIEW',
+		labelKey: 'adminTables.preview',
 	},
 	{
 		id: 'view',
 		numeric: false,
 		disablePadding: false,
-		label: 'VIEWS',
+		labelKey: 'adminTables.views',
 	},
 	{
 		id: 'like',
 		numeric: false,
 		disablePadding: false,
-		label: 'LIKES',
+		labelKey: 'adminTables.likes',
 	},
 	{
 		id: 'comment',
 		numeric: false,
 		disablePadding: false,
-		label: 'COMMENTS',
+		labelKey: 'adminTables.comments',
 	},
 	{
 		id: 'register',
 		numeric: true,
 		disablePadding: false,
-		label: 'REGISTER DATE',
+		labelKey: 'adminTables.registerDate',
 	},
 	{
 		id: 'status',
 		numeric: false,
 		disablePadding: false,
-		label: 'STATUS',
+		labelKey: 'adminTables.status',
 	},
 ];
 
@@ -113,6 +115,7 @@ interface EnhancedTableProps {
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
+	const { t } = useAdminTranslation();
 	return (
 		<TableHead>
 			<TableRow>
@@ -122,7 +125,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 						align={headCell.numeric ? 'left' : 'center'}
 						padding={headCell.disablePadding ? 'none' : 'normal'}
 					>
-						{headCell.label}
+						{t(headCell.labelKey)}
 					</TableCell>
 				))}
 			</TableRow>
@@ -138,22 +141,8 @@ interface CommunityArticleListProps {
 }
 
 const CommunityArticleList = (props: CommunityArticleListProps) => {
+	const { t, categoryLabel, statusLabel } = useAdminTranslation();
 	const { articles, updateArticleHandler, loading, error } = props;
-
-	const categoryLabel = (category: BoardArticleCategory) => {
-		switch (category) {
-			case BoardArticleCategory.FREE:
-				return 'Parent Board';
-			case BoardArticleCategory.NEWS:
-				return 'News';
-			default:
-				return `Legacy: ${category}`;
-		}
-	};
-
-	const stripHtml = (value?: string) => {
-		return value?.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim() || '';
-	};
 
 	return (
 		<Stack>
@@ -165,21 +154,21 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 						{loading && (
 							<TableRow>
 								<TableCell align="center" colSpan={10}>
-									<span className={'no-data'}>Loading community articles...</span>
+									<span className={'no-data'}>{t('adminPages.communityArticles.loading')}</span>
 								</TableCell>
 							</TableRow>
 						)}
 						{!loading && error && (
 							<TableRow>
 								<TableCell align="center" colSpan={10}>
-									<span className={'no-data'}>Community articles could not be loaded.</span>
+									<span className={'no-data'}>{t('adminPages.communityArticles.loadError')}</span>
 								</TableCell>
 							</TableRow>
 						)}
 						{!loading && !error && articles.length === 0 && (
 							<TableRow>
 								<TableCell align="center" colSpan={10}>
-									<span className={'no-data'}>No community articles found.</span>
+									<span className={'no-data'}>{t('adminPages.communityArticles.empty')}</span>
 								</TableCell>
 							</TableRow>
 						)}
@@ -204,7 +193,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 												className={'img_box'}
 											>
 												<IconButton className="btn_window">
-													<Tooltip title={'Open window'}>
+													<Tooltip title={t('adminActions.open')}>
 														<OpenInBrowserRoundedIcon />
 													</Tooltip>
 												</IconButton>
@@ -215,7 +204,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 									<TableCell align="left" className={'name'}>
 										<Stack direction="row" alignItems="center">
 											<Avatar
-												alt={article?.memberData?.memberNick || 'Author'}
+												alt={article?.memberData?.memberNick || t('adminTables.author')}
 												src={
 													article?.memberData?.memberImage
 														? `${REACT_APP_API_URL}/${article?.memberData?.memberImage}`
@@ -224,13 +213,13 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 												sx={{ ml: '2px', mr: '10px' }}
 											/>
 											<Typography sx={{ maxWidth: 180 }} noWrap>
-												{article?.memberData?.memberFullName || article?.memberData?.memberNick || 'Unknown author'}
+												{article?.memberData?.memberFullName || article?.memberData?.memberNick || t('adminTables.unknownAuthor')}
 											</Typography>
 										</Stack>
 									</TableCell>
 									<TableCell align="left">
-										<Typography sx={{ maxWidth: 260, color: '#59675f' }} noWrap title={stripHtml(article.articleContent)}>
-											{stripHtml(article.articleContent) || '-'}
+										<Typography sx={{ maxWidth: 260, color: '#59675f' }} noWrap title={getArticleExcerpt(article.articleContent, 220, '-')}>
+											{getArticleExcerpt(article.articleContent, 120, '-')}
 										</Typography>
 									</TableCell>
 									<TableCell align="center">{article?.articleViews}</TableCell>
@@ -254,7 +243,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 										>
 											{Object.values(BoardArticleStatus).map((status: BoardArticleStatus) => (
 												<MenuItem value={status} key={status}>
-													{status === BoardArticleStatus.DELETE ? 'DELETED' : status}
+													{statusLabel(status)}
 												</MenuItem>
 											))}
 										</Select>

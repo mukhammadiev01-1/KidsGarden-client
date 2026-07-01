@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NAVER_MAPS_KEY_ID } from '../../config';
 import { loadNaverMapSdk } from '../../utils/naverMapLoader';
+import { useTranslation } from 'next-i18next';
 
 interface NaverKindergartenMapProps {
 	latitude?: number | string | null;
@@ -24,18 +25,19 @@ const toCoordinate = (value?: number | string | null): number | null => {
 const isValidLatitude = (value: number): boolean => value >= -90 && value <= 90;
 const isValidLongitude = (value: number): boolean => value >= -180 && value <= 180;
 
-const getFallbackText = (reason: string, address?: string): string => {
-	if (reason === 'no coordinates') return `Map location will be added soon.${address ? ` ${address}` : ''}`;
-	if (!isDevelopment) return address || 'Map location will be added soon.';
-	return `${address || 'Map location will be added soon.'} (${reason})`;
+const getFallbackText = (reason: string, t: (key: string) => string, address?: string): string => {
+	if (reason === 'no coordinates') return `${t('map.locationSoon')}${address ? ` ${address}` : ''}`;
+	if (!isDevelopment) return address || t('map.locationSoon');
+	return `${address || t('map.locationSoon')} (${reason})`;
 };
 
 const NaverKindergartenMap = ({ latitude, longitude, address, title }: NaverKindergartenMapProps) => {
+	const { t } = useTranslation('common');
 	const mapContainerRef = useRef<HTMLDivElement | null>(null);
 	const markerRef = useRef<any>(null);
 	const mapInstanceRef = useRef<any>(null);
 	const [mapReady, setMapReady] = useState(false);
-	const [statusText, setStatusText] = useState('Loading map...');
+	const [statusText, setStatusText] = useState<string>(String(t('map.loading')));
 
 	useEffect(() => {
 		let disposed = false;
@@ -51,13 +53,13 @@ const NaverKindergartenMap = ({ latitude, longitude, address, title }: NaverKind
 				!isValidLongitude(parsedLongitude)
 			) {
 				setMapReady(false);
-				setStatusText(getFallbackText('no coordinates', address));
+				setStatusText(getFallbackText('no coordinates', t, address));
 				return;
 			}
 
 			if (!NAVER_MAPS_KEY_ID) {
 				setMapReady(false);
-				setStatusText(getFallbackText('missing key', address));
+				setStatusText(getFallbackText('missing key', t, address));
 				return;
 			}
 
@@ -75,7 +77,7 @@ const NaverKindergartenMap = ({ latitude, longitude, address, title }: NaverKind
 				const marker = new window.naver.maps.Marker({
 					position: markerPosition,
 					map,
-					title: title || 'Kindergarten location',
+					title: title || t('map.kindergartenLocation'),
 				});
 
 				mapInstanceRef.current = map;
@@ -86,7 +88,7 @@ const NaverKindergartenMap = ({ latitude, longitude, address, title }: NaverKind
 				if (!disposed) {
 					const reason = err instanceof Error ? err.message : 'script load failed';
 					setMapReady(false);
-					setStatusText(getFallbackText(reason, address));
+					setStatusText(getFallbackText(reason, t, address));
 				}
 			}
 		};
@@ -108,11 +110,11 @@ const NaverKindergartenMap = ({ latitude, longitude, address, title }: NaverKind
 				mapContainerRef.current.innerHTML = '';
 			}
 		};
-	}, [latitude, longitude, address, title]);
+	}, [latitude, longitude, address, title, t]);
 
 	return (
 		<>
-			<div ref={mapContainerRef} className="kg-detail-map-placeholder" aria-label={title || 'Kindergarten map'} />
+			<div ref={mapContainerRef} className="kg-detail-map-placeholder" aria-label={title || t('map.detailAria')} />
 			{statusText && <p className="kg-map-helper-text">{statusText}</p>}
 		</>
 	);

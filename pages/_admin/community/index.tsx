@@ -17,8 +17,10 @@ import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetA
 import { BoardArticleUpdate } from '../../../libs/types/board-article/board-article.update';
 import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '../../../apollo/admin/query';
 import { UPDATE_BOARD_ARTICLE_BY_ADMIN } from '../../../apollo/admin/mutation';
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
 
 const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
+	const { t, categoryLabel, statusLabel } = useAdminTranslation();
 	const [communityInquiry, setCommunityInquiry] = useState<AllBoardArticlesInquiry>(initialInquiry);
 	const [articles, setArticles] = useState<BoardArticle[]>([]);
 	const [articleTotal, setArticleTotal] = useState<number>(0);
@@ -113,7 +115,7 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 				},
 			});
 			await refetch({ input: communityInquiry });
-			await sweetMixinSuccessAlert('Article status updated');
+			await sweetMixinSuccessAlert(t('adminPages.communityArticles.statusUpdated'));
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -122,10 +124,10 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Community Articles
+				{t('adminPages.communityArticles.title')}
 			</Typography>
 			<Typography sx={{ mb: '24px', color: '#64746b' }}>
-				Moderate Parent Board and News posts.
+				{t('adminPages.communityArticles.subtitle')}
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
@@ -137,36 +139,32 @@ const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
 									value="ALL"
 									className={value === 'ALL' ? 'li on' : 'li'}
 								>
-									All
+									{t('statuses.ALL')}
 								</ListItem>
 								<ListItem
 									onClick={(e) => tabChangeHandler(e, 'ACTIVE')}
 									value="ACTIVE"
 									className={value === 'ACTIVE' ? 'li on' : 'li'}
 								>
-									Active
+									{statusLabel(BoardArticleStatus.ACTIVE)}
 								</ListItem>
 								<ListItem
 									onClick={(e) => tabChangeHandler(e, 'DELETE')}
 									value="DELETE"
 									className={value === 'DELETE' ? 'li on' : 'li'}
 								>
-									Deleted
+									{statusLabel(BoardArticleStatus.DELETE)}
 								</ListItem>
 							</List>
 							<Divider />
 							<Stack className={'search-area'} sx={{ m: '24px' }}>
 								<Select sx={{ width: '160px', mr: '20px' }} value={searchType}>
 									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										ALL
+										{t('statuses.ALL')}
 									</MenuItem>
 									{Object.values(BoardArticleCategory).map((category: string) => (
 										<MenuItem value={category} onClick={() => searchTypeHandler(category)} key={category}>
-											{category === BoardArticleCategory.FREE
-												? 'Parent Board'
-												: category === BoardArticleCategory.NEWS
-												? 'News'
-												: `Legacy: ${category}`}
+											{categoryLabel(category)}
 										</MenuItem>
 									))}
 								</Select>

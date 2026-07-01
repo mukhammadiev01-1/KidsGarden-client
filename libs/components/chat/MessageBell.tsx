@@ -18,6 +18,7 @@ import { userVar } from '../../../apollo/store';
 import { getImageUrl } from '../../config';
 import { useRealtimeEvent } from '../../hooks/useRealtimeEvent';
 import { MyConversationSummary, MyConversationsInput } from '../../types/chat/conversation';
+import { useTranslation } from 'next-i18next';
 
 const APPLICATION_CHAT_MESSAGE_CREATED_EVENT = 'application_chat.message.created';
 const PARENT_TEACHER_CHAT_MESSAGE_CREATED_EVENT = 'parent_teacher_chat.message.created';
@@ -27,7 +28,7 @@ const conversationsInput: MyConversationsInput = {
 	limit: 8,
 };
 
-const formatConversationTime = (value?: Date | string | null): string => {
+const formatConversationTime = (value?: Date | string | null, locale = 'en'): string => {
 	if (!value) return '';
 	const date = new Date(value);
 	if (Number.isNaN(date.getTime())) return '';
@@ -35,10 +36,10 @@ const formatConversationTime = (value?: Date | string | null): string => {
 	const now = new Date();
 	const sameDay = date.toDateString() === now.toDateString();
 	if (sameDay) {
-		return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 	}
 
-	return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+	return date.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 };
 
 const getInitial = (title?: string): string => {
@@ -48,6 +49,8 @@ const getInitial = (title?: string): string => {
 
 const MessageBell = () => {
 	const router = useRouter();
+	const { t } = useTranslation('common');
+	const locale = router.locale === 'kr' ? 'ko' : router.locale || 'en';
 	const user = useReactiveVar(userVar);
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 	const open = Boolean(anchorEl);
@@ -104,13 +107,13 @@ const MessageBell = () => {
 
 	const popoverTitle = useMemo(() => {
 		const total = conversationsData?.getMyConversations?.total;
-		return total ? `Chats (${total})` : 'Chats';
-	}, [conversationsData?.getMyConversations?.total]);
+		return total ? t('messageBell.titleWithCount', { count: total }) : t('messageBell.title');
+	}, [conversationsData?.getMyConversations?.total, t]);
 
 	return (
 		<>
 			<IconButton
-				aria-label="Chats"
+				aria-label={t('messageBell.ariaLabel')}
 				onClick={openHandler}
 				size="small"
 				className="message-icon-button"
@@ -148,23 +151,23 @@ const MessageBell = () => {
 				>
 					<Stack className="message-panel-header" direction="row" justifyContent="space-between" alignItems="center" gap={1}>
 						<Typography sx={{ fontWeight: 800, color: '#24332d' }}>{popoverTitle}</Typography>
-						<Typography sx={{ fontSize: '12px', fontWeight: 700, color: '#6f8177' }}>Private</Typography>
+						<Typography sx={{ fontSize: '12px', fontWeight: 700, color: '#6f8177' }}>{t('messageBell.private')}</Typography>
 					</Stack>
 
 					{conversationsLoading && (
 						<Stack direction="row" alignItems="center" gap={1}>
 							<CircularProgress size={16} />
-							<Typography sx={{ fontSize: '13px', color: '#64746b' }}>Loading chats...</Typography>
+							<Typography sx={{ fontSize: '13px', color: '#64746b' }}>{t('messageBell.loading')}</Typography>
 						</Stack>
 					)}
 
 					{conversationsError && (
-						<Typography sx={{ fontSize: '13px', color: '#b42318' }}>Chats could not be loaded.</Typography>
+						<Typography sx={{ fontSize: '13px', color: '#b42318' }}>{t('messageBell.loadError')}</Typography>
 					)}
 
 					{!conversationsLoading && !conversationsError && conversations.length === 0 && (
 						<Typography className="message-empty-state" sx={{ fontSize: '13px', color: '#64746b' }}>
-							No chats yet.
+							{t('messageBell.empty')}
 						</Typography>
 					)}
 
@@ -210,11 +213,11 @@ const MessageBell = () => {
 													{conversation.title}
 												</Typography>
 												<Typography sx={{ fontSize: '11px', color: '#9ca3af', flexShrink: 0 }}>
-													{formatConversationTime(conversation.lastMessageAt)}
+													{formatConversationTime(conversation.lastMessageAt, locale)}
 												</Typography>
 											</Stack>
 											<Typography sx={{ fontSize: '12px', color: '#64746b' }}>
-												{conversation.subtitle || conversation.participantLabel || 'Private chat'}
+												{conversation.subtitle || conversation.participantLabel || t(`messages.conversationTypes.${conversation.conversationType}`, t('messageBell.privateChat'))}
 											</Typography>
 											<Stack direction="row" justifyContent="space-between" alignItems="center" gap={1}>
 												<Typography
@@ -227,7 +230,7 @@ const MessageBell = () => {
 														minWidth: 0,
 													}}
 												>
-													{conversation.lastMessage || 'No messages yet.'}
+													{conversation.lastMessage || t('messageBell.noMessagesYet')}
 												</Typography>
 												{conversation.unreadCount > 0 && (
 													<Box
@@ -262,7 +265,7 @@ const MessageBell = () => {
 						onClick={viewAllHandler}
 						sx={{ justifyContent: 'center', color: '#2f7d4a', textTransform: 'none', fontWeight: 800 }}
 					>
-						View all messages
+						{t('messageBell.viewAll')}
 					</Button>
 				</Stack>
 			</Popover>

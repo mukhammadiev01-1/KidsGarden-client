@@ -19,8 +19,10 @@ import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetA
 import { MemberUpdate } from '../../../libs/types/member/member.update';
 import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
 import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
 
 const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
+	const { t, roleLabel, statusLabel } = useAdminTranslation();
 	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
 	const [membersInquiry, setMembersInquiry] = useState<MembersInquiry>(initialInquiry);
 	const [members, setMembers] = useState<Member[]>([]);
@@ -92,7 +94,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 
 	const updateMemberHandler = async (updateData: MemberUpdate) => {
 		try {
-			if (!updateData.memberStatus) throw new Error('Only member status updates are available.');
+			if (!updateData.memberStatus) throw new Error(t('adminPages.members.statusOnlyError'));
 			await updateMemberByAdmin({
 				variables: {
 					input: {
@@ -105,7 +107,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 			setMembers(refreshed?.data?.getAllMembersByAdmin?.list ?? []);
 			setMembersTotal(refreshed?.data?.getAllMembersByAdmin?.metaCounter?.[0]?.total ?? 0);
 			menuIconCloseHandler();
-			await sweetMixinSuccessAlert('Member status updated');
+			await sweetMixinSuccessAlert(t('adminPages.members.statusUpdated'));
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -161,7 +163,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Member List
+				{t('adminPages.members.title')}
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
@@ -173,28 +175,28 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 									value="ALL"
 									className={value === 'ALL' ? 'li on' : 'li'}
 								>
-									All
+									{t('statuses.ALL')}
 								</ListItem>
 								<ListItem
 									onClick={(e) => tabChangeHandler(e, 'ACTIVE')}
 									value="ACTIVE"
 									className={value === 'ACTIVE' ? 'li on' : 'li'}
 								>
-									Active
+									{statusLabel(MemberStatus.ACTIVE)}
 								</ListItem>
 								<ListItem
 									onClick={(e) => tabChangeHandler(e, 'BLOCK')}
 									value="BLOCK"
 									className={value === 'BLOCK' ? 'li on' : 'li'}
 								>
-									Blocked
+									{statusLabel(MemberStatus.BLOCK)}
 								</ListItem>
 								<ListItem
 									onClick={(e) => tabChangeHandler(e, 'DELETE')}
 									value="DELETE"
 									className={value === 'DELETE' ? 'li on' : 'li'}
 								>
-									Deleted
+									{statusLabel(MemberStatus.DELETE)}
 								</ListItem>
 							</List>
 							<Divider />
@@ -204,7 +206,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 									onChange={(e: any) => textHandler(e.target.value)}
 									sx={{ width: '100%' }}
 									className={'search'}
-									placeholder="Search user name"
+									placeholder={t('adminFilters.searchUserName')}
 									onKeyDown={(event) => {
 										if (event.key == 'Enter') searchTextHandler();
 									}}
@@ -233,22 +235,22 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 								/>
 								<Select sx={{ width: '160px', ml: '20px' }} value={searchType}>
 									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										All
+										{t('statuses.ALL')}
 									</MenuItem>
 									<MenuItem value={MemberType.PARENT} onClick={() => searchTypeHandler(MemberType.PARENT)}>
-										Parent
+										{roleLabel(MemberType.PARENT)}
 									</MenuItem>
 									<MenuItem value={MemberType.TEACHER} onClick={() => searchTypeHandler(MemberType.TEACHER)}>
-										Teacher
+										{roleLabel(MemberType.TEACHER)}
 									</MenuItem>
 									<MenuItem
 										value={MemberType.KINDERGARTEN_ADMIN}
 										onClick={() => searchTypeHandler(MemberType.KINDERGARTEN_ADMIN)}
 									>
-										Kindergarten Admin
+										{roleLabel(MemberType.KINDERGARTEN_ADMIN)}
 									</MenuItem>
 									<MenuItem value={MemberType.SUPER_ADMIN} onClick={() => searchTypeHandler(MemberType.SUPER_ADMIN)}>
-										Super Admin
+										{roleLabel(MemberType.SUPER_ADMIN)}
 									</MenuItem>
 								</Select>
 							</Stack>

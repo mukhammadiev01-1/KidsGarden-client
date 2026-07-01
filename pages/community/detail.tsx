@@ -1,8 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import axios from 'axios';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import { Button, Stack, Typography, Tab, Tabs, IconButton, Backdrop, Pagination } from '@mui/material';
+import {
+	Button,
+	Stack,
+	Typography,
+	Tab,
+	Tabs,
+	IconButton,
+	Backdrop,
+	Pagination,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	TextField,
+} from '@mui/material';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import Moment from 'react-moment';
@@ -19,23 +34,29 @@ import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
 import { T } from '../../libs/types/common';
 import EditIcon from '@mui/icons-material/Edit';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import { BoardArticle } from '../../libs/types/board-article/board-article';
 import { GET_BOARD_ARTICLE, GET_COMMENTS } from '../../apollo/user/query';
-import { CREATE_COMMENT, LIKE_TARGET_BOARD_ARTICLE, UPDATE_COMMENT } from '../../apollo/user/mutation';
+import { CREATE_COMMENT, LIKE_TARGET_BOARD_ARTICLE, UPDATE_BOARD_ARTICLE, UPDATE_COMMENT } from '../../apollo/user/mutation';
 import { sweetErrorHandling, sweetLoginConfirmAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
-import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
+import { BoardArticleCategory, BoardArticleStatus } from '../../libs/enums/board-article.enum';
 import { MemberType } from '../../libs/enums/member.enum';
-import { getImageUrl } from '../../libs/config';
+import { getImageUrl, REACT_APP_API_GRAPHQL_URL } from '../../libs/config';
+import { getJwtToken } from '../../libs/auth';
 const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
 
 const ARTICLE_IMAGE_FALLBACK = '/img/kidsgarden/articles/article-play-based-learning.png';
 
-const resolveArticleImage = (article?: BoardArticle): string => {
+const getRawArticleImage = (article?: BoardArticle): string => {
 	const rawImage = Array.isArray((article as any)?.articleImage)
 		? (article as any).articleImage[0]
 		: article?.articleImage;
 
-	return getImageUrl(rawImage, ARTICLE_IMAGE_FALLBACK);
+	return rawImage || '';
+};
+
+const resolveArticleImage = (article?: BoardArticle): string => {
+	return getImageUrl(getRawArticleImage(article), ARTICLE_IMAGE_FALLBACK);
 };
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -46,16 +67,12 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	const router = useRouter();
+	const { t } = useTranslation('common');
 	const { query } = router;
 
 	const articleId = query?.id as string;
 	const articleCategory = query?.articleCategory as string;
-	const categoryLabels: Record<string, string> = {
-		FREE: 'Parent Board',
-		RECOMMEND: 'Kindergarten Updates',
-		NEWS: 'News',
-		HUMOR: 'Community',
-	};
+	const getCategoryLabel = (category: string) => t(`community.categories.${category}`, t('community.categories.fallback'));
 	const visibleCategories = [BoardArticleCategory.FREE, BoardArticleCategory.NEWS];
 
 	const [comment, setComment] = useState<string>('');
@@ -75,7 +92,16 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	const [updatedComment, setUpdatedComment] = useState<string>('');
 	const [updatedCommentId, setUpdatedCommentId] = useState<string>('');
 	const [likeLoading, setLikeLoading] = useState<boolean>(false);
+	const [commentSubmitting, setCommentSubmitting] = useState<boolean>(false);
 	const [boardArticle, setBoardArticle] = useState<BoardArticle>();
+	const [editOpen, setEditOpen] = useState<boolean>(false);
+	const [editTitle, setEditTitle] = useState<string>('');
+	const [editContent, setEditContent] = useState<string>('');
+	const [editImage, setEditImage] = useState<string>('');
+	const [editImagePreview, setEditImagePreview] = useState<string>(ARTICLE_IMAGE_FALLBACK);
+	const [editError, setEditError] = useState<string>('');
+	const [editSaving, setEditSaving] = useState<boolean>(false);
+	const [editImageUploading, setEditImageUploading] = useState<boolean>(false);
 	const isParent = user.memberType === MemberType.PARENT;
 	const isLoggedIn = Boolean(user?._id);
 
@@ -83,6 +109,32 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
 	const [createComment] = useMutation(CREATE_COMMENT);
 	const [updateComment] = useMutation(UPDATE_COMMENT);
+	const [updateBoardArticle] = useMutation(UPDATE_BOARD_ARTICLE);
+
+	const getCommentMemberImage = (imageUrl: string | undefined) => {
+		return getImageUrl(imageUrl, ARTICLE_IMAGE_FALLBACK);
+	};
+
+	const syncArticleState = (targetArticle?: BoardArticle) => {
+		setBoardArticle(targetArticle || undefined);
+		setMemberImage(getCommentMemberImage(targetArticle?.memberData?.memberImage));
+	};
+
+	const syncCommentsState = (data: T) => {
+		setComments(data?.getComments?.list ?? []);
+		setTotal(data?.getComments?.metaCounter?.[0]?.total ?? 0);
+	};
+
+	const buildLocalComment = (createdComment: Comment): Comment => ({
+		...createdComment,
+		memberData: {
+			_id: user._id,
+			memberNick: user.memberNick,
+			memberFullName: user.memberFullName,
+			memberImage: user.memberImage,
+			memberDesc: user.memberDesc,
+		} as any,
+	});
 
 	const {
 		loading: getBoardArticleLoading,
@@ -92,11 +144,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		skip: !articleId,
 		fetchPolicy: 'network-only',
 		variables: { input: articleId },
-		onCompleted: (data: T) => {
-			const targetArticle = data?.getBoardArticle;
-			setBoardArticle(targetArticle || undefined);
-			setMemberImage(getCommentMemberImage(targetArticle?.memberData?.memberImage));
-		},
+		onCompleted: (data: T) => syncArticleState(data?.getBoardArticle),
 		onError: () => setBoardArticle(undefined),
 	});
 
@@ -104,10 +152,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		skip: !searchFilter?.search?.commentRefId,
 		fetchPolicy: 'network-only',
 		variables: { input: searchFilter },
-		onCompleted: (data: T) => {
-			setComments(data?.getComments?.list ?? []);
-			setTotal(data?.getComments?.metaCounter?.[0]?.total ?? 0);
-		},
+		onCompleted: syncCommentsState,
 		onError: () => {
 			setComments([]);
 			setTotal(0);
@@ -122,6 +167,15 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	}, [articleId]);
 
 	/** HANDLERS **/
+	const buildCommentsInput = (page = searchFilter.page): CommentsInquiry => ({
+		...searchFilter,
+		page,
+		search: {
+			...searchFilter.search,
+			commentRefId: articleId || searchFilter.search.commentRefId,
+		},
+	});
+
 	const tabChangeHandler = (event: React.SyntheticEvent, value: string) => {
 		router.replace(
 			{
@@ -135,29 +189,64 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 
 	const creteCommentHandler = async () => {
 		try {
-			if (!articleId || !comment.trim()) return;
+			if (!articleId || !comment.trim() || commentSubmitting) return;
 			if (!user?._id) {
-				const confirmed = await sweetLoginConfirmAlert('Please login first');
+				const confirmed = await sweetLoginConfirmAlert(t('comments.loginRequired'));
 				if (confirmed) await router.push('/account/join');
 				return;
 			}
 
-			await createComment({
+			const nextComment = comment.trim();
+			setCommentSubmitting(true);
+			const createdResult = await createComment({
 				variables: {
 					input: {
 						commentGroup: CommentGroup.ARTICLE,
-						commentContent: comment.trim(),
+						commentContent: nextComment,
 						commentRefId: articleId,
 					},
 				},
 			});
+			const createdComment = createdResult.data?.createComment as Comment | undefined;
 			setComment('');
 			setWordsCnt(0);
-			await getCommentsRefetch({ input: searchFilter });
-			await getBoardArticleRefetch({ input: articleId });
-			await sweetTopSmallSuccessAlert('Comment submitted');
+			const nextSearchFilter = buildCommentsInput(1);
+			setSearchFilter(nextSearchFilter);
+			if (createdComment?._id) {
+				const localComment = buildLocalComment(createdComment);
+				setComments((prev) => [localComment, ...prev.filter((item) => item._id !== localComment._id)].slice(0, nextSearchFilter.limit));
+				setTotal((prev) => prev + 1);
+				setBoardArticle((prev) =>
+					prev
+						? {
+								...prev,
+								articleComments: (prev.articleComments || 0) + 1,
+						  }
+						: prev,
+				);
+			}
+			const [commentsResult, articleResult] = await Promise.all([
+				getCommentsRefetch({ input: nextSearchFilter }),
+				getBoardArticleRefetch({ input: articleId }),
+			]);
+			const refetchedComments = commentsResult.data?.getComments?.list ?? [];
+			if (createdComment?._id && !refetchedComments.some((item: Comment) => item._id === createdComment._id)) {
+				setComments(
+					[buildLocalComment(createdComment), ...refetchedComments.filter((item: Comment) => item._id !== createdComment._id)].slice(
+						0,
+						nextSearchFilter.limit,
+					),
+				);
+				setTotal((prev) => Math.max(commentsResult.data?.getComments?.metaCounter?.[0]?.total ?? 0, prev));
+			} else {
+				syncCommentsState(commentsResult.data);
+			}
+			syncArticleState(articleResult.data?.getBoardArticle);
+			await sweetTopSmallSuccessAlert(t('comments.submitted'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
+		} finally {
+			setCommentSubmitting(false);
 		}
 	};
 
@@ -165,7 +254,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		try {
 			if (!commentId) return;
 			if (!user?._id) {
-				const confirmed = await sweetLoginConfirmAlert('Please login first');
+				const confirmed = await sweetLoginConfirmAlert(t('comments.loginRequired'));
 				if (confirmed) await router.push('/account/join');
 				return;
 			}
@@ -180,16 +269,17 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 			setOpenBackdrop(false);
 			setUpdatedComment('');
 			setUpdatedCommentWordsCnt(0);
-			await getCommentsRefetch({ input: searchFilter });
-			await getBoardArticleRefetch({ input: articleId });
-			await sweetTopSmallSuccessAlert(commentStatus ? 'Comment removed' : 'Comment updated');
+			const nextSearchFilter = buildCommentsInput();
+			const [commentsResult, articleResult] = await Promise.all([
+				getCommentsRefetch({ input: nextSearchFilter }),
+				getBoardArticleRefetch({ input: articleId }),
+			]);
+			syncCommentsState(commentsResult.data);
+			syncArticleState(articleResult.data?.getBoardArticle);
+			await sweetTopSmallSuccessAlert(commentStatus ? t('comments.removed') : t('comments.updated'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
-	};
-
-	const getCommentMemberImage = (imageUrl: string | undefined) => {
-		return getImageUrl(imageUrl, ARTICLE_IMAGE_FALLBACK);
 	};
 
 	const cancelButtonHandler = () => {
@@ -210,7 +300,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 
 	const writeButtonHandler = async () => {
 		if (!isLoggedIn) {
-			const confirmed = await sweetLoginConfirmAlert('Please login first');
+			const confirmed = await sweetLoginConfirmAlert(t('comments.loginRequired'));
 			if (confirmed) await router.push('/account/join');
 			return;
 		}
@@ -225,26 +315,179 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 	};
 
 	const likeBoardArticleHandler = async () => {
+		let previousArticle: BoardArticle | undefined;
 		try {
 			if (!articleId || likeLoading) return;
 			if (!user?._id) {
-				const confirmed = await sweetLoginConfirmAlert('Please login first');
+				const confirmed = await sweetLoginConfirmAlert(t('comments.loginRequired'));
 				if (confirmed) await router.push('/account/join');
 				return;
 			}
 
 			setLikeLoading(true);
-			await likeTargetBoardArticle({ variables: { input: articleId } });
-			await getBoardArticleRefetch({ input: articleId });
+			previousArticle = boardArticle;
+			const currentlyLiked = Boolean(boardArticle?.meLiked?.[0]?.myFavorite);
+			setBoardArticle((prev) =>
+				prev
+					? {
+							...prev,
+							articleLikes: Math.max(0, (prev.articleLikes || 0) + (currentlyLiked ? -1 : 1)),
+							meLiked: [
+								{
+									memberId: user._id,
+									likeRefId: articleId,
+									myFavorite: !currentlyLiked,
+								},
+							],
+					  }
+					: prev,
+			);
+			const likeResult = await likeTargetBoardArticle({ variables: { input: articleId } });
+			const mutationArticle = likeResult.data?.likeTargetBoardArticle as BoardArticle | undefined;
+			if (mutationArticle) {
+				setBoardArticle((prev) =>
+					prev
+						? {
+								...prev,
+								...mutationArticle,
+								meLiked: [
+									{
+										memberId: user._id,
+										likeRefId: articleId,
+										myFavorite: !currentlyLiked,
+									},
+								],
+						  }
+						: mutationArticle,
+				);
+			}
+			const articleResult = await getBoardArticleRefetch({ input: articleId });
+			syncArticleState(articleResult.data?.getBoardArticle);
 		} catch (err: any) {
+			if (previousArticle) syncArticleState(previousArticle);
 			await sweetErrorHandling(err);
 		} finally {
 			setLikeLoading(false);
 		}
 	};
 
+	const openArticleEditHandler = () => {
+		if (!boardArticle) return;
+		setEditTitle(boardArticle.articleTitle || '');
+		setEditContent(boardArticle.articleContent || '');
+		setEditImage(getRawArticleImage(boardArticle));
+		setEditImagePreview(resolveArticleImage(boardArticle));
+		setEditError('');
+		setEditOpen(true);
+	};
+
+	const closeArticleEditHandler = () => {
+		if (editSaving) return;
+		setEditOpen(false);
+		setEditError('');
+	};
+
+	const uploadEditImageHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
+		try {
+			const file = event.target.files?.[0];
+			if (!file) return;
+
+			const token = getJwtToken();
+			if (!token) {
+				const confirmed = await sweetLoginConfirmAlert(t('comments.loginRequired'));
+				if (confirmed) await router.push('/account/join');
+				return;
+			}
+
+			setEditImageUploading(true);
+			const formData = new FormData();
+			formData.append(
+				'operations',
+				JSON.stringify({
+					query: `mutation ImageUploader($file: Upload!, $target: String!) {
+						imageUploader(file: $file, target: $target)
+					}`,
+					variables: {
+						file: null,
+						target: 'article',
+					},
+				}),
+			);
+			formData.append('map', JSON.stringify({ '0': ['variables.file'] }));
+			formData.append('0', file);
+
+			const response = await axios.post(REACT_APP_API_GRAPHQL_URL, formData, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+					'apollo-require-preflight': true,
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			const responseImage = response.data?.data?.imageUploader;
+			if (!responseImage) throw new Error(t('article.imageUploadFailed'));
+
+			setEditImage(responseImage);
+			setEditImagePreview(getImageUrl(responseImage, ARTICLE_IMAGE_FALLBACK));
+			setEditError('');
+		} catch (err: any) {
+			await sweetErrorHandling(err);
+		} finally {
+			setEditImageUploading(false);
+			event.target.value = '';
+		}
+	};
+
+	const saveArticleEditHandler = async () => {
+		try {
+			if (!boardArticle?._id || editSaving || editImageUploading) return;
+			const nextTitle = editTitle.trim();
+			const nextContent = editContent.trim();
+
+			if (nextTitle.length < 3 || nextTitle.length > 50) {
+				setEditError(t('article.titleLength'));
+				return;
+			}
+			if (nextContent.length < 3 || nextContent.length > 250) {
+				setEditError(t('article.contentLength'));
+				return;
+			}
+
+			setEditSaving(true);
+			await updateBoardArticle({
+				variables: {
+					input: {
+						_id: boardArticle._id,
+						articleTitle: nextTitle,
+						articleContent: nextContent,
+						articleImage: editImage,
+					},
+				},
+			});
+			await getBoardArticleRefetch({ input: boardArticle._id });
+			setEditOpen(false);
+			setEditError('');
+			await sweetTopSmallSuccessAlert(t('article.updated'));
+		} catch (err: any) {
+			await sweetErrorHandling(err);
+		} finally {
+			setEditSaving(false);
+		}
+	};
+
 	const articleLiked = Boolean(boardArticle?.meLiked?.[0]?.myFavorite);
 	const articleCoverImage = resolveArticleImage(boardArticle);
+	const renderArticleLikeContent = () => (
+		<>
+			{articleLiked ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
+			<Typography className="text">{boardArticle?.articleLikes}</Typography>
+		</>
+	);
+	const canEditArticle =
+		isLoggedIn &&
+		boardArticle?.memberId === user?._id &&
+		boardArticle?.articleCategory === BoardArticleCategory.FREE &&
+		boardArticle?.articleStatus === BoardArticleStatus.ACTIVE;
 
 	return (
 			<div id="community-detail-page">
@@ -254,12 +497,12 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 							<Stack className={'image-info'}>
 								<span className="community-detail-icon" aria-hidden="true">KG</span>
 								<Stack className={'community-name'}>
-									<Typography className={'name'}>Community Article</Typography>
+									<Typography className={'name'}>{t('article.communityArticle')}</Typography>
 								</Stack>
 							</Stack>
 							<Tabs
 								orientation="vertical"
-								aria-label="lab API tabs example"
+								aria-label={t('article.tabsLabel')}
 								TabIndicatorProps={{
 									style: { display: 'none' },
 								}}
@@ -269,7 +512,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 								{visibleCategories.map((category) => (
 									<Tab
 										value={category}
-										label={categoryLabels[category]}
+										label={getCategoryLabel(category)}
 										className={`tab-button ${articleCategory === category ? 'active' : ''}`}
 										key={category}
 									/>
@@ -279,36 +522,36 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 						<div className="community-detail-config">
 							<Stack className="title-box">
 								<Stack className="left">
-									<Typography className="title">Parent Community</Typography>
+									<Typography className="title">{t('article.parentCommunity')}</Typography>
 									<Typography className="sub-title">
-										Read family questions, helpful updates, and KidsGarden community conversations.
+										{t('article.detailSubtitle')}
 									</Typography>
 								</Stack>
 								{isParent && (
 									<Button onClick={writeButtonHandler} className="right">
-										Write
+										{t('article.write')}
 									</Button>
 								)}
 								{!isLoggedIn && (
 									<Button onClick={writeButtonHandler} className="right">
-										Join to Write
+										{t('article.joinToWrite')}
 									</Button>
 								)}
 							</Stack>
 							<div className="config">
 								{getBoardArticleLoading && (
 									<Stack className="first-box-config">
-										<Typography>Loading community article...</Typography>
+										<Typography>{t('article.loading')}</Typography>
 									</Stack>
 								)}
 								{!getBoardArticleLoading && getBoardArticleError && (
 									<Stack className="first-box-config">
-										<Typography>Community article could not be loaded.</Typography>
+										<Typography>{t('article.loadError')}</Typography>
 									</Stack>
 								)}
 								{!getBoardArticleLoading && !getBoardArticleError && !boardArticle && (
 									<Stack className="first-box-config">
-										<Typography>Community article was not found.</Typography>
+										<Typography>{t('article.notFound')}</Typography>
 									</Stack>
 								)}
 								{!getBoardArticleLoading && !getBoardArticleError && boardArticle && (
@@ -332,11 +575,46 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 												</Stack>
 											</Stack>
 											<Stack className="info">
-												<Stack className="icon-info">
-													{articleLiked ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
-
-													<Typography className="text">{boardArticle?.articleLikes}</Typography>
-												</Stack>
+												{canEditArticle && (
+													<Button
+														type="button"
+														onClick={openArticleEditHandler}
+														startIcon={<EditIcon />}
+														sx={{
+															minHeight: 34,
+															px: 1.5,
+															borderRadius: '999px',
+															border: '1px solid #d7eadc',
+															color: '#2f7d4a',
+															background: '#f4fbf3',
+															textTransform: 'none',
+															fontSize: '12px',
+															fontWeight: 800,
+															'&:hover': {
+																background: '#e8f6e5',
+																borderColor: '#b9dfc3',
+															},
+														}}
+													>
+														{t('article.edit')}
+													</Button>
+												)}
+												<Button
+													type="button"
+													className="icon-info"
+													onClick={likeBoardArticleHandler}
+													disabled={likeLoading}
+													aria-label={articleLiked ? t('article.unlike') : t('article.like')}
+													sx={{
+														minWidth: 0,
+														p: 0,
+														color: 'inherit',
+														textTransform: 'none',
+														'&.Mui-disabled': { opacity: 0.72 },
+													}}
+												>
+													{renderArticleLikeContent()}
+												</Button>
 												<Stack className="divider"></Stack>
 												<Stack className="icon-info">
 													<VisibilityIcon />
@@ -355,30 +633,148 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 											</Stack>
 										</Stack>
 										<figure className="article-cover">
-											<img src={articleCoverImage} alt={boardArticle?.articleTitle || 'KidsGarden community article'} />
+											<img src={articleCoverImage} alt={boardArticle?.articleTitle || t('article.coverAlt')} />
 										</figure>
 										<Stack>
 											<ToastViewerComponent markdown={boardArticle?.articleContent} className={'ytb_play'} />
 										</Stack>
 										<Stack className="like-and-dislike">
 											<Stack className="top">
-												<Button onClick={likeBoardArticleHandler} disabled={likeLoading}>
-													{articleLiked ? <ThumbUpAltIcon /> : <ThumbUpOffAltIcon />}
-													<Typography className="text">{boardArticle?.articleLikes}</Typography>
+										<Button onClick={likeBoardArticleHandler} disabled={likeLoading}>
+											{renderArticleLikeContent()}
 												</Button>
 											</Stack>
 										</Stack>
 									</Stack>
 								)}
+								<Dialog
+									open={editOpen}
+									onClose={closeArticleEditHandler}
+									fullWidth
+									maxWidth="sm"
+									PaperProps={{
+										sx: {
+											borderRadius: '18px',
+											border: '1px solid #e1efe5',
+											boxShadow: '0 24px 70px rgba(47, 74, 59, 0.18)',
+										},
+									}}
+								>
+									<DialogTitle sx={{ color: '#24332d', fontWeight: 800, pb: 1 }}>
+										{t('article.editTitle')}
+									</DialogTitle>
+									<DialogContent sx={{ display: 'grid', gap: 2, pt: '12px !important' }}>
+										<Typography sx={{ color: '#64746b', fontSize: '14px', lineHeight: 1.5 }}>
+											{t('article.editHelp')}
+										</Typography>
+										<TextField
+											label={t('article.title')}
+											value={editTitle}
+											onChange={(event) => {
+												setEditTitle(event.target.value);
+												if (editError) setEditError('');
+											}}
+											inputProps={{ maxLength: 50 }}
+											fullWidth
+										/>
+										<TextField
+											label={t('article.content')}
+											value={editContent}
+											onChange={(event) => {
+												setEditContent(event.target.value);
+												if (editError) setEditError('');
+											}}
+											inputProps={{ maxLength: 250 }}
+											multiline
+											minRows={5}
+											fullWidth
+										/>
+										<Stack gap={1.25}>
+											<Typography sx={{ color: '#24332d', fontSize: '13px', fontWeight: 800 }}>
+												{t('article.coverImage')}
+											</Typography>
+											<Stack
+												direction={{ xs: 'column', sm: 'row' }}
+												gap={1.5}
+												alignItems={{ xs: 'stretch', sm: 'center' }}
+											>
+												<img
+													src={editImagePreview}
+													alt={t('article.coverPreviewAlt')}
+													style={{
+														width: 150,
+														height: 92,
+														objectFit: 'cover',
+														borderRadius: 14,
+														border: '1px solid #e1efe5',
+														background: '#f7fbf5',
+													}}
+												/>
+												<Stack gap={0.75}>
+													<Button
+														component="label"
+														variant="outlined"
+														disabled={editSaving || editImageUploading}
+														sx={{
+															borderColor: '#b9dfc3',
+															color: '#2f7d4a',
+															borderRadius: '999px',
+															textTransform: 'none',
+															fontWeight: 800,
+														}}
+													>
+														{editImageUploading ? t('article.uploading') : t('article.replaceCoverImage')}
+														<input type="file" hidden accept="image/*" onChange={uploadEditImageHandler} />
+													</Button>
+													<Typography sx={{ color: '#7d8d84', fontSize: '12px', lineHeight: 1.4 }}>
+														{t('article.coverHelp')}
+													</Typography>
+												</Stack>
+											</Stack>
+										</Stack>
+										<Stack direction="row" justifyContent="space-between" gap={2}>
+											<Typography sx={{ color: editError ? '#b42318' : '#7d8d84', fontSize: '12px' }}>
+												{editError || t('article.ownerEditOnly')}
+											</Typography>
+											<Typography sx={{ color: '#9ca3af', fontSize: '12px', flexShrink: 0 }}>
+												{editContent.trim().length}/250
+											</Typography>
+										</Stack>
+									</DialogContent>
+									<DialogActions sx={{ px: 3, pb: 3 }}>
+										<Button
+											onClick={closeArticleEditHandler}
+											disabled={editSaving}
+											sx={{ color: '#64746b', textTransform: 'none', fontWeight: 700 }}
+										>
+											{t('comments.cancel')}
+										</Button>
+										<Button
+											onClick={saveArticleEditHandler}
+											disabled={editSaving || editImageUploading}
+											variant="contained"
+											sx={{
+												background: '#2f7d4a',
+												borderRadius: '999px',
+												textTransform: 'none',
+												fontWeight: 800,
+												px: 2.5,
+												'&:hover': { background: '#256a3d' },
+											}}
+										>
+											{editSaving ? t('article.saving') : t('article.saveChanges')}
+										</Button>
+									</DialogActions>
+								</Dialog>
 								<Stack
 									className="second-box-config"
 									sx={{ borderBottom: total > 0 ? 'none' : '1px solid #eee', border: '1px solid #eee' }}
 								>
-									<Typography className="title-text">Community comments ({total})</Typography>
+									<Typography className="title-text">{t('comments.sectionTitle')} ({total})</Typography>
 									<Stack className="leave-comment">
 										<input
 											type="text"
-											placeholder="Share a helpful comment"
+											placeholder={t('comments.placeholder')}
 											value={comment}
 											onChange={(e) => {
 												if (e.target.value.length > 100) return;
@@ -388,23 +784,25 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 										/>
 										<Stack className="button-box">
 											<Typography>{wordsCnt}/100</Typography>
-											<Button onClick={creteCommentHandler}>Comment</Button>
+											<Button onClick={creteCommentHandler} disabled={commentSubmitting}>
+												{commentSubmitting ? t('comments.posting') : t('comments.comment')}
+											</Button>
 										</Stack>
 									</Stack>
 								</Stack>
 								{total > 0 && (
 									<Stack className="comments">
-										<Typography className="comments-title">Parent comments</Typography>
+										<Typography className="comments-title">{t('comments.parentComments')}</Typography>
 									</Stack>
 								)}
 								{getCommentsLoading && (
 									<Stack className="comments-box">
-										<Typography>Loading comments...</Typography>
+										<Typography>{t('comments.loading')}</Typography>
 									</Stack>
 								)}
 								{!getCommentsLoading && total === 0 && (
 									<Stack className="comments-box">
-										<Typography>No comments yet.</Typography>
+										<Typography>{t('comments.empty')}</Typography>
 									</Stack>
 								)}
 								{comments?.map((commentData, index) => {
@@ -469,7 +867,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 																	}}
 																>
 																	<Typography variant="h4" color={'#b9b9b9'}>
-																		Update comment
+																		{t('comments.updateTitle')}
 																	</Typography>
 																	<Stack gap={'20px'}>
 																		<input
@@ -495,14 +893,14 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 																					color="inherit"
 																					onClick={() => cancelButtonHandler()}
 																				>
-																					Cancel
+																					{t('comments.cancel')}
 																				</Button>
 																				<Button
 																					variant="contained"
 																					color="inherit"
 																					onClick={() => updateButtonHandler(updatedCommentId, undefined)}
 																				>
-																					Update
+																					{t('comments.update')}
 																				</Button>
 																			</Stack>
 																		</Stack>

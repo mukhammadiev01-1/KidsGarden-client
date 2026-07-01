@@ -10,6 +10,7 @@ import PlatformShowcase from '../libs/components/homepage/PlatformShowcase';
 import FinalCta from '../libs/components/homepage/FinalCta';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import PageSeo from '../libs/components/seo/PageSeo';
+import { useTranslation } from 'next-i18next';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -19,13 +20,14 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const Home: NextPage = () => {
 	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 
 	if (device === 'mobile') {
 		return (
 			<Stack className={'home-page'}>
 				<PageSeo
-					title="KidsGarden"
-					description="Find kindergartens, submit applications, communicate with centers, and manage early learning with KidsGarden."
+					title={t('home.seoTitle')}
+					description={t('home.seoDescription')}
 					canonicalPath="/"
 				/>
 				<PlatformShowcase />
@@ -40,8 +42,8 @@ const Home: NextPage = () => {
 		return (
 			<Stack className={'home-page'}>
 				<PageSeo
-					title="KidsGarden"
-					description="Find kindergartens, submit applications, communicate with centers, and manage early learning with KidsGarden."
+					title={t('home.seoTitle')}
+					description={t('home.seoDescription')}
 					canonicalPath="/"
 				/>
 				<PlatformShowcase />

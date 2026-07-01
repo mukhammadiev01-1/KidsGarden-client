@@ -15,6 +15,7 @@ import { useRouter } from 'next/router';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
+import { useTranslation } from 'next-i18next';
 
 interface FilterType {
 	searchFilter: KindergartensInquiry;
@@ -23,26 +24,17 @@ interface FilterType {
 	onFilterChange?: () => void;
 }
 
-const centerTypeLabels: Record<string, string> = {
-	[KindergartenType.PRIVATE_KINDERGARTEN]: 'Private Kindergarten',
-	[KindergartenType.PUBLIC_KINDERGARTEN]: 'Public Kindergarten',
-	[KindergartenType.DAYCARE_CENTER]: 'Daycare Center',
-	[KindergartenType.APARTMENT]: 'Private Kindergarten',
-	[KindergartenType.VILLA]: 'Public Kindergarten',
-	[KindergartenType.HOUSE]: 'Daycare Center',
-};
-
 const programOptions = [
-	{ value: 1, label: 'Montessori' },
-	{ value: 2, label: 'Bilingual' },
-	{ value: 3, label: 'Play-based' },
-	{ value: 4, label: 'STEM' },
-	{ value: 5, label: 'Art & Music' },
+	{ value: 1, labelKey: 'montessori' },
+	{ value: 2, labelKey: 'bilingual' },
+	{ value: 3, labelKey: 'playBased' },
+	{ value: 4, labelKey: 'stem' },
+	{ value: 5, labelKey: 'artMusic' },
 ];
 
-const formatYears = (value: number) => {
-	if (value >= 5) return '5+ years';
-	return `${value} ${value === 1 ? 'year' : 'years'}`;
+const formatYears = (value: number, t: (key: string, options?: any) => string) => {
+	if (value >= 5) return t('filters.yearsPlus', { count: 5 });
+	return value === 1 ? t('filters.yearOne') : t('filters.years', { count: value });
 };
 
 const formatFee = (value: number) => `${value.toLocaleString()} UZS`;
@@ -50,6 +42,7 @@ const formatFee = (value: number) => `${value.toLocaleString()} UZS`;
 const Filter = (props: FilterType) => {
 	const { searchFilter, setSearchFilter, initialInput, onFilterChange } = props;
 	const router = useRouter();
+	const { t } = useTranslation('common');
 	const [kindergartenLocation, setKindergartenLocation] = useState<KindergartenLocation[]>(Object.values(KindergartenLocation));
 	const [kindergartenType, setKindergartenType] = useState<KindergartenType[]>(DISCOVERY_KINDERGARTEN_TYPES);
 	const [searchText, setSearchText] = useState<string>('');
@@ -395,13 +388,13 @@ const Filter = (props: FilterType) => {
 	return (
 			<Stack className={'filter-main'}>
 				<Stack className={'find-your-home'} mb={'40px'}>
-					<Typography className={'title-main'}>Find a Kindergarten</Typography>
+					<Typography className={'title-main'}>{t('filters.title')}</Typography>
 					<Stack className={'input-box'}>
 						<OutlinedInput
 							value={searchText}
 							type={'text'}
 							className={'search-input'}
-							placeholder={'Search by name, program, or neighborhood'}
+							placeholder={t('filters.searchPlaceholder')}
 							onChange={(e: any) => setSearchText(e.target.value)}
 							onKeyDown={(event: any) => {
 								if (event.key == 'Enter') {
@@ -428,7 +421,7 @@ const Filter = (props: FilterType) => {
 							}
 						/>
 						<img src={'/img/icons/search_icon.png'} alt={''} />
-						<Tooltip title="Reset">
+						<Tooltip title={t('filters.reset')}>
 							<IconButton onClick={refreshHandler}>
 								<RefreshIcon />
 							</IconButton>
@@ -442,7 +435,7 @@ const Filter = (props: FilterType) => {
 						onClick={() => toggleFilterSection('location')}
 						aria-expanded={openSections.location}
 					>
-						<span>Location</span>
+						<span>{t('filters.location')}</span>
 						{Boolean(searchFilter?.search?.locationList?.length) && <em>{searchFilter?.search?.locationList?.length}</em>}
 						<ExpandMoreRoundedIcon />
 					</button>
@@ -461,7 +454,7 @@ const Filter = (props: FilterType) => {
 											onChange={kindergartenLocationSelectHandler}
 										/>
 										<label htmlFor={location} style={{ cursor: 'pointer' }}>
-											<Typography className="kindergarten-type">{location}</Typography>
+											<Typography className="kindergarten-type">{t(`filters.locations.${location}`, { defaultValue: location })}</Typography>
 										</label>
 									</Stack>
 								);
@@ -476,7 +469,7 @@ const Filter = (props: FilterType) => {
 						onClick={() => toggleFilterSection('type')}
 						aria-expanded={openSections.type}
 					>
-						<span>Center Type</span>
+						<span>{t('filters.centerType')}</span>
 						{Boolean(searchFilter?.search?.typeList?.length) && <em>{searchFilter?.search?.typeList?.length}</em>}
 						<ExpandMoreRoundedIcon />
 					</button>
@@ -494,7 +487,7 @@ const Filter = (props: FilterType) => {
 											onChange={kindergartenTypeSelectHandler}
 											checked={checked}
 										/>
-										<span>{centerTypeLabels[type] || type}</span>
+										<span>{t(`filters.centerTypes.${type}`, { defaultValue: type })}</span>
 									</label>
 								);
 							})}
@@ -508,7 +501,7 @@ const Filter = (props: FilterType) => {
 						onClick={() => toggleFilterSection('programs')}
 						aria-expanded={openSections.programs}
 					>
-						<span>Programs</span>
+						<span>{t('filters.programs')}</span>
 						{Boolean(searchFilter?.search?.programsList?.length) && <em>{searchFilter?.search?.programsList?.length}</em>}
 						<ExpandMoreRoundedIcon />
 					</button>
@@ -519,7 +512,7 @@ const Filter = (props: FilterType) => {
 								className={`kg-filter-chip clear ${!searchFilter?.search?.programsList ? 'active' : ''}`}
 								onClick={() => kindergartenProgramSelectHandler(0)}
 							>
-								Any program
+								{t('filters.anyProgram')}
 							</button>
 							{programOptions.map((program) => {
 								const active = searchFilter?.search?.programsList?.includes(program.value);
@@ -530,7 +523,7 @@ const Filter = (props: FilterType) => {
 										className={`kg-filter-chip ${active ? 'active' : ''}`}
 										onClick={() => kindergartenProgramSelectHandler(program.value)}
 									>
-										{program.label}
+										{t(`filters.programOptions.${program.labelKey}`)}
 									</button>
 								);
 							})}
@@ -539,14 +532,14 @@ const Filter = (props: FilterType) => {
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
 					<Stack className="kg-filter-title-row">
-						<Typography className={'title'}>Age Range</Typography>
+						<Typography className={'title'}>{t('filters.ageRange')}</Typography>
 						<button type="button" onClick={() => kindergartenAgeRangeSelectHandler(0)}>
-							Any age
+							{t('filters.anyAge')}
 						</button>
 					</Stack>
 					<Stack className="kg-range-filter">
 						<Typography className="kg-range-value">
-							{selectedAgeRange ? `Around ${formatYears(selectedAgeRange)}` : 'Any age'}
+							{selectedAgeRange ? t('filters.aroundYears', { value: formatYears(selectedAgeRange, t) }) : t('filters.anyAge')}
 						</Typography>
 						<Slider
 							min={1}
@@ -555,16 +548,16 @@ const Filter = (props: FilterType) => {
 							value={selectedAgeRange || 1}
 							onChangeCommitted={(_, value) => kindergartenAgeRangeSliderHandler(value as number)}
 							valueLabelDisplay="auto"
-							valueLabelFormat={(value) => formatYears(value)}
+							valueLabelFormat={(value) => formatYears(value, t)}
 							className="kg-slider"
 						/>
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Capacity</Typography>
+					<Typography className={'title'}>{t('filters.capacity')}</Typography>
 					<Stack className="kg-range-filter">
 						<Typography className="kg-range-value">
-							{selectedCapacityRange[0]} — {selectedCapacityRange[1]} children
+							{selectedCapacityRange[0]} — {selectedCapacityRange[1]} {t('filters.children')}
 						</Typography>
 						<Slider
 							min={0}
@@ -578,11 +571,11 @@ const Filter = (props: FilterType) => {
 					</Stack>
 				</Stack>
 				<Stack className={'find-your-home'}>
-					<Typography className={'title'}>Monthly Fee</Typography>
+					<Typography className={'title'}>{t('filters.monthlyFee')}</Typography>
 					<Stack className="kg-range-filter">
 						<Typography className="kg-range-value">
 							{selectedMonthlyFeeRange[0] === 0 && selectedMonthlyFeeRange[1] === 2000000
-								? 'Any price'
+								? t('filters.anyPrice')
 								: `${formatFee(selectedMonthlyFeeRange[0])} — ${formatFee(selectedMonthlyFeeRange[1])}`}
 						</Typography>
 						<Slider

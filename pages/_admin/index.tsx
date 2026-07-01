@@ -3,112 +3,120 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { Box, Chip, Stack, Typography } from '@mui/material';
 import withAdminLayout from '../../libs/components/layout/LayoutAdmin';
+import { useRouter } from 'next/router';
+import { getStaticCommonTranslator } from '../../libs/i18n/staticCommon';
 
 const overviewSections = [
 	{
-		title: 'Platform',
+		key: 'platform',
+		titleKey: 'admin.sections.platform',
 		items: [
 			{
-				title: 'Members',
-				description: 'Review member accounts and update account status.',
+				titleKey: 'admin.overview.membersTitle',
+				descriptionKey: 'admin.overview.membersDescription',
 				url: '/_admin/users',
-				badge: 'Status only',
+				badgeKey: 'admin.badges.statusOnly',
 			},
 			{
-				title: 'Kindergartens',
-				description: 'Review kindergarten profiles and update profile status.',
+				titleKey: 'admin.overview.kindergartensTitle',
+				descriptionKey: 'admin.overview.kindergartensDescription',
 				url: '/_admin/kindergartens',
-				badge: 'Status only',
+				badgeKey: 'admin.badges.statusOnly',
 			},
 		],
 	},
 	{
-		title: 'Applications',
+		key: 'applications',
+		titleKey: 'admin.sections.applications',
 		items: [
 			{
-				title: 'Kindergarten Applications',
-				description: 'Review child admission applications sent to kindergartens.',
+				titleKey: 'admin.overview.kindergartenApplicationsTitle',
+				descriptionKey: 'admin.overview.kindergartenApplicationsDescription',
 				url: '/_admin/applications',
-				badge: 'Review',
+				badgeKey: 'admin.badges.review',
 			},
 			{
-				title: 'Kindergarten Admin Applications',
-				description: 'Review requests to manage a kindergarten.',
+				titleKey: 'admin.overview.kindergartenAdminApplicationsTitle',
+				descriptionKey: 'admin.overview.kindergartenAdminApplicationsDescription',
 				url: '/_admin/users/kindergarten-admin-applications',
-				badge: 'Review',
+				badgeKey: 'admin.badges.review',
 			},
 			{
-				title: 'Teacher Applications',
-				description: 'Review teacher applications across the platform.',
+				titleKey: 'admin.overview.teacherApplicationsTitle',
+				descriptionKey: 'admin.overview.teacherApplicationsDescription',
 				url: '/_admin/users/staff-applications',
-				badge: 'Review',
+				badgeKey: 'admin.badges.review',
 			},
 		],
 	},
 	{
-		title: 'Community',
+		key: 'community',
+		titleKey: 'admin.sections.community',
 		items: [
 			{
-				title: 'Community Articles',
-				description: 'Moderate Parent Board and News articles.',
+				titleKey: 'admin.overview.communityArticlesTitle',
+				descriptionKey: 'admin.overview.communityArticlesDescription',
 				url: '/_admin/community',
-				badge: 'Moderation',
+				badgeKey: 'admin.badges.moderation',
 			},
 			{
-				title: 'Community Comments',
-				description: 'Moderate comments with status-only actions.',
+				titleKey: 'admin.overview.communityCommentsTitle',
+				descriptionKey: 'admin.overview.communityCommentsDescription',
 				url: '/_admin/community/comments',
-				badge: 'Moderation',
+				badgeKey: 'admin.badges.moderation',
 			},
 		],
 	},
 	{
-		title: 'Operations',
+		key: 'operations',
+		titleKey: 'admin.sections.operations',
 		items: [
 			{
-				title: 'Operations Staff',
-				description: 'Inspect staff records across kindergartens.',
+				titleKey: 'admin.overview.operationsStaffTitle',
+				descriptionKey: 'admin.overview.operationsStaffDescription',
 				url: '/_admin/operations/staff',
-				badge: 'Read-only',
+				badgeKey: 'admin.badges.readOnly',
 			},
 			{
-				title: 'Operations Groups',
-				description: 'Inspect group and classroom records.',
+				titleKey: 'admin.overview.operationsGroupsTitle',
+				descriptionKey: 'admin.overview.operationsGroupsDescription',
 				url: '/_admin/operations/groups',
-				badge: 'Read-only',
+				badgeKey: 'admin.badges.readOnly',
 			},
 			{
-				title: 'Operations Children',
-				description: 'Inspect child records across the platform.',
+				titleKey: 'admin.overview.operationsChildrenTitle',
+				descriptionKey: 'admin.overview.operationsChildrenDescription',
 				url: '/_admin/operations/children',
-				badge: 'Read-only',
+				badgeKey: 'admin.badges.readOnly',
 			},
 			{
-				title: 'Operations Attendance',
-				description: 'Inspect attendance records across the platform.',
+				titleKey: 'admin.overview.operationsAttendanceTitle',
+				descriptionKey: 'admin.overview.operationsAttendanceDescription',
 				url: '/_admin/operations/attendance',
-				badge: 'Read-only',
+				badgeKey: 'admin.badges.readOnly',
 			},
 		],
 	},
 ];
 
 const AdminHome: NextPage = () => {
+	const router = useRouter();
+	const t = getStaticCommonTranslator(router.locale);
+
 	return (
 		<Box component="div" className="content">
 			<Typography variant="h2" className="tit" sx={{ mb: '12px' }}>
-				KidsGarden Admin Overview
+				{t('admin.overview.title')}
 			</Typography>
 			<Typography sx={{ mb: '24px', color: '#64746b' }}>
-				Use this dashboard to navigate platform management, application review, community moderation, and read-only
-				operations views.
+				{t('admin.overview.subtitle')}
 			</Typography>
 
 			<Stack spacing={3}>
 				{overviewSections.map((section) => (
-					<Box component="section" className="table-wrap" key={section.title} sx={{ p: '24px' }}>
+					<Box component="section" className="table-wrap" key={section.key} sx={{ p: '24px' }}>
 						<Typography sx={{ mb: '16px', fontSize: '18px', fontWeight: 800, color: '#1f3a2d' }}>
-							{section.title}
+							{t(section.titleKey)}
 						</Typography>
 						<Box
 							component="div"
@@ -139,7 +147,7 @@ const AdminHome: NextPage = () => {
 									>
 										<Stack spacing={1.5}>
 											<Chip
-												label={item.badge}
+												label={t(item.badgeKey)}
 												size="small"
 												sx={{
 													alignSelf: 'flex-start',
@@ -150,9 +158,9 @@ const AdminHome: NextPage = () => {
 												}}
 											/>
 											<Typography sx={{ fontSize: '17px', fontWeight: 800, color: '#17251d' }}>
-												{item.title}
+												{t(item.titleKey)}
 											</Typography>
-											<Typography sx={{ color: '#64746b', lineHeight: 1.55 }}>{item.description}</Typography>
+											<Typography sx={{ color: '#64746b', lineHeight: 1.55 }}>{t(item.descriptionKey)}</Typography>
 										</Stack>
 									</Box>
 								</Link>

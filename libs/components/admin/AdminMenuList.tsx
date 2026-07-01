@@ -16,142 +16,148 @@ import CommentRoundedIcon from '@mui/icons-material/CommentRounded';
 import HelpCenterRoundedIcon from '@mui/icons-material/HelpCenterRounded';
 import CampaignRoundedIcon from '@mui/icons-material/CampaignRounded';
 import ContactSupportRoundedIcon from '@mui/icons-material/ContactSupportRounded';
+import { getStaticCommonTranslator } from '../../i18n/staticCommon';
 
 interface AdminMenuItem {
 	key: string;
-	title: string;
-	description?: string;
+	titleKey: string;
+	descriptionKey?: string;
 	url?: string;
 	disabled?: boolean;
 	icon: React.ReactNode;
 }
 
-const menuSections: { title: string; items: AdminMenuItem[] }[] = [
+const menuSections: { key: string; titleKey: string; items: AdminMenuItem[] }[] = [
 	{
-		title: 'Platform',
+		key: 'platform',
+		titleKey: 'admin.sections.platform',
 		items: [
 			{
 				key: 'overview',
-				title: 'Overview',
-				description: 'Dashboard summary',
+				titleKey: 'admin.menu.overview',
+				descriptionKey: 'admin.descriptions.overview',
 				url: '/_admin',
 				icon: <DashboardRoundedIcon />,
 			},
 			{
 				key: 'members',
-				title: 'Members',
-				description: 'Member accounts',
+				titleKey: 'admin.menu.members',
+				descriptionKey: 'admin.descriptions.members',
 				url: '/_admin/users',
 				icon: <PeopleAltRoundedIcon />,
 			},
 			{
 				key: 'kindergartens',
-				title: 'Kindergartens',
-				description: 'Center profiles',
+				titleKey: 'admin.menu.kindergartens',
+				descriptionKey: 'admin.descriptions.kindergartens',
 				url: '/_admin/kindergartens',
 				icon: <ApartmentRoundedIcon />,
 			},
 		],
 	},
 	{
-		title: 'Applications',
+		key: 'applications',
+		titleKey: 'admin.sections.applications',
 		items: [
 			{
 				key: 'parent-applications',
-				title: 'Kindergarten Applications',
-				description: 'Child admission inquiries',
+				titleKey: 'admin.menu.kindergartenApplications',
+				descriptionKey: 'admin.descriptions.kindergartenApplications',
 				url: '/_admin/applications',
 				icon: <AssignmentTurnedInRoundedIcon />,
 			},
 			{
 				key: 'kindergarten-admin-applications',
-				title: 'Kindergarten Admin Applications',
-				description: 'Approval requests',
+				titleKey: 'admin.menu.kindergartenAdminApplications',
+				descriptionKey: 'admin.descriptions.kindergartenAdminApplications',
 				url: '/_admin/users/kindergarten-admin-applications',
 				icon: <AssignmentTurnedInRoundedIcon />,
 			},
 			{
 				key: 'staff-applications',
-				title: 'Teacher Applications',
-				description: 'Teacher approval requests',
+				titleKey: 'admin.menu.teacherApplications',
+				descriptionKey: 'admin.descriptions.teacherApplications',
 				url: '/_admin/users/staff-applications',
 				icon: <WorkRoundedIcon />,
 			},
 		],
 	},
 	{
-		title: 'Operations',
+		key: 'operations',
+		titleKey: 'admin.sections.operations',
 		items: [
 			{
 				key: 'staff',
-				title: 'Staff',
-				description: 'Staff oversight',
+				titleKey: 'admin.menu.staff',
+				descriptionKey: 'admin.descriptions.staff',
 				url: '/_admin/operations/staff',
 				icon: <GroupsRoundedIcon />,
 			},
 			{
 				key: 'groups',
-				title: 'Groups',
-				description: 'Class groups',
+				titleKey: 'admin.menu.groups',
+				descriptionKey: 'admin.descriptions.groups',
 				url: '/_admin/operations/groups',
 				icon: <GroupsRoundedIcon />,
 			},
 			{
 				key: 'children',
-				title: 'Children',
-				description: 'Child records',
+				titleKey: 'admin.menu.children',
+				descriptionKey: 'admin.descriptions.children',
 				url: '/_admin/operations/children',
 				icon: <ChildCareRoundedIcon />,
 			},
 			{
 				key: 'attendance',
-				title: 'Attendance',
-				description: 'Attendance records',
+				titleKey: 'admin.menu.attendance',
+				descriptionKey: 'admin.descriptions.attendance',
 				url: '/_admin/operations/attendance',
 				icon: <EventAvailableRoundedIcon />,
 			},
 		],
 	},
 	{
-		title: 'Community',
+		key: 'community',
+		titleKey: 'admin.sections.community',
 		items: [
 			{
 				key: 'articles',
-				title: 'Articles',
-				description: 'Community moderation',
+				titleKey: 'admin.menu.articles',
+				descriptionKey: 'admin.descriptions.articles',
 				url: '/_admin/community',
 				icon: <ArticleRoundedIcon />,
 			},
 			{
 				key: 'comments',
-				title: 'Comments',
-				description: 'Comment moderation',
+				titleKey: 'admin.menu.comments',
+				descriptionKey: 'admin.descriptions.comments',
 				url: '/_admin/community/comments',
 				icon: <CommentRoundedIcon />,
 			},
 		],
 	},
 	{
-		title: 'Help later',
+		key: 'helpLater',
+		titleKey: 'admin.sections.helpLater',
 		items: [
 			{
 				key: 'faq',
-				title: 'FAQ',
-				description: 'Help content',
+				titleKey: 'admin.menu.faq',
+				descriptionKey: 'admin.descriptions.faq',
 				disabled: true,
 				icon: <HelpCenterRoundedIcon />,
 			},
 			{
 				key: 'notices',
-				title: 'Notices',
-				description: 'Platform notices',
+				titleKey: 'admin.menu.notices',
+				descriptionKey: 'admin.descriptions.notices',
 				disabled: true,
 				icon: <CampaignRoundedIcon />,
 			},
 			{
 				key: 'inquiries',
-				title: 'Inquiries',
-				description: 'Support requests',
+				titleKey: 'admin.menu.inquiries',
+				descriptionKey: 'admin.descriptions.inquiries',
 				disabled: true,
 				icon: <ContactSupportRoundedIcon />,
 			},
@@ -160,6 +166,7 @@ const menuSections: { title: string; items: AdminMenuItem[] }[] = [
 ];
 
 const AdminMenuList = (props: any) => {
+	const t = getStaticCommonTranslator(props.router?.locale);
 	const pathname = props.router?.pathname || '';
 
 	const isActive = (url?: string) => {
@@ -182,14 +189,14 @@ const AdminMenuList = (props: any) => {
 			>
 				<ListItemIcon className="admin-menu-icon">{item.icon}</ListItemIcon>
 				<ListItemText
-					primary={<Typography className="admin-menu-item-title">{item.title}</Typography>}
+					primary={<Typography className="admin-menu-item-title">{t(item.titleKey)}</Typography>}
 					secondary={
-						item.description ? (
-							<Typography className="admin-menu-item-description">{item.description}</Typography>
+						item.descriptionKey ? (
+							<Typography className="admin-menu-item-description">{t(item.descriptionKey)}</Typography>
 						) : null
 					}
 				/>
-				{item.disabled && <Typography className="admin-menu-status">Later</Typography>}
+				{item.disabled && <Typography className="admin-menu-status">{t('dashboardCommon.later')}</Typography>}
 			</ListItemButton>
 		);
 	};
@@ -197,8 +204,8 @@ const AdminMenuList = (props: any) => {
 	return (
 		<Stack className="admin-menu">
 			{menuSections.map((section) => (
-				<Stack className="admin-menu-section" key={section.title}>
-					<Typography className="admin-menu-section-title">{section.title}</Typography>
+				<Stack className="admin-menu-section" key={section.key}>
+					<Typography className="admin-menu-section-title">{t(section.titleKey)}</Typography>
 					<List className="admin-menu-list" disablePadding>
 						{section.items.map((item) => (
 							<React.Fragment key={item.key}>{renderItem(item)}</React.Fragment>

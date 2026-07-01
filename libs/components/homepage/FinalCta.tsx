@@ -4,29 +4,32 @@ import { Stack, Box } from '@mui/material';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import PersonAddAltRoundedIcon from '@mui/icons-material/PersonAddAltRounded';
 import BusinessRoundedIcon from '@mui/icons-material/BusinessRounded';
+import { useTranslation } from 'next-i18next';
 
 const FinalCta = () => {
+	const { t } = useTranslation('common');
+
 	return (
 		<Stack component={'section'} className={'final-cta-section'}>
 			<Box component={'div'} className={'final-cta-copy'}>
-				<h2>Start your KidsGarden journey today</h2>
-				<p>Join thousands of families and centers making learning joyful, connected, and easy.</p>
+				<h2>{t('home.finalTitle')}</h2>
+				<p>{t('home.finalCopy')}</p>
 			</Box>
 			<Box component={'div'} className={'final-cta-visual'} aria-hidden />
 			<Box component={'div'} className={'final-cta-actions'}>
 				<Link href={'/kindergartens'}>
 					<span>
-						<SearchRoundedIcon /> Find Kindergartens
+						<SearchRoundedIcon /> {t('home.exploreKindergartens')}
 					</span>
 				</Link>
 				<Link href={'/account/join'}>
 					<span>
-						<PersonAddAltRoundedIcon /> Join as Parent
+						<PersonAddAltRoundedIcon /> {t('home.joinAsParent')}
 					</span>
 				</Link>
 				<Link href={'/cs'}>
 					<span>
-						<BusinessRoundedIcon /> For Centers
+						<BusinessRoundedIcon /> {t('home.forCenters')}
 					</span>
 				</Link>
 			</Box>

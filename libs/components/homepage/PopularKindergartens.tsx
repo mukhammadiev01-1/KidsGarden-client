@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { KindergartensInquiry } from '../../types/kindergarten/kindergarten.input';
 import { useQuery } from '@apollo/client';
 import { GET_KINDERGARTENS } from '../../../apollo/user/query';
+import { useTranslation } from 'next-i18next';
 
 interface PopularKindergartensProps {
 	initialInput: KindergartensInquiry;
@@ -17,6 +18,7 @@ interface PopularKindergartensProps {
 const PopularKindergartens = (props: PopularKindergartensProps) => {
 	const { initialInput } = props;
 	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
 
 	/** APOLLO REQUESTS **/
 	const {
@@ -38,7 +40,7 @@ const PopularKindergartens = (props: PopularKindergartensProps) => {
 	const renderEmptyState = (message: string) => (
 		<Box component={'div'} className={'homepage-empty-state'}>
 			<p>{message}</p>
-			<Link href={'/kindergartens'}>Explore all kindergartens</Link>
+			<Link href={'/kindergartens'}>{t('home.exploreAll')}</Link>
 		</Box>
 	);
 
@@ -47,17 +49,17 @@ const PopularKindergartens = (props: PopularKindergartensProps) => {
 			<Stack className={'popular-kindergartens'}>
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
-						<span>Popular Kindergartens</span>
+						<span>{t('home.popularTitle')}</span>
 					</Stack>
 					<Stack className={'card-box'}>
 						{getKindergartensLoading && displayedKindergartens.length === 0 ? (
 							<Box component={'div'} className={'homepage-empty-state'}>
-								<p>Loading popular kindergartens...</p>
+								<p>{t('home.loadingPopular')}</p>
 							</Box>
 						) : hasNetworkError ? (
-							renderEmptyState('Popular kindergartens are temporarily unavailable.')
+							renderEmptyState(t('home.popularUnavailable'))
 						) : displayedKindergartens.length === 0 ? (
-							renderEmptyState('Popular kindergartens will appear as families browse.')
+							renderEmptyState(t('home.popularEmpty'))
 						) : (
 							<Swiper
 								className={'popular-kindergarten-swiper'}
@@ -85,12 +87,12 @@ const PopularKindergartens = (props: PopularKindergartensProps) => {
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
 						<Box component={'div'} className={'left'}>
-							<span>Popular Kindergartens</span>
-							<p>Most viewed active centers from the KidsGarden database</p>
+							<span>{t('home.popularTitle')}</span>
+							<p>{t('home.popularSubtitle')}</p>
 						</Box>
 						<Box component={'div'} className={'right'}>
 							<Link className={'more-box'} href={'/kindergartens'}>
-								<span>See All Kindergartens</span>
+								<span>{t('home.seeAllKindergartens')}</span>
 								<img src="/img/icons/rightup.svg" alt="" aria-hidden="true" />
 							</Link>
 						</Box>
@@ -98,12 +100,12 @@ const PopularKindergartens = (props: PopularKindergartensProps) => {
 					<Stack className={'card-box'}>
 						{getKindergartensLoading && displayedKindergartens.length === 0 ? (
 							<Box component={'div'} className={'homepage-empty-state'}>
-								<p>Loading popular kindergartens...</p>
+								<p>{t('home.loadingPopular')}</p>
 							</Box>
 						) : hasNetworkError ? (
-							renderEmptyState('Popular kindergartens are temporarily unavailable.')
+							renderEmptyState(t('home.popularUnavailable'))
 						) : displayedKindergartens.length === 0 ? (
-							renderEmptyState('Popular kindergartens will appear as families browse.')
+							renderEmptyState(t('home.popularEmpty'))
 						) : (
 							<Box component={'div'} className={'popular-kindergarten-grid'}>
 								{displayedKindergartens.map((kindergarten: Kindergarten) => {

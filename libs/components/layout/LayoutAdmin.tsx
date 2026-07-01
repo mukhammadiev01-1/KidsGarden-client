@@ -18,11 +18,13 @@ import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { REACT_APP_API_URL } from '../../config';
 import { MemberType } from '../../enums/member.enum';
+import { getStaticCommonTranslator } from '../../i18n/staticCommon';
 const drawerWidth = 280;
 
 const withAdminLayout = (Component: ComponentType) => {
 	return (props: object) => {
 		const router = useRouter();
+		const t = getStaticCommonTranslator(router.locale);
 		const user = useReactiveVar(userVar);
 		const [settingsState, setSettingsStateState] = useState(false);
 		const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -73,12 +75,12 @@ const withAdminLayout = (Component: ComponentType) => {
 						>
 							<Toolbar className="admin-topbar">
 								<Stack className="admin-topbar-copy">
-									<Typography className="admin-topbar-kicker">KidsGarden Platform</Typography>
-									<Typography className="admin-topbar-title">Super Admin Dashboard</Typography>
+									<Typography className="admin-topbar-kicker">{t('dashboard.platform')}</Typography>
+									<Typography className="admin-topbar-title">{t('dashboard.superAdminDashboard')}</Typography>
 								</Stack>
 								<Stack className="admin-topbar-actions" direction={'row'} alignItems={'center'} spacing={1.5}>
 									<Typography className="admin-topbar-user">{user?.memberNick}</Typography>
-									<Tooltip title="Open account menu">
+									<Tooltip title={t('dashboard.openAccountMenu')}>
 										<IconButton onClick={handleOpenUserMenu} className="admin-avatar-button">
 											<Avatar
 												src={
@@ -124,7 +126,7 @@ const withAdminLayout = (Component: ComponentType) => {
 									<Box component={'div'} sx={{ p: 1, py: '6px' }} onClick={logoutHandler}>
 										<MenuItem sx={{ px: '16px', py: '6px' }}>
 											<Typography variant={'subtitle1'} component={'span'}>
-												Logout
+												{t('dashboardCommon.logout')}
 											</Typography>
 										</MenuItem>
 									</Box>
@@ -149,7 +151,7 @@ const withAdminLayout = (Component: ComponentType) => {
 							<Toolbar className="admin-sidebar-header">
 								<Stack className={'logo-box'}>
 									<img src={'/img/logo/kidsgarden-logo.svg'} alt={'KidsGarden'} />
-									<Typography className="admin-console-label">Super Admin Console</Typography>
+									<Typography className="admin-console-label">{t('dashboard.superAdminConsole')}</Typography>
 								</Stack>
 
 								<Stack
@@ -164,7 +166,7 @@ const withAdminLayout = (Component: ComponentType) => {
 									<Stack className="admin-user-meta">
 										<Typography className="admin-user-name">{user?.memberNick}</Typography>
 										<Typography className="admin-user-phone">{user?.memberPhone}</Typography>
-										<Typography className="admin-role-badge">SUPER ADMIN</Typography>
+										<Typography className="admin-role-badge">{t('roles.SUPER_ADMIN')}</Typography>
 									</Stack>
 								</Stack>
 							</Toolbar>

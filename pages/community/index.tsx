@@ -7,6 +7,7 @@ import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { BoardArticle } from '../../libs/types/board-article/board-article';
 import { T } from '../../libs/types/common';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import { BoardArticlesInquiry } from '../../libs/types/board-article/board-article.input';
 import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
 import { useQuery, useReactiveVar } from '@apollo/client';
@@ -23,6 +24,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
 import RestaurantOutlinedIcon from '@mui/icons-material/RestaurantOutlined';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
+import { getArticleExcerpt } from '../../libs/utils/articleExcerpt';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -32,21 +34,14 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 type CommunityTopic = {
 	key: string;
-	label: string;
+	labelKey: string;
 	category: BoardArticleCategory;
 };
 
 const topics: CommunityTopic[] = [
-	{ key: 'free', label: 'Parent Board', category: BoardArticleCategory.FREE },
-	{ key: 'news', label: 'News', category: BoardArticleCategory.NEWS },
+	{ key: 'free', labelKey: 'community.topics.free', category: BoardArticleCategory.FREE },
+	{ key: 'news', labelKey: 'community.topics.news', category: BoardArticleCategory.NEWS },
 ];
-
-const categoryLabels: Record<string, string> = {
-	FREE: 'Parent Board',
-	NEWS: 'News',
-	RECOMMEND: 'Learning & Development',
-	HUMOR: 'Activities',
-};
 
 const fallbackImages = [
 	'/img/kidsgarden/articles/article-play-based-learning.png',
@@ -54,20 +49,10 @@ const fallbackImages = [
 	'/img/kidsgarden/articles/article-first-day-kindergarten.png',
 ];
 
-const stripText = (content?: string, max = 118) => {
-	const text = (content || '')
-		.replace(/<[^>]*>/g, ' ')
-		.replace(/&nbsp;/g, ' ')
-		.replace(/\s+/g, ' ')
-		.trim();
-
-	if (!text) return 'Helpful ideas and safe community support for KidsGarden families.';
-	return text.length > max ? `${text.slice(0, max).trim()}...` : text;
-};
-
-const formatDate = (date?: Date) => {
-	if (!date) return 'Recently';
-	return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(date));
+const formatDate = (date?: Date, locale = 'en', fallback = 'Recently') => {
+	if (!date) return fallback;
+	const dateLocale = locale === 'kr' ? 'ko' : locale;
+	return new Intl.DateTimeFormat(dateLocale, { month: 'short', day: 'numeric' }).format(new Date(date));
 };
 
 const getArticleImage = (article: BoardArticle, index = 0) => {
@@ -83,13 +68,15 @@ const getCommunityHref = (category: BoardArticleCategory) => ({
 	query: { articleCategory: category },
 });
 
-const getSafeAuthor = (article: BoardArticle) => {
-	return article?.memberData?.memberFullName || article?.memberData?.memberNick || 'KidsGarden Team';
+const getSafeAuthor = (article: BoardArticle, fallbackAuthor: string) => {
+	return article?.memberData?.memberFullName || article?.memberData?.memberNick || fallbackAuthor;
 };
 
 const Community: NextPage = ({ initialInput, ...props }: T) => {
 	const router = useRouter();
+	const { t } = useTranslation('common');
 	const { query } = router;
+	const locale = router.locale || 'en';
 	const user = useReactiveVar(userVar);
 	const isLoggedIn = Boolean(user?._id);
 	const routeCategory = query?.articleCategory as string;
@@ -183,14 +170,14 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 						if (event.currentTarget.src.indexOf(fallback) === -1) event.currentTarget.src = fallback;
 					}}
 				/>
-				<span>{categoryLabels[article.articleCategory] || 'Parenting Tips'}</span>
+				<span>{t(`community.categories.${article.articleCategory}`, t('community.categories.fallback'))}</span>
 			</div>
 			<div className="kg-community-card-body">
 				<h3>{article.articleTitle}</h3>
-				<p>{stripText(article.articleContent)}</p>
+				<p>{getArticleExcerpt(article.articleContent)}</p>
 				<div className="kg-community-meta">
-					<span>By {getSafeAuthor(article)}</span>
-					<span>{formatDate(article.createdAt)}</span>
+					<span>{t('community.meta.by')} {getSafeAuthor(article, t('community.teamAuthor'))}</span>
+					<span>{formatDate(article.createdAt, locale, t('community.meta.recently'))}</span>
 					<span>
 						<RemoveRedEyeIcon /> {article.articleViews || 0}
 					</span>
@@ -208,17 +195,17 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 			<div>
 				<h3>{article.articleTitle}</h3>
 				<p>
-					{article.articleComments || 0} comments · By {getSafeAuthor(article)}
+					{article.articleComments || 0} {t('community.meta.comments')} · {t('community.meta.by')} {getSafeAuthor(article, t('community.teamAuthor'))}
 				</p>
 			</div>
 			<span className={`kg-question-status ${article.articleComments > 5 ? 'popular' : ''}`}>
 				{article.articleCategory === BoardArticleCategory.NEWS
-					? 'News'
+					? t('community.status.news')
 					: article.articleComments > 5
-					? 'Popular'
+					? t('community.status.popular')
 					: article.articleComments > 0
-					? 'Active'
-					: 'New'}
+					? t('community.status.active')
+					: t('community.status.new')}
 			</span>
 			<ArrowForwardIosIcon />
 		</button>
@@ -234,14 +221,14 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 			<div className="container kg-community-container">
 				<section className="kg-community-hero">
 					<div>
-						<Typography component="h1">Parent Community</Typography>
+						<Typography component="h1">{t('community.heroTitle')}</Typography>
 						<Typography className="kg-community-subtitle">
-							Tips, ideas and support for your parenting journey.
+							{t('community.heroSubtitle')}
 						</Typography>
 					</div>
 					<Link href={writeArticleHref} className="kg-write-button">
 						<EditIcon />
-						Write an Article
+						{t('community.writeArticle')}
 					</Link>
 				</section>
 
@@ -252,7 +239,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 								<input
 									value={searchText}
 									onChange={searchChangeHandler}
-									placeholder="Search articles, questions, topics..."
+									placeholder={t('community.searchPlaceholder')}
 								/>
 								<SearchIcon />
 							</label>
@@ -263,7 +250,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 										key={topic.key}
 										className={activeTopic === topic.key ? 'active' : ''}
 									>
-										{topic.label}
+										{t(topic.labelKey)}
 									</Link>
 								))}
 							</div>
@@ -271,19 +258,19 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 
 						<section className="kg-community-section">
 							<div className="kg-community-section-title">
-								<h2>{isNewsTopic ? 'Latest News' : 'Parent Board Posts'}</h2>
+								<h2>{isNewsTopic ? t('community.latestNews') : t('community.parentBoardPosts')}</h2>
 								<Link href={getCommunityHref(activeTopicConfig.category)}>
-									View all
+									{t('community.viewAll')}
 								</Link>
 							</div>
 							{getBoardArticlesLoading && (
-								<div className="kg-community-empty">Loading parent community articles...</div>
+								<div className="kg-community-empty">{t('community.loadingArticles')}</div>
 							)}
 							{!getBoardArticlesLoading && !hasArticles && (
 								<div className="kg-community-empty">
 									{activeTopicConfig.category === BoardArticleCategory.NEWS
-										? 'Platform news will appear here soon.'
-										: 'Helpful parent articles and Q&A will appear here soon.'}
+										? t('community.newsSoon')
+										: t('community.parentPostsSoon')}
 								</div>
 							)}
 							{!getBoardArticlesLoading && hasArticles && (
@@ -296,9 +283,9 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 						<section className="kg-community-lower-grid">
 							<div className="kg-community-section kg-questions-section">
 								<div className="kg-community-section-title">
-									<h2>{isNewsTopic ? 'More News' : 'Recent Parent Board Activity'}</h2>
+									<h2>{isNewsTopic ? t('community.moreNews') : t('community.recentParentActivity')}</h2>
 									<Link href={getCommunityHref(activeTopicConfig.category)}>
-										View all
+										{t('community.viewAll')}
 									</Link>
 								</div>
 								<div className="kg-question-list">
@@ -307,33 +294,33 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 									)}
 									{!hasArticles && !getBoardArticlesLoading && (
 										<div className="kg-community-empty compact">
-											{isNewsTopic ? 'More KidsGarden news will appear here soon.' : 'Parent posts will appear here soon.'}
+											{isNewsTopic ? t('community.moreNewsSoon') : t('community.postsSoon')}
 										</div>
 									)}
 								</div>
 							</div>
 
 							<div className="kg-community-section kg-highlights">
-								<h2>Community Highlights</h2>
+								<h2>{t('community.highlightsTitle')}</h2>
 								<div className="kg-highlight-item">
 									<ShieldOutlinedIcon />
 									<div>
-										<strong>A safe and respectful space</strong>
-										<span>Keep conversations positive, kind and helpful for all parents.</span>
+										<strong>{t('community.safeTitle')}</strong>
+										<span>{t('community.safeText')}</span>
 									</div>
 								</div>
 								<div className="kg-highlight-item">
 									<TipsAndUpdatesOutlinedIcon />
 									<div>
-										<strong>Share experiences</strong>
-										<span>Ask questions, share ideas and learn from other families.</span>
+										<strong>{t('community.shareTitle')}</strong>
+										<span>{t('community.shareText')}</span>
 									</div>
 								</div>
 								<div className="kg-highlight-item">
 									<FavoriteBorderIcon />
 									<div>
-										<strong>Focus on children</strong>
-										<span>Support children's growth while protecting privacy.</span>
+										<strong>{t('community.childrenTitle')}</strong>
+										<span>{t('community.childrenText')}</span>
 									</div>
 								</div>
 							</div>
@@ -357,56 +344,56 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 
 					<aside className="kg-community-sidebar">
 						<div className="kg-sidebar-card">
-							<h2>Popular Topics</h2>
+							<h2>{t('community.popularTopics')}</h2>
 							<div className="kg-topic-list">
 								<div>
 									<TipsAndUpdatesOutlinedIcon />
-									<span>Positive Parenting</span>
-									<small>Parent posts</small>
+									<span>{t('community.positiveParenting')}</span>
+									<small>{t('community.parentPosts')}</small>
 								</div>
 								<div>
 									<MenuBookOutlinedIcon />
-									<span>Child Development</span>
-									<small>Learning ideas</small>
+									<span>{t('community.childDevelopment')}</span>
+									<small>{t('community.learningIdeas')}</small>
 								</div>
 								<div>
 									<RestaurantOutlinedIcon />
-									<span>Health & Nutrition</span>
-									<small>Daily care</small>
+									<span>{t('community.healthNutrition')}</span>
+									<small>{t('community.dailyCare')}</small>
 								</div>
 								<div>
 									<ShieldOutlinedIcon />
-									<span>Preparing for Kindergarten</span>
-									<small>Safe starts</small>
+									<span>{t('community.preparingKindergarten')}</span>
+									<small>{t('community.safeStarts')}</small>
 								</div>
 							</div>
 						</div>
 
 						<div className="kg-sidebar-card">
-							<h2>Platform Updates</h2>
-							<p>Read KidsGarden news, parent board updates and practical tips in one safe place.</p>
+							<h2>{t('community.platformUpdates')}</h2>
+							<p>{t('community.platformUpdatesText')}</p>
 							<Link href={getCommunityHref(BoardArticleCategory.NEWS)}>
-								See all updates
+								{t('community.seeAllUpdates')}
 							</Link>
 						</div>
 
 						<div className="kg-sidebar-card kg-sidebar-cta">
-							<h2>Community Guidelines</h2>
-							<p>Share experiences, avoid private child data and keep every conversation respectful.</p>
-							<Link href={writeArticleHref}>Write Article</Link>
+							<h2>{t('community.guidelines')}</h2>
+							<p>{t('community.guidelinesText')}</p>
+							<Link href={writeArticleHref}>{t('community.writeArticle')}</Link>
 						</div>
 					</aside>
 				</section>
 
 				<section className="kg-community-subscribe">
 					<div>
-						<h2>Stay inspired</h2>
-						<p>Get parenting tips and platform updates from KidsGarden.</p>
+						<h2>{t('community.stayInspired')}</h2>
+						<p>{t('community.subscribeText')}</p>
 					</div>
 					<form>
-						<input type="email" placeholder="Enter your email" />
-						<button type="button" disabled title="Email updates are coming soon">
-							Coming Soon
+						<input type="email" placeholder={t('community.emailPlaceholder')} />
+						<button type="button" disabled title={t('community.emailComingSoon')}>
+							{t('community.comingSoon')}
 						</button>
 					</form>
 				</section>

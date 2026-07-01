@@ -17,7 +17,9 @@ const withLayoutBasic = (Component: any) => {
 		const { t } = useTranslation('common');
 		const device = useDeviceDetect();
 		const [authHeader, setAuthHeader] = useState<boolean>(false);
+		const isAuthPage = router.pathname === '/account/join';
 		const hideBasicHero =
+			isAuthPage ||
 			router.pathname === '/property' ||
 			router.pathname === '/kindergartens' ||
 			router.pathname === '/cs' ||
@@ -46,7 +48,7 @@ const withLayoutBasic = (Component: any) => {
 				case '/agent/detail':
 					title = 'KidsGarden';
 					desc = 'Home';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/kidsgarden/articles/article-parent-teacher-communication.png';
 					break;
 				case '/mypage':
 					title = 'My Page';
@@ -56,22 +58,22 @@ const withLayoutBasic = (Component: any) => {
 				case '/community':
 					title = 'Community';
 					desc = 'Parent stories, questions, and kindergarten news.';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/kidsgarden/articles/article-parent-teacher-communication.png';
 					break;
 				case '/community/detail':
 					title = 'Community Article';
 					desc = 'Parent stories, questions, and kindergarten news.';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/kidsgarden/articles/article-parent-teacher-communication.png';
 					break;
 				case '/cs':
 					title = 'Help Center';
 					desc = 'Find answers and notices for KidsGarden families.';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/kidsgarden/articles/article-parent-teacher-communication.png';
 					break;
 				case '/account/join':
 					title = 'Login / Join';
 					desc = 'Access your KidsGarden account.';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/kidsgarden/articles/article-parent-teacher-communication.png';
 					setAuthHeader(true);
 					break;
 				case '/member':
@@ -114,17 +116,21 @@ const withLayoutBasic = (Component: any) => {
 						<meta name={'title'} content={`KidsGarden`} />
 					</Head>
 					<Stack id="mobile-wrap">
-						<Stack id={'top'}>
-							<Top />
-						</Stack>
+						{!isAuthPage && (
+							<Stack id={'top'}>
+								<Top />
+							</Stack>
+						)}
 
 						<Stack id={'main'}>
 							<Component {...props} />
 						</Stack>
 
-						<Stack id={'footer'}>
-							<Footer />
-						</Stack>
+						{!isAuthPage && (
+							<Stack id={'footer'}>
+								<Footer />
+							</Stack>
+						)}
 					</Stack>
 				</>
 			);
@@ -136,9 +142,11 @@ const withLayoutBasic = (Component: any) => {
 						<meta name={'title'} content={`KidsGarden`} />
 					</Head>
 					<Stack id="pc-wrap">
-						<Stack id={'top'}>
-							<Top />
-						</Stack>
+						{!isAuthPage && (
+							<Stack id={'top'}>
+								<Top />
+							</Stack>
+						)}
 
 						{!hideBasicHero && (
 							<Stack
@@ -156,9 +164,11 @@ const withLayoutBasic = (Component: any) => {
 							<Component {...props} />
 						</Stack>
 
-						<Stack id={'footer'}>
-							<Footer />
-						</Stack>
+						{!isAuthPage && (
+							<Stack id={'footer'}>
+								<Footer />
+							</Stack>
+						)}
 					</Stack>
 				</>
 			);

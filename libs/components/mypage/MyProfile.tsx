@@ -10,9 +10,10 @@ import { userVar } from '../../../apollo/store';
 import { MemberUpdate } from '../../types/member/member.update';
 import { UPDATE_MEMBER } from '../../../apollo/user/mutation';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
-import { getMemberTypeLabel } from '../../enums/member.enum';
+import { useTranslation } from 'next-i18next';
 
 const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
+	const { t } = useTranslation('common');
 	const device = useDeviceDetect();
 	const token = getJwtToken();
 	const user = useReactiveVar(userVar);
@@ -38,7 +39,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 		try {
 			const image = e.target.files?.[0];
 			if (!image) return;
-			if (!token) throw new Error('Please login first.');
+			if (!token) throw new Error(t('profile.loginRequired'));
 
 			setUploadingProfileImage(true);
 
@@ -76,7 +77,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			e.target.value = '';
 
 			const memberId = updateData._id || user._id;
-			if (!memberId) throw new Error('Profile member id is missing.');
+			if (!memberId) throw new Error(t('profile.missingMemberId'));
 
 			const result = await updateMember({
 				variables: {
@@ -93,7 +94,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			} else if (updatedMember) {
 				userVar({ ...userVar(), ...updatedMember });
 			}
-			await sweetMixinSuccessAlert('Profile image updated');
+			await sweetMixinSuccessAlert(t('profile.profileImageUpdated'));
 
 			return `${REACT_APP_API_URL}/${responseImage}`;
 		} catch (err) {
@@ -106,7 +107,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	const updateProfileHandler = useCallback(async () => {
 		try {
 			const memberId = updateData._id || user._id;
-			if (!memberId) throw new Error('Profile member id is missing.');
+			if (!memberId) throw new Error(t('profile.missingMemberId'));
 
 			const result = await updateMember({
 				variables: {
@@ -126,7 +127,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			} else if (updatedMember) {
 				userVar({ ...userVar(), ...updatedMember });
 			}
-			await sweetMixinSuccessAlert('Profile updated');
+			await sweetMixinSuccessAlert(t('profile.profileUpdated'));
 		} catch (err) {
 			await sweetErrorHandling(err);
 		}
@@ -143,31 +144,31 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	};
 
 	if (device === 'mobile') {
-		return <>MY PROFILE PAGE MOBILE</>;
+		return <>{t('profile.mobile')}</>;
 	} else
 		return (
 			<div id="my-profile-page">
 				<Stack className="main-title-box">
 					<Stack className="right-box">
-						<Typography className="main-title">My Profile</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
+						<Typography className="main-title">{t('profile.title')}</Typography>
+						<Typography className="sub-title">{t('profile.subtitle')}</Typography>
 					</Stack>
 				</Stack>
 				<Stack className="top-box">
 					<Stack className="profile-meta-box">
 						<Stack className="profile-meta-item">
-							<Typography className="meta-label">Role</Typography>
-							<Typography className="meta-value">{getMemberTypeLabel(user.memberType)}</Typography>
+							<Typography className="meta-label">{t('profile.role')}</Typography>
+							<Typography className="meta-value">{t(`profile.roles.${user.memberType}`, user.memberType)}</Typography>
 						</Stack>
 						{user.memberStatus && (
 							<Stack className="profile-meta-item">
-								<Typography className="meta-label">Status</Typography>
-								<Typography className="meta-value">{user.memberStatus}</Typography>
+								<Typography className="meta-label">{t('profile.status')}</Typography>
+								<Typography className="meta-value">{t(`profile.statuses.${user.memberStatus}`, user.memberStatus)}</Typography>
 							</Stack>
 						)}
 					</Stack>
 					<Stack className="photo-box">
-						<Typography className="title">Photo</Typography>
+						<Typography className="title">{t('profile.photo')}</Typography>
 						<Stack className="image-big-box">
 							<Stack className="image-box">
 								<img
@@ -188,44 +189,44 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 									accept="image/jpg, image/jpeg, image/png, image/webp"
 								/>
 								<label htmlFor="hidden-input" className="labeler">
-									<Typography>{uploadingProfileImage ? 'Uploading...' : 'Change profile image'}</Typography>
+									<Typography>{uploadingProfileImage ? t('profile.uploading') : t('profile.changePhoto')}</Typography>
 								</label>
-								<Typography className="upload-text">A photo must be in JPG, JPEG, PNG or WEBP format!</Typography>
+								<Typography className="upload-text">{t('profile.photoHelp')}</Typography>
 							</Stack>
 						</Stack>
 					</Stack>
 					<Stack className="small-input-box">
 						<Stack className="input-box">
-							<Typography className="title">Username</Typography>
+							<Typography className="title">{t('profile.username')}</Typography>
 							<input
 								type="text"
-								placeholder="Your username"
+								placeholder={t('profile.usernamePlaceholder')}
 								value={updateData.memberNick}
 								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberNick: value })}
 							/>
 						</Stack>
 						<Stack className="input-box">
-							<Typography className="title">Phone</Typography>
+							<Typography className="title">{t('profile.phone')}</Typography>
 							<input
 								type="text"
-								placeholder="Your Phone"
+								placeholder={t('profile.phonePlaceholder')}
 								value={updateData.memberPhone}
 								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberPhone: value })}
 							/>
 						</Stack>
 					</Stack>
 					<Stack className="address-box">
-						<Typography className="title">Address</Typography>
+						<Typography className="title">{t('profile.address')}</Typography>
 						<input
 							type="text"
-							placeholder="Your address"
+							placeholder={t('profile.addressPlaceholder')}
 							value={updateData.memberAddress}
 							onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberAddress: value })}
 						/>
 					</Stack>
 					<Stack className="about-me-box">
 						<Button className="update-button" onClick={updateProfileHandler} disabled={doDisabledCheck()}>
-							<Typography>Update Profile</Typography>
+							<Typography>{t('profile.updateProfile')}</Typography>
 							<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
 								<g clipPath="url(#clip0_7065_6985)">
 									<path

@@ -29,6 +29,7 @@ import {
 	MARK_PARENT_TEACHER_CONVERSATION_READ,
 	SEND_MESSAGE,
 	SEND_PARENT_TEACHER_MESSAGE,
+	TRANSLATE_CHAT_MESSAGE,
 } from '../../../apollo/chat/mutation';
 import { userVar } from '../../../apollo/store';
 import { getImageUrl } from '../../config';
@@ -36,13 +37,25 @@ import { ConversationType } from '../../enums/chat.enum';
 import { Direction } from '../../enums/common.enum';
 import { useRealtimeEvent } from '../../hooks/useRealtimeEvent';
 import { MyConversationSummary } from '../../types/chat/conversation';
-import { ChatAttachment, Message } from '../../types/chat/message';
+import { ChatAttachment, Message, TranslateChatMessageInput, TranslatedMessage } from '../../types/chat/message';
 import ChatImagePreview from './ChatImagePreview';
+import { useTranslation } from 'next-i18next';
 import { CHAT_IMAGE_ACCEPT, compressChatImageFiles, MAX_CHAT_IMAGES, toChatAttachmentInput } from './chatImageAttachments';
 
 const APPLICATION_CHAT_MESSAGE_CREATED_EVENT = 'application_chat.message.created';
 const PARENT_TEACHER_CHAT_MESSAGE_CREATED_EVENT = 'parent_teacher_chat.message.created';
 const MAX_CHAT_MESSAGE_LENGTH = 2000;
+const SUPPORTED_TRANSLATION_LANGS = ['en', 'ko', 'ru', 'uz'] as const;
+
+type TranslationTargetLang = (typeof SUPPORTED_TRANSLATION_LANGS)[number];
+type MessageTranslationState = {
+	loading?: boolean;
+	translatedText?: string;
+	targetLang?: TranslationTargetLang;
+	hidden?: boolean;
+	error?: boolean;
+	unavailable?: boolean;
+};
 
 interface ChatMessageCreatedPayload extends Message {
 	conversation?: {
@@ -63,24 +76,24 @@ const messagesPageStyle: React.CSSProperties = {
 	boxSizing: 'border-box',
 };
 
-const formatConversationTime = (value?: Date | string | null): string => {
+const formatConversationTime = (value?: Date | string | null, locale = 'en'): string => {
 	if (!value) return '';
 	const date = new Date(value);
 	if (Number.isNaN(date.getTime())) return '';
 
 	const now = new Date();
 	const sameDay = date.toDateString() === now.toDateString();
-	if (sameDay) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	if (sameDay) return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 
-	return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+	return date.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 };
 
-const formatMessageTime = (value?: Date | string | null): string => {
+const formatMessageTime = (value?: Date | string | null, locale = 'en'): string => {
 	if (!value) return '';
 	const date = new Date(value);
 	if (Number.isNaN(date.getTime())) return '';
 
-	return date.toLocaleString([], {
+	return date.toLocaleString(locale, {
 		month: 'short',
 		day: 'numeric',
 		hour: '2-digit',
@@ -96,8 +109,18 @@ const getInitial = (title?: string): string => {
 const getPayloadConversationId = (payload: ChatMessageCreatedPayload): string | undefined =>
 	payload?.conversationId || payload?.conversation?.conversationId;
 
+const getTranslationTargetLang = (locale?: string): TranslationTargetLang | null => {
+	const normalized = String(locale || 'en').toLowerCase();
+	const mappedLocale = normalized === 'kr' ? 'ko' : normalized;
+	return SUPPORTED_TRANSLATION_LANGS.includes(mappedLocale as TranslationTargetLang)
+		? (mappedLocale as TranslationTargetLang)
+		: null;
+};
+
 const MessagesPage = () => {
 	const router = useRouter();
+	const { t } = useTranslation('common');
+	const locale = router.locale === 'kr' ? 'ko' : router.locale || 'en';
 	const user = useReactiveVar(userVar);
 	const isCompact = useMediaQuery('(max-width: 900px)');
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -109,6 +132,8 @@ const MessagesPage = () => {
 	const [selectedImages, setSelectedImages] = useState<File[]>([]);
 	const [previewImage, setPreviewImage] = useState<{ url: string; alt: string } | null>(null);
 	const [errorMessage, setErrorMessage] = useState('');
+	const [messageTranslations, setMessageTranslations] = useState<Record<string, MessageTranslationState>>({});
+	const translationTargetLang = getTranslationTargetLang(router.locale);
 
 	const {
 		data: conversationsData,
@@ -189,6 +214,9 @@ const MessagesPage = () => {
 	const [uploadChatImages, { loading: uploadingImages }] = useMutation(CHAT_IMAGES_UPLOADER);
 	const [markApplicationConversationRead] = useMutation(MARK_CONVERSATION_READ);
 	const [markParentTeacherConversationRead] = useMutation(MARK_PARENT_TEACHER_CONVERSATION_READ);
+	const [translateChatMessage] = useMutation<{ translateChatMessage: TranslatedMessage }, { input: TranslateChatMessageInput }>(
+		TRANSLATE_CHAT_MESSAGE,
+	);
 
 	const messages: Message[] = isApplicationChat
 		? applicationMessagesData?.getMessages?.list ?? []
@@ -319,7 +347,7 @@ const MessagesPage = () => {
 			const compressedFiles = await compressChatImageFiles(files);
 			setSelectedImages(compressedFiles);
 		} catch (err: any) {
-			setErrorMessage(err?.message || 'Could not prepare chat images.');
+			setErrorMessage(err?.message || t('messages.prepareImagesError'));
 			setSelectedImages([]);
 		}
 	};
@@ -328,15 +356,108 @@ const MessagesPage = () => {
 		setSelectedImages((prev) => prev.filter((_, fileIndex) => fileIndex !== index));
 	};
 
+	const showOriginalHandler = (messageId: string) => {
+		setMessageTranslations((prev) => ({
+			...prev,
+			[messageId]: {
+				...prev[messageId],
+				hidden: true,
+				error: false,
+				unavailable: false,
+				loading: false,
+			},
+		}));
+	};
+
+	const translateMessageHandler = async (message: Message) => {
+		const text = message.text?.trim();
+		if (!text) return;
+
+		const existingTranslation = messageTranslations[message._id];
+		if (existingTranslation?.translatedText && existingTranslation.hidden) {
+			setMessageTranslations((prev) => ({
+				...prev,
+				[message._id]: {
+					...prev[message._id],
+					hidden: false,
+					error: false,
+					unavailable: false,
+				},
+			}));
+			return;
+		}
+
+		if (!selectedConversation?.conversationType || !translationTargetLang) {
+			setMessageTranslations((prev) => ({
+				...prev,
+				[message._id]: {
+					...prev[message._id],
+					loading: false,
+					error: true,
+					unavailable: true,
+				},
+			}));
+			return;
+		}
+
+		try {
+			setMessageTranslations((prev) => ({
+				...prev,
+				[message._id]: {
+					...prev[message._id],
+					loading: true,
+					error: false,
+					unavailable: false,
+					hidden: false,
+				},
+			}));
+
+			const result = await translateChatMessage({
+				variables: {
+					input: {
+						conversationType: selectedConversation.conversationType,
+						messageId: message._id,
+						targetLang: translationTargetLang,
+					},
+				},
+			});
+
+			const translatedText = result.data?.translateChatMessage?.translatedText?.trim();
+			if (!translatedText) throw new Error(t('messages.translationFailed'));
+
+			setMessageTranslations((prev) => ({
+				...prev,
+				[message._id]: {
+					loading: false,
+					error: false,
+					unavailable: false,
+					hidden: false,
+					targetLang: translationTargetLang,
+					translatedText,
+				},
+			}));
+		} catch (err) {
+			setMessageTranslations((prev) => ({
+				...prev,
+				[message._id]: {
+					...prev[message._id],
+					loading: false,
+					error: true,
+					unavailable: false,
+				},
+			}));
+		}
+	};
+
 	const sendMessageHandler = async () => {
 		const text = messageText.trim();
 		if (!selectedConversation || !selectedConversationId) return;
 		if (!text && !selectedImages.length) {
-			setErrorMessage('Message cannot be empty.');
+			setErrorMessage(t('messages.emptyMessageError'));
 			return;
 		}
 		if (text.length > MAX_CHAT_MESSAGE_LENGTH) {
-			setErrorMessage('Message must be 2000 characters or fewer.');
+			setErrorMessage(t('messages.tooLongError'));
 			return;
 		}
 
@@ -346,7 +467,7 @@ const MessagesPage = () => {
 			if (selectedImages.length) {
 				const uploadResult = await uploadChatImages({ variables: { files: selectedImages } });
 				attachments = (uploadResult.data?.chatImagesUploader || []).map(toChatAttachmentInput);
-				if (attachments.length !== selectedImages.length) throw new Error('Could not upload all chat images.');
+				if (attachments.length !== selectedImages.length) throw new Error(t('messages.uploadImagesError'));
 			}
 
 			const variables = {
@@ -369,7 +490,7 @@ const MessagesPage = () => {
 			await markSelectedConversationRead();
 			await refetchConversations({ input: conversationsInput }).catch(() => undefined);
 		} catch (err: any) {
-			setErrorMessage(err?.message || 'Could not send message.');
+			setErrorMessage(err?.message || t('messages.sendError'));
 		}
 	};
 
@@ -404,13 +525,13 @@ const MessagesPage = () => {
 			>
 				<Stack spacing={0.75}>
 					<Typography sx={{ color: '#2f7d4a', fontSize: 12, fontWeight: 900, letterSpacing: '0.08em' }}>
-						PRIVATE MESSAGES
+						{t('messages.eyebrow')}
 					</Typography>
 					<Typography component="h1" sx={{ m: 0, color: '#24332d', fontSize: { xs: 28, md: 38 }, fontWeight: 900 }}>
-						Your KidsGarden conversations
+						{t('messages.title')}
 					</Typography>
 					<Typography sx={{ color: '#64746b', fontSize: 15 }}>
-						Application chats and parent-teacher messages stay private and relationship-based.
+						{t('messages.subtitle')}
 					</Typography>
 				</Stack>
 
@@ -432,9 +553,9 @@ const MessagesPage = () => {
 						>
 							<Stack spacing={1.5} sx={{ p: 2, borderBottom: '1px solid #edf2e8' }}>
 								<Stack direction="row" justifyContent="space-between" alignItems="center" gap={1}>
-									<Typography sx={{ color: '#24332d', fontSize: 18, fontWeight: 900 }}>Chats</Typography>
+									<Typography sx={{ color: '#24332d', fontSize: 18, fontWeight: 900 }}>{t('messages.chats')}</Typography>
 									<Typography sx={{ color: '#6f8177', fontSize: 12, fontWeight: 800 }}>
-										{conversationsData?.getMyConversations?.total ?? 0} total
+										{conversationsData?.getMyConversations?.total ?? 0} {t('messages.total')}
 									</Typography>
 								</Stack>
 								<TextField
@@ -442,7 +563,7 @@ const MessagesPage = () => {
 									size="small"
 									value={search}
 									onChange={(event) => setSearch(event.target.value)}
-									placeholder="Search conversations"
+									placeholder={t('messages.searchPlaceholder')}
 									InputProps={{
 										startAdornment: <SearchRoundedIcon sx={{ mr: 1, color: '#7d8d84', fontSize: 19 }} />,
 									}}
@@ -460,11 +581,11 @@ const MessagesPage = () => {
 								{conversationsLoading && (
 									<Stack direction="row" alignItems="center" gap={1} sx={{ p: 2 }}>
 										<CircularProgress size={18} />
-										<Typography sx={{ color: '#64746b', fontSize: 13 }}>Loading conversations...</Typography>
+										<Typography sx={{ color: '#64746b', fontSize: 13 }}>{t('messages.loadingConversations')}</Typography>
 									</Stack>
 								)}
 								{conversationsError && (
-									<Typography sx={{ p: 2, color: '#b42318', fontSize: 13 }}>Conversations could not be loaded.</Typography>
+									<Typography sx={{ p: 2, color: '#b42318', fontSize: 13 }}>{t('messages.conversationsError')}</Typography>
 								)}
 								{!conversationsLoading && !conversationsError && filteredConversations.length === 0 && (
 									<Stack
@@ -480,9 +601,9 @@ const MessagesPage = () => {
 											px: 2,
 										}}
 									>
-										<Typography sx={{ color: '#24332d', fontWeight: 900 }}>No chats yet</Typography>
+										<Typography sx={{ color: '#24332d', fontWeight: 900 }}>{t('messages.emptyTitle')}</Typography>
 										<Typography sx={{ color: '#64746b', fontSize: 13 }}>
-											Private conversations will appear here when you start chatting.
+											{t('messages.emptyText')}
 										</Typography>
 									</Stack>
 								)}
@@ -533,11 +654,11 @@ const MessagesPage = () => {
 															{conversation.title}
 														</Typography>
 														<Typography sx={{ color: '#9ca3af', fontSize: 11, flexShrink: 0 }}>
-															{formatConversationTime(conversation.lastMessageAt)}
+															{formatConversationTime(conversation.lastMessageAt, locale)}
 														</Typography>
 													</Stack>
 													<Typography sx={{ color: '#64746b', fontSize: 12 }}>
-														{conversation.subtitle || conversation.participantLabel || 'Private chat'}
+														{conversation.subtitle || conversation.participantLabel || t(`messages.conversationTypes.${conversation.conversationType}`, t('messages.privateChat'))}
 													</Typography>
 													<Stack direction="row" justifyContent="space-between" alignItems="center" gap={1}>
 														<Typography
@@ -550,7 +671,7 @@ const MessagesPage = () => {
 																minWidth: 0,
 															}}
 														>
-															{conversation.lastMessage || 'No messages yet.'}
+															{conversation.lastMessage || t('messages.noMessagesYet')}
 														</Typography>
 														{conversation.unreadCount > 0 && (
 															<Box
@@ -599,9 +720,9 @@ const MessagesPage = () => {
 									<Avatar sx={{ width: 64, height: 64, bgcolor: '#e3f2df', color: '#2f7d4a', fontWeight: 900 }}>
 										KG
 									</Avatar>
-									<Typography sx={{ color: '#24332d', fontSize: 24, fontWeight: 900 }}>Your messages</Typography>
+									<Typography sx={{ color: '#24332d', fontSize: 24, fontWeight: 900 }}>{t('messages.yourMessages')}</Typography>
 									<Typography sx={{ maxWidth: 360, color: '#64746b', fontSize: 14 }}>
-										Select a conversation to start chatting.
+										{t('messages.selectConversation')}
 									</Typography>
 								</Stack>
 							) : (
@@ -615,7 +736,7 @@ const MessagesPage = () => {
 									>
 										<Stack direction="row" alignItems="center" gap={1.25} sx={{ minWidth: 0 }}>
 											{isCompact && (
-												<IconButton aria-label="Back to conversations" size="small" onClick={backToListHandler}>
+												<IconButton aria-label={t('messages.backToConversations')} size="small" onClick={backToListHandler}>
 													<ArrowBackRoundedIcon />
 												</IconButton>
 											)}
@@ -640,7 +761,7 @@ const MessagesPage = () => {
 													{selectedConversation.title}
 												</Typography>
 												<Typography sx={{ color: '#64746b', fontSize: 12 }}>
-													{selectedConversation.subtitle || selectedConversation.participantLabel || 'Private chat'}
+													{selectedConversation.subtitle || selectedConversation.participantLabel || t(`messages.conversationTypes.${selectedConversation.conversationType}`, t('messages.privateChat'))}
 												</Typography>
 											</Stack>
 										</Stack>
@@ -651,7 +772,7 @@ const MessagesPage = () => {
 												onClick={openContextHandler}
 												sx={{ borderRadius: '999px', textTransform: 'none', fontWeight: 800, flexShrink: 0 }}
 											>
-												View context
+												{t('messages.viewContext')}
 											</Button>
 										)}
 									</Stack>
@@ -661,11 +782,11 @@ const MessagesPage = () => {
 											{loadingThread && (
 												<Stack direction="row" alignItems="center" justifyContent="center" gap={1} sx={{ py: 4 }}>
 													<CircularProgress size={18} />
-													<Typography sx={{ color: '#64746b', fontSize: 13 }}>Loading messages...</Typography>
+													<Typography sx={{ color: '#64746b', fontSize: 13 }}>{t('messages.loadingMessages')}</Typography>
 												</Stack>
 											)}
 											{threadError && (
-												<Typography sx={{ color: '#b42318', fontSize: 13 }}>Messages could not be loaded.</Typography>
+												<Typography sx={{ color: '#b42318', fontSize: 13 }}>{t('messages.messagesError')}</Typography>
 											)}
 											{!loadingThread && !threadError && messages.length === 0 && (
 												<Stack
@@ -674,12 +795,16 @@ const MessagesPage = () => {
 													spacing={0.75}
 													sx={{ minHeight: 220, color: '#64746b', textAlign: 'center' }}
 												>
-													<Typography sx={{ color: '#24332d', fontWeight: 900 }}>No messages yet.</Typography>
-													<Typography sx={{ fontSize: 13 }}>Send the first private message in this conversation.</Typography>
+													<Typography sx={{ color: '#24332d', fontWeight: 900 }}>{t('messages.noMessagesYet')}</Typography>
+													<Typography sx={{ fontSize: 13 }}>{t('messages.sendFirstMessage')}</Typography>
 												</Stack>
 											)}
 											{messages.map((message) => {
 												const isOwnMessage = message.senderId === user._id;
+												const hasText = Boolean(message.text?.trim());
+												const translationState = messageTranslations[message._id];
+												const translatedTextVisible = Boolean(translationState?.translatedText && !translationState.hidden);
+												const visibleMessageText = translatedTextVisible ? translationState?.translatedText : message.text;
 												return (
 													<Stack
 														key={message._id}
@@ -699,9 +824,14 @@ const MessagesPage = () => {
 																overflowWrap: 'anywhere',
 															}}
 														>
-															{message.text && (
+															{translatedTextVisible && (
+																<Typography sx={{ color: '#2f7d4a', fontSize: 11, fontWeight: 900, letterSpacing: '0.03em' }}>
+																	{t('messages.translated')}
+																</Typography>
+															)}
+															{visibleMessageText && (
 																<Typography sx={{ color: '#24332d', fontSize: 14, lineHeight: 1.5 }}>
-																	{message.text}
+																	{visibleMessageText}
 																</Typography>
 															)}
 															{Boolean(message.attachments?.length) && (
@@ -711,11 +841,11 @@ const MessagesPage = () => {
 																			key={`${message._id}-${attachment.url}`}
 																			component="img"
 																			src={getImageUrl(attachment.url)}
-																			alt={attachment.name || 'Chat image'}
+																			alt={attachment.name || t('messages.chatImageAlt')}
 																			onClick={() =>
 																				setPreviewImage({
 																					url: getImageUrl(attachment.url),
-																					alt: attachment.name || 'Chat image preview',
+																					alt: attachment.name || t('messages.chatImagePreviewAlt'),
 																				})
 																			}
 																			sx={{
@@ -732,7 +862,66 @@ const MessagesPage = () => {
 																</Stack>
 															)}
 														</Stack>
-														<Typography sx={{ color: '#9ca3af', fontSize: 11 }}>{formatMessageTime(message.createdAt)}</Typography>
+														{hasText && (
+															<Stack
+																direction="row"
+																alignItems="center"
+																gap={0.75}
+																flexWrap="wrap"
+																sx={{
+																	maxWidth: { xs: '88%', md: '68%' },
+																	justifyContent: isOwnMessage ? 'flex-end' : 'flex-start',
+																}}
+															>
+																{translationState?.loading ? (
+																	<Typography sx={{ color: '#6f7f73', fontSize: 11.5, fontWeight: 700 }}>
+																		{t('messages.translating')}
+																	</Typography>
+																) : translatedTextVisible ? (
+																	<Button
+																		type="button"
+																		size="small"
+																		onClick={() => showOriginalHandler(message._id)}
+																		sx={{
+																			minWidth: 0,
+																			p: '2px 0',
+																			color: '#2f7d4a',
+																			fontSize: 11.5,
+																			fontWeight: 800,
+																			textTransform: 'none',
+																			'&:hover': { background: 'transparent', color: '#166534' },
+																		}}
+																	>
+																		{t('messages.showOriginal')}
+																	</Button>
+																) : (
+																	<Button
+																		type="button"
+																		size="small"
+																		onClick={() => translateMessageHandler(message)}
+																		sx={{
+																			minWidth: 0,
+																			p: '2px 0',
+																			color: '#2f7d4a',
+																			fontSize: 11.5,
+																			fontWeight: 800,
+																			textTransform: 'none',
+																			'&:hover': { background: 'transparent', color: '#166534' },
+																		}}
+																	>
+																		{t('messages.translate')}
+																	</Button>
+																)}
+																{translationState?.error && (
+																	<Typography sx={{ color: '#b42318', fontSize: 11.5, fontWeight: 700 }}>
+																		{translationState.unavailable
+																			? t('messages.translationUnavailable')
+																			: t('messages.translationFailed')}
+																	</Typography>
+																)}
+															</Stack>
+														)}
+														<Typography sx={{ color: '#9ca3af', fontSize: 11 }}>{formatMessageTime(message.createdAt, locale)}</Typography>
 													</Stack>
 												);
 											})}
@@ -761,7 +950,7 @@ const MessagesPage = () => {
 																{file.name} ({Math.ceil(file.size / 1024)} KB)
 															</Typography>
 															<Button size="small" variant="text" onClick={() => removeSelectedImage(index)}>
-																Remove
+																{t('messages.remove')}
 															</Button>
 														</Stack>
 													))}
@@ -773,7 +962,7 @@ const MessagesPage = () => {
 													size="small"
 													value={messageText}
 													inputProps={{ maxLength: MAX_CHAT_MESSAGE_LENGTH }}
-													placeholder="Type a private message"
+													placeholder={t('messages.typeMessage')}
 													onChange={(event) => setMessageText(event.target.value)}
 													onKeyDown={(event) => {
 														if (event.key === 'Enter' && !event.shiftKey) {
@@ -803,7 +992,7 @@ const MessagesPage = () => {
 													startIcon={<ImageOutlinedIcon />}
 													sx={{ borderRadius: '999px', textTransform: 'none', fontWeight: 900, minWidth: 118 }}
 												>
-													Images
+													{t('messages.images')}
 												</Button>
 												<Button
 													variant="contained"
@@ -819,11 +1008,11 @@ const MessagesPage = () => {
 														'&:hover': { background: '#276c3f' },
 													}}
 												>
-													{uploadingImages ? 'Uploading...' : 'Send'}
+													{uploadingImages ? t('messages.uploading') : t('messages.send')}
 												</Button>
 											</Stack>
 											<Typography sx={{ color: '#8b9a90', fontSize: 11 }}>
-												Up to {MAX_CHAT_IMAGES} JPG, PNG, or WEBP images.
+												{t('messages.imageHelp', { count: MAX_CHAT_IMAGES })}
 											</Typography>
 										</Stack>
 									</Stack>

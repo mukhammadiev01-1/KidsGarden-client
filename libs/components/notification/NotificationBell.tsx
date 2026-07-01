@@ -20,12 +20,15 @@ import { MemberType } from '../../enums/member.enum';
 import { NotificationTargetType } from '../../enums/notification.enum';
 import { useRealtimeEvent } from '../../hooks/useRealtimeEvent';
 import { Notification } from '../../types/notification/notification';
+import { useTranslation } from 'next-i18next';
 import { NotificationsInquiry } from '../../types/notification/notification.input';
 
 const NOTIFICATION_CREATED_EVENT = 'notification.created';
 
 const NotificationBell = () => {
 	const router = useRouter();
+	const { t } = useTranslation('common');
+	const locale = router.locale === 'kr' ? 'ko' : router.locale || 'en';
 	const user = useReactiveVar(userVar);
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 	const open = Boolean(anchorEl);
@@ -83,6 +86,28 @@ const NotificationBell = () => {
 
 	const closeHandler = () => setAnchorEl(null);
 
+	const getNotificationMetadata = (notification: Notification): Record<string, string> => {
+		if (!notification.metadata) return {};
+
+		try {
+			const metadata = JSON.parse(notification.metadata);
+			return metadata && typeof metadata === 'object' ? metadata : {};
+		} catch {
+			return {};
+		}
+	};
+
+	const getArticleHref = (notification: Notification): string | null => {
+		const metadata = getNotificationMetadata(notification);
+		const articleId =
+			metadata.articleId ||
+			(notification.targetType === NotificationTargetType.BOARD_ARTICLE ? notification.targetId : '');
+		const articleCategory = metadata.articleCategory || 'FREE';
+
+		if (!articleId) return '/community';
+		return `/community/detail?articleCategory=${articleCategory}&id=${articleId}`;
+	};
+
 	const getTargetHref = (notification: Notification): string | null => {
 		switch (notification.targetType) {
 			case NotificationTargetType.APPLICATION:
@@ -102,6 +127,10 @@ const NotificationBell = () => {
 					: '/mypage?category=kindergartenAdminApplications';
 			case NotificationTargetType.KINDERGARTEN:
 				return notification.targetId ? `/kindergartens/detail?id=${notification.targetId}` : '/kindergartens';
+			case NotificationTargetType.BOARD_ARTICLE:
+				return getArticleHref(notification);
+			case NotificationTargetType.COMMENT:
+				return getArticleHref(notification);
 			default:
 				return null;
 		}
@@ -123,6 +152,9 @@ const NotificationBell = () => {
 		}
 	};
 
+	const getNotificationTitle = (notification: Notification): string =>
+		notification.title || t(`notificationTypes.${notification.type}`, '');
+
 	const markAllReadHandler = async () => {
 		await markAllNotificationsRead();
 		await Promise.all([
@@ -134,7 +166,7 @@ const NotificationBell = () => {
 	return (
 		<>
 			<IconButton
-				aria-label="Notifications"
+				aria-label={t('notifications.ariaLabel')}
 				onClick={openHandler}
 				size="small"
 				className="notification-icon-button"
@@ -171,31 +203,31 @@ const NotificationBell = () => {
 					}}
 				>
 					<Stack className="notification-panel-header" direction="row" justifyContent="space-between" alignItems="center" gap={1}>
-						<Typography sx={{ fontWeight: 700, color: '#24332d' }}>Notifications</Typography>
+						<Typography sx={{ fontWeight: 700, color: '#24332d' }}>{t('notifications.title')}</Typography>
 						<Button
 							size="small"
 							disabled={markingAllRead || unreadCount === 0}
 							onClick={markAllReadHandler}
 							sx={{ color: '#2f7d4a', textTransform: 'none' }}
 						>
-							Mark all read
+							{t('notifications.markAllRead')}
 						</Button>
 					</Stack>
 
 					{notificationsLoading && (
 						<Stack direction="row" alignItems="center" gap={1}>
 							<CircularProgress size={16} />
-							<Typography sx={{ fontSize: '13px', color: '#64746b' }}>Loading notifications...</Typography>
+							<Typography sx={{ fontSize: '13px', color: '#64746b' }}>{t('notifications.loading')}</Typography>
 						</Stack>
 					)}
 
 					{notificationsError && (
-						<Typography sx={{ fontSize: '13px', color: '#b42318' }}>Notifications could not be loaded.</Typography>
+						<Typography sx={{ fontSize: '13px', color: '#b42318' }}>{t('notifications.loadError')}</Typography>
 					)}
 
 					{!notificationsLoading && !notificationsError && notifications.length === 0 && (
 						<Typography className="notification-empty-state" sx={{ fontSize: '13px', color: '#64746b' }}>
-							No notifications yet.
+							{t('notifications.empty')}
 						</Typography>
 					)}
 
@@ -221,7 +253,7 @@ const NotificationBell = () => {
 									<Stack gap={0.5}>
 										<Stack direction="row" justifyContent="space-between" alignItems="center" gap={1}>
 											<Typography sx={{ fontSize: '13px', fontWeight: 700, color: '#24332d' }}>
-												{notification.title}
+												{getNotificationTitle(notification)}
 											</Typography>
 											{!notification.isRead && (
 												<span
@@ -237,7 +269,7 @@ const NotificationBell = () => {
 										</Stack>
 										<Typography sx={{ fontSize: '12px', color: '#64746b' }}>{notification.message}</Typography>
 										<Typography sx={{ fontSize: '11px', color: '#9ca3af' }}>
-											{new Date(notification.createdAt).toLocaleString()}
+											{new Date(notification.createdAt).toLocaleString(locale)}
 										</Typography>
 									</Stack>
 								</Box>

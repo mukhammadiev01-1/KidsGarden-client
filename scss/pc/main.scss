@@ -179,6 +179,19 @@ body::-webkit-scrollbar {
 								height: 17px;
 								border-radius: 2px;
 							}
+							.lang-badge {
+								min-width: 24px;
+								height: 17px;
+								display: inline-flex;
+								align-items: center;
+								justify-content: center;
+								border-radius: 4px;
+								background: #eef8e9;
+								color: #2f7d4a;
+								font-size: 10px;
+								font-weight: 900;
+								line-height: 1;
+							}
 						}
 						.img-flag {
 							width: 24px;
@@ -1418,6 +1431,20 @@ body #pc-wrap {
 	height: 17px;
 	border-radius: 2px;
 	margin-right: 8px;
+}
+
+.lang-badge {
+	min-width: 24px;
+	height: 17px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 4px;
+	background: #eef8e9;
+	color: #2f7d4a;
+	font-size: 10px;
+	font-weight: 900;
+	line-height: 1;
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {

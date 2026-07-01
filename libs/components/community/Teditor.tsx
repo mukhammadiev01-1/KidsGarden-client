@@ -13,8 +13,10 @@ import axios from 'axios';
 import { T } from '../../types/common';
 import { sweetErrorAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
 import '@toast-ui/editor/dist/toastui-editor.css';
+import { useTranslation } from 'next-i18next';
 
 const TuiEditor = () => {
+	const { t } = useTranslation('common');
 	const editorRef = useRef<Editor>(null),
 		token = getJwtToken(),
 		router = useRouter();
@@ -75,17 +77,17 @@ const TuiEditor = () => {
 	const handleRegisterButton = async () => {
 		try {
 			if (user.memberType !== MemberType.PARENT) {
-				await sweetErrorAlert('Only parents can write Parent Board posts.');
+				await sweetErrorAlert(t('myPosts.parentOnlyAlert'));
 				return;
 			}
 
 			const articleContent = editorRef.current?.getInstance().getMarkdown().trim() ?? '';
 			if (!articleTitle.trim()) {
-				await sweetErrorAlert('Please enter a title.');
+				await sweetErrorAlert(t('myPosts.titleRequired'));
 				return;
 			}
 			if (!articleContent) {
-				await sweetErrorAlert('Please enter post content.');
+				await sweetErrorAlert(t('myPosts.contentRequired'));
 				return;
 			}
 
@@ -100,7 +102,7 @@ const TuiEditor = () => {
 					},
 				},
 			});
-			await sweetMixinSuccessAlert('Parent Board post created');
+			await sweetMixinSuccessAlert(t('myPosts.created'));
 
 			const createdArticle = data?.createBoardArticle;
 			if (createdArticle?._id) {
@@ -123,21 +125,21 @@ const TuiEditor = () => {
 			<Stack direction="row" style={{ margin: '40px' }} justifyContent="space-evenly">
 				<Box component={'div'} className={'form_row'} style={{ width: '300px' }}>
 					<Typography style={{ color: '#2f4f43', margin: '10px' }} variant="h3">
-						Parent Board
+						{t('myPosts.editorTitle')}
 					</Typography>
 					<Typography style={{ color: '#6b7a72', margin: '10px', fontSize: '14px', lineHeight: '22px' }}>
-						Share a question, experience, or helpful tip with other parents.
+						{t('myPosts.editorHelper')}
 					</Typography>
 				</Box>
 				<Box component={'div'} style={{ width: '300px', flexDirection: 'column' }}>
 					<Typography style={{ color: '#2f4f43', margin: '10px' }} variant="h3">
-						Title
+						{t('myPosts.postTitle')}
 					</Typography>
 					<TextField
 						onChange={articleTitleHandler}
 						value={articleTitle}
 						id="filled-basic"
-						label="Post title"
+						label={t('myPosts.postTitleLabel')}
 						style={{ width: '300px', background: 'white' }}
 					/>
 				</Box>
@@ -145,7 +147,7 @@ const TuiEditor = () => {
 
 			<Editor
 				initialValue={''}
-				placeholder={'Write your Parent Board post here'}
+				placeholder={t('myPosts.postPlaceholder')}
 				previewStyle={'vertical'}
 				height={'640px'}
 				// @ts-ignore
@@ -176,7 +178,7 @@ const TuiEditor = () => {
 					onClick={handleRegisterButton}
 					disabled={submitting}
 				>
-					{submitting ? 'Publishing...' : 'Publish Parent Board Post'}
+					{submitting ? t('myPosts.publishing') : t('myPosts.publish')}
 				</Button>
 			</Stack>
 		</Stack>

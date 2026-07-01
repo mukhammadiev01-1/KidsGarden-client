@@ -330,8 +330,8 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					<ShieldOutlinedIcon />
 				</Box>
 				<Box component={'div'} className={'feature-copy'}>
-					<strong>Safe &amp; Secure</strong>
-					<span>Your data is always protected</span>
+					<strong>{t('home.heroFeatures.safeTitle')}</strong>
+					<span>{t('home.heroFeatures.safeCopy')}</span>
 				</Box>
 			</Box>
 			<Box component={'article'} className={'hero-feature-card communication-card'}>
@@ -339,8 +339,8 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					<GroupsOutlinedIcon />
 				</Box>
 				<Box component={'div'} className={'feature-copy'}>
-					<strong>Better Communication</strong>
-					<span>Parents and teachers stay connected</span>
+					<strong>{t('home.heroFeatures.communicationTitle')}</strong>
+					<span>{t('home.heroFeatures.communicationCopy')}</span>
 				</Box>
 			</Box>
 			<Box component={'article'} className={'hero-feature-card management-card'}>
@@ -348,8 +348,8 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					<EventAvailableOutlinedIcon />
 				</Box>
 				<Box component={'div'} className={'feature-copy'}>
-					<strong>Smart Management</strong>
-					<span>Save time and focus on what matters</span>
+					<strong>{t('home.heroFeatures.managementTitle')}</strong>
+					<span>{t('home.heroFeatures.managementCopy')}</span>
 				</Box>
 			</Box>
 			<Box component={'article'} className={'hero-feature-card growth-card'}>
@@ -357,8 +357,8 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 					<TrendingUpRoundedIcon />
 				</Box>
 				<Box component={'div'} className={'feature-copy'}>
-					<strong>Grow Together</strong>
-					<span>Tools to help every child thrive</span>
+					<strong>{t('home.heroFeatures.growthTitle')}</strong>
+					<span>{t('home.heroFeatures.growthCopy')}</span>
 				</Box>
 			</Box>
 		</Stack>
@@ -378,27 +378,24 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				<Stack className={'hero-copy'}>
 					<span className={'eyebrow'}>
 						<AutoAwesomeRoundedIcon />
-						All-in-One Early Learning Platform
+						{t('home.heroEyebrow')}
 					</span>
 					<h1>
-						Everything your kindergarten needs, <span>in one place</span>
+						{t('home.heroTitlePrefix')} <span>{t('home.heroTitleHighlight')}</span>
 					</h1>
-					<p>
-						Manage applications, attendance, communication, schedules, and more &mdash; so teachers can teach and
-						children can grow.
-					</p>
+					<p>{t('home.heroSubtitle')}</p>
 				</Stack>
 				<Stack className={'hero-actions'}>
 					<Link href={'/kindergartens'}>
 						<span>
 							<RocketLaunchRoundedIcon />
-							Explore Kindergartens
+							{t('home.exploreKindergartens')}
 						</span>
 					</Link>
 					<Link href={'/cs'}>
 						<span>
 							<PlayCircleFilledRoundedIcon />
-							See How It Works
+							{t('home.seeHowItWorks')}
 						</span>
 					</Link>
 				</Stack>
@@ -411,26 +408,23 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 				<Stack className={'hero-copy'}>
 					<span className={'eyebrow'}>
 						<AutoAwesomeRoundedIcon />
-						All-in-One Early Learning Platform
+						{t('home.heroEyebrow')}
 					</span>
 					<h1>
-						Everything your kindergarten needs, <span>in one place</span>
+						{t('home.heroTitlePrefix')} <span>{t('home.heroTitleHighlight')}</span>
 					</h1>
-					<p>
-						Manage applications, attendance, communication, schedules, and more &mdash; so teachers can teach and
-						children can grow.
-					</p>
+					<p>{t('home.heroSubtitle')}</p>
 					<Stack className={'hero-actions'}>
 						<Link href={'/kindergartens'}>
 							<span>
 								<RocketLaunchRoundedIcon />
-								Explore Kindergartens
+								{t('home.exploreKindergartens')}
 							</span>
 						</Link>
 						<Link href={'/cs'}>
 							<span>
 								<PlayCircleFilledRoundedIcon />
-								See How It Works
+								{t('home.seeHowItWorks')}
 							</span>
 						</Link>
 					</Stack>

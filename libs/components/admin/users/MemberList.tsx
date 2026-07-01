@@ -16,7 +16,8 @@ import Typography from '@mui/material/Typography';
 import { Stack } from '@mui/material';
 import { Member } from '../../../types/member/member';
 import { REACT_APP_API_URL } from '../../../config';
-import { getMemberTypeLabel, MemberStatus } from '../../../enums/member.enum';
+import { MemberStatus } from '../../../enums/member.enum';
+import { useAdminTranslation } from '../../../i18n/adminTranslator';
 
 interface Data {
 	id: string;
@@ -44,7 +45,7 @@ type Order = 'asc' | 'desc';
 interface HeadCell {
 	disablePadding: boolean;
 	id: keyof Data;
-	label: string;
+	labelKey: string;
 	numeric: boolean;
 }
 
@@ -53,49 +54,49 @@ const headCells: readonly HeadCell[] = [
 		id: 'id',
 		numeric: true,
 		disablePadding: false,
-		label: 'MB ID',
+		labelKey: 'adminTables.memberId',
 	},
 	{
 		id: 'nickname',
 		numeric: true,
 		disablePadding: false,
-		label: 'NICK NAME',
+		labelKey: 'adminTables.nickname',
 	},
 	{
 		id: 'fullname',
 		numeric: false,
 		disablePadding: false,
-		label: 'FULL NAME',
+		labelKey: 'adminTables.fullName',
 	},
 	{
 		id: 'phone',
 		numeric: true,
 		disablePadding: false,
-		label: 'PHONE NUM',
+		labelKey: 'adminTables.phone',
 	},
 	{
 		id: 'type',
 		numeric: false,
 		disablePadding: false,
-		label: 'MEMBER TYPE',
+		labelKey: 'adminTables.memberType',
 	},
 	{
 		id: 'warning',
 		numeric: false,
 		disablePadding: false,
-		label: 'WARNING',
+		labelKey: 'adminTables.warnings',
 	},
 	{
 		id: 'block',
 		numeric: false,
 		disablePadding: false,
-		label: 'BLOCK CRIMES',
+		labelKey: 'adminTables.blocks',
 	},
 	{
 		id: 'state',
 		numeric: false,
 		disablePadding: false,
-		label: 'STATE',
+		labelKey: 'adminTables.status',
 	},
 ];
 
@@ -109,6 +110,7 @@ interface EnhancedTableProps {
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
+	const { t } = useAdminTranslation();
 	const { onSelectAllClick } = props;
 
 	return (
@@ -120,7 +122,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 						align={headCell.numeric ? 'left' : 'center'}
 						padding={headCell.disablePadding ? 'none' : 'normal'}
 					>
-						{headCell.label}
+						{t(headCell.labelKey)}
 					</TableCell>
 				))}
 			</TableRow>
@@ -139,6 +141,7 @@ interface MemberPanelListType {
 
 export const MemberPanelList = (props: MemberPanelListType) => {
 	const { members, loading, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateMemberHandler } = props;
+	const { t, roleLabel, statusLabel } = useAdminTranslation();
 
 	return (
 		<Stack>
@@ -150,7 +153,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 						{loading && (
 							<TableRow>
 								<TableCell align="center" colSpan={8}>
-									<span className={'no-data'}>Loading members...</span>
+									<span className={'no-data'}>{t('adminPages.members.loading')}</span>
 								</TableCell>
 							</TableRow>
 						)}
@@ -158,7 +161,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 						{!loading && members.length === 0 && (
 							<TableRow>
 								<TableCell align="center" colSpan={8}>
-									<span className={'no-data'}>data not found!</span>
+									<span className={'no-data'}>{t('adminPages.members.empty')}</span>
 								</TableCell>
 							</TableRow>
 						)}
@@ -175,7 +178,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 
 										<TableCell align="left" className={'name'}>
 											<Stack direction={'row'} alignItems={'center'}>
-												<Avatar alt={member.memberNick || 'Member'} src={member_image} sx={{ ml: '2px', mr: '10px' }} />
+												<Avatar alt={member.memberNick || t('adminTables.member')} src={member_image} sx={{ ml: '2px', mr: '10px' }} />
 												<div>{member.memberNick}</div>
 											</Stack>
 										</TableCell>
@@ -185,7 +188,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 
 										<TableCell align="center">
 											<Typography component={'span'} className={'badge success'}>
-												{getMemberTypeLabel(member.memberType)}
+												{roleLabel(member.memberType)}
 											</Typography>
 										</TableCell>
 
@@ -193,7 +196,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 										<TableCell align="center">{member.memberBlocks}</TableCell>
 										<TableCell align="center">
 											<Button onClick={(e: any) => menuIconClickHandler(e, member._id)} className={'badge success'}>
-												{member.memberStatus}
+												{statusLabel(member.memberStatus)}
 											</Button>
 
 											<Menu
@@ -215,7 +218,7 @@ export const MemberPanelList = (props: MemberPanelListType) => {
 															key={status}
 														>
 															<Typography variant={'subtitle1'} component={'span'}>
-																{status}
+																{statusLabel(status)}
 															</Typography>
 														</MenuItem>
 													))}

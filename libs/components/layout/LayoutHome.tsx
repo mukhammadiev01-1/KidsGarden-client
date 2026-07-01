@@ -9,10 +9,12 @@ import { getJwtToken, updateUserInfo } from '../../auth';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
+import { useTranslation } from 'next-i18next';
 
 const withLayoutMain = (Component: any) => {
 	return (props: any) => {
 		const device = useDeviceDetect();
+		const { t } = useTranslation('common');
 
 		/** LIFECYCLES **/
 		useEffect(() => {
@@ -28,10 +30,7 @@ const withLayoutMain = (Component: any) => {
 					<Head>
 						<title>KidsGarden</title>
 						<meta name={'title'} content={`KidsGarden`} />
-						<meta
-							name={'description'}
-							content={'Discover kindergartens, compare programs, and stay connected with KidsGarden families.'}
-						/>
+						<meta name={'description'} content={t('home.metaDescription')} />
 					</Head>
 					<Stack id="mobile-wrap">
 						<Stack id={'top'}>
@@ -70,10 +69,7 @@ const withLayoutMain = (Component: any) => {
 					<Head>
 						<title>KidsGarden</title>
 						<meta name={'title'} content={`KidsGarden`} />
-						<meta
-							name={'description'}
-							content={'Discover kindergartens, compare programs, and stay connected with KidsGarden families.'}
-						/>
+						<meta name={'description'} content={t('home.metaDescription')} />
 					</Head>
 					<Stack id="pc-wrap">
 						<Stack id={'top'}>

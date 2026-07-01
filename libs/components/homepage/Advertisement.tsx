@@ -7,52 +7,37 @@ import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
 import LunchDiningRoundedIcon from '@mui/icons-material/LunchDiningRounded';
 import CheckroomRoundedIcon from '@mui/icons-material/CheckroomRounded';
 import BackpackRoundedIcon from '@mui/icons-material/BackpackRounded';
-
-const storeItems = [
-	{
-		title: 'Books',
-		copy: 'Fun and educational storybooks.',
-		icon: MenuBookRoundedIcon,
-	},
-	{
-		title: 'Toys & Games',
-		copy: 'Learning through play.',
-		icon: ToysRoundedIcon,
-	},
-	{
-		title: 'Learning Supplies',
-		copy: 'Creative tools for every class.',
-		icon: SchoolRoundedIcon,
-	},
-	{
-		title: 'Lunchbox / Uniforms',
-		copy: 'Practical and kid-friendly essentials.',
-		icon: LunchDiningRoundedIcon,
-		altIcon: CheckroomRoundedIcon,
-	},
-];
+import { useTranslation } from 'next-i18next';
 
 const Advertisement = () => {
+	const { t } = useTranslation('common');
+	const storeItems = [
+		{ title: t('home.storeItems.booksTitle'), copy: t('home.storeItems.booksCopy'), icon: MenuBookRoundedIcon },
+		{ title: t('home.storeItems.toysTitle'), copy: t('home.storeItems.toysCopy'), icon: ToysRoundedIcon },
+		{ title: t('home.storeItems.suppliesTitle'), copy: t('home.storeItems.suppliesCopy'), icon: SchoolRoundedIcon },
+		{ title: t('home.storeItems.lunchTitle'), copy: t('home.storeItems.lunchCopy'), icon: LunchDiningRoundedIcon, altIcon: CheckroomRoundedIcon },
+	];
+
 	return (
 		<Stack component={'section'} className={'video-frame kg-store-section'}>
 			<Stack className={'store-heading'}>
 				<h2>
-					KidsGarden Store <span className={'sprout-accent'} aria-hidden />
+					{t('home.storeTitle')} <span className={'sprout-accent'} aria-hidden />
 				</h2>
-				<p>Carefully selected items for your little one - coming soon!</p>
+				<p>{t('home.storeSubtitle')}</p>
 			</Stack>
 			<Stack className={'store-container'}>
 				<Box component={'article'} className={'store-feature-card'}>
 					<Box component={'div'} className={'store-feature-copy'}>
-						<h3>Everything they need for a happy day</h3>
-						<p>Books, toys, lunch supplies, uniforms and more.</p>
+						<h3>{t('home.storeFeatureTitle')}</h3>
+						<p>{t('home.storeFeatureCopy')}</p>
 						<Link
 							href="/store"
 							className="store-feature-link"
-							aria-label="Open KidsGarden Store coming soon page"
+							aria-label={t('home.openStoreComingSoon')}
 							style={{ display: 'inline-flex', width: 'fit-content', textDecoration: 'none' }}
 						>
-							<span>Explore Store</span>
+							<span>{t('home.exploreStore')}</span>
 						</Link>
 					</Box>
 					<Box component={'div'} className={'store-feature-visual'} aria-hidden>
@@ -66,7 +51,7 @@ const Advertisement = () => {
 
 						return (
 							<Box component={'article'} className={'store-product-card'} key={item.title}>
-								<strong>Coming Soon</strong>
+								<strong>{t('home.comingSoon')}</strong>
 								<span className={'store-product-icon'}>
 									<Icon />
 									{AltIcon && <AltIcon />}

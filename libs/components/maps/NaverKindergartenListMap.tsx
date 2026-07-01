@@ -3,6 +3,7 @@ import MyLocationRoundedIcon from '@mui/icons-material/MyLocationRounded';
 import { NAVER_MAPS_KEY_ID } from '../../config';
 import { Kindergarten } from '../../types/kindergarten/kindergarten';
 import { loadNaverMapSdk } from '../../utils/naverMapLoader';
+import { useTranslation } from 'next-i18next';
 
 interface MapLocation {
 	latitude: number;
@@ -73,10 +74,10 @@ const isValidMapLocation = (location?: MapLocation | null): location is MapLocat
 	);
 };
 
-const getFallbackText = (reason: string): string => {
-	if (reason === 'no coordinates') return 'No map locations available yet.';
-	if (!isDevelopment) return 'Map is unavailable.';
-	return `Map is unavailable (${reason}).`;
+const getFallbackText = (reason: string, t: (key: string, options?: any) => string): string => {
+	if (reason === 'no coordinates') return t('map.noLocations');
+	if (!isDevelopment) return t('map.unavailable');
+	return `${t('map.unavailable')} (${reason}).`;
 };
 
 const escapeHtml = (value: string): string =>
@@ -95,6 +96,7 @@ const NaverKindergartenListMap = ({
 	onLocateMe,
 	locateMeDisabled,
 }: NaverKindergartenListMapProps) => {
+	const { t } = useTranslation('common');
 	const mapRef = useRef<HTMLDivElement | null>(null);
 	const [fallbackText, setFallbackText] = useState<string>('');
 	const [mapReady, setMapReady] = useState<boolean>(false);
@@ -118,14 +120,14 @@ const NaverKindergartenListMap = ({
 
 				return {
 					_id: kindergarten._id,
-					title: kindergarten.kindergartenTitle || 'Kindergarten',
+					title: kindergarten.kindergartenTitle || t('kindergartens.card.kindergarten'),
 					address: kindergarten.kindergartenAddress || kindergarten.kindergartenLocation,
 					latitude,
 					longitude,
 				};
 			})
 			.filter(Boolean) as ValidMapKindergarten[];
-	}, [kindergartens]);
+	}, [kindergartens, t]);
 
 	useEffect(() => {
 		let disposed = false;
@@ -136,7 +138,7 @@ const NaverKindergartenListMap = ({
 		const renderMap = async () => {
 			if (!NAVER_MAPS_KEY_ID) {
 				setMapReady(false);
-				setFallbackText(getFallbackText('missing key'));
+				setFallbackText(getFallbackText('missing key', t));
 				return;
 			}
 
@@ -171,9 +173,9 @@ const NaverKindergartenListMap = ({
 					const userMarker = new window.naver.maps.Marker({
 						map,
 						position: userPosition,
-						title: 'Your location',
+						title: t('map.yourLocation'),
 						icon: {
-							content: '<div class="kg-list-map-user-marker">You</div>',
+							content: `<div class="kg-list-map-user-marker">${escapeHtml(t('map.yourLocation'))}</div>`,
 							anchor: new window.naver.maps.Point(18, 18),
 						},
 					});
@@ -183,11 +185,11 @@ const NaverKindergartenListMap = ({
 				if (safeSearchLocation) {
 					const searchPosition = new window.naver.maps.LatLng(safeSearchLocation.latitude, safeSearchLocation.longitude);
 					extendBounds(searchPosition);
-					const safeSearchLabel = escapeHtml(searchLocationLabel || 'Searched area');
+					const safeSearchLabel = escapeHtml(searchLocationLabel || t('map.searchedArea'));
 					const searchMarker = new window.naver.maps.Marker({
 						map,
 						position: searchPosition,
-						title: searchLocationLabel || 'Searched area',
+						title: searchLocationLabel || t('map.searchedArea'),
 						icon: {
 							content: `<div class="kg-list-map-search-marker">${safeSearchLabel}</div>`,
 							anchor: new window.naver.maps.Point(18, 18),
@@ -247,7 +249,7 @@ const NaverKindergartenListMap = ({
 				if (!disposed) {
 					setMapReady(false);
 					const reason = err instanceof Error ? err.message : 'script load failed';
-					setFallbackText(getFallbackText(reason));
+					setFallbackText(getFallbackText(reason, t));
 				}
 			}
 		};
@@ -281,24 +283,24 @@ const NaverKindergartenListMap = ({
 				mapRef.current.innerHTML = '';
 			}
 		};
-	}, [validKindergartens, userLocation, searchLocation, searchLocationLabel]);
+	}, [validKindergartens, userLocation, searchLocation, searchLocationLabel, t]);
 
 	return (
 		<div className="kg-list-map-shell">
-			<div ref={mapRef} className="kg-list-map-canvas" aria-label="Kindergarten listing map" />
+			<div ref={mapRef} className="kg-list-map-canvas" aria-label={t('map.listingAria')} />
 			{onLocateMe && (
 				<button
 					type="button"
 					className={`kg-map-locate-button ${isValidMapLocation(userLocation) ? 'active' : ''}`}
 					onClick={onLocateMe}
 					disabled={locateMeDisabled}
-					aria-label="Use my current location"
-					title="Use my current location"
+					aria-label={t('map.useCurrentLocation')}
+					title={t('map.useCurrentLocation')}
 				>
 					<MyLocationRoundedIcon fontSize="small" />
 				</button>
 			)}
-			{!mapReady && <div className="kg-list-map-fallback">{fallbackText || 'Loading map...'}</div>}
+			{!mapReady && <div className="kg-list-map-fallback">{fallbackText || t('map.loading')}</div>}
 		</div>
 	);
 };

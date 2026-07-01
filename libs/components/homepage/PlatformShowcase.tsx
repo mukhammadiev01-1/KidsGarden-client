@@ -9,105 +9,59 @@ import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import EventAvailableRoundedIcon from '@mui/icons-material/EventAvailableRounded';
 import ManageAccountsRoundedIcon from '@mui/icons-material/ManageAccountsRounded';
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
-import ShieldRoundedIcon from '@mui/icons-material/ShieldRounded';
 import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import ChatBubbleRoundedIcon from '@mui/icons-material/ChatBubbleRounded';
 import VerifiedUserRoundedIcon from '@mui/icons-material/VerifiedUserRounded';
-
-const roleCards = [
-	{
-		label: 'Parents',
-		copy: 'Stay informed, connected, and involved in every milestone.',
-		icon: FamilyRestroomRoundedIcon,
-		image: '/img/kidsgarden/articles/article-child-confidence-support.png',
-		tone: 'parents',
-	},
-	{
-		label: 'Teachers',
-		copy: 'Simplify your day and spend more time teaching.',
-		icon: SchoolRoundedIcon,
-		image: '/img/kidsgarden/articles/article-play-based-learning.png',
-		tone: 'teachers',
-	},
-	{
-		label: 'Kindergartens',
-		copy: 'Run your center efficiently and grow with confidence.',
-		icon: BusinessRoundedIcon,
-		image: '/img/kidsgarden/kindergartens/kg-01-exterior.png',
-		tone: 'kindergartens',
-	},
-];
-
-const platformFeatures = [
-	{
-		title: 'Online Applications',
-		copy: 'Easily apply and manage admissions online.',
-		icon: AssignmentTurnedInRoundedIcon,
-		tone: 'green',
-	},
-	{
-		title: 'Child Profiles',
-		copy: 'All important details in one safe place.',
-		icon: ChildCareRoundedIcon,
-		tone: 'lime',
-	},
-	{
-		title: 'Groups',
-		copy: 'Organize classes and activities with ease.',
-		icon: GroupsRoundedIcon,
-		tone: 'blue',
-	},
-	{
-		title: 'Attendance',
-		copy: 'Track attendance in real-time and stay updated.',
-		icon: EventAvailableRoundedIcon,
-		tone: 'green',
-	},
-	{
-		title: 'Staff Management',
-		copy: 'Manage your team and permissions.',
-		icon: ManageAccountsRoundedIcon,
-		tone: 'mint',
-	},
-	{
-		title: 'Parent Community',
-		copy: 'Connect, share, and support each other.',
-		icon: ForumRoundedIcon,
-		tone: 'pink',
-	},
-];
-
-const privacyItems = [
-	{
-		title: 'No public phone exposure',
-		copy: 'Contact details stay protected from public browsing.',
-		icon: LockRoundedIcon,
-		tone: 'green',
-	},
-	{
-		title: 'Role-based private dashboards',
-		copy: 'Everyone sees only what is meant for their role.',
-		icon: ChatBubbleRoundedIcon,
-		tone: 'honey',
-	},
-	{
-		title: 'Moderated community',
-		copy: 'Parent Board and News stay safer through moderation.',
-		icon: VerifiedUserRoundedIcon,
-		tone: 'blue',
-	},
-];
+import { useTranslation } from 'next-i18next';
 
 const PlatformShowcase = () => {
+	const { t } = useTranslation('common');
+	const roleCards = [
+		{
+			label: t('home.roles.parentsTitle'),
+			copy: t('home.roles.parentsCopy'),
+			icon: FamilyRestroomRoundedIcon,
+			image: '/img/kidsgarden/articles/article-child-confidence-support.png',
+			tone: 'parents',
+		},
+		{
+			label: t('home.roles.teachersTitle'),
+			copy: t('home.roles.teachersCopy'),
+			icon: SchoolRoundedIcon,
+			image: '/img/kidsgarden/articles/article-play-based-learning.png',
+			tone: 'teachers',
+		},
+		{
+			label: t('home.roles.kindergartensTitle'),
+			copy: t('home.roles.kindergartensCopy'),
+			icon: BusinessRoundedIcon,
+			image: '/img/kidsgarden/kindergartens/kg-01-exterior.png',
+			tone: 'kindergartens',
+		},
+	];
+	const platformFeatures = [
+		{ title: t('home.features.applicationsTitle'), copy: t('home.features.applicationsCopy'), icon: AssignmentTurnedInRoundedIcon, tone: 'green' },
+		{ title: t('home.features.childProfilesTitle'), copy: t('home.features.childProfilesCopy'), icon: ChildCareRoundedIcon, tone: 'lime' },
+		{ title: t('home.features.groupsTitle'), copy: t('home.features.groupsCopy'), icon: GroupsRoundedIcon, tone: 'blue' },
+		{ title: t('home.features.attendanceTitle'), copy: t('home.features.attendanceCopy'), icon: EventAvailableRoundedIcon, tone: 'green' },
+		{ title: t('home.features.staffTitle'), copy: t('home.features.staffCopy'), icon: ManageAccountsRoundedIcon, tone: 'mint' },
+		{ title: t('home.features.communityTitle'), copy: t('home.features.communityCopy'), icon: ForumRoundedIcon, tone: 'pink' },
+	];
+	const privacyItems = [
+		{ title: t('home.privacy.phoneTitle'), copy: t('home.privacy.phoneCopy'), icon: LockRoundedIcon, tone: 'green' },
+		{ title: t('home.privacy.dashboardsTitle'), copy: t('home.privacy.dashboardsCopy'), icon: ChatBubbleRoundedIcon, tone: 'honey' },
+		{ title: t('home.privacy.moderatedTitle'), copy: t('home.privacy.moderatedCopy'), icon: VerifiedUserRoundedIcon, tone: 'blue' },
+	];
+
 	return (
 		<Stack className={'platform-showcase'}>
 			<Stack className={'platform-container'}>
 				<Stack component={'section'} className={'platform-roles-section'}>
 					<Stack className={'platform-section-heading'}>
 						<h2>
-							Built for every role <span className={'sprout-accent'} aria-hidden />
+							{t('home.rolesTitle')} <span className={'sprout-accent'} aria-hidden />
 						</h2>
-						<p>Powerful features tailored to meet the needs of everyone in your child&apos;s journey.</p>
+						<p>{t('home.rolesSubtitle')}</p>
 					</Stack>
 
 					<Box component={'div'} className={'platform-role-grid'}>
@@ -140,7 +94,7 @@ const PlatformShowcase = () => {
 				<Stack component={'section'} className={'platform-feature-grid'}>
 					<Stack className={'platform-section-heading compact'}>
 						<h2>
-							Everything opens after you join KidsGarden <span className={'sprout-accent'} aria-hidden />
+							{t('home.featuresTitle')} <span className={'sprout-accent'} aria-hidden />
 						</h2>
 					</Stack>
 					<Box component={'div'} className={'feature-grid-list'}>
@@ -163,13 +117,15 @@ const PlatformShowcase = () => {
 				</Stack>
 
 				<Stack component={'section'} className={'platform-privacy-section'}>
-					<Box component={'div'} className={'privacy-illustration'} aria-hidden>
-						<ShieldRoundedIcon className={'shield'} />
-						<LockRoundedIcon className={'lock'} />
-					</Box>
+					<Box
+						component={'img'}
+						className={'privacy-illustration'}
+						src={'/img/about/about-safety-shield.png'}
+						alt={t('home.privacyTitle')}
+					/>
 					<Box component={'div'} className={'privacy-copy'}>
 						<h2>
-							Your child&apos;s safety & privacy are our top priority <span className={'sprout-accent'} aria-hidden />
+							{t('home.privacyTitle')} <span className={'sprout-accent'} aria-hidden />
 						</h2>
 						<Box component={'div'} className={'privacy-list'}>
 							{privacyItems.map((item) => {

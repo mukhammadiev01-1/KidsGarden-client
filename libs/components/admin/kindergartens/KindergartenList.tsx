@@ -19,6 +19,7 @@ import { Kindergarten } from '../../../types/kindergarten/kindergarten';
 import { ACTIVE_KINDERGARTEN_STATUSES, KindergartenStatus } from '../../../enums/kindergarten.enum';
 import { REACT_APP_API_URL } from '../../../config';
 import { formatMonthlyFee, getKindergartenTypeLabel } from '../../../utils';
+import { useAdminTranslation } from '../../../i18n/adminTranslator';
 
 interface Data {
 	id: string;
@@ -35,18 +36,6 @@ interface Data {
 }
 
 type Order = 'asc' | 'desc';
-
-const getKindergartenStatusLabel = (status: string) => {
-	switch (status) {
-		case KindergartenStatus.CLOSED:
-		case KindergartenStatus.SOLD:
-			return 'Closed';
-		case KindergartenStatus.DELETE:
-			return 'Deleted';
-		default:
-			return status;
-	}
-};
 
 const getStatusBadgeClass = (status: KindergartenStatus) => {
 	switch (status) {
@@ -74,7 +63,7 @@ const truncateId = (value?: string) => {
 interface HeadCell {
 	disablePadding: boolean;
 	id: keyof Data;
-	label: string;
+	labelKey: string;
 	numeric: boolean;
 }
 
@@ -83,67 +72,67 @@ const headCells: readonly HeadCell[] = [
 		id: 'id',
 		numeric: true,
 		disablePadding: false,
-		label: 'ID',
+		labelKey: 'adminTables.id',
 	},
 	{
 		id: 'title',
 		numeric: false,
 		disablePadding: false,
-		label: 'KINDERGARTEN',
+		labelKey: 'adminTables.kindergarten',
 	},
 	{
 		id: 'fee',
 		numeric: false,
 		disablePadding: false,
-		label: 'MONTHLY FEE',
+		labelKey: 'adminTables.monthlyFee',
 	},
 	{
 		id: 'owner',
 		numeric: false,
 		disablePadding: false,
-		label: 'OWNER',
+		labelKey: 'adminTables.owner',
 	},
 	{
 		id: 'location',
 		numeric: false,
 		disablePadding: false,
-		label: 'LOCATION',
+		labelKey: 'adminTables.location',
 	},
 	{
 		id: 'capacity',
 		numeric: false,
 		disablePadding: false,
-		label: 'CAPACITY',
+		labelKey: 'adminTables.capacity',
 	},
 	{
 		id: 'ageRange',
 		numeric: false,
 		disablePadding: false,
-		label: 'AGE RANGE',
+		labelKey: 'adminTables.ageRange',
 	},
 	{
 		id: 'programs',
 		numeric: false,
 		disablePadding: false,
-		label: 'PROGRAMS',
+		labelKey: 'adminTables.programs',
 	},
 	{
 		id: 'type',
 		numeric: false,
 		disablePadding: false,
-		label: 'TYPE',
+		labelKey: 'adminTables.type',
 	},
 	{
 		id: 'createdAt',
 		numeric: false,
 		disablePadding: false,
-		label: 'CREATED',
+		labelKey: 'adminTables.created',
 	},
 	{
 		id: 'status',
 		numeric: false,
 		disablePadding: false,
-		label: 'STATUS',
+		labelKey: 'adminTables.status',
 	},
 ];
 
@@ -157,6 +146,7 @@ interface EnhancedTableProps {
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
+	const { t } = useAdminTranslation();
 	return (
 		<TableHead>
 			<TableRow>
@@ -166,7 +156,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 						align={headCell.numeric ? 'left' : 'center'}
 						padding={headCell.disablePadding ? 'none' : 'normal'}
 					>
-						{headCell.label}
+						{t(headCell.labelKey)}
 					</TableCell>
 				))}
 			</TableRow>
@@ -184,6 +174,7 @@ interface KindergartenPanelListType {
 }
 
 export const KindergartenPanelList = (props: KindergartenPanelListType) => {
+	const { t, statusLabel, typeLabel } = useAdminTranslation();
 	const { kindergartens, loading, anchorEl, menuIconClickHandler, menuIconCloseHandler, updateKindergartenHandler } =
 		props;
 
@@ -197,7 +188,7 @@ export const KindergartenPanelList = (props: KindergartenPanelListType) => {
 						{loading && (
 							<TableRow>
 								<TableCell align="center" colSpan={11}>
-									<span className={'no-data'}>Loading kindergartens...</span>
+									<span className={'no-data'}>{t('adminPages.kindergartens.loading')}</span>
 								</TableCell>
 							</TableRow>
 						)}
@@ -205,7 +196,7 @@ export const KindergartenPanelList = (props: KindergartenPanelListType) => {
 						{!loading && kindergartens.length === 0 && (
 							<TableRow>
 								<TableCell align="center" colSpan={11}>
-									<span className={'no-data'}>No kindergartens found.</span>
+									<span className={'no-data'}>{t('adminPages.kindergartens.empty')}</span>
 								</TableCell>
 							</TableRow>
 						)}
@@ -229,7 +220,7 @@ export const KindergartenPanelList = (props: KindergartenPanelListType) => {
 												<Stack direction={'row'}>
 													<Link href={`/kindergartens/detail?id=${kindergarten?._id}`}>
 														<div>
-															<Avatar alt="Remy Sharp" src={kindergartenImage} sx={{ ml: '2px', mr: '10px' }} />
+															<Avatar alt={kindergarten.kindergartenTitle || t('adminTables.kindergarten')} src={kindergartenImage} sx={{ ml: '2px', mr: '10px' }} />
 														</div>
 													</Link>
 													<Link href={`/kindergartens/detail?id=${kindergarten?._id}`}>
@@ -239,7 +230,7 @@ export const KindergartenPanelList = (props: KindergartenPanelListType) => {
 											) : (
 												<Stack direction={'row'}>
 													<div>
-														<Avatar alt="Remy Sharp" src={kindergartenImage} sx={{ ml: '2px', mr: '10px' }} />
+														<Avatar alt={kindergarten.kindergartenTitle || t('adminTables.kindergarten')} src={kindergartenImage} sx={{ ml: '2px', mr: '10px' }} />
 													</div>
 													<div style={{ marginTop: '10px' }}>{kindergarten.kindergartenTitle}</div>
 												</Stack>
@@ -250,16 +241,20 @@ export const KindergartenPanelList = (props: KindergartenPanelListType) => {
 										</TableCell>
 										<TableCell align="center">{ownerName}</TableCell>
 										<TableCell align="center">{kindergarten.kindergartenLocation}</TableCell>
-										<TableCell align="center">{kindergarten.kindergartenCapacity} spots</TableCell>
-										<TableCell align="center">Age {kindergarten.kindergartenAgeRange}</TableCell>
-										<TableCell align="center">{kindergarten.kindergartenPrograms} programs</TableCell>
-										<TableCell align="center">{getKindergartenTypeLabel(kindergarten.kindergartenType)}</TableCell>
+										<TableCell align="center">
+											{t('adminTables.capacityValue', { count: kindergarten.kindergartenCapacity })}
+										</TableCell>
+										<TableCell align="center">{t('adminTables.ageValue', { ageRange: kindergarten.kindergartenAgeRange })}</TableCell>
+										<TableCell align="center">
+											{t('adminTables.programsValue', { programs: kindergarten.kindergartenPrograms })}
+										</TableCell>
+										<TableCell align="center">{typeLabel(kindergarten.kindergartenType) || getKindergartenTypeLabel(kindergarten.kindergartenType)}</TableCell>
 										<TableCell align="center">{formatDate(kindergarten.createdAt)}</TableCell>
 										<TableCell align="center">
 											{kindergarten.kindergartenStatus === KindergartenStatus.ACTIVE ? (
 												<>
 													<Button onClick={(e: any) => menuIconClickHandler(e, index)} className={'badge success'}>
-														{getKindergartenStatusLabel(kindergarten.kindergartenStatus)}
+														{statusLabel(kindergarten.kindergartenStatus)}
 													</Button>
 
 													<Menu
@@ -286,7 +281,7 @@ export const KindergartenPanelList = (props: KindergartenPanelListType) => {
 																	key={status}
 																>
 																	<Typography variant={'subtitle1'} component={'span'}>
-																		{getKindergartenStatusLabel(status)}
+																		{statusLabel(status)}
 																	</Typography>
 																</MenuItem>
 															))}
@@ -294,7 +289,7 @@ export const KindergartenPanelList = (props: KindergartenPanelListType) => {
 												</>
 											) : (
 												<Typography component={'span'} className={getStatusBadgeClass(kindergarten.kindergartenStatus)}>
-													{getKindergartenStatusLabel(kindergarten.kindergartenStatus)}
+													{statusLabel(kindergarten.kindergartenStatus)}
 												</Typography>
 											)}
 										</TableCell>

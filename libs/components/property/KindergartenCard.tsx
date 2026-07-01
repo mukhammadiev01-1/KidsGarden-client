@@ -13,6 +13,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import NearMeRoundedIcon from '@mui/icons-material/NearMeRounded';
+import { useTranslation } from 'next-i18next';
 
 interface LegacyKindergartenApiFields {
 	_id?: string;
@@ -59,36 +60,41 @@ const mapLegacyKindergartenApiFields = (legacyKindergarten?: LegacyKindergartenA
 	};
 };
 
-export const formatDistanceAway = (distanceMeters?: number): string => {
+export const formatDistanceAway = (distanceMeters?: number, t?: (key: string, options?: any) => string): string => {
 	if (typeof distanceMeters !== 'number' || !Number.isFinite(distanceMeters)) return '';
-	if (distanceMeters < 1000) return `${Math.max(0, Math.round(distanceMeters))} m away`;
-	return `${(distanceMeters / 1000).toFixed(1)} km away`;
+	if (distanceMeters < 1000) {
+		const distance = Math.max(0, Math.round(distanceMeters));
+		return t ? t('kindergartens.card.distanceMeters', { distance }) : `${distance} m away`;
+	}
+	const distance = (distanceMeters / 1000).toFixed(1);
+	return t ? t('kindergartens.card.distanceKm', { distance }) : `${distance} km away`;
 };
 
 const KindergartenCard = (props: KindergartenCardProps) => {
 	const { likeKindergartenHandler, myFavorites, recentlyVisited } = props;
 	const kindergarten = props.kindergarten || mapLegacyKindergartenApiFields(props.property);
 	const user = useReactiveVar(userVar);
+	const { t } = useTranslation('common');
 	const kindergartenImageUrl: string = getImageUrl(kindergarten?.kindergartenImages?.[0]);
 	const kindergartenRank = kindergarten?.kindergartenRank || 0;
 	const kindergartenLikes = kindergarten?.kindergartenLikes || 0;
 	const kindergartenViews = kindergarten?.kindergartenViews || 0;
+	const badgeTone =
+		kindergartenRank > 0 ? 'top-rated' : kindergartenLikes > 0 ? 'popular' : kindergartenViews > 0 ? 'trending' : 'verified';
 	const badgeLabel =
-		kindergartenRank > 0
-			? 'Top Rated'
-			: kindergartenLikes > 0
-				? 'Popular'
-				: kindergartenViews > 0
-					? 'Trending'
-					: 'Verified';
-	const description =
-		kindergarten?.kindergartenDesc ||
-		'A warm, safe learning environment where children can grow with confidence.';
-	const primaryLocation = kindergarten?.kindergartenLocation || kindergarten?.kindergartenAddress || 'KidsGarden center';
+		badgeTone === 'top-rated'
+			? t('kindergartens.card.topRated')
+			: badgeTone === 'popular'
+			? t('kindergartens.card.popular')
+			: badgeTone === 'trending'
+			? t('kindergartens.card.trending')
+			: t('kindergartens.card.verified');
+	const description = kindergarten?.kindergartenDesc || t('kindergartens.card.defaultDescription');
+	const primaryLocation = kindergarten?.kindergartenLocation || kindergarten?.kindergartenAddress || t('kindergartens.card.kidsGardenCenter');
 	const kindergartenTypeLabel = kindergarten?.kindergartenType
-		? getKindergartenTypeLabel(kindergarten.kindergartenType)
-		: 'Kindergarten';
-	const distanceLabel = formatDistanceAway(kindergarten?.distanceMeters);
+		? t(`filters.centerTypes.${kindergarten.kindergartenType}`, { defaultValue: getKindergartenTypeLabel(kindergarten.kindergartenType) })
+		: t('kindergartens.card.kindergarten');
+	const distanceLabel = formatDistanceAway(kindergarten?.distanceMeters, t);
 
 	return (
 		<Stack className="card-config">
@@ -98,10 +104,11 @@ const KindergartenCard = (props: KindergartenCardProps) => {
 						pathname: '/kindergartens/detail',
 						query: { id: kindergarten?._id },
 					}}
+					aria-label={t('kindergartens.card.like')}
 				>
 					<img src={kindergartenImageUrl} alt="" />
 				</Link>
-				<Box component={'div'} className={`top-badge ${badgeLabel.toLowerCase().replace(/\s/g, '-')}`}>
+				<Box component={'div'} className={`top-badge ${badgeTone}`}>
 					<Typography>{badgeLabel}</Typography>
 				</Box>
 				{distanceLabel && (
@@ -150,13 +157,13 @@ const KindergartenCard = (props: KindergartenCardProps) => {
 				<Typography className="kg-card-description">{description}</Typography>
 				<Stack className="options">
 					<Stack className="option">
-							<Typography>{kindergarten?.kindergartenAgeRange || 'All'} years</Typography>
+							<Typography>{kindergarten?.kindergartenAgeRange || t('kindergartens.card.allAges')} {t('kindergartens.card.years')}</Typography>
 					</Stack>
 					<Stack className="option">
-							<Typography>{kindergarten?.kindergartenCapacity || 0} capacity</Typography>
+							<Typography>{t('kindergartens.card.capacity', { count: kindergarten?.kindergartenCapacity || 0 })}</Typography>
 					</Stack>
 					<Stack className="option">
-							<Typography>{kindergarten?.kindergartenPrograms || 0} programs</Typography>
+							<Typography>{t('kindergartens.card.programs', { count: kindergarten?.kindergartenPrograms || 0 })}</Typography>
 					</Stack>
 				</Stack>
 				<Stack className="divider"></Stack>
@@ -180,7 +187,7 @@ const KindergartenCard = (props: KindergartenCardProps) => {
 								query: { id: kindergarten?._id },
 							}}
 						>
-							View Details
+							{t('kindergartens.card.viewDetails')}
 						</Link>
 					</Stack>
 				</Stack>

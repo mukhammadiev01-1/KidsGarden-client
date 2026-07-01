@@ -29,18 +29,7 @@ import { CommentGroup, CommentStatus } from '../../../libs/enums/comment.enum';
 import { Direction } from '../../../libs/enums/common.enum';
 import { REACT_APP_API_URL } from '../../../libs/config';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
-
-const statusLabels: Record<string, string> = {
-	ALL: 'All',
-	[CommentStatus.ACTIVE]: 'Active',
-	[CommentStatus.DELETE]: 'Deleted',
-};
-
-const groupLabels: Record<string, string> = {
-	ALL: 'All groups',
-	[CommentGroup.ARTICLE]: 'Article',
-	[CommentGroup.KINDERGARTEN]: 'Kindergarten',
-};
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
 
 const truncateId = (value?: string) => {
 	if (!value) return '-';
@@ -57,6 +46,7 @@ const buildSearch = (status: string, group: string, refId: string, memberId: str
 };
 
 const AdminCommunityComments: NextPage = ({ initialInquiry, ...props }: any) => {
+	const { t, statusLabel, categoryLabel } = useAdminTranslation();
 	const [commentsInquiry, setCommentsInquiry] = useState<AdminCommentsInquiry>(initialInquiry);
 	const [comments, setComments] = useState<Comment[]>([]);
 	const [commentTotal, setCommentTotal] = useState<number>(0);
@@ -129,7 +119,7 @@ const AdminCommunityComments: NextPage = ({ initialInquiry, ...props }: any) => 
 				},
 			});
 			await refetch({ input: commentsInquiry });
-			await sweetMixinSuccessAlert('Comment status updated');
+			await sweetMixinSuccessAlert(t('adminPages.communityComments.statusUpdated'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -140,7 +130,7 @@ const AdminCommunityComments: NextPage = ({ initialInquiry, ...props }: any) => 
 			return (
 				<TableRow>
 					<TableCell colSpan={8} align="center">
-						Loading comments...
+						{t('adminPages.communityComments.loading')}
 					</TableCell>
 				</TableRow>
 			);
@@ -150,7 +140,7 @@ const AdminCommunityComments: NextPage = ({ initialInquiry, ...props }: any) => 
 			return (
 				<TableRow>
 					<TableCell colSpan={8} align="center">
-						Comments could not be loaded.
+						{t('adminPages.communityComments.loadError')}
 					</TableCell>
 				</TableRow>
 			);
@@ -160,7 +150,7 @@ const AdminCommunityComments: NextPage = ({ initialInquiry, ...props }: any) => 
 			return (
 				<TableRow>
 					<TableCell colSpan={8} align="center">
-						No comments found.
+						{t('adminPages.communityComments.empty')}
 					</TableCell>
 				</TableRow>
 			);
@@ -182,18 +172,18 @@ const AdminCommunityComments: NextPage = ({ initialInquiry, ...props }: any) => 
 						}
 						sx={{ minWidth: 120 }}
 					>
-						<MenuItem value={CommentStatus.ACTIVE}>ACTIVE</MenuItem>
-						<MenuItem value={CommentStatus.DELETE}>DELETED</MenuItem>
+						<MenuItem value={CommentStatus.ACTIVE}>{statusLabel(CommentStatus.ACTIVE)}</MenuItem>
+						<MenuItem value={CommentStatus.DELETE}>{statusLabel(CommentStatus.DELETE)}</MenuItem>
 					</Select>
 				</TableCell>
-				<TableCell align="center">{groupLabels[comment.commentGroup] || comment.commentGroup}</TableCell>
+				<TableCell align="center">{categoryLabel(comment.commentGroup)}</TableCell>
 				<TableCell align="left">
 					<Typography title={comment.commentRefId}>{truncateId(comment.commentRefId)}</Typography>
 				</TableCell>
 				<TableCell align="left" className="name">
 					<Stack direction="row" alignItems="center" gap="8px">
 						<Avatar
-							alt={comment?.memberData?.memberNick || 'Author'}
+							alt={comment?.memberData?.memberNick || t('adminTables.author')}
 							src={
 								comment?.memberData?.memberImage
 									? `${REACT_APP_API_URL}/${comment.memberData.memberImage}`
@@ -201,7 +191,7 @@ const AdminCommunityComments: NextPage = ({ initialInquiry, ...props }: any) => 
 							}
 						/>
 						<Typography sx={{ maxWidth: 160 }} noWrap>
-							{comment?.memberData?.memberFullName || comment?.memberData?.memberNick || 'Unknown author'}
+							{comment?.memberData?.memberFullName || comment?.memberData?.memberNick || t('adminTables.unknownAuthor')}
 						</Typography>
 					</Stack>
 				</TableCell>
@@ -221,45 +211,45 @@ const AdminCommunityComments: NextPage = ({ initialInquiry, ...props }: any) => 
 	return (
 		<Box component="div" className="content">
 			<Typography variant="h2" className="tit" sx={{ mb: '24px' }}>
-				Community Comments
+				{t('adminPages.communityComments.title')}
 			</Typography>
 			<Typography sx={{ mb: '24px', color: '#64746b' }}>
-				Moderate Parent Board and kindergarten comments with status-only actions.
+				{t('adminPages.communityComments.subtitle')}
 			</Typography>
 
 			<Box component="div" className="table-wrap">
 				<Stack className="search-area" sx={{ m: '24px', gap: '12px', flexDirection: 'row', flexWrap: 'wrap' }}>
 					<Select sx={{ width: 150 }} value={statusFilter} onChange={(e) => changeStatusFilterHandler(e.target.value)}>
-						{Object.entries(statusLabels).map(([value, label]) => (
+						{['ALL', CommentStatus.ACTIVE, CommentStatus.DELETE].map((value) => (
 							<MenuItem value={value} key={value}>
-								{label}
+								{statusLabel(value)}
 							</MenuItem>
 						))}
 					</Select>
 					<Select sx={{ width: 170 }} value={groupFilter} onChange={(e) => changeGroupFilterHandler(e.target.value)}>
-						{Object.entries(groupLabels).map(([value, label]) => (
+						{['ALL', CommentGroup.ARTICLE, CommentGroup.KINDERGARTEN].map((value) => (
 							<MenuItem value={value} key={value}>
-								{label}
+								{value === 'ALL' ? t('adminFilters.allGroups') : categoryLabel(value)}
 							</MenuItem>
 						))}
 					</Select>
 					<TextField
 						size="small"
-						label="Reference ID"
+						label={t('adminFilters.referenceId')}
 						value={refIdFilter}
 						onChange={(e) => setRefIdFilter(e.target.value)}
 					/>
 					<TextField
 						size="small"
-						label="Member ID"
+						label={t('adminFilters.memberId')}
 						value={memberIdFilter}
 						onChange={(e) => setMemberIdFilter(e.target.value)}
 					/>
 					<Button variant="contained" onClick={() => applyFilters()}>
-						Apply
+						{t('dashboardCommon.apply')}
 					</Button>
 					<Button variant="outlined" onClick={clearFilters}>
-						Clear
+						{t('dashboardCommon.clear')}
 					</Button>
 				</Stack>
 				<Divider />
@@ -268,14 +258,14 @@ const AdminCommunityComments: NextPage = ({ initialInquiry, ...props }: any) => 
 					<Table sx={{ minWidth: 980 }} size="medium">
 						<TableHead>
 							<TableRow>
-								<TableCell align="left">COMMENT</TableCell>
-								<TableCell align="center">STATUS</TableCell>
-								<TableCell align="center">GROUP</TableCell>
-								<TableCell align="left">REFERENCE</TableCell>
-								<TableCell align="left">AUTHOR</TableCell>
-								<TableCell align="left">MEMBER ID</TableCell>
-								<TableCell align="left">CREATED</TableCell>
-								<TableCell align="left">UPDATED</TableCell>
+								<TableCell align="left">{t('adminTables.comment')}</TableCell>
+								<TableCell align="center">{t('adminTables.status')}</TableCell>
+								<TableCell align="center">{t('adminTables.group')}</TableCell>
+								<TableCell align="left">{t('adminTables.reference')}</TableCell>
+								<TableCell align="left">{t('adminTables.author')}</TableCell>
+								<TableCell align="left">{t('adminTables.memberId')}</TableCell>
+								<TableCell align="left">{t('adminTables.created')}</TableCell>
+								<TableCell align="left">{t('adminTables.updated')}</TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>{renderRows()}</TableBody>

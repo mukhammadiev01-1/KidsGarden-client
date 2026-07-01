@@ -6,6 +6,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { getImageUrl } from '../../config';
 import { useRouter } from 'next/router';
 import { formatMonthlyFee } from '../../utils';
+import { useTranslation } from 'next-i18next';
 
 interface PopularKindergartenCardProps {
 	kindergarten: Kindergarten;
@@ -15,11 +16,12 @@ const PopularKindergartenCard = (props: PopularKindergartenCardProps) => {
 	const { kindergarten } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const { t } = useTranslation('common');
 	const kindergartenDetails = {
 		images: kindergarten?.kindergartenImages || [],
 		price: kindergarten?.monthlyFee ?? kindergarten?.kindergartenPrice,
-		title: kindergarten?.kindergartenTitle || 'Kindergarten',
-		address: kindergarten?.kindergartenAddress || kindergarten?.kindergartenLocation || 'Location pending',
+		title: kindergarten?.kindergartenTitle || t('kindergartens.card.kindergarten'),
+		address: kindergarten?.kindergartenAddress || kindergarten?.kindergartenLocation || t('kindergartens.card.locationPending'),
 		ageRange: kindergarten?.kindergartenAgeRange,
 		programs: kindergarten?.kindergartenPrograms,
 		capacity: kindergarten?.kindergartenCapacity,
@@ -27,15 +29,17 @@ const PopularKindergartenCard = (props: PopularKindergartenCardProps) => {
 		status: kindergarten?.kindergartenStatus,
 	};
 	const cardImage = getImageUrl(kindergartenDetails.images[0]);
-	const ageLabel = kindergartenDetails.ageRange ? `Age ${kindergartenDetails.ageRange}` : 'Age info pending';
+	const ageLabel = kindergartenDetails.ageRange
+		? t('home.ageLabel', { range: kindergartenDetails.ageRange })
+		: t('home.ageInfoPending');
 	const programsLabel =
 		kindergartenDetails.programs !== undefined && kindergartenDetails.programs !== null
-			? `${kindergartenDetails.programs} programs`
-			: 'Programs pending';
+			? t('home.programsCount', { count: kindergartenDetails.programs })
+			: t('home.programsPending');
 	const capacityLabel =
 		kindergartenDetails.capacity !== undefined && kindergartenDetails.capacity !== null
-			? `${kindergartenDetails.capacity} spots`
-			: 'Capacity pending';
+			? t('home.capacitySpots', { count: kindergartenDetails.capacity })
+			: t('home.capacityPending');
 
 	const moveToKindergartenDetail = () => {
 		if (!kindergarten?._id) return;
@@ -56,7 +60,7 @@ const PopularKindergartenCard = (props: PopularKindergartenCardProps) => {
 			>
 				{kindergartenDetails.status ? (
 					<div className={'status'}>
-						<span>{kindergartenDetails.status === 'ACTIVE' ? 'Active' : kindergartenDetails.status}</span>
+						<span>{kindergartenDetails.status === 'ACTIVE' ? t('home.active') : kindergartenDetails.status}</span>
 					</div>
 				) : null}
 
@@ -81,8 +85,8 @@ const PopularKindergartenCard = (props: PopularKindergartenCardProps) => {
 				</div>
 				<Divider sx={{ mt: '15px', mb: '17px' }} />
 				<div className={'bott'}>
-					<p>Popular with parents</p>
-					<span className={'details-cta'}>View Details</span>
+					<p>{t('home.popularWithParents')}</p>
+					<span className={'details-cta'}>{t('home.viewDetails')}</span>
 					<div className="view-like-box" onClick={(event) => event.stopPropagation()}>
 						<Box component="span" className="view-stat-icon" aria-hidden="true">
 							<RemoveRedEyeIcon sx={{ fontSize: 16 }} />

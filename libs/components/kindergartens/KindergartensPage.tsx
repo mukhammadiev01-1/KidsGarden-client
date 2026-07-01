@@ -42,6 +42,7 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { getImageUrl } from '../../config';
 import { formatMonthlyFee, getKindergartenTypeLabel } from '../../utils';
 import NaverKindergartenListMap from '../maps/NaverKindergartenListMap';
+import { useTranslation } from 'next-i18next';
 
 type ListingView = 'grid' | 'list';
 type MapPresetKey = 'all' | 'trending' | 'popular' | 'topRank';
@@ -55,16 +56,16 @@ interface NearbyLocation {
 
 interface MapPreset {
 	key: MapPresetKey;
-	label: string;
+	labelKey: string;
 	sort: string;
 	direction: Direction;
 }
 
 const mapPresetTabs: MapPreset[] = [
-	{ key: 'all', label: 'All', sort: 'createdAt', direction: Direction.DESC },
-	{ key: 'trending', label: 'Trending', sort: 'kindergartenViews', direction: Direction.DESC },
-	{ key: 'popular', label: 'Popular', sort: 'kindergartenLikes', direction: Direction.DESC },
-	{ key: 'topRank', label: 'Top Rated', sort: 'kindergartenRank', direction: Direction.DESC },
+	{ key: 'all', labelKey: 'all', sort: 'createdAt', direction: Direction.DESC },
+	{ key: 'trending', labelKey: 'trending', sort: 'kindergartenViews', direction: Direction.DESC },
+	{ key: 'popular', labelKey: 'popular', sort: 'kindergartenLikes', direction: Direction.DESC },
+	{ key: 'topRank', labelKey: 'topRank', sort: 'kindergartenRank', direction: Direction.DESC },
 ];
 
 const nearbyRadiusOptions = [
@@ -83,16 +84,16 @@ const getActivePresetKey = (filter: KindergartensInquiry): MapPresetKey | null =
 	return activePreset?.key ?? null;
 };
 
-const getSortLabel = (filter: KindergartensInquiry): string => {
+const getSortLabel = (filter: KindergartensInquiry, t: (key: string) => string): string => {
 	const sort = filter?.sort || 'createdAt';
 	const direction = filter?.direction || Direction.DESC;
 	const preset = mapPresetTabs.find((item) => item.sort === sort && item.direction === direction);
 
-	if (preset) return preset.key === 'all' ? 'New' : preset.label;
-	if (sort === 'monthlyFee' && direction === Direction.ASC) return 'Lowest Fee';
-	if (sort === 'monthlyFee' && direction === Direction.DESC) return 'Highest Fee';
+	if (preset) return preset.key === 'all' ? t('kindergartens.sort.new') : t(`kindergartens.mapTabs.${preset.labelKey}`);
+	if (sort === 'monthlyFee' && direction === Direction.ASC) return t('kindergartens.sort.lowestFee');
+	if (sort === 'monthlyFee' && direction === Direction.DESC) return t('kindergartens.sort.highestFee');
 
-	return 'Sort';
+	return t('kindergartens.sort.sort');
 };
 
 const countActiveFilters = (filter: KindergartensInquiry): number => {
@@ -127,6 +128,7 @@ const countActiveFilters = (filter: KindergartensInquiry): number => {
 const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const [searchFilter, setSearchFilter] = useState<KindergartensInquiry>(
 		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
@@ -136,7 +138,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [sortingOpen, setSortingOpen] = useState(false);
-	const [filterSortName, setFilterSortName] = useState('New');
+	const [filterSortName, setFilterSortName] = useState<string>(String(t('kindergartens.sort.new')));
 	const [listingView, setListingView] = useState<ListingView>('grid');
 	const [filtersVisible, setFiltersVisible] = useState(true);
 	const [filtersDrawerOpen, setFiltersDrawerOpen] = useState(false);
@@ -154,8 +156,8 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	const activeFilterCount = countActiveFilters(searchFilter);
 	const filterToggleLabel =
 		filtersVisible && !filtersDrawerLayout
-			? 'Hide filters'
-			: `Filters${activeFilterCount ? ` (${activeFilterCount})` : ''}`;
+			? t('kindergartens.hideFilters')
+			: `${t('kindergartens.filters')}${activeFilterCount ? ` (${activeFilterCount})` : ''}`;
 
 	const getListingHref = (input: KindergartensInquiry) => `${listingBasePath}?input=${JSON.stringify(input)}`;
 
@@ -189,7 +191,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		},
 		onError: () => {
 			setNearbyStatus('error');
-			setNearbyError('Could not load nearby kindergartens.');
+			setNearbyError(t('kindergartens.errors.loadNearby'));
 		},
 	});
 
@@ -223,7 +225,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 			},
 			onError: () => {
 				setNearbyStatus('error');
-				setNearbyError('Could not search this address. Please try a more specific address.');
+				setNearbyError(t('kindergartens.errors.searchAddress'));
 			},
 		},
 	);
@@ -243,7 +245,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	}, [searchFilter]);
 
 	useEffect(() => {
-		setFilterSortName(getSortLabel(searchFilter));
+		setFilterSortName(getSortLabel(searchFilter, t));
 	}, [searchFilter.sort, searchFilter.direction]);
 
 	useEffect(() => {
@@ -317,13 +319,13 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const getGeolocationErrorMessage = (error?: GeolocationPositionError): string => {
-		if (!error) return 'Could not detect your location.';
-		if (error.code === error.PERMISSION_DENIED) return 'Location permission was denied.';
+		if (!error) return t('kindergartens.errors.detectLocation');
+		if (error.code === error.PERMISSION_DENIED) return t('kindergartens.errors.permissionDenied');
 		if (error.code === error.POSITION_UNAVAILABLE || error.code === error.TIMEOUT) {
-			return 'Could not detect your location.';
+			return t('kindergartens.errors.detectLocation');
 		}
 
-		return 'Could not detect your location.';
+		return t('kindergartens.errors.detectLocation');
 	};
 
 	const nearbySearchHandler = () => {
@@ -332,7 +334,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		if (!navigator.geolocation) {
 			setNearbyMode('none');
 			setNearbyStatus('error');
-			setNearbyError('Geolocation is not supported by this browser.');
+			setNearbyError(t('kindergartens.errors.geolocationUnsupported'));
 			return;
 		}
 
@@ -352,7 +354,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 				setActiveResolvedAddress('');
 				fetchNearbyKindergartens(location, nearbyRadiusMeters).catch(() => {
 					setNearbyStatus('error');
-					setNearbyError('Could not load nearby kindergartens.');
+					setNearbyError(t('kindergartens.errors.loadNearby'));
 				});
 			},
 			(error) => {
@@ -370,7 +372,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 
 		if (!address) {
 			setNearbyStatus('error');
-			setNearbyError('Please enter an address.');
+			setNearbyError(t('kindergartens.errors.enterAddress'));
 			return;
 		}
 
@@ -380,7 +382,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		setActiveResolvedAddress('');
 		fetchNearbyKindergartensByAddress(address, nearbyRadiusMeters).catch(() => {
 			setNearbyStatus('error');
-			setNearbyError('Could not search this address. Please try a more specific address.');
+			setNearbyError(t('kindergartens.errors.searchAddress'));
 		});
 	};
 
@@ -391,7 +393,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		if (nearbyMode === 'location' && nearbyLocation) {
 			fetchNearbyKindergartens(nearbyLocation, nextRadius).catch(() => {
 				setNearbyStatus('error');
-				setNearbyError('Could not load nearby kindergartens.');
+				setNearbyError(t('kindergartens.errors.loadNearby'));
 			});
 			return;
 		}
@@ -399,7 +401,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		if (nearbyMode === 'address' && activeNearbyAddress) {
 			fetchNearbyKindergartensByAddress(activeNearbyAddress, nextRadius).catch(() => {
 				setNearbyStatus('error');
-				setNearbyError('Could not search this address. Please try a more specific address.');
+				setNearbyError(t('kindergartens.errors.searchAddress'));
 			});
 		}
 	};
@@ -437,15 +439,15 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		switch (e.currentTarget.id) {
 			case 'new':
 				nextFilter = { ...searchFilter, page: 1, sort: 'createdAt', direction: Direction.DESC };
-				setFilterSortName('New');
+				setFilterSortName(t('kindergartens.sort.new'));
 				break;
 			case 'lowest':
 				nextFilter = { ...searchFilter, page: 1, sort: 'monthlyFee', direction: Direction.ASC };
-				setFilterSortName('Lowest Fee');
+				setFilterSortName(t('kindergartens.sort.lowestFee'));
 				break;
 			case 'highest':
 				nextFilter = { ...searchFilter, page: 1, sort: 'monthlyFee', direction: Direction.DESC };
-				setFilterSortName('Highest Fee');
+				setFilterSortName(t('kindergartens.sort.highestFee'));
 				break;
 			default:
 				break;
@@ -479,32 +481,31 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	const nearbyLoading =
 		nearbyStatus === 'locating' || nearbyStatus === 'loading' || nearbyQueryLoading || nearbyAddressQueryLoading;
 	const nearbyRadiusLabel = nearbyRadiusOptions.find((option) => option.value === nearbyRadiusMeters)?.label || '5 km';
+	const resultCount = total || kindergartens.length;
 	const nearbyCountLabel =
 		nearbyMode === 'address'
-			? `${total || kindergartens.length} kindergarten${(total || kindergartens.length) === 1 ? '' : 's'} found near this address within ${nearbyRadiusLabel}`
-			: `${total || kindergartens.length} nearby kindergarten${(total || kindergartens.length) === 1 ? '' : 's'} found within ${nearbyRadiusLabel}`;
-	const listingCountLabel = nearbyActive
-		? nearbyCountLabel
-		: `${total || kindergartens.length} kindergartens found in this area`;
+			? t('kindergartens.nearbyCountAddress', { count: resultCount, radius: nearbyRadiusLabel })
+			: t('kindergartens.nearbyCountLocation', { count: resultCount, radius: nearbyRadiusLabel });
+	const listingCountLabel = nearbyActive ? nearbyCountLabel : t('kindergartens.countInArea', { count: resultCount });
 	const activeSearchLocationLabel = activeResolvedAddress || activeNearbyAddress;
 	const noKindergartensTitle =
 		nearbyMode === 'address'
-			? `No kindergartens found near this address within ${nearbyRadiusLabel}.`
+			? t('kindergartens.noResultsAddressTitle', { radius: nearbyRadiusLabel })
 			: nearbyMode === 'location'
-			? `No kindergartens found near your location within ${nearbyRadiusLabel}.`
-			: 'No kindergartens found yet.';
+			? t('kindergartens.noResultsLocationTitle', { radius: nearbyRadiusLabel })
+			: t('kindergartens.noResultsTitle');
 	const noKindergartensText =
 		nearbyMode === 'address'
-			? 'Try a larger radius or another area.'
+			? t('kindergartens.noResultsAddressText')
 			: nearbyMode === 'location'
-			? 'Try a larger radius or show all kindergartens.'
-			: 'Try adjusting your filters or check back soon.';
+			? t('kindergartens.noResultsLocationText')
+			: t('kindergartens.noResultsText');
 
 	const likeKindergartenHandler = async (user: any, id: string) => {
 		try {
 			if (!id) return;
 			if (!user?._id) {
-				const confirmed = await sweetLoginConfirmAlert('Please login first');
+				const confirmed = await sweetLoginConfirmAlert(t('kindergartens.loginRequired'));
 				if (confirmed) await router.push('/account/join');
 				return;
 			}
@@ -523,35 +524,37 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 
 	const renderKindergartenListRow = (kindergarten: Kindergarten) => {
 		const kindergartenImageUrl = getImageUrl(kindergarten?.kindergartenImages?.[0]);
-		const location = kindergarten?.kindergartenLocation || kindergarten?.kindergartenAddress || 'Location pending';
+		const location = kindergarten?.kindergartenLocation || kindergarten?.kindergartenAddress || t('kindergartens.card.locationPending');
 		const description = kindergarten?.kindergartenDesc?.trim();
-		const kindergartenTypeLabel = getKindergartenTypeLabel(kindergarten?.kindergartenType);
+		const kindergartenTypeLabel = kindergarten?.kindergartenType
+			? t(`filters.centerTypes.${kindergarten.kindergartenType}`, { defaultValue: getKindergartenTypeLabel(kindergarten.kindergartenType) })
+			: t('kindergartens.card.kindergarten');
 		const isLiked = Boolean(kindergarten?.meLiked?.[0]?.myFavorite);
-		const distanceLabel = formatDistanceAway(kindergarten?.distanceMeters);
+		const distanceLabel = formatDistanceAway(kindergarten?.distanceMeters, t);
 		const detailHref = {
 			pathname: '/kindergartens/detail',
 			query: { id: kindergarten?._id },
 		};
 		const metaItems = [
-			kindergarten?.kindergartenAgeRange ? `Ages ${kindergarten.kindergartenAgeRange}` : '',
-			kindergarten?.kindergartenCapacity ? `${kindergarten.kindergartenCapacity} capacity` : '',
-			kindergarten?.kindergartenPrograms ? `${kindergarten.kindergartenPrograms} programs` : '',
+			kindergarten?.kindergartenAgeRange ? `${t('kindergartenDetail.ages')} ${kindergarten.kindergartenAgeRange}` : '',
+			kindergarten?.kindergartenCapacity ? t('kindergartens.card.capacity', { count: kindergarten.kindergartenCapacity }) : '',
+			kindergarten?.kindergartenPrograms ? t('kindergartens.card.programs', { count: kindergarten.kindergartenPrograms }) : '',
 		].filter(Boolean);
 
 		return (
 			<Stack className="kg-list-card" key={kindergarten?._id}>
 				<Link className="kg-list-card-image" href={detailHref}>
-					<img src={kindergartenImageUrl} alt={kindergarten?.kindergartenTitle || 'Kindergarten'} />
+					<img src={kindergartenImageUrl} alt={kindergarten?.kindergartenTitle || t('kindergartens.card.kindergarten')} />
 				</Link>
 				<Stack className="kg-list-card-main">
 					<Stack className="kg-list-title-row">
 						<Link href={detailHref}>
-							<Typography component="h3">{kindergarten?.kindergartenTitle || 'Kindergarten'}</Typography>
+							<Typography component="h3">{kindergarten?.kindergartenTitle || t('kindergartens.card.kindergarten')}</Typography>
 						</Link>
 						<button
 							type="button"
 							className={`kg-list-like ${isLiked ? 'active' : ''}`}
-							aria-label="Like kindergarten"
+							aria-label={t('kindergartens.card.like')}
 							onClick={() => likeKindergartenHandler(user, kindergarten?._id || '')}
 						>
 							{isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
@@ -576,17 +579,17 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					</Stack>
 					<Stack className="kg-list-stats">
 						<span>
-							<StarRoundedIcon /> {kindergarten?.kindergartenRank || 0} rank
+							<StarRoundedIcon /> {kindergarten?.kindergartenRank || 0} {t('kindergartens.card.rank')}
 						</span>
-						<span>{kindergarten?.kindergartenViews || 0} views</span>
-						<span>{kindergarten?.kindergartenLikes || 0} likes</span>
+						<span>{kindergarten?.kindergartenViews || 0} {t('kindergartens.card.views')}</span>
+						<span>{kindergarten?.kindergartenLikes || 0} {t('kindergartens.card.likes')}</span>
 					</Stack>
 				</Stack>
 				<Stack className="kg-list-card-side">
-					<span className="kg-list-status">{kindergarten?.kindergartenStatus}</span>
+					<span className="kg-list-status">{kindergarten?.kindergartenStatus === 'ACTIVE' ? t('home.active') : kindergarten?.kindergartenStatus}</span>
 					<strong>{formatMonthlyFee(kindergarten?.monthlyFee ?? kindergarten?.kindergartenPrice)}</strong>
 					<Link className="kg-list-details" href={detailHref}>
-						View Details
+						{t('kindergartens.card.viewDetails')}
 					</Link>
 				</Stack>
 			</Stack>
@@ -598,19 +601,17 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 			<Stack className="kg-kindergarten-hero">
 				<Box component="div" className="kg-kindergarten-hero-inner">
 					<Stack className="kg-kindergarten-hero-copy">
-						<Typography component="h1">Find the right kindergarten for your child</Typography>
-						<Typography className="kg-kindergarten-hero-subtitle">
-							Discover trusted centers, caring teachers, and safe spaces near you.
-						</Typography>
+						<Typography component="h1">{t('kindergartens.heroTitle')}</Typography>
+						<Typography className="kg-kindergarten-hero-subtitle">{t('kindergartens.heroSubtitle')}</Typography>
 						<Stack className="kg-trust-chips">
 							<span>
-								<VerifiedRoundedIcon /> Verified centers
+								<VerifiedRoundedIcon /> {t('kindergartens.verifiedCenters')}
 							</span>
 							<span>
-								<ShieldOutlinedIcon /> Safe care
+								<ShieldOutlinedIcon /> {t('kindergartens.safeCare')}
 							</span>
 							<span>
-								<RateReviewOutlinedIcon /> Parent reviews
+								<RateReviewOutlinedIcon /> {t('kindergartens.parentReviews')}
 							</span>
 						</Stack>
 					</Stack>
@@ -626,29 +627,29 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 				<Stack className={`kg-nearby-panel ${nearbyActive ? 'active' : ''}`}>
 					<Stack className="kg-nearby-copy">
 						<span>
-							<MyLocationRoundedIcon /> Nearby search
+							<MyLocationRoundedIcon /> {t('kindergartens.nearbyLabel')}
 						</span>
-						<strong>Find kindergartens near you</strong>
-						<p>Use your location or search by address. Nothing is saved.</p>
+						<strong>{t('kindergartens.nearbyTitle')}</strong>
+						<p>{t('kindergartens.nearbyHelper')}</p>
 					</Stack>
 					<Stack className="kg-nearby-actions">
 						<form className="kg-address-search" onSubmit={addressNearbySearchHandler}>
 							<label>
-								Address or area
+								{t('kindergartens.addressLabel')}
 								<input
 									type="text"
 									value={nearbyAddress}
 									onChange={(event) => setNearbyAddress(event.target.value)}
-									placeholder="Enter your address or area"
+									placeholder={t('kindergartens.addressPlaceholder')}
 									disabled={nearbyLoading}
 								/>
 							</label>
 							<Button className="kg-address-button" type="submit" disabled={nearbyLoading}>
-								{nearbyLoading && nearbyMode === 'address' ? 'Searching...' : 'Search by address'}
+								{nearbyLoading && nearbyMode === 'address' ? t('kindergartens.searching') : t('kindergartens.searchByAddress')}
 							</Button>
 						</form>
 						<label className="kg-radius-control">
-							Radius
+							{t('kindergartens.radius')}
 							<select value={nearbyRadiusMeters} onChange={nearbyRadiusChangeHandler} disabled={nearbyLoading}>
 								{nearbyRadiusOptions.map((option) => (
 									<option value={option.value} key={option.value}>
@@ -663,16 +664,16 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 							disabled={nearbyLoading}
 							startIcon={<NearMeRoundedIcon />}
 						>
-							{nearbyLoading ? 'Finding...' : 'Use my location'}
+							{nearbyLoading ? t('kindergartens.finding') : t('kindergartens.useMyLocation')}
 						</Button>
 						{nearbyActive && (
 							<Button className="kg-nearby-reset" onClick={clearNearbyModeHandler} disabled={nearbyLoading}>
-								Show all kindergartens
+								{t('kindergartens.showAll')}
 							</Button>
 						)}
 					</Stack>
 					{nearbyMode === 'address' && activeSearchLocationLabel && (
-						<div className="kg-nearby-active-note">Searching near: {activeSearchLocationLabel}</div>
+						<div className="kg-nearby-active-note">{t('kindergartens.searchingNear', { address: activeSearchLocationLabel })}</div>
 					)}
 					{nearbyError && <div className="kg-nearby-error">{nearbyError}</div>}
 				</Stack>
@@ -687,7 +688,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 								aria-pressed={activePresetKey === preset.key}
 								onClick={() => mapPresetClickHandler(preset)}
 							>
-								{preset.label}
+								{t(`kindergartens.mapTabs.${preset.labelKey}`)}
 							</button>
 						))}
 					</Stack>
@@ -716,7 +717,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					</Button>
 					{activeFilterCount > 0 && (
 						<Button className="kg-filter-clear" onClick={clearFiltersHandler}>
-							Clear filters
+							{t('kindergartens.clearFilters')}
 						</Button>
 					)}
 				</Stack>
@@ -735,10 +736,10 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 					)}
 					<Stack className="main-config" mb={device === 'mobile' ? '42px' : '76px'}>
 						<Stack className="kg-listing-toolbar">
-							<Typography component="h2">Showing kindergartens</Typography>
+							<Typography component="h2">{t('kindergartens.listingTitle')}</Typography>
 							<Stack className="kg-listing-actions">
 								<Box component={'div'} className={'right'}>
-									<span>Sort by</span>
+									<span>{t('kindergartens.sort.sort')}</span>
 									<div>
 										<Button onClick={sortingClickHandler} endIcon={<KeyboardArrowDownRoundedIcon />}>
 											{filterSortName}
@@ -750,13 +751,13 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 											sx={{ paddingTop: '5px' }}
 										>
 											<MenuItem onClick={sortingHandler} id={'new'} disableRipple>
-												New
+												{t('kindergartens.sort.new')}
 											</MenuItem>
 											<MenuItem onClick={sortingHandler} id={'lowest'} disableRipple>
-												Lowest Fee
+												{t('kindergartens.sort.lowestFee')}
 											</MenuItem>
 											<MenuItem onClick={sortingHandler} id={'highest'} disableRipple>
-												Highest Fee
+												{t('kindergartens.sort.highestFee')}
 											</MenuItem>
 										</Menu>
 									</div>
@@ -765,7 +766,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 									<button
 										type="button"
 										className={listingView === 'grid' ? 'active' : ''}
-										aria-label="Show grid view"
+										aria-label={t('kindergartens.showGrid')}
 										aria-pressed={listingView === 'grid'}
 										onClick={() => setListingView('grid')}
 									>
@@ -774,7 +775,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 									<button
 										type="button"
 										className={listingView === 'list' ? 'active' : ''}
-										aria-label="Show list view"
+										aria-label={t('kindergartens.showList')}
 										aria-pressed={listingView === 'list'}
 										onClick={() => setListingView('list')}
 									>
@@ -786,7 +787,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 						<Stack className={`list-config kg-${listingView}-view`}>
 							{getKindergartensLoading && kindergartens?.length === 0 ? (
 								<div className={'no-data'}>
-									<p>Loading kindergartens...</p>
+									<p>{t('kindergartens.loading')}</p>
 								</div>
 							) : kindergartens?.length === 0 ? (
 								<div className={'no-data'}>
@@ -826,7 +827,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 									<Typography>
 										{nearbyActive
 											? listingCountLabel
-											: `${total} kindergarten${total > 1 ? 's' : ''} found`}
+											: t('kindergartens.countFound', { count: total })}
 									</Typography>
 								</Stack>
 							)}
@@ -836,16 +837,16 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 
 				{filtersDrawerOpen && (
 					<div className="kg-filter-drawer-backdrop" onClick={() => setFiltersDrawerOpen(false)}>
-						<aside className="kg-filter-drawer" aria-label="Filters" onClick={(event) => event.stopPropagation()}>
+						<aside className="kg-filter-drawer" aria-label={t('kindergartens.filters')} onClick={(event) => event.stopPropagation()}>
 							<Stack className="kg-filter-drawer-header">
-								<Typography component="h2">Filters</Typography>
-								<button type="button" aria-label="Close filters" onClick={() => setFiltersDrawerOpen(false)}>
+								<Typography component="h2">{t('kindergartens.filters')}</Typography>
+								<button type="button" aria-label={t('kindergartens.closeFilters')} onClick={() => setFiltersDrawerOpen(false)}>
 									<CloseRoundedIcon />
 								</button>
 							</Stack>
 							{activeFilterCount > 0 && (
 								<Button className="kg-filter-drawer-clear" onClick={clearFiltersHandler}>
-									Clear filters
+									{t('kindergartens.clearFilters')}
 								</Button>
 							)}
 							{/* @ts-ignore */}
@@ -864,11 +865,11 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 						<Stack className="kg-top-strip-header">
 							<Stack>
 								<Typography component="h2">
-									<EmojiEventsRoundedIcon /> Top Kindergartens
+									<EmojiEventsRoundedIcon /> {t('kindergartens.topTitle')}
 								</Typography>
-								<span>Hand-picked centers loved by families</span>
+								<span>{t('kindergartens.topSubtitle')}</span>
 							</Stack>
-							<Link href="/kindergartens">See all top kindergartens</Link>
+							<Link href="/kindergartens">{t('kindergartens.seeAllTop')}</Link>
 						</Stack>
 						<Stack className="kg-top-strip-list">
 							{topKindergartens.map((kindergarten, index) => (
