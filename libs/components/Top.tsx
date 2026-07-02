@@ -167,7 +167,7 @@ const Top = () => {
 			<Stack className={'top'}>
 				<Link href={'/'}>
 					<div className={'mobile-logo'}>
-						<img src={'/img/logo/kidsgarden-logo.svg'} alt={'KidsGarden Early Learning Platform'} />
+						<img src={'/img/logo/kidsgarden-logo-transparent.png'} alt={'KidsGarden'} />
 					</div>
 				</Link>
 				<Link href={'/'}>
@@ -197,7 +197,7 @@ const Top = () => {
 							<Box component={'div'} className={'logo-box'}>
 								<Link href={'/'}>
 									<div className={'kids-brand'}>
-										<img src={'/img/logo/kidsgarden-logo.svg'} alt={'KidsGarden Early Learning Platform'} />
+										<img src={'/img/logo/kidsgarden-logo-transparent.png'} alt={'KidsGarden'} />
 									</div>
 								</Link>
 							</Box>

@@ -18,7 +18,7 @@ const Footer = () => {
 				<Box component={'div'} className={'footer-brand-column'}>
 					<Link href={'/'}>
 						<div className={'footer-brand'}>
-							<img src={'/img/logo/kidsgarden-logo.svg'} alt={'KidsGarden Early Learning Platform'} />
+							<img src={'/img/logo/kidsgarden-logo-transparent.png'} alt={'KidsGarden Early Learning Platform'} />
 						</div>
 					</Link>
 					<p>{t('footer.tagline')}</p>

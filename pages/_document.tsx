@@ -20,8 +20,9 @@ export default class KidsGardenDocument extends Document<KidsGardenDocumentProps
 				<Head>
 					<meta name="robots" content="index,follow" />
 					<meta name="theme-color" content="#2f7d4a" />
-					<link rel="icon" href="/favicon.ico" />
-					<link rel="icon" type="image/svg+xml" href="/img/logo/kidsgarden-mark.svg" />
+					<link rel="icon" type="image/png" href="/img/logo/kidsgarden-favicon-transparent.png" />
+					<link rel="shortcut icon" type="image/png" href="/img/logo/kidsgarden-favicon-transparent.png" />
+					<link rel="apple-touch-icon" href="/img/logo/kidsgarden-favicon-transparent.png" />
 					<meta name="keyword" content={'KidsGarden, kindergarten search, parent community, early education'} />
 				</Head>
 				<body>

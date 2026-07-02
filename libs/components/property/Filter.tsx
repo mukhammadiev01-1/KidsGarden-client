@@ -52,6 +52,9 @@ const Filter = (props: FilterType) => {
 		programs: false,
 	});
 	const selectedAgeRange = Number(searchFilter?.search?.ageRangeList?.[0] || 0);
+	const selectedAgeLabel = selectedAgeRange
+		? t('filters.aroundYears', { years: formatYears(selectedAgeRange, t) })
+		: t('filters.anyAge');
 	const selectedCapacityRange: [number, number] = [
 		Number(searchFilter?.search?.capacityRange?.start ?? 0),
 		Number(searchFilter?.search?.capacityRange?.end ?? 500),
@@ -342,15 +345,18 @@ const Filter = (props: FilterType) => {
 
 	const kindergartenAgeRangeSliderHandler = useCallback(
 		async (value: number) => {
-			await pushFilter({
+			const nextFilter = {
 				...searchFilter,
 				search: {
 					...searchFilter.search,
 					ageRangeList: [value],
 				},
-			});
+			};
+
+			setSearchFilter(nextFilter);
+			await pushFilter(nextFilter);
 		},
-		[pushFilter, searchFilter],
+		[pushFilter, searchFilter, setSearchFilter],
 	);
 
 	const kindergartenRangeHandler = useCallback(
@@ -534,13 +540,11 @@ const Filter = (props: FilterType) => {
 					<Stack className="kg-filter-title-row">
 						<Typography className={'title'}>{t('filters.ageRange')}</Typography>
 						<button type="button" onClick={() => kindergartenAgeRangeSelectHandler(0)}>
-							{t('filters.anyAge')}
+							{selectedAgeLabel}
 						</button>
 					</Stack>
 					<Stack className="kg-range-filter">
-						<Typography className="kg-range-value">
-							{selectedAgeRange ? t('filters.aroundYears', { value: formatYears(selectedAgeRange, t) }) : t('filters.anyAge')}
-						</Typography>
+						<Typography className="kg-range-value">{selectedAgeLabel}</Typography>
 						<Slider
 							min={1}
 							max={5}

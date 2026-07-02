@@ -14,6 +14,20 @@
 		background: #fffaf2;
 		box-shadow: 0 8px 22px rgba(36, 51, 45, 0.08);
 
+		a {
+			border-radius: 999px;
+			text-decoration: none;
+
+			&:focus {
+				outline: none;
+			}
+
+			&:focus-visible {
+				outline: 3px solid rgba(22, 134, 60, 0.42);
+				outline-offset: 4px;
+			}
+		}
+
 		div {
 			padding: 9px 12px;
 			border-radius: 999px;
@@ -36,7 +50,8 @@
 			img {
 				display: block;
 				width: 136px;
-				height: auto;
+				height: 44px;
+				object-fit: contain;
 			}
 		}
 	}
@@ -3688,6 +3703,8 @@
 		#top .kids-brand img {
 			width: 145px !important;
 			max-width: 100% !important;
+			height: 48px !important;
+			object-fit: contain !important;
 		}
 
 		#top .router-box,
@@ -3862,6 +3879,8 @@
 			.kids-brand img {
 				width: 146px !important;
 				max-width: 100% !important;
+				height: 48px !important;
+				object-fit: contain !important;
 			}
 
 			.router-box {
@@ -4499,6 +4518,8 @@
 		#top .kids-brand img {
 			width: 145px !important;
 			max-width: 100% !important;
+			height: 48px !important;
+			object-fit: contain !important;
 		}
 
 		#top .router-box,
@@ -4687,7 +4708,8 @@
 			display: block !important;
 			width: 145px !important;
 			max-width: 100% !important;
-			height: auto !important;
+			height: 48px !important;
+			object-fit: contain !important;
 		}
 
 		#top .router-box,

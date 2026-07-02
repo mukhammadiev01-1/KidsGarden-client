@@ -34,6 +34,7 @@ export const LANGUAGES: LanguageMeta[] = [
 		code: 'uz',
 		label: 'O‘zbekcha',
 		shortLabel: 'UZ',
+		flagSrc: '/img/flag/uzbekistan.webp',
 	},
 ];
 

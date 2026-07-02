@@ -110,6 +110,7 @@ const availableFeatures: IconItem[] = [
 	{ title: 'Messages inbox', icon: ChatBubbleRoundedIcon },
 	{ title: 'Private chat', icon: GroupsRoundedIcon },
 	{ title: 'One-click translation', icon: TranslateRoundedIcon },
+	{ title: 'Daily Reports & Albums', icon: PhotoLibraryRoundedIcon },
 	{ title: 'Notifications', icon: NotificationsRoundedIcon },
 	{ title: 'Parent dashboard', icon: FamilyRestroomRoundedIcon },
 	{ title: 'Teacher dashboard', icon: SchoolRoundedIcon },
@@ -120,7 +121,6 @@ const availableFeatures: IconItem[] = [
 
 const plannedFeatures: IconItem[] = [
 	{ title: 'KidsGarden Store', icon: StorefrontRoundedIcon },
-	{ title: 'Daily Reports & Albums', icon: PhotoLibraryRoundedIcon },
 	{ title: 'Calendar & scheduling', icon: CalendarMonthRoundedIcon },
 	{ title: 'In-app Calls', icon: CallRoundedIcon },
 	{ title: 'Mobile polish', icon: PhoneIphoneRoundedIcon },
@@ -371,13 +371,17 @@ const About: NextPage = () => {
 					color: #17263a;
 				}
 
+				:global(#pc-wrap .about-page) {
+					padding-top: 0;
+				}
+
 				.about-shell {
 					width: min(1140px, calc(100% - 48px));
 					margin: 0 auto;
 				}
 
 				.about-hero {
-					padding: 118px 0 36px;
+					padding: 112px 0 36px;
 				}
 
 				.about-hero-grid {
@@ -513,32 +517,34 @@ const About: NextPage = () => {
 				.leaf-mark {
 					position: relative;
 					width: 30px;
-					height: 30px;
+					height: 26px;
 					display: inline-block;
+					background: linear-gradient(#2f8f49, #2f8f49) no-repeat center 16px / 2px 9px;
 				}
 
 				.leaf-mark::before,
 				.leaf-mark::after {
 					content: '';
 					position: absolute;
-					border-radius: 18px 18px 18px 4px;
-					background: #2f9f5a;
-					transform: rotate(45deg);
+					border-radius: 100% 0 100% 0;
+					background: linear-gradient(145deg, #62bd57 0%, #2f8f49 100%);
+					box-shadow: 0 2px 5px rgba(47, 143, 73, 0.14);
 				}
 
 				.leaf-mark::before {
-					width: 13px;
-					height: 18px;
-					left: 4px;
+					width: 12px;
+					height: 17px;
+					left: 6px;
 					top: 7px;
+					transform: rotate(-42deg);
 				}
 
 				.leaf-mark::after {
 					width: 11px;
-					height: 15px;
-					right: 5px;
-					top: 4px;
-					background: #f0bb3d;
+					height: 16px;
+					right: 6px;
+					top: 3px;
+					transform: rotate(42deg) scaleX(-1);
 				}
 
 				.about-hero-media,
