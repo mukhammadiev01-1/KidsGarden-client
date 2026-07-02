@@ -33,8 +33,7 @@ const programOptions = [
 ];
 
 const formatYears = (value: number, t: (key: string, options?: any) => string) => {
-	if (value >= 5) return t('filters.yearsPlus', { count: 5 });
-	return value === 1 ? t('filters.yearOne') : t('filters.years', { count: value });
+	return `${value} ${value === 1 ? t('filters.yearOne') : t('filters.years')}`;
 };
 
 const formatFee = (value: number) => `${value.toLocaleString()} UZS`;
