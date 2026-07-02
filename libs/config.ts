@@ -1,9 +1,25 @@
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL || 'http://127.0.0.1:3000';
-const rawGraphqlUrl =
-	process.env.NEXT_PUBLIC_API_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL || 'http://127.0.0.1:3000/graphql';
+const isProduction = process.env.NODE_ENV === 'production';
+
+function getPublicEnv(name: string, legacyName: string, developmentFallback: string): string {
+	const value = process.env[name] || process.env[legacyName];
+
+	if (value) return value;
+	if (!isProduction) return developmentFallback;
+
+	throw new Error(`${name} must be configured for production builds.`);
+}
+
+const rawApiUrl = getPublicEnv('NEXT_PUBLIC_API_URL', 'REACT_APP_API_URL', 'http://127.0.0.1:3000');
+const rawGraphqlUrl = getPublicEnv(
+	'NEXT_PUBLIC_API_GRAPHQL_URL',
+	'REACT_APP_API_GRAPHQL_URL',
+	'http://127.0.0.1:3000/graphql',
+);
+const rawWsUrl = getPublicEnv('NEXT_PUBLIC_API_WS', 'REACT_APP_API_WS', 'ws://127.0.0.1:3007');
 
 export const REACT_APP_API_URL = rawApiUrl.replace(/\/$/, '');
 export const REACT_APP_API_GRAPHQL_URL = rawGraphqlUrl;
+export const REACT_APP_API_WS = rawWsUrl;
 export const KAKAO_MAP_JS_KEY = process.env.NEXT_PUBLIC_KAKAO_MAP_JS_KEY || '';
 export const NAVER_MAPS_KEY_ID = process.env.NEXT_PUBLIC_NAVER_MAPS_KEY_ID || '';
 export const KAKAO_REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY || '';

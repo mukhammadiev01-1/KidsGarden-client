@@ -8,6 +8,7 @@ import { getJwtToken } from '../libs/auth';
 import { TokenRefreshLink } from 'apollo-link-token-refresh';
 import { sweetErrorAlert } from '../libs/sweetAlert';
 import { socketVar } from './store';
+import { REACT_APP_API_GRAPHQL_URL, REACT_APP_API_WS } from '../libs/config';
 let apolloClient: ApolloClient<NormalizedCacheObject>;
 
 function getHeaders() {
@@ -78,12 +79,12 @@ function createIsomorphicLink() {
 
 		// @ts-ignore
 		const link = new createUploadLink({
-			uri: process.env.NEXT_PUBLIC_API_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL,
+			uri: REACT_APP_API_GRAPHQL_URL,
 		});
 
 		/* WEBSOCKET SUBSCRIPTION LINK */
 		const wsLink = new WebSocketLink({
-			uri: process.env.NEXT_PUBLIC_API_WS || process.env.REACT_APP_API_WS || 'ws://127.0.0.1:3007',
+			uri: REACT_APP_API_WS,
 			options: {
 				reconnect: false,
 				timeout: 30000,
