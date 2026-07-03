@@ -85,6 +85,15 @@ export const sweetMixinErrorAlert = async (msg: string, duration: number = 3000)
 	});
 };
 
+export const sweetWarningAlert = async (msg: string, duration: number = 3500) => {
+	await Swal.fire({
+		icon: 'warning',
+		title: msg,
+		showConfirmButton: false,
+		timer: duration,
+	});
+};
+
 export const sweetAuthErrorAlert = async (title: string, message: string, duration: number = 4000) => {
 	await Swal.fire({
 		icon: 'error',

@@ -187,6 +187,23 @@
 			}
 		}
 
+		.auth-field-help,
+		.auth-field-error {
+			margin: 6px 4px 0;
+			font-family: $font;
+			font-size: 12px;
+			line-height: 1.35;
+		}
+
+		.auth-field-help {
+			color: #6b756f;
+		}
+
+		.auth-field-error {
+			color: #b42318;
+			font-weight: 700;
+		}
+
 		.auth-input-shell {
 			display: flex;
 			align-items: center;

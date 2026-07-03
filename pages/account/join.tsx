@@ -4,8 +4,20 @@ import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { Button, Checkbox, FormControlLabel, FormGroup, IconButton } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { googleLogIn, logIn, signUp, telegramLogIn } from '../../libs/auth';
-import { sweetAuthErrorAlert, sweetMixinErrorAlert } from '../../libs/sweetAlert';
+import {
+	AUTH_NICKNAME_HELPER,
+	AUTH_PASSWORD_HELPER,
+	AUTH_PHONE_HELPER,
+	googleLogIn,
+	logIn,
+	normalizeAuthPhone,
+	signUp,
+	validateAuthNickname,
+	validateAuthPhone,
+	validateSignupPassword,
+	telegramLogIn,
+} from '../../libs/auth';
+import { sweetAuthErrorAlert, sweetMixinErrorAlert, sweetWarningAlert } from '../../libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { MemberType } from '../../libs/enums/member.enum';
 import { GoogleLogin } from '@react-oauth/google';
@@ -61,6 +73,7 @@ const Join: NextPage = () => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
 	const [input, setInput] = useState({ nick: '', password: '', phone: '', type: MemberType.PARENT });
+	const [formErrors, setFormErrors] = useState<{ nick?: string; phone?: string; password?: string }>({});
 	const [loginView, setLoginView] = useState<boolean>(true);
 	const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 	const [authSubmitting, setAuthSubmitting] = useState<boolean>(false);
@@ -87,6 +100,7 @@ const Join: NextPage = () => {
 		const mode = Array.isArray(router.query.mode) ? router.query.mode[0] : router.query.mode;
 		if (mode === 'register') setLoginView(false);
 		if (mode === 'login') setLoginView(true);
+		setFormErrors({});
 	}, [router.query.mode]);
 
 	useEffect(() => {
@@ -141,6 +155,10 @@ const Join: NextPage = () => {
 		setInput((prev) => {
 			return { ...prev, [name]: value };
 		});
+		setFormErrors((prev) => {
+			if (!prev[name as keyof typeof prev]) return prev;
+			return { ...prev, [name]: undefined };
+		});
 	}, []);
 
 	const doLogin = useCallback(async () => {
@@ -153,8 +171,23 @@ const Join: NextPage = () => {
 	}, [input.nick, input.password, router]);
 
 	const doSignUp = useCallback(async () => {
+		const normalizedPhone = normalizeAuthPhone(input.phone);
+		const nextErrors = {
+			nick: validateAuthNickname(input.nick) || undefined,
+			phone: validateAuthPhone(input.phone) || undefined,
+			password: validateSignupPassword(input.password) || undefined,
+		};
+		const firstError = nextErrors.nick || nextErrors.phone || nextErrors.password;
+
+		setFormErrors(nextErrors);
+		if (firstError) {
+			await sweetWarningAlert(firstError);
+			return;
+		}
+
 		try {
-			await signUp(input.nick, input.password, input.phone, MemberType.PARENT);
+			setInput((prev) => ({ ...prev, phone: normalizedPhone }));
+			await signUp(input.nick, input.password, normalizedPhone, MemberType.PARENT);
 			await router.push(`${router.query.referrer ?? '/'}`);
 		} catch (err: any) {
 			await sweetAuthErrorAlert('Signup Error', err.message);
@@ -296,9 +329,23 @@ const Join: NextPage = () => {
 										value={input.nick}
 										autoComplete="username"
 										onChange={(e) => handleInput('nick', e.target.value)}
+										aria-invalid={Boolean(formErrors.nick)}
+										aria-describedby={!loginView ? 'register-username-help register-username-error' : undefined}
 										required={true}
 									/>
 								</div>
+								{!loginView && (
+									<>
+										<p id="register-username-help" className={'auth-field-help'}>
+											{AUTH_NICKNAME_HELPER}
+										</p>
+										{formErrors.nick && (
+											<p id="register-username-error" className={'auth-field-error'}>
+												{formErrors.nick}
+											</p>
+										)}
+									</>
+								)}
 							</label>
 
 							{!loginView && (
@@ -314,9 +361,19 @@ const Join: NextPage = () => {
 											value={input.phone}
 											autoComplete="tel"
 											onChange={(e) => handleInput('phone', e.target.value)}
+											aria-invalid={Boolean(formErrors.phone)}
+											aria-describedby="register-phone-help register-phone-error"
 											required={true}
 										/>
 									</div>
+									<p id="register-phone-help" className={'auth-field-help'}>
+										{AUTH_PHONE_HELPER}
+									</p>
+									{formErrors.phone && (
+										<p id="register-phone-error" className={'auth-field-error'}>
+											{formErrors.phone}
+										</p>
+									)}
 								</label>
 							)}
 
@@ -332,6 +389,8 @@ const Join: NextPage = () => {
 										value={input.password}
 										autoComplete={loginView ? 'current-password' : 'new-password'}
 										onChange={(e) => handleInput('password', e.target.value)}
+										aria-invalid={Boolean(formErrors.password)}
+										aria-describedby={!loginView ? 'register-password-help register-password-error' : undefined}
 										required={true}
 									/>
 									<IconButton
@@ -343,6 +402,18 @@ const Join: NextPage = () => {
 										{passwordVisible ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
 									</IconButton>
 								</div>
+								{!loginView && (
+									<>
+										<p id="register-password-help" className={'auth-field-help'}>
+											{AUTH_PASSWORD_HELPER}
+										</p>
+										{formErrors.password && (
+											<p id="register-password-error" className={'auth-field-error'}>
+												{formErrors.password}
+											</p>
+										)}
+									</>
+								)}
 							</label>
 						</div>
 
