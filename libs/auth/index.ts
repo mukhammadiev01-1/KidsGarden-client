@@ -6,6 +6,55 @@ import { sweetMixinErrorAlert } from '../sweetAlert';
 import { GOOGLE_LOGIN, KAKAO_LOGIN, LOGIN, SIGN_UP, TELEGRAM_LOGIN } from '../../apollo/user/mutation';
 import { normalizeMemberType } from '../enums/member.enum';
 
+const DEFAULT_AUTH_ERROR_MESSAGE = 'Something went wrong. Please check your information and try again.';
+
+const extractAuthErrorMessage = (err: any): string => {
+	const graphMessage = err?.graphQLErrors?.find((error: any) => error?.message)?.message;
+	const networkMessage = err?.networkError?.result?.errors?.find((error: any) => error?.message)?.message;
+	const directMessage = typeof err?.message === 'string' ? err.message : '';
+
+	return graphMessage || networkMessage || directMessage || '';
+};
+
+const mapAuthErrorMessage = (message: string, fallback = DEFAULT_AUTH_ERROR_MESSAGE): string => {
+	const normalizedMessage = message.replace(/^Definer:\s*/i, '').trim();
+	const lowerMessage = normalizedMessage.toLowerCase();
+
+	if (lowerMessage.includes('already used member nick or phone')) {
+		return 'This nickname or phone number is already used.';
+	}
+
+	if (lowerMessage === 'this nickname or phone number is already used.') {
+		return normalizedMessage;
+	}
+
+	if (lowerMessage.includes('already used member email')) {
+		return 'This email is already registered.';
+	}
+
+	if (lowerMessage === 'this email is already registered.') {
+		return normalizedMessage;
+	}
+
+	if (lowerMessage.includes('login and password do not match')) {
+		return 'Please check your nickname and password.';
+	}
+
+	if (lowerMessage === 'please check your nickname and password.') {
+		return normalizedMessage;
+	}
+
+	if (lowerMessage.includes('user has been blocked')) {
+		return 'This account has been blocked.';
+	}
+
+	if (lowerMessage === 'this account has been blocked.') {
+		return normalizedMessage;
+	}
+
+	return fallback;
+};
+
 export function getJwtToken(): any {
 	if (typeof window !== 'undefined') {
 		return localStorage.getItem('accessToken') ?? '';
@@ -27,7 +76,7 @@ export const logIn = async (nick: string, password: string): Promise<void> => {
 	} catch (err) {
 		console.warn('login err', err);
 		logOut();
-		throw new Error('Login Err');
+		throw new Error(mapAuthErrorMessage(extractAuthErrorMessage(err)));
 	}
 };
 
@@ -53,15 +102,7 @@ const requestJwtToken = async ({
 		return { jwtToken: accessToken };
 	} catch (err: any) {
 		console.log('request token err', err.graphQLErrors);
-		switch (err.graphQLErrors[0].message) {
-			case 'Definer: login and password do not match':
-				await sweetMixinErrorAlert('Please check your password again');
-				break;
-			case 'Definer: user has been blocked!':
-				await sweetMixinErrorAlert('User has been blocked!');
-				break;
-		}
-		throw new Error('token error');
+		throw new Error(mapAuthErrorMessage(extractAuthErrorMessage(err)));
 	}
 };
 
@@ -74,9 +115,9 @@ export const signUp = async (nick: string, password: string, phone: string, type
 			updateUserInfo(jwtToken);
 		}
 	} catch (err) {
-		console.warn('login err', err);
+		console.warn('signup err', err);
 		logOut();
-		throw new Error('Login Err');
+		throw new Error(mapAuthErrorMessage(extractAuthErrorMessage(err)));
 	}
 };
 
@@ -237,15 +278,7 @@ const requestSignUpJwtToken = async ({
 		return { jwtToken: accessToken };
 	} catch (err: any) {
 		console.log('request token err', err.graphQLErrors);
-		switch (err.graphQLErrors[0].message) {
-			case 'Definer: login and password do not match':
-				await sweetMixinErrorAlert('Please check your password again');
-				break;
-			case 'Definer: user has been blocked!':
-				await sweetMixinErrorAlert('User has been blocked!');
-				break;
-		}
-		throw new Error('token error');
+		throw new Error(mapAuthErrorMessage(extractAuthErrorMessage(err)));
 	}
 };
 

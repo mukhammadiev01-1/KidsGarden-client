@@ -5,7 +5,7 @@ import { Button, Checkbox, FormControlLabel, FormGroup, IconButton } from '@mui/
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { googleLogIn, logIn, signUp, telegramLogIn } from '../../libs/auth';
-import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
+import { sweetAuthErrorAlert, sweetMixinErrorAlert } from '../../libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { MemberType } from '../../libs/enums/member.enum';
 import { GoogleLogin } from '@react-oauth/google';
@@ -148,7 +148,7 @@ const Join: NextPage = () => {
 			await logIn(input.nick, input.password);
 			await router.push(`${router.query.referrer ?? '/'}`);
 		} catch (err: any) {
-			await sweetMixinErrorAlert(err.message);
+			await sweetAuthErrorAlert('Login Error', err.message);
 		}
 	}, [input.nick, input.password, router]);
 
@@ -157,7 +157,7 @@ const Join: NextPage = () => {
 			await signUp(input.nick, input.password, input.phone, MemberType.PARENT);
 			await router.push(`${router.query.referrer ?? '/'}`);
 		} catch (err: any) {
-			await sweetMixinErrorAlert(err.message);
+			await sweetAuthErrorAlert('Signup Error', err.message);
 		}
 	}, [input.nick, input.password, input.phone, router]);
 
