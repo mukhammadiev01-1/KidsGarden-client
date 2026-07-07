@@ -512,7 +512,7 @@ const Join: NextPage = () => {
 										aria-label={t('auth.telegramUnavailable')}
 									>
 										<SocialIcon src="/img/icons/social/telegram.svg" alt="" />
-										<span>{t('auth.telegramUnavailable')}</span>
+										<span>{t(loginView ? 'auth.telegramLogin' : 'auth.telegramSignup')}</span>
 									</button>
 								)}
 							</div>

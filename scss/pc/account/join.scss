@@ -458,16 +458,16 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				gap: 8px;
+				gap: 7px;
 				width: 100%;
 				height: 100%;
-				padding: 0 10px;
+				padding: 0 8px;
 				box-sizing: border-box;
-				color: #24332d;
+				color: #314139;
 				font-family: $font;
-				font-size: 11px;
-				font-weight: 800;
-				line-height: 1.12;
+				font-size: 10.5px;
+				font-weight: 700;
+				line-height: 1.14;
 				text-align: center;
 			}
 
@@ -478,7 +478,7 @@
 			.telegram-visual-button span,
 			.telegram-unavailable-button span {
 				display: block;
-				max-width: 82px;
+				max-width: 86px;
 			}
 
 			.telegram-widget-hitbox {
@@ -510,19 +510,19 @@
 			overflow: hidden;
 
 			.telegram-unavailable-button {
-				gap: 8px;
-				padding: 0 10px;
+				gap: 7px;
+				padding: 0 8px;
 				color: #5f6f66;
 				font-family: $font;
-				font-size: 11px;
-				font-weight: 800;
-				line-height: 1.12;
+				font-size: 10.5px;
+				font-weight: 700;
+				line-height: 1.14;
 				text-align: center;
 			}
 
 			.social-auth-icon {
-				width: 21px;
-				height: 21px;
+				width: 18px;
+				height: 18px;
 				flex: 0 0 auto;
 			}
 		}
@@ -542,7 +542,9 @@
 
 			.auth-mode-link {
 				margin-left: 6px;
+				padding: 2px 4px;
 				border: 0;
+				border-radius: 7px;
 				background: transparent;
 				color: #1f6d3d;
 				font-family: $font;
@@ -552,6 +554,16 @@
 
 				&:hover {
 					text-decoration: underline;
+				}
+
+				&:focus {
+					outline: none;
+				}
+
+				&:focus-visible {
+					outline: 2px solid rgba(47, 125, 74, 0.72);
+					outline-offset: 3px;
+					box-shadow: 0 0 0 4px rgba(47, 125, 74, 0.12);
 				}
 			}
 		}
