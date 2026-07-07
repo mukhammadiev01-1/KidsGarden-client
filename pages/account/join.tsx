@@ -487,19 +487,32 @@ const Join: NextPage = () => {
 										className={`telegram-widget-area ${telegramLoading ? 'is-loading' : ''}`}
 										aria-label={t(loginView ? 'auth.telegramLogin' : 'auth.telegramSignup')}
 									>
-										<TLoginButton
-											key={`${telegramBotName}-${loginView ? 'login' : 'signup'}-${telegramWidgetLocale}`}
-											botName={telegramBotName}
-											buttonSize={TLoginButtonSize.Large}
-											onAuthCallback={doTelegramLogin}
-											usePic={false}
-											lang={telegramWidgetLocale}
-											additionalClassNames="telegram-widget-button"
-										/>
+										<div className="telegram-visual-button" aria-hidden="true">
+											<SocialIcon src="/img/icons/social/telegram.svg" alt="" />
+											<span>{t(loginView ? 'auth.telegramLogin' : 'auth.telegramSignup')}</span>
+										</div>
+										<div className="telegram-widget-hitbox">
+											<TLoginButton
+												key={`${telegramBotName}-${loginView ? 'login' : 'signup'}-${telegramWidgetLocale}`}
+												botName={telegramBotName}
+												buttonSize={TLoginButtonSize.Large}
+												onAuthCallback={doTelegramLogin}
+												usePic={false}
+												lang={telegramWidgetLocale}
+												additionalClassNames="telegram-widget-button"
+											/>
+										</div>
 									</div>
 								) : (
-									<button type="button" disabled title={t('auth.telegramUnavailable')} aria-label={t('auth.telegramUnavailable')}>
+									<button
+										type="button"
+										className="telegram-unavailable-button"
+										disabled
+										title={t('auth.telegramUnavailable')}
+										aria-label={t('auth.telegramUnavailable')}
+									>
 										<SocialIcon src="/img/icons/social/telegram.svg" alt="" />
+										<span>{t('auth.telegramUnavailable')}</span>
 									</button>
 								)}
 							</div>
