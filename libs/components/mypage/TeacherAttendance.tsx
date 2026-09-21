@@ -24,11 +24,17 @@ import { Group } from '../../types/group/group';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../sweetAlert';
 import ParentTeacherChatPanel from '../chat/ParentTeacherChatPanel';
 import { getStatusChipSx, getStatusLabel } from './dashboardUtils';
+import { areDraftMapsEqual } from '../../utils/attendanceDrafts';
 
 interface AttendanceDraft {
 	attendanceStatus: AttendanceStatus;
 	note: string;
 }
+
+// Stable fallbacks. `?? []` allocates a new array every render while a query is
+// skipped or loading, which changes the drafts effect's dependencies each render.
+const EMPTY_CHILDREN: Child[] = [];
+const EMPTY_ATTENDANCES: Attendance[] = [];
 
 const attendanceStatusOptions = [
 	AttendanceStatus.PRESENT,
@@ -170,8 +176,8 @@ const TeacherAttendance = () => {
 	});
 
 	const groups: Group[] = groupsData?.getGroups?.list ?? [];
-	const children: Child[] = childrenData?.getChildren?.list ?? [];
-	const attendances: Attendance[] = attendancesData?.getAttendances?.list ?? [];
+	const children: Child[] = childrenData?.getChildren?.list ?? EMPTY_CHILDREN;
+	const attendances: Attendance[] = attendancesData?.getAttendances?.list ?? EMPTY_ATTENDANCES;
 	const attendanceTotal = attendancesData?.getAttendances?.metaCounter?.[0]?.total ?? 0;
 	const selectedGroup = groups.find((group) => group._id === selectedGroupId);
 	const attendanceByChildId = useMemo(() => {
@@ -200,7 +206,7 @@ const TeacherAttendance = () => {
 					note: prev[child._id]?.note ?? attendance?.note ?? '',
 				};
 			});
-			return next;
+			return areDraftMapsEqual(prev, next) ? prev : next;
 		});
 	}, [attendanceByChildId, children]);
 

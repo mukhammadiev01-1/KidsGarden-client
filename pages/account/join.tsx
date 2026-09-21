@@ -33,6 +33,7 @@ import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import FavoriteBorderRoundedIcon from '@mui/icons-material/FavoriteBorderRounded';
 import TouchAppOutlinedIcon from '@mui/icons-material/TouchAppOutlined';
+import { safeRedirectPath } from '../../libs/utils/safeRedirect';
 import {
 	DEFAULT_LOCALE,
 	LANGUAGES,
@@ -164,7 +165,7 @@ const Join: NextPage = () => {
 	const doLogin = useCallback(async () => {
 		try {
 			await logIn(input.nick, input.password);
-			await router.push(`${router.query.referrer ?? '/'}`);
+			await router.push(safeRedirectPath(router.query.referrer));
 		} catch (err: any) {
 			await sweetAuthErrorAlert('Login Error', err.message);
 		}
@@ -188,7 +189,7 @@ const Join: NextPage = () => {
 		try {
 			setInput((prev) => ({ ...prev, phone: normalizedPhone }));
 			await signUp(input.nick, input.password, normalizedPhone, MemberType.PARENT);
-			await router.push(`${router.query.referrer ?? '/'}`);
+			await router.push(safeRedirectPath(router.query.referrer));
 		} catch (err: any) {
 			await sweetAuthErrorAlert('Signup Error', err.message);
 		}
@@ -218,7 +219,7 @@ const Join: NextPage = () => {
 
 			try {
 				await googleLogIn(idToken);
-				await router.push(`${router.query.referrer ?? '/'}`);
+				await router.push(safeRedirectPath(router.query.referrer));
 			} catch (err: any) {
 				await sweetMixinErrorAlert(err.message);
 			}
@@ -244,7 +245,7 @@ const Join: NextPage = () => {
 				},
 				intent,
 			);
-			await router.push(`${router.query.referrer ?? '/'}`);
+			await router.push(safeRedirectPath(router.query.referrer));
 		} catch (err: any) {
 			const errorMessage = err.message || t('auth.telegramFailed');
 			await sweetMixinErrorAlert(errorMessage);
@@ -264,7 +265,9 @@ const Join: NextPage = () => {
 
 		try {
 			const state = createOAuthState();
-			const referrer = typeof router.query.referrer === 'string' ? router.query.referrer : '/';
+			// Validated before it is stashed: kakao/callback reads it back after an
+			// off-site OAuth round-trip, so an unchecked value would redirect there too.
+			const referrer = safeRedirectPath(router.query.referrer);
 			const intent = loginView ? 'LOGIN' : 'SIGNUP';
 			window.sessionStorage.setItem('kakao_oauth_state', state);
 			window.sessionStorage.setItem('kakao_oauth_intent', intent);

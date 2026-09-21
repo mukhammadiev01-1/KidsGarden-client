@@ -6,6 +6,7 @@ import withLayoutBasic from '../../../libs/components/layout/LayoutBasic';
 import { KakaoAuthIntent, kakaoLogIn } from '../../../libs/auth';
 import { KAKAO_REDIRECT_URI } from '../../../libs/config';
 import { sweetMixinErrorAlert } from '../../../libs/sweetAlert';
+import { safeRedirectPath } from '../../../libs/utils/safeRedirect';
 
 const KakaoCallback: NextPage = () => {
 	const router = useRouter();
@@ -23,7 +24,9 @@ const KakaoCallback: NextPage = () => {
 			const state = Array.isArray(router.query.state) ? router.query.state[0] : router.query.state;
 			const expectedState = window.sessionStorage.getItem('kakao_oauth_state');
 			const intent = window.sessionStorage.getItem('kakao_oauth_intent') as KakaoAuthIntent | null;
-			const referrer = window.sessionStorage.getItem('kakao_oauth_referrer') || '/';
+			// Re-validated on read, not just on write: sessionStorage can be set by any
+			// script running on this origin, so never trust it as a redirect target.
+			const referrer = safeRedirectPath(window.sessionStorage.getItem('kakao_oauth_referrer'));
 
 			try {
 				if (error) throw new Error(`Kakao login failed: ${error}`);
