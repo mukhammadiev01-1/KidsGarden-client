@@ -1,14 +1,11 @@
 import { useMemo } from 'react';
-import { ApolloClient, ApolloLink, InMemoryCache, split, from, NormalizedCacheObject } from '@apollo/client';
+import { ApolloClient, ApolloLink, InMemoryCache, from, NormalizedCacheObject } from '@apollo/client';
 import createUploadLink from 'apollo-upload-client/public/createUploadLink.js';
-import { WebSocketLink } from '@apollo/client/link/ws';
-import { getMainDefinition } from '@apollo/client/utilities';
 import { onError } from '@apollo/client/link/error';
 import { getJwtToken } from '../libs/auth';
 import { TokenRefreshLink } from 'apollo-link-token-refresh';
 import { sweetErrorAlert } from '../libs/sweetAlert';
-import { socketVar } from './store';
-import { REACT_APP_API_GRAPHQL_URL, REACT_APP_API_WS } from '../libs/config';
+import { REACT_APP_API_GRAPHQL_URL } from '../libs/config';
 let apolloClient: ApolloClient<NormalizedCacheObject>;
 
 function getHeaders() {
@@ -34,36 +31,6 @@ const tokenRefreshLink = new TokenRefreshLink({
 	},
 });
 
-// Custom WebSocket client
-class LoggingWebSocket {
-	private socket: WebSocket;
-
-	constructor(url: string) {
-		this.socket = new WebSocket(`${url}?token=${getJwtToken()}`);
-		socketVar(this.socket);
-
-		this.socket.onopen = () => {
-			console.log('WebSocket connection!');
-		};
-
-		this.socket.onmessage = (msg) => {
-			console.log('WebSocket message:', msg.data);
-		};
-
-		this.socket.onerror = (error) => {
-			console.log('WebSocket, error:', error);
-		};
-	}
-
-	send(data: string | ArrayBuffer | SharedArrayBuffer | Blob | ArrayBufferView) {
-		this.socket.send(data);
-	}
-
-	close() {
-		this.socket.close();
-	}
-}
-
 function createIsomorphicLink() {
 	if (typeof window !== 'undefined') {
 		const authLink = new ApolloLink((operation, forward) => {
@@ -73,7 +40,6 @@ function createIsomorphicLink() {
 					...getHeaders(),
 				},
 			}));
-			console.warn('requesting.. ', operation);
 			return forward(operation);
 		});
 
@@ -82,43 +48,38 @@ function createIsomorphicLink() {
 			uri: REACT_APP_API_GRAPHQL_URL,
 		});
 
-		/* WEBSOCKET SUBSCRIPTION LINK */
-		const wsLink = new WebSocketLink({
-			uri: REACT_APP_API_WS,
-			options: {
-				reconnect: false,
-				timeout: 30000,
-				connectionParams: () => {
-					return { headers: getHeaders() };
-				},
-			},
-			webSocketImpl: LoggingWebSocket,
-		});
+		const errorLink = onError(({ operation, graphQLErrors, networkError }) => {
+			/**
+			 * Only mutations surface a blocking alert. Queries also run as background
+			 * refetches (chat inbox, notification polling, realtime-triggered refreshes),
+			 * and a full-screen Swal for a transient background failure interrupts the
+			 * user mid-task for something they never initiated.
+			 *
+			 * Errors are logged with console.error, NOT console.log: next.config.js strips
+			 * console.log from production builds, so a console.log here would leave a failing
+			 * query with no alert and no trace at all. error/warn are excluded from stripping
+			 * precisely so diagnostics survive.
+			 */
+			const isMutation = operation.query.definitions.some(
+				(definition) => definition.kind === 'OperationDefinition' && definition.operation === 'mutation',
+			);
 
-		const errorLink = onError(({ graphQLErrors, networkError, response }) => {
 			if (graphQLErrors) {
-				graphQLErrors.map(({ message, locations, path, extensions }) => {
-					console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
-					if (!message.includes('input')) sweetErrorAlert(message);
+				graphQLErrors.forEach(({ message, locations, path }) => {
+					console.error(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
+					if (isMutation && !message.includes('input')) sweetErrorAlert(message);
 				});
 			}
 
-			if (networkError) console.log(`[Network error]: ${networkError}`);
-			// @ts-ignore
-			if (networkError?.statusCode === 401) {
-			}
+			if (networkError) console.error(`[Network error]: ${networkError}`);
 		});
 
-		const splitLink = split(
-			({ query }) => {
-				const definition = getMainDefinition(query);
-				return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
-			},
-			wsLink,
-			authLink.concat(link),
-		);
-
-		return from([errorLink, tokenRefreshLink, splitLink]);
+		/**
+		 * The backend exposes no GraphQL subscriptions. Realtime chat and notification
+		 * events are delivered by the dedicated /realtime WebSocket gateway, driven by
+		 * libs/realtime/realtimeClient.ts, so Apollo stays HTTP-only here.
+		 */
+		return from([errorLink, tokenRefreshLink, authLink.concat(link)]);
 	}
 }
 

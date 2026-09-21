@@ -44,3 +44,6 @@ next-env.d.ts
 .env.development
 .env.local
 .env
+.env.docker
+!.env.example
+!.env.docker.example

@@ -70,7 +70,6 @@
 		"slick-carousel": "^1.8.1",
 		"styled-components": "^5.3.3",
 		"styled-jsx": "^5.0.0",
-		"subscriptions-transport-ws": "^0.9.19",
 		"sweetalert2": "^11.7.27",
 		"swiper": "^8.3.1",
 		"three": "0.150.1",
