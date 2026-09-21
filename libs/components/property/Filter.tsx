@@ -38,6 +38,9 @@ const formatYears = (value: number, t: (key: string, options?: any) => string) =
 
 const formatFee = (value: number) => `${value.toLocaleString()} UZS`;
 
+// List filters that are removed from the URL once emptied. See the cleanup effect.
+const EMPTY_FILTER_LISTS = ['locationList', 'typeList', 'programsList', 'ageRangeList'] as const;
+
 const Filter = (props: FilterType) => {
 	const { searchFilter, setSearchFilter, initialInput, onFilterChange } = props;
 	const router = useRouter();
@@ -67,33 +70,29 @@ const Filter = (props: FilterType) => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		const queryParams = JSON.stringify({
-			...searchFilter,
-			search: {
-				...searchFilter.search,
-			},
-		});
+		// Drop empty filter lists (e.g. after unticking the last location) from the URL.
+		//
+		// The previous version serialized the query BEFORE deleting the empty arrays, so
+		// the URL it pushed still carried `"locationList":[]`. KindergartensPage re-parses
+		// the URL into a brand-new searchFilter on every route change, which re-ran this
+		// effect, which pushed the same URL again: an endless push + refetch loop that
+		// hammered /graphql and flooded history so Back could not leave the page. It also
+		// deleted keys off the parent's state object in place, and pushed once per empty
+		// list. Build the cleaned object first, serialize that, push once, never mutate.
+		// The pushed URL then has no empty lists, so the next pass returns early.
+		const search = searchFilter?.search;
+		if (!search) return;
 
-		if (searchFilter?.search?.locationList?.length == 0) {
-			delete searchFilter.search.locationList;
-			router.push(`${listingBasePath}?input=${queryParams}`, `${listingBasePath}?input=${queryParams}`, { scroll: false }).then();
-		}
+		const emptyKeys = EMPTY_FILTER_LISTS.filter((key) => Array.isArray(search[key]) && search[key]?.length === 0);
+		if (!emptyKeys.length) return;
 
-		if (searchFilter?.search?.typeList?.length == 0) {
-			delete searchFilter.search.typeList;
-			router.push(`${listingBasePath}?input=${queryParams}`, `${listingBasePath}?input=${queryParams}`, { scroll: false }).then();
-		}
+		const cleanedSearch = { ...search };
+		emptyKeys.forEach((key) => delete cleanedSearch[key]);
 
-		if (searchFilter?.search?.programsList?.length == 0) {
-			delete searchFilter.search.programsList;
-			router.push(`${listingBasePath}?input=${queryParams}`, `${listingBasePath}?input=${queryParams}`, { scroll: false }).then();
-		}
-
-		if (searchFilter?.search?.ageRangeList?.length == 0) {
-			delete searchFilter.search.ageRangeList;
-			router.push(`${listingBasePath}?input=${queryParams}`, `${listingBasePath}?input=${queryParams}`, { scroll: false }).then();
-		}
-
+		const queryParams = JSON.stringify({ ...searchFilter, search: cleanedSearch });
+		router
+			.push(`${listingBasePath}?input=${queryParams}`, `${listingBasePath}?input=${queryParams}`, { scroll: false })
+			.then();
 	}, [searchFilter]);
 
 	/** HANDLERS **/

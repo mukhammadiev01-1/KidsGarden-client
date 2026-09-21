@@ -47,6 +47,8 @@ const APPLICATION_DOCUMENT_ACCEPT = 'image/jpeg,image/jpg,image/png,application/
 const APPLICATION_DOCUMENT_MIME_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'application/pdf']);
 const MAX_APPLICATION_DOCUMENTS = 5;
 const MAX_APPLICATION_DOCUMENT_SIZE = 1024 * 1024;
+// Must match CommentInput.commentContent @Length(1, 100) on the backend.
+const REVIEW_MAX_LENGTH = 100;
 type ApplicationIntent = 'application' | 'contact' | 'visit';
 
 const formatCount = (value?: number, fallback = 'Not listed') => {
@@ -122,7 +124,11 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetKindergarten, { loading: likingKindergarten }] = useMutation(LIKE_TARGET_KINDERGARTEN);
-	const [createComment] = useMutation(CREATE_COMMENT);
+	const [createComment, { loading: creatingComment }] = useMutation(CREATE_COMMENT);
+	// Guards against double-submit. A ref flips synchronously, so it also catches two
+	// clicks that land before `creatingComment` re-renders the button as disabled --
+	// previously a fast double-click posted the same review twice.
+	const submittingCommentRef = useRef(false);
 	const [createStaffApplication, { loading: creatingStaffApplication }] = useMutation(CREATE_STAFF_APPLICATION);
 	const [createApplication, { loading: creatingApplication }] = useMutation(CREATE_APPLICATION);
 	const [uploadApplicationDocuments, { loading: uploadingApplicationDocuments }] = useMutation(
@@ -382,19 +388,27 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 	};
 
 	const createCommentHandler = async () => {
+		if (submittingCommentRef.current) return;
 		try {
 			if (!user?._id) {
 				const confirmed = await sweetLoginConfirmAlert(t('kindergartenDetail.loginRequired'));
 				if (confirmed) await router.push('/account/join');
 				return;
 			}
-			await createComment({ variables: { input: insertCommentData } });
+			submittingCommentRef.current = true;
+			// Trimmed: the backend's @Length(1, 100) counts whitespace, so "   " was
+			// accepted and saved as a blank review.
+			await createComment({
+				variables: { input: { ...insertCommentData, commentContent: insertCommentData.commentContent.trim() } },
+			});
 			setInsertCommentData({ ...insertCommentData, commentContent: '' });
 			await getCommentsRefetch({ input: commentInquiry });
 			await getKindergartenRefetch({ input: kindergartenId });
 			await sweetTopSmallSuccessAlert(t('kindergartenDetail.reviewSubmitted'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
+		} finally {
+			submittingCommentRef.current = false;
 		}
 	};
 
@@ -726,9 +740,13 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 									}}
 									value={insertCommentData.commentContent}
 									placeholder={t('kindergartenDetail.reviewPlaceholder')}
+									maxLength={REVIEW_MAX_LENGTH}
 								></textarea>
+								<Typography className="kg-review-counter" sx={{ alignSelf: 'flex-end', fontSize: 12, color: '#64746b' }}>
+									{insertCommentData.commentContent.length}/{REVIEW_MAX_LENGTH}
+								</Typography>
 								<Button
-									disabled={insertCommentData.commentContent === '' || user?._id === ''}
+									disabled={!insertCommentData.commentContent.trim() || user?._id === '' || creatingComment}
 									onClick={createCommentHandler}
 								>
 									{t('kindergartenDetail.submitReview')}

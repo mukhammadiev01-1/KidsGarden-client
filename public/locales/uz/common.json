@@ -693,6 +693,8 @@
     "parentOnlyAlert": "Faqat ota-onalar ota-onalar postlarini yozishi mumkin.",
     "titleRequired": "Sarlavha kiriting.",
     "contentRequired": "Post mazmunini kiriting.",
+    "titleLength": "Sarlavha {{min}}–{{max}} belgidan iborat bo‘lishi kerak.",
+    "contentLength": "Post {{min}}–{{max}} belgidan iborat bo‘lishi kerak. Rasmlar ham shu cheklovga kiradi.",
     "created": "Ota-onalar posti yaratildi"
   },
   "mypage": {

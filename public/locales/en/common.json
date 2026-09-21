@@ -693,6 +693,8 @@
     "parentOnlyAlert": "Only parents can write Parent Board posts.",
     "titleRequired": "Please enter a title.",
     "contentRequired": "Please enter post content.",
+    "titleLength": "Title must be {{min}}–{{max}} characters.",
+    "contentLength": "Post must be {{min}}–{{max}} characters. Images count toward this limit.",
     "created": "Parent Board post created"
   },
   "mypage": {

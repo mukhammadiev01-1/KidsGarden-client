@@ -15,6 +15,10 @@ import { sweetErrorAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { useTranslation } from 'next-i18next';
 
+// Must match BoardArticleInput (apps/kidsgarden-api/src/libs/dto/board-article/board-article.input.ts).
+const ARTICLE_TITLE_LENGTH = { min: 3, max: 50 };
+const ARTICLE_CONTENT_LENGTH = { min: 3, max: 250 };
+
 const TuiEditor = () => {
 	const { t } = useTranslation('common');
 	const editorRef = useRef<Editor>(null),
@@ -82,12 +86,24 @@ const TuiEditor = () => {
 			}
 
 			const articleContent = editorRef.current?.getInstance().getMarkdown().trim() ?? '';
-			if (!articleTitle.trim()) {
+			const title = articleTitle.trim();
+			if (!title) {
 				await sweetErrorAlert(t('myPosts.titleRequired'));
 				return;
 			}
 			if (!articleContent) {
 				await sweetErrorAlert(t('myPosts.contentRequired'));
+				return;
+			}
+			// Mirror BoardArticleInput. Without these the backend rejected the post with a
+			// raw class-validator message ("articleContent must be shorter than or equal
+			// to 250 characters"), after the user had already written it.
+			if (title.length < ARTICLE_TITLE_LENGTH.min || title.length > ARTICLE_TITLE_LENGTH.max) {
+				await sweetErrorAlert(t('myPosts.titleLength', ARTICLE_TITLE_LENGTH));
+				return;
+			}
+			if (articleContent.length < ARTICLE_CONTENT_LENGTH.min || articleContent.length > ARTICLE_CONTENT_LENGTH.max) {
+				await sweetErrorAlert(t('myPosts.contentLength', ARTICLE_CONTENT_LENGTH));
 				return;
 			}
 
@@ -140,6 +156,8 @@ const TuiEditor = () => {
 						value={articleTitle}
 						id="filled-basic"
 						label={t('myPosts.postTitleLabel')}
+						inputProps={{ maxLength: ARTICLE_TITLE_LENGTH.max }}
+						helperText={`${articleTitle.length}/${ARTICLE_TITLE_LENGTH.max}`}
 						style={{ width: '300px', background: 'white' }}
 					/>
 				</Box>
