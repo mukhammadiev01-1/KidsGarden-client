@@ -53,3 +53,24 @@ jobs:
 
       - name: Build
         run: yarn build
+
+  docker:
+    name: Docker image build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Builds the exact image the VPS runs, so a broken Dockerfile fails here
+      # instead of mid-deploy on the server. deploy.yml waits for the whole CI
+      # workflow to succeed, so this job gates production.
+      #
+      # libs/config.ts throws in a production build when the public API URLs are
+      # absent, and Next.js inlines NEXT_PUBLIC_* at build time, so the build
+      # args are required -- placeholders are enough, nothing is contacted.
+      - name: Build client image
+        run: >-
+          docker build
+          --build-arg NEXT_PUBLIC_API_URL=https://api.ci.invalid
+          --build-arg NEXT_PUBLIC_API_GRAPHQL_URL=https://api.ci.invalid/graphql
+          --build-arg NEXT_PUBLIC_SITE_URL=https://ci.invalid
+          -t kidsgarden-client:ci .

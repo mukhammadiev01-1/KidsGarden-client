@@ -3,7 +3,18 @@ FROM node:20-bookworm-slim AS deps
 WORKDIR /usr/src/app
 
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+# --network-timeout raises yarn's 30s per-request default. The @next/swc-*
+# optional binaries are 35-50 MB each and yarn 1 fetches every platform's copy,
+# so a merely slow edge would otherwise surface as ESOCKETTIMEDOUT.
+RUN yarn install --frozen-lockfile --network-timeout 600000
+
+# Production-only node_modules, derived from the deps stage instead of a second
+# network install. The runner stage used to run its own `yarn install
+# --production` from scratch; with no dependency on deps, BuildKit ran both
+# installs in parallel, doubling registry traffic and the chance of a stall.
+# FROM deps inherits the populated yarn cache, so this resolves offline.
+FROM deps AS prod-deps
+RUN yarn install --frozen-lockfile --production=true --prefer-offline --network-timeout 600000
 
 FROM node:20-bookworm-slim AS build
 
@@ -46,7 +57,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --production=true && yarn cache clean
+COPY --from=prod-deps /usr/src/app/node_modules ./node_modules
 
 COPY --from=build /usr/src/app/.next ./.next
 COPY --from=build /usr/src/app/public ./public
