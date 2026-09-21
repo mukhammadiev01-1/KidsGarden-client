@@ -36,6 +36,7 @@ import { getImageUrl } from '../../config';
 import { ConversationType } from '../../enums/chat.enum';
 import { Direction } from '../../enums/common.enum';
 import { useRealtimeEvent } from '../../hooks/useRealtimeEvent';
+import { useRealtimeReconnect } from '../../hooks/useRealtimeReconnect';
 import { MyConversationSummary } from '../../types/chat/conversation';
 import { ChatAttachment, Message, TranslateChatMessageInput, TranslatedMessage } from '../../types/chat/message';
 import ChatImagePreview from './ChatImagePreview';
@@ -161,7 +162,10 @@ const MessagesPage = () => {
 			page: 1,
 			limit: 100,
 			sort: 'createdAt',
-			direction: Direction.ASC,
+			// DESC fetches the NEWEST 100. With ASC, any conversation past 100
+			// messages pinned the thread to its oldest page and the user could
+			// never see current messages. The list is reversed below for display.
+			direction: Direction.DESC,
 			search: {
 				conversationId: selectedConversationId,
 			},
@@ -212,15 +216,25 @@ const MessagesPage = () => {
 	const [sendApplicationMessage, { loading: sendingApplicationMessage }] = useMutation(SEND_MESSAGE);
 	const [sendParentTeacherMessage, { loading: sendingParentTeacherMessage }] = useMutation(SEND_PARENT_TEACHER_MESSAGE);
 	const [uploadChatImages, { loading: uploadingImages }] = useMutation(CHAT_IMAGES_UPLOADER);
-	const [markApplicationConversationRead] = useMutation(MARK_CONVERSATION_READ);
-	const [markParentTeacherConversationRead] = useMutation(MARK_PARENT_TEACHER_CONVERSATION_READ);
+	// MessageBell keeps its own network-only GetMyUnreadMessageCount with no cache
+	// dependency on these mutations, so without an explicit refetch the header
+	// badge kept counting messages the user had already read.
+	const markReadOptions = { refetchQueries: ['GetMyUnreadMessageCount'] };
+	const [markApplicationConversationRead] = useMutation(MARK_CONVERSATION_READ, markReadOptions);
+	const [markParentTeacherConversationRead] = useMutation(MARK_PARENT_TEACHER_CONVERSATION_READ, markReadOptions);
 	const [translateChatMessage] = useMutation<{ translateChatMessage: TranslatedMessage }, { input: TranslateChatMessageInput }>(
 		TRANSLATE_CHAT_MESSAGE,
 	);
 
-	const messages: Message[] = isApplicationChat
-		? applicationMessagesData?.getMessages?.list ?? []
-		: parentTeacherMessagesData?.getParentTeacherMessages?.list ?? [];
+	// Fetched newest-first (see messagesInput); reverse so the thread still reads
+	// oldest -> newest top to bottom, which the auto-scroll-to-bottom depends on.
+	const messages: Message[] = useMemo(() => {
+		const list: Message[] = isApplicationChat
+			? applicationMessagesData?.getMessages?.list ?? []
+			: parentTeacherMessagesData?.getParentTeacherMessages?.list ?? [];
+
+		return [...list].reverse();
+	}, [isApplicationChat, applicationMessagesData, parentTeacherMessagesData]);
 
 	const loadingThread =
 		loadingApplicationConversation ||
@@ -314,6 +328,16 @@ const MessagesPage = () => {
 
 	useRealtimeEvent<ChatMessageCreatedPayload>(APPLICATION_CHAT_MESSAGE_CREATED_EVENT, realtimeHandler, Boolean(user?._id));
 	useRealtimeEvent<ChatMessageCreatedPayload>(PARENT_TEACHER_CHAT_MESSAGE_CREATED_EVENT, realtimeHandler, Boolean(user?._id));
+
+	// Events fired while the socket was down are never replayed, so pull the
+	// persisted state once it comes back.
+	useRealtimeReconnect(
+		useCallback(() => {
+			void refetchConversations({ input: conversationsInput }).catch(() => undefined);
+			if (selectedConversationId) void refetchActiveMessages();
+		}, [conversationsInput, refetchActiveMessages, refetchConversations, selectedConversationId]),
+		Boolean(user?._id),
+	);
 
 	const selectConversationHandler = async (conversation: MyConversationSummary) => {
 		setSelectedConversationId(conversation.conversationId);

@@ -17,6 +17,7 @@ import { GET_MY_CONVERSATIONS, GET_MY_UNREAD_MESSAGE_COUNT } from '../../../apol
 import { userVar } from '../../../apollo/store';
 import { getImageUrl } from '../../config';
 import { useRealtimeEvent } from '../../hooks/useRealtimeEvent';
+import { useRealtimeReconnect } from '../../hooks/useRealtimeReconnect';
 import { MyConversationSummary, MyConversationsInput } from '../../types/chat/conversation';
 import { useTranslation } from 'next-i18next';
 
@@ -85,6 +86,8 @@ const MessageBell = () => {
 
 	useRealtimeEvent(APPLICATION_CHAT_MESSAGE_CREATED_EVENT, refreshConversations, Boolean(user?._id));
 	useRealtimeEvent(PARENT_TEACHER_CHAT_MESSAGE_CREATED_EVENT, refreshConversations, Boolean(user?._id));
+	// Messages that arrived while the socket was down never fired an event.
+	useRealtimeReconnect(refreshConversations, Boolean(user?._id));
 
 	if (!user?._id) return null;
 

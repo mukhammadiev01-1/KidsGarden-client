@@ -11,6 +11,10 @@ type ConnectionState = 'idle' | 'connecting' | 'connected' | 'disconnected';
 
 const RECONNECT_DELAY_MS = 3000;
 const MAX_RECONNECT_DELAY_MS = 15000;
+// A socket rejected for auth still fires onopen before the server closes it, so
+// "opened" alone is not proof of a healthy connection. Only a connection that
+// survives this long counts as established and resets the backoff.
+const STABLE_CONNECTION_MS = 5000;
 
 class RealtimeClient {
 	private socket: WebSocket | null = null;
@@ -19,6 +23,9 @@ class RealtimeClient {
 	private reconnectDelay = RECONNECT_DELAY_MS;
 	private shouldReconnect = false;
 	private state: ConnectionState = 'idle';
+	private openedAt = 0;
+	private hasConnectedBefore = false;
+	private reconnectListeners = new Set<() => void>();
 
 	public connect(): void {
 		if (typeof window === 'undefined') return;
@@ -43,7 +50,31 @@ class RealtimeClient {
 
 		this.socket.onopen = () => {
 			this.state = 'connected';
-			this.reconnectDelay = RECONNECT_DELAY_MS;
+			this.openedAt = Date.now();
+
+			// Resetting the backoff here was wrong: the gateway closes an
+			// unauthenticated socket with 1008 *after* the upgrade succeeds, so a
+			// permanently failing auth reset the delay every cycle and hammered the
+			// server every 3s forever. Reset only once the connection proves stable.
+			setTimeout(() => {
+				if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+					this.reconnectDelay = RECONNECT_DELAY_MS;
+				}
+			}, STABLE_CONNECTION_MS);
+
+			// Events published while we were disconnected are not replayed, so tell
+			// consumers to refetch persisted state. Skipped on the first connect,
+			// where components have just loaded their own data.
+			if (this.hasConnectedBefore) {
+				this.reconnectListeners.forEach((listener) => {
+					try {
+						listener();
+					} catch {
+						// a bad listener must not break the others
+					}
+				});
+			}
+			this.hasConnectedBefore = true;
 		};
 
 		this.socket.onmessage = (event) => this.handleMessage(event.data);
@@ -70,6 +101,18 @@ class RealtimeClient {
 		}
 
 		this.state = 'idle';
+	}
+
+	/**
+	 * Fires after the socket is re-established following a drop. Realtime delivery
+	 * is best-effort with no replay, so anything that must not miss updates should
+	 * refetch from MongoDB here.
+	 */
+	public onReconnect(listener: () => void): () => void {
+		this.reconnectListeners.add(listener);
+		return () => {
+			this.reconnectListeners.delete(listener);
+		};
 	}
 
 	public subscribe<TPayload = unknown>(eventName: string, handler: RealtimeEventHandler<TPayload>): () => void {

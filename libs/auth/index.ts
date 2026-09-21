@@ -5,6 +5,7 @@ import { CustomJwtPayload } from '../types/customJwtPayload';
 import { sweetMixinErrorAlert } from '../sweetAlert';
 import { GOOGLE_LOGIN, KAKAO_LOGIN, LOGIN, SIGN_UP, TELEGRAM_LOGIN } from '../../apollo/user/mutation';
 import { normalizeMemberType } from '../enums/member.enum';
+import { realtimeClient } from '../realtime/realtimeClient';
 
 const DEFAULT_AUTH_ERROR_MESSAGE = 'Something went wrong. Please check your information and try again.';
 export const AUTH_NICKNAME_HELPER = '3–20 characters. Letters, numbers, hyphen, or underscore. No spaces.';
@@ -120,10 +121,51 @@ const mapAuthErrorMessage = (message: string, fallback = DEFAULT_AUTH_ERROR_MESS
 	return fallback;
 };
 
-export function getJwtToken(): any {
-	if (typeof window !== 'undefined') {
-		return localStorage.getItem('accessToken') ?? '';
+/**
+ * Tokens are signed with a 30 day expiry. Nothing used to check `exp`, so an
+ * expired token stayed in localStorage and kept being attached to every request:
+ * the UI looked signed in while every call failed. decodeJWT only reads claims,
+ * it does not validate, so the check has to be explicit.
+ */
+export function isJwtExpired(token: string): boolean {
+	if (!token) return true;
+
+	try {
+		const { exp } = decodeJWT<CustomJwtPayload>(token);
+		// No exp claim means the token never expires by its own terms; let the
+		// backend be the authority rather than locking the user out client-side.
+		if (typeof exp !== 'number') return false;
+		return exp * 1000 <= Date.now();
+	} catch {
+		// Unparseable token is unusable regardless.
+		return true;
 	}
+}
+
+let expiredSessionCleanupQueued = false;
+
+export function getJwtToken(): any {
+	if (typeof window === 'undefined') return;
+
+	const token = localStorage.getItem('accessToken') ?? '';
+	if (!token) return '';
+	if (!isJwtExpired(token)) return token;
+
+	// Drop the dead token immediately so nothing attaches it to a request.
+	localStorage.removeItem('accessToken');
+
+	// logOut() writes a reactive var, and getJwtToken is called during render by
+	// some components (MyProfile, Teditor). Defer so we never trigger a state
+	// update mid-render, and guard so repeated calls queue only one cleanup.
+	if (!expiredSessionCleanupQueued) {
+		expiredSessionCleanupQueued = true;
+		setTimeout(() => {
+			expiredSessionCleanupQueued = false;
+			logOut();
+		}, 0);
+	}
+
+	return '';
 }
 
 export function setJwtToken(token: string) {
@@ -359,6 +401,9 @@ export const updateStorage = ({ jwtToken }: { jwtToken: any }) => {
 
 export const updateUserInfo = (jwtToken: any) => {
 	if (!jwtToken) return false;
+	// Layouts call this on mount with whatever is in storage; never hydrate a
+	// signed-in UI from a token the backend will reject.
+	if (isJwtExpired(jwtToken)) return false;
 
 	const claims = decodeJWT<CustomJwtPayload>(jwtToken);
 	const memberType = normalizeMemberType(claims.memberType);
@@ -391,6 +436,10 @@ export const updateUserInfo = (jwtToken: any) => {
 export const logOut = () => {
 	deleteStorage();
 	deleteUserInfo();
+	// The socket authenticates with a token in its query string. Without this it
+	// keeps running -- and keeps reconnecting -- on the credentials of the user
+	// who just signed out.
+	realtimeClient.disconnect();
 };
 
 const deleteStorage = () => {

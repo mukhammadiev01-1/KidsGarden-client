@@ -19,6 +19,7 @@ import { Direction } from '../../enums/common.enum';
 import { MemberType } from '../../enums/member.enum';
 import { NotificationTargetType } from '../../enums/notification.enum';
 import { useRealtimeEvent } from '../../hooks/useRealtimeEvent';
+import { useRealtimeReconnect } from '../../hooks/useRealtimeReconnect';
 import { Notification } from '../../types/notification/notification';
 import { useTranslation } from 'next-i18next';
 import { NotificationsInquiry } from '../../types/notification/notification.input';
@@ -76,6 +77,8 @@ const NotificationBell = () => {
 	}, [notificationsInput, open, refetchNotifications, refetchUnreadCount]);
 
 	useRealtimeEvent<Notification>(NOTIFICATION_CREATED_EVENT, notificationCreatedHandler, Boolean(user?._id));
+	// Notifications published while the socket was down are never replayed.
+	useRealtimeReconnect(notificationCreatedHandler, Boolean(user?._id));
 
 	if (!user?._id) return null;
 
