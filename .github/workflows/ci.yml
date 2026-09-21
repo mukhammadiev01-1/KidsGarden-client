@@ -23,7 +23,15 @@ jobs:
       # libs/config.ts throws when these are absent in a production build, so CI
       # supplies placeholders. They only need to be well-formed URLs — nothing is
       # contacted at build time. Real values are injected as Docker build args.
-      NODE_ENV: production
+      #
+      # Do NOT set NODE_ENV: production here. yarn 1 reads NODE_ENV directly
+      # (cli.js: `this.production = Boolean(getOption('production')) ||
+      # process.env.NODE_ENV === 'production' && ...`), so it would install in
+      # production mode and skip devDependencies — @types/numeral,
+      # @types/apollo-upload-client and friends — making `tsc --noEmit` fail
+      # TS7016 on every push. It is also unnecessary: `next build` sets
+      # NODE_ENV=production itself, so libs/config.ts already sees production
+      # during the Build step.
       NEXT_PUBLIC_API_URL: https://api.ci.invalid
       NEXT_PUBLIC_API_GRAPHQL_URL: https://api.ci.invalid/graphql
       NEXT_PUBLIC_SITE_URL: https://ci.invalid
