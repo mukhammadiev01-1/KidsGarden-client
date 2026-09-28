@@ -3,6 +3,7 @@ import { NextPage } from 'next';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { Button, Checkbox, FormControlLabel, FormGroup, IconButton } from '@mui/material';
 import { useRouter } from 'next/router';
+import { persistLocale } from '../../libs/i18n/localeCookie';
 import { useTranslation } from 'next-i18next';
 import {
 	AUTH_NICKNAME_HELPER,
@@ -109,7 +110,7 @@ const Join: NextPage = () => {
 
 		if (router.locale === LEGACY_KOREAN_LOCALE) {
 			setSelectedLocale('ko');
-			localStorage.setItem('locale', 'ko');
+			persistLocale('ko');
 			router.replace(router.asPath, router.asPath, { locale: 'ko' }).catch(() => undefined);
 			return;
 		}
@@ -120,7 +121,7 @@ const Join: NextPage = () => {
 		const nextLocale = hasRouteLocale ? routeLocale : storedLocale;
 
 		setSelectedLocale(nextLocale);
-		localStorage.setItem('locale', nextLocale);
+		persistLocale(nextLocale);
 
 		if (!hasRouteLocale && nextLocale !== routeLocale) {
 			router.replace(router.asPath, router.asPath, { locale: nextLocale }).catch(() => undefined);
@@ -146,7 +147,7 @@ const Join: NextPage = () => {
 		async (locale: string) => {
 			const nextLocale = normalizeLocale(locale);
 			setSelectedLocale(nextLocale);
-			if (typeof window !== 'undefined') localStorage.setItem('locale', nextLocale);
+			persistLocale(nextLocale);
 			await router.push(router.asPath, router.asPath, { locale: nextLocale });
 		},
 		[router],

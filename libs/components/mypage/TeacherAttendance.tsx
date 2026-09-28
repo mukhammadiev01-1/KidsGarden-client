@@ -314,10 +314,14 @@ const TeacherAttendance = () => {
 		}
 	};
 
-	if (user.memberType !== MemberType.TEACHER) {
-		router.back();
-		return null;
-	}
+	// Role guard. Navigating during render (router.back() in the component
+	// body) is a side effect React may run twice under StrictMode; do it in an
+	// effect and render nothing meanwhile.
+	const roleAllowed = !(user.memberType !== MemberType.TEACHER);
+	useEffect(() => {
+		if (!roleAllowed) router.back();
+	}, [roleAllowed, router]);
+	if (!roleAllowed) return null;
 
 	return (
 		<Stack className="teacher-dashboard-screen teacher-attendance-dashboard" spacing={3} sx={{ width: '100%' }}>

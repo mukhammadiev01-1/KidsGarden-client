@@ -219,6 +219,7 @@ const AdminUsers: NextPage = ({ initialInquiry, ...props }: any) => {
 														setSearchText('');
 														setMembersInquiry({
 															...membersInquiry,
+															page: 1,
 															search: {
 																...membersInquiry.search,
 																text: '',

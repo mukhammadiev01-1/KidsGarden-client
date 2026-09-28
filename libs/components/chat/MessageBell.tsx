@@ -89,6 +89,13 @@ const MessageBell = () => {
 	// Messages that arrived while the socket was down never fired an event.
 	useRealtimeReconnect(refreshConversations, Boolean(user?._id));
 
+	const popoverTitle = useMemo(() => {
+		const total = conversationsData?.getMyConversations?.total;
+		return total ? t('messageBell.titleWithCount', { count: total }) : t('messageBell.title');
+	}, [conversationsData?.getMyConversations?.total, t]);
+
+	// Hooks above this line only: an early return before a hook changes the
+	// hook count between renders.
 	if (!user?._id) return null;
 
 	const openHandler = async (event: MouseEvent<HTMLElement>) => {
@@ -108,10 +115,6 @@ const MessageBell = () => {
 		await router.push('/messages');
 	};
 
-	const popoverTitle = useMemo(() => {
-		const total = conversationsData?.getMyConversations?.total;
-		return total ? t('messageBell.titleWithCount', { count: total }) : t('messageBell.title');
-	}, [conversationsData?.getMyConversations?.total, t]);
 
 	return (
 		<>

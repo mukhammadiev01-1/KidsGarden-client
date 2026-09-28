@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
 	Button,
@@ -83,6 +83,8 @@ const KindergartenApplications = () => {
 	});
 
 	const applications: Application[] = data?.getKindergartenApplications?.list ?? [];
+	// The chip used to show the page size (applications.length), not the real total.
+	const applicationsTotal: number = data?.getKindergartenApplications?.metaCounter?.[0]?.total ?? applications.length;
 
 	const toggleChatHandler = (applicationId: string) => {
 		setActiveChatApplicationId((currentId) => (currentId === applicationId ? '' : applicationId));
@@ -123,10 +125,14 @@ const KindergartenApplications = () => {
 		await updateStatusHandler(application, status);
 	};
 
-	if (user.memberType !== MemberType.KINDERGARTEN_ADMIN) {
-		router.back();
-		return null;
-	}
+	// Role guard. Navigating during render (router.back() in the component
+	// body) is a side effect React may run twice under StrictMode; do it in an
+	// effect and render nothing meanwhile.
+	const roleAllowed = !(user.memberType !== MemberType.KINDERGARTEN_ADMIN);
+	useEffect(() => {
+		if (!roleAllowed) router.back();
+	}, [roleAllowed, router]);
+	if (!roleAllowed) return null;
 
 	return (
 		<Stack className="admin-dashboard-screen kindergarten-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
@@ -147,7 +153,7 @@ const KindergartenApplications = () => {
 							Applicant information is visible only in this guarded dashboard.
 						</Typography>
 					</Stack>
-					<Chip label={`${applications.length} found`} size="small" className="dashboard-count-chip" />
+					<Chip label={`${applicationsTotal} found`} size="small" className="dashboard-count-chip" />
 				</Stack>
 				{loading && <Typography sx={{ color: '#6b7280' }}>Loading applications...</Typography>}
 				{!loading && applications.length === 0 && (

@@ -117,12 +117,12 @@ const MyPage: NextPage = () => {
 					updateUserInfo(jwt);
 					return;
 				} catch (error) {
-					router.push('/account/login').then();
+					router.push({ pathname: '/account/login', query: { referrer: router.asPath } }).then();
 					return;
 				}
 			}
 
-			router.push('/account/login').then();
+			router.push({ pathname: '/account/login', query: { referrer: router.asPath } }).then();
 			return;
 		}
 

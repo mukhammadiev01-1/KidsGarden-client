@@ -47,7 +47,12 @@ const Filter = (props: FilterType) => {
 	const { t } = useTranslation('common');
 	const [kindergartenLocation, setKindergartenLocation] = useState<KindergartenLocation[]>(Object.values(KindergartenLocation));
 	const [kindergartenType, setKindergartenType] = useState<KindergartenType[]>(DISCOVERY_KINDERGARTEN_TYPES);
-	const [searchText, setSearchText] = useState<string>('');
+	const [searchText, setSearchText] = useState<string>(searchFilter?.search?.text ?? '');
+	// The URL (searchFilter) is what drives the query; keep the box in sync with
+	// it when the filter changes from elsewhere (back button, reset, chips).
+	useEffect(() => {
+		setSearchText(searchFilter?.search?.text ?? '');
+	}, [searchFilter?.search?.text]);
 	const [openSections, setOpenSections] = useState({
 		location: false,
 		type: false,
@@ -123,10 +128,12 @@ const Filter = (props: FilterType) => {
 					await router.push(
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: { ...searchFilter.search, locationList: [...(searchFilter?.search?.locationList || []), value] },
 						})}`,
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: { ...searchFilter.search, locationList: [...(searchFilter?.search?.locationList || []), value] },
 						})}`,
 						{ scroll: false },
@@ -135,6 +142,7 @@ const Filter = (props: FilterType) => {
 					await router.push(
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: {
 								...searchFilter.search,
 								locationList: searchFilter?.search?.locationList?.filter((item: string) => item !== value),
@@ -142,6 +150,7 @@ const Filter = (props: FilterType) => {
 						})}`,
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: {
 								...searchFilter.search,
 								locationList: searchFilter?.search?.locationList?.filter((item: string) => item !== value),
@@ -173,10 +182,12 @@ const Filter = (props: FilterType) => {
 					await router.push(
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: { ...searchFilter.search, typeList: [...(searchFilter?.search?.typeList || []), value] },
 						})}`,
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: { ...searchFilter.search, typeList: [...(searchFilter?.search?.typeList || []), value] },
 						})}`,
 						{ scroll: false },
@@ -185,6 +196,7 @@ const Filter = (props: FilterType) => {
 					await router.push(
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: {
 								...searchFilter.search,
 								typeList: searchFilter?.search?.typeList?.filter((item: string) => item !== value),
@@ -192,6 +204,7 @@ const Filter = (props: FilterType) => {
 						})}`,
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: {
 								...searchFilter.search,
 								typeList: searchFilter?.search?.typeList?.filter((item: string) => item !== value),
@@ -222,6 +235,7 @@ const Filter = (props: FilterType) => {
 						await router.push(
 							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
+								page: 1,
 								search: {
 									...searchFilter.search,
 									programsList: searchFilter?.search?.programsList?.filter((item: Number) => item !== number),
@@ -229,6 +243,7 @@ const Filter = (props: FilterType) => {
 							})}`,
 							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
+								page: 1,
 								search: {
 									...searchFilter.search,
 									programsList: searchFilter?.search?.programsList?.filter((item: Number) => item !== number),
@@ -240,10 +255,12 @@ const Filter = (props: FilterType) => {
 						await router.push(
 							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
+								page: 1,
 								search: { ...searchFilter.search, programsList: [...(searchFilter?.search?.programsList || []), number] },
 							})}`,
 							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
+								page: 1,
 								search: { ...searchFilter.search, programsList: [...(searchFilter?.search?.programsList || []), number] },
 							})}`,
 							{ scroll: false },
@@ -255,12 +272,14 @@ const Filter = (props: FilterType) => {
 					await router.push(
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: {
 								...searchFilter.search,
 							},
 						})}`,
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: {
 								...searchFilter.search,
 							},
@@ -286,6 +305,7 @@ const Filter = (props: FilterType) => {
 						await router.push(
 							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
+								page: 1,
 								search: {
 									...searchFilter.search,
 									ageRangeList: searchFilter?.search?.ageRangeList?.filter((item: Number) => item !== number),
@@ -293,6 +313,7 @@ const Filter = (props: FilterType) => {
 							})}`,
 							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
+								page: 1,
 								search: {
 									...searchFilter.search,
 									ageRangeList: searchFilter?.search?.ageRangeList?.filter((item: Number) => item !== number),
@@ -304,10 +325,12 @@ const Filter = (props: FilterType) => {
 						await router.push(
 							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
+								page: 1,
 								search: { ...searchFilter.search, ageRangeList: [...(searchFilter?.search?.ageRangeList || []), number] },
 							})}`,
 							`${listingBasePath}?input=${JSON.stringify({
 								...searchFilter,
+								page: 1,
 								search: { ...searchFilter.search, ageRangeList: [...(searchFilter?.search?.ageRangeList || []), number] },
 							})}`,
 							{ scroll: false },
@@ -319,12 +342,14 @@ const Filter = (props: FilterType) => {
 					await router.push(
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: {
 								...searchFilter.search,
 							},
 						})}`,
 						`${listingBasePath}?input=${JSON.stringify({
 							...searchFilter,
+							page: 1,
 							search: {
 								...searchFilter.search,
 							},
@@ -345,6 +370,7 @@ const Filter = (props: FilterType) => {
 		async (value: number) => {
 			const nextFilter = {
 				...searchFilter,
+				page: 1,
 				search: {
 					...searchFilter.search,
 					ageRangeList: [value],
@@ -365,6 +391,7 @@ const Filter = (props: FilterType) => {
 
 			await pushFilter({
 				...searchFilter,
+				page: 1,
 				search: {
 					...nextSearch,
 					[rangeKey]: { start, end },
@@ -405,6 +432,7 @@ const Filter = (props: FilterType) => {
 									onFilterChange?.();
 									setSearchFilter({
 										...searchFilter,
+										page: 1,
 										search: { ...searchFilter.search, text: searchText },
 									});
 								}
@@ -417,6 +445,7 @@ const Filter = (props: FilterType) => {
 											setSearchText('');
 											setSearchFilter({
 												...searchFilter,
+												page: 1,
 												search: { ...searchFilter.search, text: '' },
 											});
 										}}

@@ -131,10 +131,14 @@ const ParentChildren = () => {
 		};
 	}, [apolloClient, groupIds, groupsById]);
 
-	if (user.memberType !== MemberType.PARENT) {
-		router.back();
-		return null;
-	}
+	// Role guard. Navigating during render (router.back() in the component
+	// body) is a side effect React may run twice under StrictMode; do it in an
+	// effect and render nothing meanwhile.
+	const roleAllowed = !(user.memberType !== MemberType.PARENT);
+	useEffect(() => {
+		if (!roleAllowed) router.back();
+	}, [roleAllowed, router]);
+	if (!roleAllowed) return null;
 
 	return (
 		<Stack className="parent-dashboard-screen parent-children-dashboard" spacing={3} sx={{ width: '100%' }}>

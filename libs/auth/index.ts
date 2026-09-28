@@ -172,6 +172,8 @@ export function setJwtToken(token: string) {
 	localStorage.setItem('accessToken', token);
 }
 
+// A failed sign-in attempt must not sign out a session that already exists
+// (these catch blocks used to call logOut()).
 export const logIn = async (nick: string, password: string): Promise<void> => {
 	try {
 		const { jwtToken } = await requestJwtToken({ nick, password });
@@ -182,7 +184,6 @@ export const logIn = async (nick: string, password: string): Promise<void> => {
 		}
 	} catch (err) {
 		console.warn('login err', err);
-		logOut();
 		throw new Error(mapAuthErrorMessage(extractAuthErrorMessage(err)));
 	}
 };
@@ -228,7 +229,6 @@ export const signUp = async (nick: string, password: string, phone: string, type
 		}
 	} catch (err) {
 		console.warn('signup err', err);
-		logOut();
 		throw new Error(mapAuthErrorMessage(extractAuthErrorMessage(err)));
 	}
 };
@@ -243,7 +243,6 @@ export const googleLogIn = async (idToken: string): Promise<void> => {
 		}
 	} catch (err) {
 		console.warn('google login err', err);
-		logOut();
 		throw new Error('Google Login Err');
 	}
 };
@@ -269,7 +268,6 @@ export const telegramLogIn = async (authData: TelegramAuthData, intent: Telegram
 			updateUserInfo(jwtToken);
 		}
 	} catch (err: any) {
-		logOut();
 		throw new Error(err.message || 'Telegram Login Err');
 	}
 };
@@ -285,7 +283,6 @@ export const kakaoLogIn = async (code: string, redirectUri: string, intent: Kaka
 			updateUserInfo(jwtToken);
 		}
 	} catch (err: any) {
-		logOut();
 		throw new Error(err.message || 'Kakao Login Err');
 	}
 };
@@ -439,6 +436,17 @@ export const logOut = () => {
 	// The socket authenticates with a token in its query string. Without this it
 	// keeps running -- and keeps reconnecting -- on the credentials of the user
 	// who just signed out.
+	realtimeClient.disconnect();
+};
+
+/**
+ * Another tab signed out (storage event). Clear this tab too, without writing
+ * the 'logout' marker again -- that would bounce the event back and forth
+ * between tabs forever.
+ */
+export const applyRemoteLogout = () => {
+	localStorage.removeItem('accessToken');
+	deleteUserInfo();
 	realtimeClient.disconnect();
 };
 

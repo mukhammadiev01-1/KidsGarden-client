@@ -16,8 +16,10 @@ const withLayoutBasic = (Component: any) => {
 		const router = useRouter();
 		const { t } = useTranslation('common');
 		const device = useDeviceDetect();
-		const [authHeader, setAuthHeader] = useState<boolean>(false);
 		const isAuthPage = router.pathname === '/account/join';
+		// Derived, not state: it used to be set from inside a useMemo callback
+		// (a state update during render) and only ever mirrored this condition.
+		const authHeader = isAuthPage;
 		const hideBasicHero =
 			isAuthPage ||
 			router.pathname === '/property' ||
@@ -74,7 +76,6 @@ const withLayoutBasic = (Component: any) => {
 					title = 'Login / Join';
 					desc = 'Access your KidsGarden account.';
 					bgImage = '/img/kidsgarden/articles/article-parent-teacher-communication.png';
-					setAuthHeader(true);
 					break;
 				case '/member':
 					title = 'Member Profile';

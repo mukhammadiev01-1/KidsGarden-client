@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Button, Chip, Stack, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -63,6 +63,8 @@ const ParentApplications = () => {
 	});
 
 	const applications: Application[] = data?.getMyApplications?.list ?? [];
+	// The chip used to show the page size (applications.length), not the real total.
+	const applicationsTotal: number = data?.getMyApplications?.metaCounter?.[0]?.total ?? applications.length;
 
 	const toggleChatHandler = (applicationId: string) => {
 		setActiveChatApplicationId((currentId) => (currentId === applicationId ? '' : applicationId));
@@ -79,10 +81,14 @@ const ParentApplications = () => {
 		}
 	};
 
-	if (user.memberType !== MemberType.PARENT) {
-		router.back();
-		return null;
-	}
+	// Role guard. Navigating during render (router.back() in the component
+	// body) is a side effect React may run twice under StrictMode; do it in an
+	// effect and render nothing meanwhile.
+	const roleAllowed = !(user.memberType !== MemberType.PARENT);
+	useEffect(() => {
+		if (!roleAllowed) router.back();
+	}, [roleAllowed, router]);
+	if (!roleAllowed) return null;
 
 	return (
 		<Stack className="parent-dashboard-screen parent-kindergarten-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
@@ -103,7 +109,7 @@ const ParentApplications = () => {
 							Requests you have sent from kindergarten detail pages.
 						</Typography>
 					</Stack>
-					<Chip label={`${applications.length} total`} size="small" className="dashboard-count-chip" />
+					<Chip label={`${applicationsTotal} total`} size="small" className="dashboard-count-chip" />
 				</Stack>
 				{loading && <Typography sx={{ color: '#6b7280' }}>Loading your applications...</Typography>}
 				{!loading && applications.length === 0 && (

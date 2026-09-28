@@ -9,6 +9,7 @@ import { useApollo } from '../apollo/client';
 import { appWithTranslation } from 'next-i18next';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AiAssistant from '../libs/components/ai/AiAssistant';
+import { useSessionSync } from '../libs/auth/useSessionSync';
 import '../scss/app.scss';
 import '../scss/pc/main.scss';
 import '../scss/mobile/main.scss';
@@ -24,6 +25,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 	// @ts-ignore
 	const [theme, setTheme] = useState(createTheme(light));
 	const client = useApollo(pageProps.initialApolloState);
+	useSessionSync();
 	const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 	const appContent = (

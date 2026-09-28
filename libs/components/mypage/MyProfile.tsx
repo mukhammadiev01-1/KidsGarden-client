@@ -45,7 +45,10 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			memberAddress: user.memberAddress ?? '',
 			memberImage: user.memberImage ?? '',
 		});
-	}, [user]);
+		// Per member only: userVar is rewritten after every save/upload (fresh
+		// token), and reseeding on each write wiped unsaved edits.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [user._id]);
 
 	/** HANDLERS **/
 	const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +56,10 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			const image = e.target.files?.[0];
 			if (!image) return;
 			if (!token) throw new Error(t('profile.loginRequired'));
+			if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(image.type)) {
+				throw new Error(t('profile.imageTypeError'));
+			}
+			if (image.size > 2 * 1024 * 1024) throw new Error(t('profile.imageTooLarge'));
 
 			setUploadingProfileImage(true);
 
@@ -87,7 +94,6 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 
 			const responseImage = response.data.data.imageUploader;
 			setUpdateData((prev) => ({ ...prev, memberImage: responseImage }));
-			e.target.value = '';
 
 			const memberId = updateData._id || user._id;
 			if (!memberId) throw new Error(t('profile.missingMemberId'));
@@ -114,6 +120,8 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			await sweetErrorHandling(err);
 		} finally {
 			setUploadingProfileImage(false);
+			// Always reset, so re-selecting the same file after a failure fires onChange.
+			e.target.value = '';
 		}
 	};
 

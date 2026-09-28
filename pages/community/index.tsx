@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -133,10 +133,16 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		}));
 	};
 
+	// Debounced: the box used to feed the query variables on every keystroke.
+	const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	useEffect(() => () => {
+		if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+	}, []);
 	const searchChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
 		const value = event.target.value;
 		setSearchText(value);
-		updateCommunitySearch(activeTopicConfig, value, 1);
+		if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+		searchDebounceRef.current = setTimeout(() => updateCommunitySearch(activeTopicConfig, value, 1), 300);
 	};
 
 	const paginationHandler = (e: T, value: number) => {

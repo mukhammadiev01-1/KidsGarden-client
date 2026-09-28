@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { useLazyQuery, useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -147,6 +147,15 @@ const MyKindergarten = () => {
 			}
 			if (mode === 'main' && files.length > 1) {
 				throw new Error('Please choose one main image.');
+			}
+			// The accept attribute only filters the dialog; check what was actually
+			// chosen so a bad file is refused here instead of silently dropped by
+			// the server-side uploader.
+			const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+			const maxBytes = 2 * 1024 * 1024;
+			for (const file of files) {
+				if (!allowedTypes.includes(file.type)) throw new Error(`${file.name}: only JPG, PNG or WEBP images are allowed.`);
+				if (file.size > maxBytes) throw new Error(`${file.name}: images must be 2 MB or smaller.`);
 			}
 
 			setUploadingKindergartenImages(true);
@@ -337,10 +346,14 @@ const MyKindergarten = () => {
 		}
 	};
 
-	if (user.memberType !== MemberType.KINDERGARTEN_ADMIN) {
-		router.back();
-		return null;
-	}
+	// Role guard. Navigating during render (router.back() in the component
+	// body) is a side effect React may run twice under StrictMode; do it in an
+	// effect and render nothing meanwhile.
+	const roleAllowed = !(user.memberType !== MemberType.KINDERGARTEN_ADMIN);
+	useEffect(() => {
+		if (!roleAllowed) router.back();
+	}, [roleAllowed, router]);
+	if (!roleAllowed) return null;
 
 	return (
 		<Stack className="admin-dashboard-screen admin-kindergarten-profile-dashboard" spacing={3} sx={{ width: '100%' }}>

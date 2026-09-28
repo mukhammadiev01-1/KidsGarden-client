@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useApolloClient, useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
 	Avatar,
 	Box,
@@ -154,6 +154,12 @@ const MessagesPage = () => {
 		[conversations, selectedConversationId],
 	);
 
+	// Read through a ref inside callbacks: `selectedConversation` is a fresh
+	// object after every conversations refetch, and a callback that depended on
+	// it re-triggered the read-receipt effect, which refetched conversations…
+	const selectedConversationRef = useRef(selectedConversation);
+	selectedConversationRef.current = selectedConversation;
+
 	const isApplicationChat = selectedConversation?.conversationType === ConversationType.APPLICATION_CHAT;
 	const isParentTeacherChat = selectedConversation?.conversationType === ConversationType.PARENT_TEACHER_CHAT;
 
@@ -226,6 +232,43 @@ const MessagesPage = () => {
 		TRANSLATE_CHAT_MESSAGE,
 	);
 
+	// A sent message (or a realtime event) is written into the cached page
+	// instead of re-downloading all 100 rows.
+	const apolloClient = useApolloClient();
+	const appendMessageToCache = useCallback(
+		(incoming: Partial<Message> & { _id: string }) => {
+			if (!selectedConversationId) return;
+			const query = isApplicationChat ? GET_MESSAGES : GET_PARENT_TEACHER_MESSAGES;
+			const field = isApplicationChat ? 'getMessages' : 'getParentTeacherMessages';
+			apolloClient.cache.updateQuery({ query, variables: { input: messagesInput } }, (prev: any) => {
+				const current = prev?.[field];
+				if (!current) return prev;
+				if (current.list.some((message: Message) => message._id === incoming._id)) return prev;
+				const message = {
+					__typename: 'Message',
+					_id: incoming._id,
+					conversationId: incoming.conversationId ?? selectedConversationId,
+					senderId: incoming.senderId ?? null,
+					text: incoming.text ?? null,
+					attachments: (incoming.attachments ?? []).map((attachment) => ({ __typename: 'ChatAttachment', ...attachment })),
+					readBy: incoming.readBy ?? [],
+					createdAt: incoming.createdAt ?? new Date().toISOString(),
+					updatedAt: incoming.updatedAt ?? incoming.createdAt ?? new Date().toISOString(),
+				};
+				const total = current.metaCounter?.[0]?.total;
+				return {
+					...prev,
+					[field]: {
+						...current,
+						list: [message, ...current.list],
+						metaCounter: typeof total === 'number' ? [{ ...current.metaCounter[0], total: total + 1 }] : current.metaCounter,
+					},
+				};
+			});
+		},
+		[apolloClient, isApplicationChat, messagesInput, selectedConversationId],
+	);
+
 	// Fetched newest-first (see messagesInput); reverse so the thread still reads
 	// oldest -> newest top to bottom, which the auto-scroll-to-bottom depends on.
 	const messages: Message[] = useMemo(() => {
@@ -278,7 +321,7 @@ const MessagesPage = () => {
 	]);
 
 	const markSelectedConversationRead = useCallback(async () => {
-		if (!selectedConversationId || !selectedConversation) return;
+		if (!selectedConversationId || !selectedConversationRef.current) return;
 		if (isApplicationChat) {
 			await markApplicationConversationRead({ variables: { conversationId: selectedConversationId } }).catch(() => undefined);
 		} else if (isParentTeacherChat) {
@@ -291,7 +334,6 @@ const MessagesPage = () => {
 		markApplicationConversationRead,
 		markParentTeacherConversationRead,
 		refetchConversations,
-		selectedConversation,
 		selectedConversationId,
 	]);
 
@@ -311,7 +353,10 @@ const MessagesPage = () => {
 	}, [markSelectedConversationRead, selectedConversationId]);
 
 	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		// scrollIntoView scrolls every scrollable ancestor (the whole page moved);
+		// scroll the thread box itself instead.
+		const scroller = messagesEndRef.current?.parentElement;
+		if (scroller) scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
 	}, [messages.length, selectedConversationId]);
 
 	const realtimeHandler = useCallback(
@@ -319,11 +364,13 @@ const MessagesPage = () => {
 			const payloadConversationId = getPayloadConversationId(payload);
 			void refetchConversations({ input: conversationsInput }).catch(() => undefined);
 			if (payloadConversationId && payloadConversationId === selectedConversationId) {
-				void refetchActiveMessages();
+				const message = payload as unknown as Partial<Message> & { _id?: string };
+				if (message._id && message.createdAt) appendMessageToCache(message as Partial<Message> & { _id: string });
+				else void refetchActiveMessages();
 				void markSelectedConversationRead();
 			}
 		},
-		[markSelectedConversationRead, refetchActiveMessages, refetchConversations, selectedConversationId],
+		[appendMessageToCache, markSelectedConversationRead, refetchActiveMessages, refetchConversations, selectedConversationId],
 	);
 
 	useRealtimeEvent<ChatMessageCreatedPayload>(APPLICATION_CHAT_MESSAGE_CREATED_EVENT, realtimeHandler, Boolean(user?._id));
@@ -340,6 +387,10 @@ const MessagesPage = () => {
 	);
 
 	const selectConversationHandler = async (conversation: MyConversationSummary) => {
+		if (conversation.conversationId !== selectedConversationId) {
+			// An unsent draft used to follow the user into the next thread.
+			setMessageText('');
+		}
 		setSelectedConversationId(conversation.conversationId);
 		setMobileThreadOpen(true);
 		setErrorMessage('');
@@ -357,6 +408,11 @@ const MessagesPage = () => {
 	const backToListHandler = async () => {
 		setMobileThreadOpen(false);
 		if (isCompact) {
+			// Deselect: with the id still set, every incoming message was marked
+			// read while the user was looking at the list.
+			setSelectedConversationId('');
+			setMessageText('');
+			setErrorMessage('');
 			await router.replace('/messages', undefined, { shallow: true });
 		}
 	};
@@ -368,7 +424,7 @@ const MessagesPage = () => {
 
 		try {
 			setErrorMessage('');
-			const compressedFiles = await compressChatImageFiles(files);
+			const compressedFiles = await compressChatImageFiles(files, t);
 			setSelectedImages(compressedFiles);
 		} catch (err: any) {
 			setErrorMessage(err?.message || t('messages.prepareImagesError'));
@@ -502,17 +558,19 @@ const MessagesPage = () => {
 				},
 			};
 
-			if (isApplicationChat) {
-				await sendApplicationMessage({ variables });
-			} else {
-				await sendParentTeacherMessage({ variables });
-			}
+			const result = isApplicationChat
+				? await sendApplicationMessage({ variables })
+				: await sendParentTeacherMessage({ variables });
 
 			setMessageText('');
 			setSelectedImages([]);
-			await refetchActiveMessages();
-			await markSelectedConversationRead();
-			await refetchConversations({ input: conversationsInput }).catch(() => undefined);
+			// The mutation returns the message: write it into the cached page and
+			// refresh the list preview once, instead of three sequential round trips
+			// (100-row refetch, mark-read, conversations refetch).
+			const sent = (result.data as any)?.sendMessage ?? (result.data as any)?.sendParentTeacherMessage;
+			if (sent?._id) appendMessageToCache(sent);
+			else await refetchActiveMessages();
+			void refetchConversations({ input: conversationsInput }).catch(() => undefined);
 		} catch (err: any) {
 			setErrorMessage(err?.message || t('messages.sendError'));
 		}

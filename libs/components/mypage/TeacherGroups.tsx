@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import { Chip, Stack, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -44,10 +44,14 @@ const TeacherGroups = () => {
 
 	const groups: Group[] = data?.getGroups?.list ?? [];
 
-	if (user.memberType !== MemberType.TEACHER) {
-		router.back();
-		return null;
-	}
+	// Role guard. Navigating during render (router.back() in the component
+	// body) is a side effect React may run twice under StrictMode; do it in an
+	// effect and render nothing meanwhile.
+	const roleAllowed = !(user.memberType !== MemberType.TEACHER);
+	useEffect(() => {
+		if (!roleAllowed) router.back();
+	}, [roleAllowed, router]);
+	if (!roleAllowed) return null;
 
 	return (
 		<Stack className="teacher-dashboard-screen teacher-groups-dashboard" spacing={3} sx={{ width: '100%' }}>

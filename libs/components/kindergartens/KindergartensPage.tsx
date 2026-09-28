@@ -138,7 +138,6 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [sortingOpen, setSortingOpen] = useState(false);
-	const [filterSortName, setFilterSortName] = useState<string>(String(t('kindergartens.sort.new')));
 	const [listingView, setListingView] = useState<ListingView>('grid');
 	const [filtersVisible, setFiltersVisible] = useState(true);
 	const [filtersDrawerOpen, setFiltersDrawerOpen] = useState(false);
@@ -164,8 +163,13 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	/** APOLLO REQUESTS **/
 	const [likeTargetKindergarten] = useMutation(LIKE_TARGET_KINDERGARTEN);
 
+	// Derived, so it follows both the filter and the active language (a state
+	// copy seeded at mount kept the old language after switching).
+	const filterSortName = getSortLabel(searchFilter, t);
+
 	const {
 		loading: getKindergartensLoading,
+		error: getKindergartensError,
 		refetch: getKindergartensRefetch,
 	} = useQuery(GET_KINDERGARTENS, {
 		fetchPolicy: 'cache-and-network',
@@ -225,28 +229,26 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 			},
 			onError: () => {
 				setNearbyStatus('error');
-				setNearbyError(t('kindergartens.errors.searchAddress'));
+				setNearbyError(t('kindergartens.errors.addressSearch'));
 			},
 		},
 	);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (router.query.input) {
-			const inputObj = JSON.parse(router?.query?.input as string);
-			setSearchFilter(inputObj);
-		}
-
-		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
+		// Read the page from the URL's input, not from the render-closure
+		// `searchFilter` (which still holds the previous filter at this point).
+		const inputObj: KindergartensInquiry | null = router.query.input ? JSON.parse(router.query.input as string) : null;
+		if (inputObj) setSearchFilter(inputObj);
+		const next = inputObj ?? searchFilter;
+		setCurrentPage(next.page === undefined ? 1 : next.page);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- URL is the source of truth
 	}, [router]);
 
 	useEffect(() => {
 		getKindergartensRefetch({ input: searchFilter }).then();
 	}, [searchFilter]);
 
-	useEffect(() => {
-		setFilterSortName(getSortLabel(searchFilter, t));
-	}, [searchFilter.sort, searchFilter.direction]);
 
 	useEffect(() => {
 		if (typeof window === 'undefined') return;
@@ -319,13 +321,13 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	const getGeolocationErrorMessage = (error?: GeolocationPositionError): string => {
-		if (!error) return t('kindergartens.errors.detectLocation');
+		if (!error) return t('kindergartens.errors.locationDetect');
 		if (error.code === error.PERMISSION_DENIED) return t('kindergartens.errors.permissionDenied');
 		if (error.code === error.POSITION_UNAVAILABLE || error.code === error.TIMEOUT) {
-			return t('kindergartens.errors.detectLocation');
+			return t('kindergartens.errors.locationDetect');
 		}
 
-		return t('kindergartens.errors.detectLocation');
+		return t('kindergartens.errors.locationDetect');
 	};
 
 	const nearbySearchHandler = () => {
@@ -372,7 +374,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 
 		if (!address) {
 			setNearbyStatus('error');
-			setNearbyError(t('kindergartens.errors.enterAddress'));
+			setNearbyError(t('kindergartens.errors.emptyAddress'));
 			return;
 		}
 
@@ -382,7 +384,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		setActiveResolvedAddress('');
 		fetchNearbyKindergartensByAddress(address, nearbyRadiusMeters).catch(() => {
 			setNearbyStatus('error');
-			setNearbyError(t('kindergartens.errors.searchAddress'));
+			setNearbyError(t('kindergartens.errors.addressSearch'));
 		});
 	};
 
@@ -401,7 +403,7 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		if (nearbyMode === 'address' && activeNearbyAddress) {
 			fetchNearbyKindergartensByAddress(activeNearbyAddress, nextRadius).catch(() => {
 				setNearbyStatus('error');
-				setNearbyError(t('kindergartens.errors.searchAddress'));
+				setNearbyError(t('kindergartens.errors.addressSearch'));
 			});
 		}
 	};
@@ -439,15 +441,12 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 		switch (e.currentTarget.id) {
 			case 'new':
 				nextFilter = { ...searchFilter, page: 1, sort: 'createdAt', direction: Direction.DESC };
-				setFilterSortName(t('kindergartens.sort.new'));
 				break;
 			case 'lowest':
 				nextFilter = { ...searchFilter, page: 1, sort: 'monthlyFee', direction: Direction.ASC };
-				setFilterSortName(t('kindergartens.sort.lowestFee'));
 				break;
 			case 'highest':
 				nextFilter = { ...searchFilter, page: 1, sort: 'monthlyFee', direction: Direction.DESC };
-				setFilterSortName(t('kindergartens.sort.highestFee'));
 				break;
 			default:
 				break;
@@ -788,6 +787,14 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 							{getKindergartensLoading && kindergartens?.length === 0 ? (
 								<div className={'no-data'}>
 									<p>{t('kindergartens.loading')}</p>
+								</div>
+							) : getKindergartensError && nearbyMode === 'none' ? (
+								<div className={'no-data'}>
+									<img src="/img/icons/icoAlert.svg" alt="" />
+									<p>{t('kindergartens.errors.loadFailed')}</p>
+									<Button onClick={() => getKindergartensRefetch({ input: searchFilter })} sx={{ mt: 1, textTransform: 'none' }}>
+										{t('kindergartens.retry')}
+									</Button>
 								</div>
 							) : kindergartens?.length === 0 ? (
 								<div className={'no-data'}>

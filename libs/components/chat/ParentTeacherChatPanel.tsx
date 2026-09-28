@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { GET_PARENT_TEACHER_MESSAGES } from '../../../apollo/chat/query';
@@ -99,6 +99,13 @@ const ParentTeacherChatPanel = ({ childId, teacherId, title = 'Parent-teacher ch
 	useEffect(() => {
 		if (messagesError) setErrorMessage(messagesError.message);
 	}, [messagesError]);
+
+	// Keep the newest message in view; the box never scrolled before.
+	const messagesBoxRef = useRef<HTMLDivElement | null>(null);
+	useEffect(() => {
+		const box = messagesBoxRef.current;
+		if (box) box.scrollTop = box.scrollHeight;
+	}, [messages.length]);
 
 	useEffect(() => {
 		let mounted = true;
@@ -222,7 +229,7 @@ const ParentTeacherChatPanel = ({ childId, teacherId, title = 'Parent-teacher ch
 			)}
 			{errorMessage && <Typography sx={{ fontSize: '13px', color: '#b42318' }}>{errorMessage}</Typography>}
 
-			<Stack className="kg-chat-messages" spacing={1} sx={{ maxHeight: 260, overflowY: 'auto' }}>
+			<Stack ref={messagesBoxRef} className="kg-chat-messages" spacing={1} sx={{ maxHeight: 260, overflowY: 'auto' }}>
 				{!loadingMessages && messages.length === 0 && (
 					<Typography className="kg-chat-empty" sx={{ fontSize: '13px', color: '#64746b' }}>
 						No messages yet.

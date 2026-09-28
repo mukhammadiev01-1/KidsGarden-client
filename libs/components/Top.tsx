@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { useState } from 'react';
 import { useRouter, withRouter } from 'next/router';
+import { persistLocale } from '../i18n/localeCookie';
 import { useTranslation } from 'next-i18next';
 import { getJwtToken, logOut, updateUserInfo } from '../auth';
 import { Stack, Box } from '@mui/material';
@@ -42,6 +43,10 @@ const Top = () => {
 	const user = useReactiveVar(userVar);
 	const { t } = useTranslation('common');
 	const router = useRouter();
+	// Post-login lands back where the user was; the login page reads ?referrer=
+	// but nothing ever set it, so every sign-in went to '/'.
+	const loginHref =
+		router.pathname === '/account/join' ? '/account/join' : { pathname: '/account/join', query: { referrer: router.asPath } };
 	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
 	const [lang, setLang] = useState<string | null>('en');
 	const drop = Boolean(anchorEl2);
@@ -60,7 +65,7 @@ const Top = () => {
 
 		if (router.locale === LEGACY_KOREAN_LOCALE) {
 			setLang('ko');
-			localStorage.setItem('locale', 'ko');
+			persistLocale('ko');
 			router.replace(router.asPath, router.asPath, { locale: 'ko' }).catch(() => undefined);
 			return;
 		}
@@ -71,7 +76,7 @@ const Top = () => {
 		const nextLocale = hasRouteLocale ? routeLocale : storedLocale;
 
 		setLang(nextLocale);
-		localStorage.setItem('locale', nextLocale);
+		persistLocale(nextLocale);
 
 		if (!hasRouteLocale && nextLocale !== routeLocale) {
 			router.replace(router.asPath, router.asPath, { locale: nextLocale }).catch(() => undefined);
@@ -107,7 +112,7 @@ const Top = () => {
 		async (locale: string) => {
 			const nextLocale = normalizeLocale(locale);
 			setLang(nextLocale);
-			localStorage.setItem('locale', nextLocale);
+			persistLocale(nextLocale);
 			setAnchorEl2(null);
 			await router.push(router.asPath, router.asPath, { locale: nextLocale });
 		},
@@ -182,7 +187,7 @@ const Top = () => {
 				<Link href={'/cs'}>
 					<div>{t('header.help')}</div>
 				</Link>
-				<Link href={user?._id ? accountHref : '/account/join'}>
+				<Link href={user?._id ? accountHref : loginHref}>
 					<div>{user?._id ? accountLabel : t('header.login')}</div>
 				</Link>
 				{user?._id && <NotificationBell />}
@@ -280,7 +285,7 @@ const Top = () => {
 									</Menu>
 								</>
 							) : (
-								<Link href={'/account/join'}>
+								<Link href={loginHref}>
 									<div className={'join-box'}>
 										<AccountCircleOutlinedIcon />
 										<span>

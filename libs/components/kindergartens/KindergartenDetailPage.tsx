@@ -284,8 +284,11 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 
 		if (targetKindergartenId) {
 			setKindergartenId(targetKindergartenId);
+			// A different kindergarten starts on page 1 (the component is not
+			// remounted when only the query string changes).
 			setCommentInquiry({
 				...commentInquiry,
+				page: 1,
 				search: {
 					commentRefId: targetKindergartenId,
 				},
@@ -360,8 +363,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 	};
 
 	const commentPaginationChangeHandler = async (event: ChangeEvent<unknown>, value: number) => {
-		commentInquiry.page = value;
-		setCommentInquiry({ ...commentInquiry });
+		setCommentInquiry({ ...commentInquiry, page: value });
 	};
 
 	const likeKindergartenHandler = async (user: any, id: string) => {
@@ -402,7 +404,9 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 				variables: { input: { ...insertCommentData, commentContent: insertCommentData.commentContent.trim() } },
 			});
 			setInsertCommentData({ ...insertCommentData, commentContent: '' });
-			await getCommentsRefetch({ input: commentInquiry });
+			// The new review is on page 1 (newest first); show that page.
+			if (commentInquiry.page === 1) await getCommentsRefetch({ input: commentInquiry });
+			else setCommentInquiry({ ...commentInquiry, page: 1 });
 			await getKindergartenRefetch({ input: kindergartenId });
 			await sweetTopSmallSuccessAlert(t('kindergartenDetail.reviewSubmitted'));
 		} catch (err: any) {
@@ -466,10 +470,16 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 			if (!user?._id || user.memberType !== MemberType.PARENT) return;
 			if (hasOpenApplication) return;
 
+			// Mirror ApplicationInput: name 2-100, age a whole number >= 0 (an empty
+			// box is not 0), message up to 500.
 			const childName = applicationForm.childName.trim();
-			const childAge = Number(applicationForm.childAge);
+			const childAgeText = String(applicationForm.childAge).trim();
+			const childAge = Number(childAgeText);
+			const parentMessage = applicationForm.parentMessage.trim();
 			if (!childName) throw new Error(t('kindergartenDetail.enterChildName'));
-			if (Number.isNaN(childAge) || childAge < 0) throw new Error(t('kindergartenDetail.enterValidChildAge'));
+			if (childName.length < 2 || childName.length > 100) throw new Error(t('kindergartenDetail.childNameLength'));
+			if (!childAgeText || !Number.isInteger(childAge) || childAge < 0) throw new Error(t('kindergartenDetail.enterValidChildAge'));
+			if (parentMessage.length > 500) throw new Error(t('kindergartenDetail.messageTooLong'));
 			if (applicationFileError) throw new Error(applicationFileError);
 
 			const documentError = validateApplicationDocumentFiles(applicationFiles, t);
@@ -492,7 +502,7 @@ const KindergartenDetail: NextPage = ({ initialComment, ...props }: any) => {
 						kindergartenId,
 						childName,
 						childAge,
-						parentMessage: applicationForm.parentMessage.trim() || undefined,
+						parentMessage: parentMessage || undefined,
 						...(documents.length ? { documents } : {}),
 					},
 				},
