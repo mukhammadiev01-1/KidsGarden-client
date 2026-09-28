@@ -388,7 +388,7 @@ const MyKindergarten = () => {
 						spacing={2}
 						alignItems={'center'}
 					>
-						<img
+						<img loading="lazy"
 							src={getImageUrl(kindergarten.kindergartenImages?.[0])}
 							alt={kindergarten.kindergartenTitle}
 							className="admin-selector-card-image"
@@ -641,7 +641,7 @@ const MyKindergarten = () => {
 										background: '#f8fbf7',
 									}}
 								>
-									<img
+									<img loading="lazy"
 										src={getImageUrl(image)}
 										alt={`Kindergarten photo ${index + 1}`}
 										style={{ width: '100%', height: 92, objectFit: 'cover', borderRadius: 10 }}

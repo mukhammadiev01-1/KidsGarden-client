@@ -71,15 +71,15 @@ const PopularKindergartenCard = (props: PopularKindergartenCardProps) => {
 				<p className={'desc'}>{kindergartenDetails.address}</p>
 				<div className={'options'}>
 					<div>
-						<img src="/img/icons/age.svg" alt="" />
+						<img loading="lazy" src="/img/icons/age.svg" alt="" />
 						<span>{ageLabel}</span>
 					</div>
 					<div>
-						<img src="/img/icons/program.svg" alt="" />
+						<img loading="lazy" src="/img/icons/program.svg" alt="" />
 						<span>{programsLabel}</span>
 					</div>
 					<div>
-						<img src="/img/icons/capacity.svg" alt="" />
+						<img loading="lazy" src="/img/icons/capacity.svg" alt="" />
 						<span>{capacityLabel}</span>
 					</div>
 				</div>

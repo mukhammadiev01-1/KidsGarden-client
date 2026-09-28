@@ -196,7 +196,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 						<Typography className="title">{t('profile.photo')}</Typography>
 						<Stack className="image-big-box">
 							<Stack className="image-box">
-								<img
+								<img loading="lazy"
 									src={
 										updateData?.memberImage
 											? `${REACT_APP_API_URL}/${updateData?.memberImage}`

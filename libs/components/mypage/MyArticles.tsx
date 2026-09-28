@@ -47,14 +47,14 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 			<Stack className="article-list-box" gap={2}>
 				{loading && (
 					<div className={'no-data coming-soon-state'}>
-						<img src="/img/icons/icoAlert.svg" alt="" />
+						<img loading="lazy" src="/img/icons/icoAlert.svg" alt="" />
 						<p>{t('myPosts.loading')}</p>
 					</div>
 				)}
 
 				{!loading && error && (
 					<div className={'no-data coming-soon-state'}>
-						<img src="/img/icons/icoAlert.svg" alt="" />
+						<img loading="lazy" src="/img/icons/icoAlert.svg" alt="" />
 						<p>{t('myPosts.loadError')}</p>
 						<span>{t('myPosts.tryCommunity')}</span>
 					</div>
@@ -62,7 +62,7 @@ const MyArticles: NextPage = ({ initialInput, ...props }: T) => {
 
 				{!loading && !error && articles.length === 0 && (
 					<div className={'no-data coming-soon-state'}>
-						<img src="/img/icons/icoAlert.svg" alt="" />
+						<img loading="lazy" src="/img/icons/icoAlert.svg" alt="" />
 						<p>{t('myPosts.emptyTitle')}</p>
 						<span>{t('myPosts.emptyText')}</span>
 						<Link href="/mypage?category=writeArticle">

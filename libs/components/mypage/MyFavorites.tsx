@@ -23,7 +23,7 @@ const MyFavorites: NextPage = () => {
 				</Stack>
 				<Stack className="favorites-list-box">
 					<div className={'no-data coming-soon-state'}>
-						<img src="/img/icons/icoAlert.svg" alt="" />
+						<img loading="lazy" src="/img/icons/icoAlert.svg" alt="" />
 						<p>Saved kindergarten lists are coming soon.</p>
 						<span>Favorites will appear here after this feature is connected to your account.</span>
 					</div>

@@ -39,7 +39,7 @@ const CommunityCard = (props: CommunityCardProps) => {
 		return (
 			<Link href={`/community/detail?articleCategory=${article?.articleCategory}&id=${article?._id}`}>
 				<Box component={'div'} className={`horizontal-card community-card-${index}`}>
-					<img src={articleImage} alt={article?.articleTitle || 'KidsGarden community article'} />
+					<img loading="lazy" src={articleImage} alt={article?.articleTitle || 'KidsGarden community article'} />
 					<div>
 						<strong>{article.articleTitle}</strong>
 						<span>

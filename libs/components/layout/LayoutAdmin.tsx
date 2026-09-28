@@ -18,12 +18,15 @@ import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { REACT_APP_API_URL } from '../../config';
 import { MemberType } from '../../enums/member.enum';
-import { getStaticCommonTranslator } from '../../i18n/staticCommon';
+import { getStaticCommonTranslator, useStaticCommonLocale } from '../../i18n/staticCommon';
 const drawerWidth = 280;
 
 const withAdminLayout = (Component: ComponentType) => {
 	return (props: object) => {
 		const router = useRouter();
+		// Pulls the active locale's dictionary in (and re-renders) so every admin
+		// page under this layout translates without bundling all five languages.
+		useStaticCommonLocale(router.locale);
 		const t = getStaticCommonTranslator(router.locale);
 		const user = useReactiveVar(userVar);
 		const [settingsState, setSettingsStateState] = useState(false);

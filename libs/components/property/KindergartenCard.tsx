@@ -106,7 +106,7 @@ const KindergartenCard = (props: KindergartenCardProps) => {
 					}}
 					aria-label={t('kindergartens.card.like')}
 				>
-					<img src={kindergartenImageUrl} alt="" />
+					<img loading="lazy" src={kindergartenImageUrl} alt="" />
 				</Link>
 				<Box component={'div'} className={`top-badge ${badgeTone}`}>
 					<Typography>{badgeLabel}</Typography>

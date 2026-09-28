@@ -23,7 +23,7 @@ const RecentlyVisited: NextPage = () => {
 				</Stack>
 				<Stack className="favorites-list-box">
 					<div className={'no-data coming-soon-state'}>
-						<img src="/img/icons/icoAlert.svg" alt="" />
+						<img loading="lazy" src="/img/icons/icoAlert.svg" alt="" />
 						<p>Recently visited kindergartens are coming soon.</p>
 						<span>Your browsing history will appear here after account history is connected.</span>
 					</div>
