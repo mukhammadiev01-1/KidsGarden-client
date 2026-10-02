@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import { UPLOAD_IMAGE_MIME_TYPES, prepareImageForUpload } from '../common/imageUpload';
 import { useLazyQuery, useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -140,23 +141,22 @@ const MyKindergarten = () => {
 		mode: 'main' | 'gallery' = 'gallery',
 	) => {
 		try {
-			const files = Array.from(event.target.files ?? []);
-			if (!files.length) return;
-			if (files.length > maxKindergartenImages) {
+			const selectedFiles = Array.from(event.target.files ?? []);
+			if (!selectedFiles.length) return;
+			if (selectedFiles.length > maxKindergartenImages) {
 				throw new Error(`Please upload up to ${maxKindergartenImages} photos at once.`);
 			}
-			if (mode === 'main' && files.length > 1) {
+			if (mode === 'main' && selectedFiles.length > 1) {
 				throw new Error('Please choose one main image.');
 			}
 			// The accept attribute only filters the dialog; check what was actually
 			// chosen so a bad file is refused here instead of silently dropped by
 			// the server-side uploader.
-			const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-			const maxBytes = 2 * 1024 * 1024;
-			for (const file of files) {
-				if (!allowedTypes.includes(file.type)) throw new Error(`${file.name}: only JPG, PNG or WEBP images are allowed.`);
-				if (file.size > maxBytes) throw new Error(`${file.name}: images must be 2 MB or smaller.`);
+			for (const file of selectedFiles) {
+				if (!UPLOAD_IMAGE_MIME_TYPES.includes(file.type)) throw new Error(`${file.name}: only JPG, PNG or WEBP images are allowed.`);
 			}
+			// Large photos are downscaled rather than refused (the API accepts them).
+			const files = await Promise.all(selectedFiles.map(prepareImageForUpload));
 
 			setUploadingKindergartenImages(true);
 
@@ -208,11 +208,12 @@ const MyKindergarten = () => {
 
 			await saveKindergartenImages(nextImages);
 			await sweetMixinSuccessAlert(selectedId ? 'Kindergarten photos updated' : 'Kindergarten photos added');
-			event.target.value = '';
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		} finally {
 			setUploadingKindergartenImages(false);
+			// Always reset, so re-selecting the same file after an error fires onChange.
+			event.target.value = '';
 		}
 	};
 

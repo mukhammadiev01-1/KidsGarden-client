@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { UPLOAD_IMAGE_MIME_TYPES, prepareImageForUpload } from '../common/imageUpload';
 import { NextPage } from 'next';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Button, Stack, Typography } from '@mui/material';
@@ -53,13 +54,14 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	/** HANDLERS **/
 	const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		try {
-			const image = e.target.files?.[0];
-			if (!image) return;
+			const selected = e.target.files?.[0];
+			if (!selected) return;
 			if (!token) throw new Error(t('profile.loginRequired'));
-			if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(image.type)) {
+			if (!UPLOAD_IMAGE_MIME_TYPES.includes(selected.type)) {
 				throw new Error(t('profile.imageTypeError'));
 			}
-			if (image.size > 2 * 1024 * 1024) throw new Error(t('profile.imageTooLarge'));
+			// Large photos are downscaled rather than refused.
+			const image = await prepareImageForUpload(selected);
 
 			setUploadingProfileImage(true);
 

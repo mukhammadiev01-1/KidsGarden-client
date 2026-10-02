@@ -48,9 +48,14 @@ export const useStaticCommonLocale = (locale?: string | null): boolean => {
 			return;
 		}
 		setReady(false);
-		loadStaticCommonLocale(locale).then(() => {
-			if (!cancelled) setReady(true);
-		});
+		loadStaticCommonLocale(locale)
+			.then(() => {
+				if (!cancelled) setReady(true);
+			})
+			.catch((err) => {
+				// English stays on screen; `pending` was cleared so the next mount retries.
+				console.warn(`Locale dictionary for "${locale}" failed to load:`, err);
+			});
 		return () => {
 			cancelled = true;
 		};

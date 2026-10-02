@@ -107,12 +107,16 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		},
 	});
 
+	const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
 	useEffect(() => {
 		if (!router.isReady) return;
 		const nextTopic = routeCategory === BoardArticleCategory.NEWS ? 'news' : 'free';
 		const nextCategory = nextTopic === 'news' ? BoardArticleCategory.NEWS : BoardArticleCategory.FREE;
 
 		setActiveTopic(nextTopic);
+		// A pending search tick must not overwrite the topic switch.
+		if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
 		setSearchCommunity((prev) => ({
 			...prev,
 			page: 1,
@@ -134,7 +138,10 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	};
 
 	// Debounced: the box used to feed the query variables on every keystroke.
-	const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	// The timer must see the topic current at fire time, not the one captured
+	// when the key was pressed.
+	const activeTopicRef = useRef(activeTopicConfig);
+	activeTopicRef.current = activeTopicConfig;
 	useEffect(() => () => {
 		if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
 	}, []);
@@ -142,7 +149,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		const value = event.target.value;
 		setSearchText(value);
 		if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
-		searchDebounceRef.current = setTimeout(() => updateCommunitySearch(activeTopicConfig, value, 1), 300);
+		searchDebounceRef.current = setTimeout(() => updateCommunitySearch(activeTopicRef.current, value, 1), 300);
 	};
 
 	const paginationHandler = (e: T, value: number) => {

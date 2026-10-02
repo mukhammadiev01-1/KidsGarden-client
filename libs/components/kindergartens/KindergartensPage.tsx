@@ -247,6 +247,9 @@ const KindergartensPage: NextPage = ({ initialInput, ...props }: any) => {
 
 	useEffect(() => {
 		getKindergartensRefetch({ input: searchFilter }).then();
+		// Filter handlers reset searchFilter.page to 1 directly (text search);
+		// keep the pagination control in step with it.
+		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
 	}, [searchFilter]);
 
 
