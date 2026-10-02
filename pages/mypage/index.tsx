@@ -32,6 +32,7 @@ import KindergartenStaffApplications from '../../libs/components/mypage/Kinderga
 import ParentKindergartenAdminApplications from '../../libs/components/mypage/ParentKindergartenAdminApplications';
 import ParentApplications from '../../libs/components/mypage/ParentApplications';
 import KindergartenApplications from '../../libs/components/mypage/KindergartenApplications';
+import '../../scss/routes/mypage.route.scss';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {

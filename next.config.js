@@ -19,6 +19,31 @@ const nextConfig = {
 			fallback: [],
 		};
 	},
+	// Per-route stylesheets. Next only lets pages/_app import global CSS; the
+	// scss/routes/*.route.scss files reuse that same global pipeline (selectors
+	// untouched, no CSS-module renaming) while webpack still chunks them per page,
+	// so a visitor downloads the homepage styles only on the homepage.
+	webpack(config) {
+		const ROUTE_CSS = /[\\/]scss[\\/]routes[\\/][^\\/]+\.route\.scss$/;
+		const sample = '/project/scss/routes/home.route.scss';
+		const matches = (test) => (Array.isArray(test) ? test : [test]).some((t) => t instanceof RegExp && t.test(sample));
+		let template = null;
+		for (const rule of config.module.rules) {
+			for (const sub of rule.oneOf || []) {
+				if (!sub.test || !matches(sub.test)) continue;
+				const isErrorRule = sub.use && sub.use.loader && /error-loader/.test(sub.use.loader);
+				// Client build: the pages global-Sass rule (issuer restricted to _app,
+				// real loader chain). Server build: the ignore-loader rule that stands
+				// in for every global stylesheet. Everything else that would match is
+				// a module rule or the "global CSS outside _app" error rule.
+				if (!template && !isErrorRule && ((Array.isArray(sub.use) && sub.issuer) || typeof sub.use === 'string')) template = { rule, sub };
+				sub.exclude = sub.exclude ? [].concat(sub.exclude, ROUTE_CSS) : ROUTE_CSS;
+			}
+		}
+		if (!template) throw new Error(`next.config.js (${config.name}): could not find the global Sass rule to derive the route stylesheet rule from`);
+		template.rule.oneOf.unshift({ ...template.sub, test: ROUTE_CSS, include: undefined, issuer: undefined, exclude: undefined });
+		return config;
+	},
 	env: {
 		REACT_APP_API_URL: process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL,
 		REACT_APP_API_GRAPHQL_URL: process.env.NEXT_PUBLIC_API_GRAPHQL_URL || process.env.REACT_APP_API_GRAPHQL_URL,

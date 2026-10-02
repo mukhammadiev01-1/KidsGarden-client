@@ -12,6 +12,7 @@ import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+import '../../scss/routes/cs.route.scss';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {

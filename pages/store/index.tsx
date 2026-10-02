@@ -10,6 +10,7 @@ import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import PageSeo from '../../libs/components/seo/PageSeo';
+import '../../scss/routes/global.route.scss';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {

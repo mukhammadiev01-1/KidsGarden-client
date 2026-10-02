@@ -11,8 +11,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import AiAssistant from '../libs/components/ai/AiAssistant';
 import { useSessionSync } from '../libs/auth/useSessionSync';
 import '../scss/app.scss';
-import '../scss/pc/main.scss';
-import '../scss/mobile/main.scss';
+import '../scss/routes/core.scss';
 
 const poppins = Poppins({
 	subsets: ['latin'],

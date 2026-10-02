@@ -2,6 +2,7 @@ import KindergartensPage from '../../libs/components/kindergartens/Kindergartens
 import PageSeo from '../../libs/components/seo/PageSeo';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+import '../../scss/routes/kindergartens.route.scss';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {

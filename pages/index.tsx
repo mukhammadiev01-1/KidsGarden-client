@@ -11,6 +11,7 @@ import FinalCta from '../libs/components/homepage/FinalCta';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import PageSeo from '../libs/components/seo/PageSeo';
 import { useTranslation } from 'next-i18next';
+import '../scss/routes/home.route.scss';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {

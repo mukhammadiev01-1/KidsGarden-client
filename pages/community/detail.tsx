@@ -43,6 +43,7 @@ import { BoardArticleCategory, BoardArticleStatus } from '../../libs/enums/board
 import { MemberType } from '../../libs/enums/member.enum';
 import { getImageUrl, REACT_APP_API_GRAPHQL_URL } from '../../libs/config';
 import { getJwtToken } from '../../libs/auth';
+import '../../scss/routes/community-detail.route.scss';
 const ToastViewerComponent = dynamic(() => import('../../libs/components/community/TViewer'), { ssr: false });
 
 const ARTICLE_IMAGE_FALLBACK = '/img/kidsgarden/articles/article-play-based-learning.png';

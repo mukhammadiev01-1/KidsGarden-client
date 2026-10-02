@@ -7,6 +7,7 @@ import { KakaoAuthIntent, kakaoLogIn } from '../../../libs/auth';
 import { KAKAO_REDIRECT_URI } from '../../../libs/config';
 import { sweetMixinErrorAlert } from '../../../libs/sweetAlert';
 import { safeRedirectPath } from '../../../libs/utils/safeRedirect';
+import '../../../scss/routes/account.route.scss';
 
 const KakaoCallback: NextPage = () => {
 	const router = useRouter();

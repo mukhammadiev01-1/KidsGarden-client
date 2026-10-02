@@ -1,5 +1,6 @@
 import { GetServerSideProps, NextPage } from 'next';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
+import '../../scss/routes/member.route.scss';
 
 export const getServerSideProps: GetServerSideProps = async () => ({
 	redirect: {

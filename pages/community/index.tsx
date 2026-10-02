@@ -25,6 +25,7 @@ import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlin
 import RestaurantOutlinedIcon from '@mui/icons-material/RestaurantOutlined';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import { getArticleExcerpt } from '../../libs/utils/articleExcerpt';
+import '../../scss/routes/community.route.scss';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {

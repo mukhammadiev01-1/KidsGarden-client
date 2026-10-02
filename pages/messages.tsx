@@ -10,6 +10,7 @@ import { getJwtToken, updateUserInfo } from '../libs/auth';
 import MessagesPage from '../libs/components/chat/MessagesPage';
 import withLayoutBasic from '../libs/components/layout/LayoutBasic';
 import PageSeo from '../libs/components/seo/PageSeo';
+import '../scss/routes/global.route.scss';
 
 const sessionLoaderStyle: React.CSSProperties = {
 	minHeight: 'calc(100vh - 120px)',

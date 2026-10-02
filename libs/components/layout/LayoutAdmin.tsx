@@ -19,6 +19,7 @@ import { userVar } from '../../../apollo/store';
 import { REACT_APP_API_URL } from '../../config';
 import { MemberType } from '../../enums/member.enum';
 import { getStaticCommonTranslator, useStaticCommonLocale } from '../../i18n/staticCommon';
+import '../../../scss/routes/admin.route.scss';
 const drawerWidth = 280;
 
 const withAdminLayout = (Component: ComponentType) => {

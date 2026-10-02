@@ -42,6 +42,7 @@ import {
 	hasLocalePathPrefix,
 	normalizeLocale,
 } from '../../libs/i18n/languages';
+import '../../scss/routes/account.route.scss';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
