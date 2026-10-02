@@ -1,5 +1,8 @@
 import { getJwtToken } from '../auth';
 
+/** Must match RealtimeGateway.AUTH_SUBPROTOCOL on the API. */
+const AUTH_SUBPROTOCOL = 'kidsgarden.auth';
+
 type RealtimeEventHandler<TPayload = unknown> = (payload: TPayload) => void;
 
 interface RealtimeEnvelope<TPayload = unknown> {
@@ -40,13 +43,17 @@ class RealtimeClient {
 			return;
 		}
 
-		const realtimeUrl = this.getRealtimeUrl(token);
+		const realtimeUrl = this.getRealtimeUrl();
 		if (!realtimeUrl) return;
 
 		this.clearReconnectTimer();
 		this.shouldReconnect = true;
 		this.state = 'connecting';
-		this.socket = new WebSocket(realtimeUrl);
+		// The token travels as a WebSocket subprotocol ("kidsgarden.auth, <jwt>"),
+		// which the gateway reads from the handshake header. In the query string
+		// it was written to nginx's access log on every connect -- a 30-day JWT
+		// carrying phone, name and address.
+		this.socket = new WebSocket(realtimeUrl, [AUTH_SUBPROTOCOL, token]);
 
 		this.socket.onopen = () => {
 			this.state = 'connected';
@@ -165,7 +172,7 @@ class RealtimeClient {
 		this.reconnectTimer = null;
 	}
 
-	private getRealtimeUrl(token: string): string | null {
+	private getRealtimeUrl(): string | null {
 		const explicitWsUrl = process.env.NEXT_PUBLIC_REALTIME_WS_URL || process.env.REACT_APP_REALTIME_WS_URL;
 		const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL;
 		const baseUrl = explicitWsUrl || apiUrl;
@@ -175,7 +182,7 @@ class RealtimeClient {
 		const wsUrl = baseUrl.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');
 		const normalizedUrl = wsUrl.endsWith('/realtime') ? wsUrl : `${wsUrl.replace(/\/$/, '')}/realtime`;
 
-		return `${normalizedUrl}?token=${encodeURIComponent(token)}`;
+		return normalizedUrl;
 	}
 }
 
