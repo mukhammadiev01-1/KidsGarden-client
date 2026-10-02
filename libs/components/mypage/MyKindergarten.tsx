@@ -3,6 +3,8 @@ import { UPLOAD_IMAGE_MIME_TYPES, prepareImageForUpload } from '../common/imageU
 import { useLazyQuery, useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
+import type { TFunction } from 'next-i18next';
 import axios from 'axios';
 import { CREATE_KINDERGARTEN, UPDATE_KINDERGARTEN } from '../../../apollo/user/mutation';
 import { GEOCODE_KINDERGARTEN_ADDRESS, GET_OWNER_KINDERGARTENS } from '../../../apollo/user/query';
@@ -48,20 +50,20 @@ const parseNumericInput = (value: string): number | undefined => {
 	return Number.isFinite(parsedValue) ? parsedValue : undefined;
 };
 
-const validateCoordinates = (latitude?: number, longitude?: number): void => {
+const validateCoordinates = (t: TFunction, latitude?: number, longitude?: number): void => {
 	const hasLatitude = typeof latitude === 'number';
 	const hasLongitude = typeof longitude === 'number';
 
 	if (hasLatitude !== hasLongitude) {
-		throw new Error('Please enter both latitude and longitude.');
+		throw new Error(t('mypageText.MyKindergarten.enterBothCoordinates'));
 	}
 
 	if (hasLatitude && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)) {
-		throw new Error('Latitude must be between -90 and 90.');
+		throw new Error(t('mypageText.MyKindergarten.latitudeRange'));
 	}
 
 	if (hasLongitude && (!Number.isFinite(longitude) || longitude < -180 || longitude > 180)) {
-		throw new Error('Longitude must be between -180 and 180.');
+		throw new Error(t('mypageText.MyKindergarten.longitudeRange'));
 	}
 };
 
@@ -79,6 +81,7 @@ const normalizeKindergartenTypeValue = (type: KindergartenType): KindergartenTyp
 };
 
 const MyKindergarten = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [selectedId, setSelectedId] = useState<string>('');
@@ -144,16 +147,16 @@ const MyKindergarten = () => {
 			const selectedFiles = Array.from(event.target.files ?? []);
 			if (!selectedFiles.length) return;
 			if (selectedFiles.length > maxKindergartenImages) {
-				throw new Error(`Please upload up to ${maxKindergartenImages} photos at once.`);
+				throw new Error(t('mypageText.MyKindergarten.uploadLimit', { count: maxKindergartenImages }));
 			}
 			if (mode === 'main' && selectedFiles.length > 1) {
-				throw new Error('Please choose one main image.');
+				throw new Error(t('mypageText.MyKindergarten.chooseOneMainImage'));
 			}
 			// The accept attribute only filters the dialog; check what was actually
 			// chosen so a bad file is refused here instead of silently dropped by
 			// the server-side uploader.
 			for (const file of selectedFiles) {
-				if (!UPLOAD_IMAGE_MIME_TYPES.includes(file.type)) throw new Error(`${file.name}: only JPG, PNG or WEBP images are allowed.`);
+				if (!UPLOAD_IMAGE_MIME_TYPES.includes(file.type)) throw new Error(t('mypageText.MyKindergarten.invalidImageType', { name: file.name }));
 			}
 			// Large photos are downscaled rather than refused (the API accepts them).
 			const files = await Promise.all(selectedFiles.map(prepareImageForUpload));
@@ -193,7 +196,7 @@ const MyKindergarten = () => {
 			});
 
 			const responseImages: string[] = response.data?.data?.imagesUploader ?? [];
-			if (!responseImages.length) throw new Error('Image upload failed.');
+			if (!responseImages.length) throw new Error(t('article.imageUploadFailed'));
 
 			const currentImages = form.kindergartenImages ?? [];
 			const nextImages =
@@ -207,7 +210,7 @@ const MyKindergarten = () => {
 			}));
 
 			await saveKindergartenImages(nextImages);
-			await sweetMixinSuccessAlert(selectedId ? 'Kindergarten photos updated' : 'Kindergarten photos added');
+			await sweetMixinSuccessAlert(selectedId ? t('mypageText.MyKindergarten.photosUpdated') : t('mypageText.MyKindergarten.photosAdded'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		} finally {
@@ -225,7 +228,7 @@ const MyKindergarten = () => {
 				kindergartenImages: nextImages,
 			}));
 			await saveKindergartenImages(nextImages);
-			if (selectedId) await sweetMixinSuccessAlert('Kindergarten photo removed');
+			if (selectedId) await sweetMixinSuccessAlert(t('mypageText.MyKindergarten.photoRemoved'));
 		} catch (err) {
 			await sweetErrorHandling(err);
 		}
@@ -265,13 +268,13 @@ const MyKindergarten = () => {
 		const query = (addressSearchQuery || form.kindergartenAddress || '').trim();
 
 		if (!query) {
-			setAddressSearchMessage('Please enter an address to search.');
+			setAddressSearchMessage(t('mypageText.MyKindergarten.enterAddressToSearch'));
 			setAddressSearchError(true);
 			return;
 		}
 
 		if (query.length > 200) {
-			setAddressSearchMessage('Please enter an address under 200 characters.');
+			setAddressSearchMessage(t('mypageText.MyKindergarten.addressTooLong'));
 			setAddressSearchError(true);
 			return;
 		}
@@ -286,7 +289,7 @@ const MyKindergarten = () => {
 				},
 			});
 			const result = geocodeData?.geocodeKindergartenAddress;
-			if (!result) throw new Error('Address could not be found. Please try a more specific address.');
+			if (!result) throw new Error(t('mypageText.MyKindergarten.addressNotFound'));
 
 			const resolvedAddress = result.roadAddress || result.address || result.jibunAddress || query;
 			setForm((prev) => ({
@@ -296,10 +299,10 @@ const MyKindergarten = () => {
 				kindergartenLongitude: result.longitude,
 			}));
 			setAddressSearchQuery(resolvedAddress);
-			setAddressSearchMessage('Address selected. You can move the marker on the map if needed.');
+			setAddressSearchMessage(t('mypageText.MyKindergarten.addressSelected'));
 			setAddressSearchError(false);
 		} catch (err: any) {
-			const fallbackMessage = 'Address could not be found. Please try a more specific address.';
+			const fallbackMessage = t('mypageText.MyKindergarten.addressNotFound');
 			const errorMessage = err?.message && err.message !== 'Bad Request' ? err.message : fallbackMessage;
 			setAddressSearchMessage(errorMessage);
 			setAddressSearchError(true);
@@ -314,30 +317,30 @@ const MyKindergarten = () => {
 			kindergartenLatitude: latitude,
 			kindergartenLongitude: longitude,
 		}));
-		setAddressSearchMessage('Marker updated. Coordinates will be saved with this kindergarten.');
+		setAddressSearchMessage(t('mypageText.MyKindergarten.markerUpdated'));
 		setAddressSearchError(false);
-	}, []);
+	}, [t]);
 
 	const submitKindergarten = async () => {
 		try {
 			if (!form.kindergartenTitle?.trim() || !form.kindergartenAddress?.trim() || !form.kindergartenDesc?.trim()) {
-				throw new Error('Please fill title, address, and description.');
+				throw new Error(t('mypageText.MyKindergarten.fillRequired'));
 			}
 			if (!form.kindergartenImages.length) {
-				throw new Error('Please upload at least one kindergarten photo.');
+				throw new Error(t('mypageText.MyKindergarten.uploadAtLeastOnePhoto'));
 			}
-			validateCoordinates(form.kindergartenLatitude, form.kindergartenLongitude);
+			validateCoordinates(t, form.kindergartenLatitude, form.kindergartenLongitude);
 
 			if (selectedId) {
 				const input: KindergartenUpdate = { _id: selectedId, ...form };
 				delete input.kindergartenPrice;
 				await updateKindergarten({ variables: { input } });
-				await sweetMixinSuccessAlert('Kindergarten profile updated');
+				await sweetMixinSuccessAlert(t('mypageText.MyKindergarten.profileUpdated'));
 			} else {
 				const input: KindergartenInput = { ...form };
 				delete input.kindergartenPrice;
 				await createKindergarten({ variables: { input } });
-				await sweetMixinSuccessAlert('Kindergarten profile created');
+				await sweetMixinSuccessAlert(t('mypageText.MyKindergarten.profileCreated'));
 			}
 
 			resetForm();
@@ -359,26 +362,30 @@ const MyKindergarten = () => {
 	return (
 		<Stack className="admin-dashboard-screen admin-kindergarten-profile-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>My Kindergarten</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>{t('mypage.menu.myKindergarten')}</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Manage your kindergarten profile and basic center information.
+					{t('mypageText.MyKindergarten.subtitle')}
 				</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Owned centers</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.MyKindergarten.ownedCenters')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Select a kindergarten to edit its public profile information.
+							{t('mypageText.MyKindergarten.ownedCentersSubtitle')}
 						</Typography>
 					</Stack>
-					<Chip label={`${kindergartens.length} profile${kindergartens.length === 1 ? '' : 's'}`} size="small" className="dashboard-count-chip" />
+					<Chip
+						label={kindergartens.length === 1 ? t('mypageText.MyKindergarten.profileCountOne') : t('mypageText.MyKindergarten.profileCount', { count: kindergartens.length })}
+						size="small"
+						className="dashboard-count-chip"
+					/>
 				</Stack>
-				{loading && <Typography sx={{ color: '#6b7280' }}>Loading your kindergartens...</Typography>}
+				{loading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.MyKindergarten.loadingKindergartens')}</Typography>}
 				{!loading && kindergartens.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						No kindergarten profile yet. Create the first center below.
+						{t('mypageText.MyKindergarten.noProfileYet')}
 					</Typography>
 				)}
 				{kindergartens.map((kindergarten) => (
@@ -411,21 +418,21 @@ const MyKindergarten = () => {
 							<Typography className="dashboard-muted-text">{kindergarten.kindergartenAddress}</Typography>
 							<Stack className="admin-center-card-details">
 								<Stack className="admin-meta-item">
-									<Typography className="admin-meta-label">Capacity</Typography>
+									<Typography className="admin-meta-label">{t('adminTables.capacity')}</Typography>
 									<Typography className="admin-meta-value">{kindergarten.kindergartenCapacity}</Typography>
 								</Stack>
 								<Stack className="admin-meta-item">
-									<Typography className="admin-meta-label">Age range</Typography>
+									<Typography className="admin-meta-label">{t('adminTables.ageRange')}</Typography>
 									<Typography className="admin-meta-value">{kindergarten.kindergartenAgeRange}</Typography>
 								</Stack>
 								<Stack className="admin-meta-item">
-									<Typography className="admin-meta-label">Programs</Typography>
+									<Typography className="admin-meta-label">{t('adminTables.programs')}</Typography>
 									<Typography className="admin-meta-value">{kindergarten.kindergartenPrograms}</Typography>
 								</Stack>
 							</Stack>
 						</Stack>
 						<Button variant="outlined" onClick={() => selectKindergarten(kindergarten)}>
-							Edit
+							{t('common.edit')}
 						</Button>
 					</Stack>
 				))}
@@ -435,30 +442,30 @@ const MyKindergarten = () => {
 				<Stack className="dashboard-panel-header">
 					<Stack>
 						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>
-							{selectedId ? 'Edit kindergarten profile' : 'Create kindergarten profile'}
+							{selectedId ? t('mypageText.MyKindergarten.editProfile') : t('mypageText.MyKindergarten.createProfile')}
 						</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Keep family-facing details current for discovery and review.
+							{t('mypageText.MyKindergarten.formSubtitle')}
 						</Typography>
 					</Stack>
 					{selectedId && (
 						<Button variant="text" onClick={resetForm}>
-							New profile
+							{t('mypageText.MyKindergarten.newProfile')}
 						</Button>
 					)}
 				</Stack>
 
-				<Typography className="admin-form-section-title">Basic information</Typography>
+				<Typography className="admin-form-section-title">{t('mypageText.MyKindergarten.basicInformation')}</Typography>
 				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
-						label="Kindergarten name"
+						label={t('mypageText.MyKindergarten.kindergartenName')}
 						value={form.kindergartenTitle ?? ''}
 						onChange={(e) => updateForm('kindergartenTitle', e.target.value)}
 					/>
 					<TextField
 						fullWidth
-						label="Monthly fee"
+						label={t('adminTables.monthlyFee')}
 						type="number"
 						value={numericInputValue(form.monthlyFee)}
 						onChange={(e) => updateForm('monthlyFee', parseNumericInput(e.target.value))}
@@ -470,7 +477,7 @@ const MyKindergarten = () => {
 						fullWidth
 						select
 						SelectProps={{ native: true }}
-						label="Center type"
+						label={t('Center type')}
 						value={form.kindergartenType ?? KindergartenType.PRIVATE_KINDERGARTEN}
 						onChange={(e) => updateForm('kindergartenType', e.target.value as KindergartenType)}
 					>
@@ -484,7 +491,7 @@ const MyKindergarten = () => {
 						fullWidth
 						select
 						SelectProps={{ native: true }}
-						label="Location"
+						label={t('common.location')}
 						value={form.kindergartenLocation ?? KindergartenLocation.SEOUL}
 						onChange={(e) => updateForm('kindergartenLocation', e.target.value as KindergartenLocation)}
 					>
@@ -498,7 +505,7 @@ const MyKindergarten = () => {
 
 				<TextField
 					fullWidth
-					label="Address"
+					label={t('profile.address')}
 					value={form.kindergartenAddress ?? ''}
 					onChange={(e) => {
 						updateForm('kindergartenAddress', e.target.value);
@@ -510,7 +517,7 @@ const MyKindergarten = () => {
 					<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 						<TextField
 							fullWidth
-							label="Search address"
+							label={t('mypageText.MyKindergarten.searchAddress')}
 							value={addressSearchQuery}
 							onChange={(e) => setAddressSearchQuery(e.target.value)}
 							onKeyDown={(e) => {
@@ -519,7 +526,7 @@ const MyKindergarten = () => {
 									searchAddress().then();
 								}
 							}}
-							placeholder="Search address"
+							placeholder={t('mypageText.MyKindergarten.searchAddress')}
 						/>
 						<Button
 							variant="outlined"
@@ -527,11 +534,11 @@ const MyKindergarten = () => {
 							disabled={addressSearchLoading}
 							sx={{ minWidth: { xs: '100%', md: 160 } }}
 						>
-							{addressSearchLoading ? 'Searching...' : 'Search address'}
+							{addressSearchLoading ? t('kindergartens.searching') : t('mypageText.MyKindergarten.searchAddress')}
 						</Button>
 					</Stack>
 					<Typography className="dashboard-muted-text">
-						Search by address first, then adjust the marker if needed. Coordinates are saved internally.
+						{t('mypageText.MyKindergarten.addressSearchHint')}
 					</Typography>
 					{addressSearchMessage && (
 						<Typography className="dashboard-muted-text" sx={{ color: addressSearchError ? '#b42318' : '#2f7d4a' }}>
@@ -540,36 +547,36 @@ const MyKindergarten = () => {
 					)}
 				</Stack>
 
-				<Typography className="admin-form-section-title">Location on map</Typography>
+				<Typography className="admin-form-section-title">{t('mypageText.MyKindergarten.locationOnMap')}</Typography>
 				<Stack className="admin-location-map-section" spacing={0.75}>
 					<NaverLocationPicker
 						latitude={form.kindergartenLatitude}
 						longitude={form.kindergartenLongitude}
 						address={form.kindergartenAddress}
-						title={form.kindergartenTitle || 'Kindergarten location'}
+						title={form.kindergartenTitle || t('map.kindergartenLocation')}
 						onChange={updateLocationFromMap}
 					/>
 				</Stack>
 
-				<Typography className="admin-form-section-title">Center details</Typography>
+				<Typography className="admin-form-section-title">{t('mypageText.MyKindergarten.centerDetails')}</Typography>
 				<Stack className="admin-form-grid admin-center-details-grid" direction={{ xs: 'column', md: 'row' }} spacing={1.5}>
 					<TextField
 						fullWidth
-						label="Capacity"
+						label={t('adminTables.capacity')}
 						type="number"
 						value={numericInputValue(form.kindergartenCapacity)}
 						onChange={(e) => updateForm('kindergartenCapacity', parseNumericInput(e.target.value))}
 					/>
 					<TextField
 						fullWidth
-						label="Age range"
+						label={t('adminTables.ageRange')}
 						type="number"
 						value={numericInputValue(form.kindergartenAgeRange)}
 						onChange={(e) => updateForm('kindergartenAgeRange', parseNumericInput(e.target.value))}
 					/>
 					<TextField
 						fullWidth
-						label="Programs"
+						label={t('adminTables.programs')}
 						type="number"
 						value={numericInputValue(form.kindergartenPrograms)}
 						onChange={(e) => updateForm('kindergartenPrograms', parseNumericInput(e.target.value))}
@@ -581,12 +588,12 @@ const MyKindergarten = () => {
 					fullWidth
 					multiline
 					minRows={4}
-					label="Programs and center description"
+					label={t('mypageText.MyKindergarten.description')}
 					value={form.kindergartenDesc ?? ''}
 					onChange={(e) => updateForm('kindergartenDesc', e.target.value)}
 				/>
 
-				<Typography className="admin-form-section-title">Photos</Typography>
+				<Typography className="admin-form-section-title">{t('mypageText.MyKindergarten.photos')}</Typography>
 				<Stack spacing={1.5}>
 					<Stack
 						className="admin-photo-actions"
@@ -600,7 +607,7 @@ const MyKindergarten = () => {
 							disabled={uploadingKindergartenImages}
 							sx={{ width: { xs: '100%', sm: 'fit-content' } }}
 						>
-							{uploadingKindergartenImages ? 'Uploading...' : 'Change main image'}
+							{uploadingKindergartenImages ? t('profile.uploading') : t('mypageText.MyKindergarten.changeMainImage')}
 							<input
 								type="file"
 								hidden
@@ -614,7 +621,7 @@ const MyKindergarten = () => {
 							disabled={uploadingKindergartenImages}
 							sx={{ width: { xs: '100%', sm: 'fit-content' } }}
 						>
-							{uploadingKindergartenImages ? 'Uploading...' : 'Add gallery images'}
+							{uploadingKindergartenImages ? t('profile.uploading') : t('mypageText.MyKindergarten.addGalleryImages')}
 							<input
 								type="file"
 								hidden
@@ -624,7 +631,7 @@ const MyKindergarten = () => {
 							/>
 						</Button>
 						<Typography className="dashboard-muted-text">
-							First image is used as the main photo. JPG, JPEG, PNG or WEBP. Up to {maxKindergartenImages} images.
+							{t('mypageText.MyKindergarten.photosHint', { count: maxKindergartenImages })}
 						</Typography>
 					</Stack>
 
@@ -644,18 +651,18 @@ const MyKindergarten = () => {
 								>
 									<img loading="lazy"
 										src={getImageUrl(image)}
-										alt={`Kindergarten photo ${index + 1}`}
+										alt={t('mypageText.MyKindergarten.photoAlt', { index: index + 1 })}
 										style={{ width: '100%', height: 92, objectFit: 'cover', borderRadius: 10 }}
 									/>
 									<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-										<Chip label={index === 0 ? 'Main' : `Gallery ${index + 1}`} size="small" color={index === 0 ? 'success' : 'default'} />
+										<Chip label={index === 0 ? t('mypageText.MyKindergarten.main') : t('mypageText.MyKindergarten.gallery', { index: index + 1 })} size="small" color={index === 0 ? 'success' : 'default'} />
 										<Button
 											size="small"
 											color="error"
 											disabled={uploadingKindergartenImages}
 											onClick={() => removeKindergartenImage(index)}
 										>
-											Remove
+											{t('messages.remove')}
 										</Button>
 									</Stack>
 								</Stack>
@@ -666,7 +673,7 @@ const MyKindergarten = () => {
 
 				<Stack className="admin-form-actions">
 					<Button variant="contained" onClick={submitKindergarten} sx={{ width: 'fit-content' }}>
-						{selectedId ? 'Update Kindergarten' : 'Create Kindergarten'}
+						{selectedId ? t('mypageText.MyKindergarten.updateKindergarten') : t('mypageText.MyKindergarten.createKindergarten')}
 					</Button>
 				</Stack>
 			</Stack>

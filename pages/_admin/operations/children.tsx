@@ -27,7 +27,8 @@ import { ChildrenInquiry } from '../../../libs/types/child/child.input';
 import { ChildStatus } from '../../../libs/enums/child.enum';
 import { Direction } from '../../../libs/enums/common.enum';
 import { sweetErrorHandling } from '../../../libs/sweetAlert';
-import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from '../../../libs/components/mypage/dashboardUtils';
+import { formatDate, getStatusChipSx, truncateId } from '../../../libs/components/mypage/dashboardUtils';
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
 
 const statusTabs = ['ALL', ChildStatus.ACTIVE, ChildStatus.INACTIVE, ChildStatus.GRADUATED, ChildStatus.TRANSFERRED];
 
@@ -64,6 +65,7 @@ const getChildAge = (birthDate?: Date | string) => {
 };
 
 const AdminOperationsChildren: NextPage = ({ initialInquiry }: any) => {
+	const { t, statusLabel } = useAdminTranslation();
 	const [childrenInquiry, setChildrenInquiry] = useState<ChildrenInquiry>(initialInquiry);
 	const [statusFilter, setStatusFilter] = useState<string>('ALL');
 	const [kindergartenIdFilter, setKindergartenIdFilter] = useState<string>('');
@@ -121,12 +123,17 @@ const AdminOperationsChildren: NextPage = ({ initialInquiry }: any) => {
 		setChildrenInquiry({ ...childrenInquiry, limit: parseInt(event.target.value, 10), page: 1 });
 	};
 
+	const renderAge = (birthDate?: Date | string) => {
+		const age = getChildAge(birthDate);
+		return age === '-' ? age : t('adminOps.children.ageValue', { age });
+	};
+
 	const renderRows = () => {
 		if (loading) {
 			return (
 				<TableRow>
 					<TableCell colSpan={10} align="center">
-						Loading child records...
+						{t('adminOps.children.loading')}
 					</TableCell>
 				</TableRow>
 			);
@@ -136,7 +143,7 @@ const AdminOperationsChildren: NextPage = ({ initialInquiry }: any) => {
 			return (
 				<TableRow>
 					<TableCell colSpan={10} align="center">
-						Child records could not be loaded.
+						{t('adminOps.children.loadError')}
 					</TableCell>
 				</TableRow>
 			);
@@ -146,7 +153,7 @@ const AdminOperationsChildren: NextPage = ({ initialInquiry }: any) => {
 			return (
 				<TableRow>
 					<TableCell colSpan={10} align="center">
-						No child records found.
+						{t('adminOps.children.empty')}
 					</TableCell>
 				</TableRow>
 			);
@@ -160,11 +167,11 @@ const AdminOperationsChildren: NextPage = ({ initialInquiry }: any) => {
 				<TableCell align="left">
 					<Typography sx={{ fontWeight: 700 }}>{child.childFullName}</Typography>
 				</TableCell>
-				<TableCell align="center">{getStatusLabel(child.childGender)}</TableCell>
+				<TableCell align="center">{statusLabel(child.childGender)}</TableCell>
 				<TableCell align="center">
 					<Stack spacing={0.25} alignItems="center">
 						<Typography>{formatDate(child.childBirthDate)}</Typography>
-						<Typography sx={{ fontSize: '12px', color: '#6b7280' }}>Age {getChildAge(child.childBirthDate)}</Typography>
+						<Typography sx={{ fontSize: '12px', color: '#6b7280' }}>{renderAge(child.childBirthDate)}</Typography>
 					</Stack>
 				</TableCell>
 				<TableCell align="left">
@@ -177,7 +184,7 @@ const AdminOperationsChildren: NextPage = ({ initialInquiry }: any) => {
 					<Typography title={child.parentId}>{truncateId(child.parentId)}</Typography>
 				</TableCell>
 				<TableCell align="center">
-					<Chip label={getStatusLabel(child.childStatus)} size="small" sx={getStatusChipSx(child.childStatus)} />
+					<Chip label={statusLabel(child.childStatus)} size="small" sx={getStatusChipSx(child.childStatus)} />
 				</TableCell>
 				<TableCell align="left">{formatDate(child.createdAt)}</TableCell>
 				<TableCell align="left">{formatDate(child.updatedAt)}</TableCell>
@@ -188,10 +195,10 @@ const AdminOperationsChildren: NextPage = ({ initialInquiry }: any) => {
 	return (
 		<Box component="div" className="content">
 			<Typography variant="h2" className="tit" sx={{ mb: '12px' }}>
-				Operations Children
+				{t('adminOps.children.title')}
 			</Typography>
 			<Typography sx={{ mb: '24px', color: '#64746b' }}>
-				Inspect child records across the platform. This MVP view is read-only.
+				{t('adminOps.children.subtitle')}
 			</Typography>
 
 			<Box component="div" className="table-wrap">
@@ -205,7 +212,7 @@ const AdminOperationsChildren: NextPage = ({ initialInquiry }: any) => {
 									value={status}
 									className={statusFilter === status ? 'li on' : 'li'}
 								>
-									{getStatusLabel(status)}
+									{statusLabel(status)}
 								</ListItem>
 							))}
 						</List>
@@ -213,33 +220,33 @@ const AdminOperationsChildren: NextPage = ({ initialInquiry }: any) => {
 						<Stack className="search-area" sx={{ m: '24px', gap: '12px', flexDirection: 'row', flexWrap: 'wrap' }}>
 							<TextField
 								size="small"
-								label="Kindergarten ID"
+								label={t('adminOps.common.kindergartenId')}
 								value={kindergartenIdFilter}
 								onChange={(event) => setKindergartenIdFilter(event.target.value)}
 							/>
 							<TextField
 								size="small"
-								label="Group ID"
+								label={t('adminOps.common.groupId')}
 								value={groupIdFilter}
 								onChange={(event) => setGroupIdFilter(event.target.value)}
 							/>
 							<TextField
 								size="small"
-								label="Child name"
+								label={t('kindergartenDetail.childName')}
 								value={childFullNameFilter}
 								onChange={(event) => setChildFullNameFilter(event.target.value)}
 							/>
 							<TextField
 								size="small"
-								label="Parent ID"
+								label={t('adminOps.common.parentId')}
 								value={parentIdFilter}
 								onChange={(event) => setParentIdFilter(event.target.value)}
 							/>
 							<Button variant="contained" onClick={() => applyFilters()}>
-								Apply
+								{t('common.apply')}
 							</Button>
 							<Button variant="outlined" onClick={clearFilters}>
-								Clear
+								{t('common.clear')}
 							</Button>
 						</Stack>
 						<Divider />
@@ -249,16 +256,16 @@ const AdminOperationsChildren: NextPage = ({ initialInquiry }: any) => {
 						<Table sx={{ minWidth: 1260 }} size="medium">
 							<TableHead>
 								<TableRow>
-									<TableCell align="left">CHILD ID</TableCell>
-									<TableCell align="left">FULL NAME</TableCell>
-									<TableCell align="center">GENDER</TableCell>
-									<TableCell align="center">BIRTH DATE</TableCell>
-									<TableCell align="left">KINDERGARTEN ID</TableCell>
-									<TableCell align="left">GROUP ID</TableCell>
-									<TableCell align="left">PARENT ID</TableCell>
-									<TableCell align="center">STATUS</TableCell>
-									<TableCell align="left">CREATED</TableCell>
-									<TableCell align="left">UPDATED</TableCell>
+									<TableCell align="left">{t('adminOps.common.childId')}</TableCell>
+									<TableCell align="left">{t('adminTables.fullName')}</TableCell>
+									<TableCell align="center">{t('adminOps.children.gender')}</TableCell>
+									<TableCell align="center">{t('adminOps.children.birthDate')}</TableCell>
+									<TableCell align="left">{t('adminOps.common.kindergartenId')}</TableCell>
+									<TableCell align="left">{t('adminOps.common.groupId')}</TableCell>
+									<TableCell align="left">{t('adminOps.common.parentId')}</TableCell>
+									<TableCell align="center">{t('adminTables.status')}</TableCell>
+									<TableCell align="left">{t('adminTables.created')}</TableCell>
+									<TableCell align="left">{t('adminTables.updated')}</TableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>{renderRows()}</TableBody>

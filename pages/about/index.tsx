@@ -22,6 +22,7 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { Trans, useTranslation } from 'next-i18next';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import PageSeo from '../../libs/components/seo/PageSeo';
 
@@ -56,138 +57,145 @@ interface RoleCard {
 	tone: 'parent' | 'teacher' | 'admin';
 }
 
-const missionCards: IconItem[] = [
-	{
-		title: 'Parents need clarity',
-		copy: 'Clear information, honest details, and confidence in every decision.',
-		icon: FamilyRestroomRoundedIcon,
-		tone: 'green',
-	},
-	{
-		title: 'Centers need organization',
-		copy: 'Manage staff, children, groups, applications, and daily operations.',
-		icon: HomeWorkRoundedIcon,
-		tone: 'gold',
-	},
-	{
-		title: 'Teachers need simple workflows',
-		copy: 'Focus more on children with easy-to-use tools and communication.',
-		icon: ChatBubbleRoundedIcon,
-		tone: 'purple',
-	},
-];
-
-const roleCards: RoleCard[] = [
-	{
-		title: 'Parent',
-		items: ['Discover kindergartens', 'Contact and apply', 'Track applications', 'Stay connected'],
-		image: aboutImages.parent,
-		alt: 'Parent reviewing early learning information at a table',
-		tone: 'parent',
-	},
-	{
-		title: 'Teacher',
-		items: ['Manage groups', 'Track attendance', 'Daily communication', 'Child insights'],
-		image: aboutImages.teacher,
-		alt: 'Teacher helping a child with an early learning activity',
-		tone: 'teacher',
-	},
-	{
-		title: 'Kindergarten Admin',
-		items: ['Staff and access management', 'Groups and classrooms', 'Applications and enrollment', 'Reports and overview'],
-		image: aboutImages.center,
-		alt: 'Modern kindergarten center exterior and outdoor play area',
-		tone: 'admin',
-	},
-];
-
-const availableFeatures: IconItem[] = [
-	{ title: 'Kindergarten listing', icon: SearchRoundedIcon },
-	{ title: 'Kindergarten detail pages', icon: HomeWorkRoundedIcon },
-	{ title: 'Map & address search', icon: MapRoundedIcon },
-	{ title: 'Applications & contact flow', icon: AssignmentTurnedInRoundedIcon },
-	{ title: 'Likes, reviews & comments', icon: ChatBubbleRoundedIcon },
-	{ title: 'Messages inbox', icon: ChatBubbleRoundedIcon },
-	{ title: 'Private chat', icon: GroupsRoundedIcon },
-	{ title: 'One-click translation', icon: TranslateRoundedIcon },
-	{ title: 'Daily Reports & Albums', icon: PhotoLibraryRoundedIcon },
-	{ title: 'Notifications', icon: NotificationsRoundedIcon },
-	{ title: 'Parent dashboard', icon: FamilyRestroomRoundedIcon },
-	{ title: 'Teacher dashboard', icon: SchoolRoundedIcon },
-	{ title: 'KAdmin dashboard', icon: ManageAccountsRoundedIcon },
-	{ title: 'Staff, groups, children, attendance', icon: AdminPanelSettingsRoundedIcon },
-	{ title: 'Super Admin approvals', icon: ShieldRoundedIcon },
-];
-
-const plannedFeatures: IconItem[] = [
-	{ title: 'KidsGarden Store', icon: StorefrontRoundedIcon },
-	{ title: 'Calendar & scheduling', icon: CalendarMonthRoundedIcon },
-	{ title: 'In-app Calls', icon: CallRoundedIcon },
-	{ title: 'Mobile polish', icon: PhoneIphoneRoundedIcon },
-	{ title: 'More tools coming soon', icon: AdminPanelSettingsRoundedIcon },
-];
-
-const trustItems = [
-	'Public signup creates a Parent account.',
-	'Teacher and Kindergarten Admin access requires approval, request, or invite.',
-	'Super Admin is internal only.',
-	'Social login does not grant privileged roles.',
-	'We are committed to keeping children’s data safe and private.',
-];
-
 const About: NextPage = () => {
+	const { t } = useTranslation('common');
+
+	const missionCards: IconItem[] = [
+		{
+			title: t('aboutPage.mission.parentsTitle'),
+			copy: t('aboutPage.mission.parentsCopy'),
+			icon: FamilyRestroomRoundedIcon,
+			tone: 'green',
+		},
+		{
+			title: t('aboutPage.mission.centersTitle'),
+			copy: t('aboutPage.mission.centersCopy'),
+			icon: HomeWorkRoundedIcon,
+			tone: 'gold',
+		},
+		{
+			title: t('aboutPage.mission.teachersTitle'),
+			copy: t('aboutPage.mission.teachersCopy'),
+			icon: ChatBubbleRoundedIcon,
+			tone: 'purple',
+		},
+	];
+
+	const roleCards: RoleCard[] = [
+		{
+			title: t('roles.PARENT'),
+			items: [
+				t('aboutPage.roleParent.discover'),
+				t('aboutPage.roleParent.contactApply'),
+				t('aboutPage.roleParent.trackApplications'),
+				t('aboutPage.roleParent.stayConnected'),
+			],
+			image: aboutImages.parent,
+			alt: t('aboutPage.roleParent.alt'),
+			tone: 'parent',
+		},
+		{
+			title: t('roles.TEACHER'),
+			items: [
+				t('aboutPage.roleTeacher.manageGroups'),
+				t('aboutPage.roleTeacher.trackAttendance'),
+				t('aboutPage.roleTeacher.dailyCommunication'),
+				t('aboutPage.roleTeacher.childInsights'),
+			],
+			image: aboutImages.teacher,
+			alt: t('aboutPage.roleTeacher.alt'),
+			tone: 'teacher',
+		},
+		{
+			title: t('roles.KINDERGARTEN_ADMIN'),
+			items: [
+				t('aboutPage.roleAdmin.staffAccess'),
+				t('aboutPage.roleAdmin.groupsClassrooms'),
+				t('aboutPage.roleAdmin.applicationsEnrollment'),
+				t('aboutPage.roleAdmin.reportsOverview'),
+			],
+			image: aboutImages.center,
+			alt: t('aboutPage.roleAdmin.alt'),
+			tone: 'admin',
+		},
+	];
+
+	const availableFeatures: IconItem[] = [
+		{ title: t('aboutPage.features.listing'), icon: SearchRoundedIcon },
+		{ title: t('aboutPage.features.detailPages'), icon: HomeWorkRoundedIcon },
+		{ title: t('aboutPage.features.mapSearch'), icon: MapRoundedIcon },
+		{ title: t('aboutPage.features.applicationsFlow'), icon: AssignmentTurnedInRoundedIcon },
+		{ title: t('aboutPage.features.likesReviews'), icon: ChatBubbleRoundedIcon },
+		{ title: t('aboutPage.features.messagesInbox'), icon: ChatBubbleRoundedIcon },
+		{ title: t('messages.privateChat'), icon: GroupsRoundedIcon },
+		{ title: t('aboutPage.features.oneClickTranslation'), icon: TranslateRoundedIcon },
+		{ title: t('home.roadmap.reportsTitle'), icon: PhotoLibraryRoundedIcon },
+		{ title: t('Notifications'), icon: NotificationsRoundedIcon },
+		{ title: t('aboutPage.features.parentDashboard'), icon: FamilyRestroomRoundedIcon },
+		{ title: t('aboutPage.features.teacherDashboard'), icon: SchoolRoundedIcon },
+		{ title: t('aboutPage.features.kadminDashboard'), icon: ManageAccountsRoundedIcon },
+		{ title: t('aboutPage.features.staffGroups'), icon: AdminPanelSettingsRoundedIcon },
+		{ title: t('aboutPage.features.superAdminApprovals'), icon: ShieldRoundedIcon },
+	];
+
+	const plannedFeatures: IconItem[] = [
+		{ title: t('aboutPage.planned.store'), icon: StorefrontRoundedIcon },
+		{ title: t('aboutPage.planned.calendar'), icon: CalendarMonthRoundedIcon },
+		{ title: t('aboutPage.planned.calls'), icon: CallRoundedIcon },
+		{ title: t('aboutPage.planned.mobilePolish'), icon: PhoneIphoneRoundedIcon },
+		{ title: t('aboutPage.planned.moreTools'), icon: AdminPanelSettingsRoundedIcon },
+	];
+
+	const trustItems = [
+		t('aboutPage.trust.publicSignup'),
+		t('aboutPage.trust.staffApproval'),
+		t('aboutPage.trust.superAdminInternal'),
+		t('aboutPage.trust.socialLogin'),
+		t('aboutPage.trust.dataSafety'),
+	];
+
 	return (
 		<div className="about-page">
-			<PageSeo
-				title="About KidsGarden"
-				description="KidsGarden brings kindergarten discovery, applications, daily care, attendance, and communication together in one simple place."
-				canonicalPath="/about"
-			/>
+			<PageSeo title={t('aboutPage.seoTitle')} description={t('aboutPage.heroSubtitle')} canonicalPath="/about" />
 
 			<section className="about-hero">
 				<div className="about-shell about-hero-grid">
 					<div className="about-hero-copy">
 						<span className="about-badge">
 							<CheckCircleRoundedIcon />
-							ABOUT KIDSGARDEN
+							{t('aboutPage.badge')}
 						</span>
 						<h1>
-							Connecting what <span>matters</span> in early learning
+							<Trans t={t} i18nKey="aboutPage.heroTitle" components={{ highlight: <span /> }} />
 						</h1>
-						<p>
-							KidsGarden brings kindergarten discovery, applications, daily care, attendance, and
-							communication together in one simple place.
-						</p>
+						<p>{t('aboutPage.heroSubtitle')}</p>
 						<div className="about-actions">
 							<Link href="/kindergartens" className="about-action about-action-primary">
-								Explore Kindergartens
+								{t('home.exploreKindergartens')}
 								<ArrowForwardRoundedIcon />
 							</Link>
 							<Link href="/store" className="about-action about-action-secondary">
-								Visit Store Preview
+								{t('aboutPage.visitStorePreview')}
 								<StorefrontRoundedIcon />
 							</Link>
 						</div>
 						<div className="about-hero-note">
 							<span className="leaf-mark" aria-hidden="true" />
-							Built for families, teachers, and kindergartens who care about children.
+							{t('aboutPage.heroNote')}
 						</div>
 					</div>
 
 					<div className="about-hero-media">
 						<div className="about-photo-frame about-hero-photo">
-							<img
-								src={aboutImages.hero}
-								alt="Teacher and children learning together in a warm kindergarten classroom"
-							/>
+							<img src={aboutImages.hero} alt={t('aboutPage.heroImageAlt')} />
 						</div>
 						<div className="about-float-card about-float-parent">
 							<span>
 								<FamilyRestroomRoundedIcon />
 							</span>
 							<div>
-								<strong>Parent discovery</strong>
-								<p>Find the right place for your child</p>
+								<strong>{t('aboutPage.floatParentTitle')}</strong>
+								<p>{t('aboutPage.floatParentCopy')}</p>
 							</div>
 						</div>
 						<div className="about-float-card about-float-role">
@@ -195,8 +203,8 @@ const About: NextPage = () => {
 								<ShieldRoundedIcon />
 							</span>
 							<div>
-								<strong>Role-based access</strong>
-								<p>Secure access for parents, teachers and admins</p>
+								<strong>{t('aboutPage.floatRoleTitle')}</strong>
+								<p>{t('aboutPage.floatRoleCopy')}</p>
 							</div>
 						</div>
 						<div className="about-float-card about-float-care">
@@ -204,8 +212,8 @@ const About: NextPage = () => {
 								<CalendarMonthRoundedIcon />
 							</span>
 							<div>
-								<strong>Daily care tools</strong>
-								<p>Attendance, groups, communication and more</p>
+								<strong>{t('aboutPage.floatCareTitle')}</strong>
+								<p>{t('aboutPage.floatCareCopy')}</p>
 							</div>
 						</div>
 						<span className="about-leaf about-leaf-one" aria-hidden="true" />
@@ -217,15 +225,15 @@ const About: NextPage = () => {
 			<section className="about-section about-why">
 				<div className="about-shell about-why-panel">
 					<div className="about-photo-frame about-why-photo">
-						<img src={aboutImages.why} alt="Teacher helping a child with a classroom learning activity" />
+						<img src={aboutImages.why} alt={t('aboutPage.whyImageAlt')} />
 					</div>
 					<div className="about-why-copy">
 						<div className="about-section-heading">
 							<span>
 								<CheckCircleRoundedIcon />
-								WHY KIDSGARDEN EXISTS
+								{t('aboutPage.whyEyebrow')}
 							</span>
-							<h2>Stronger connections. Better early learning.</h2>
+							<h2>{t('aboutPage.whyTitle')}</h2>
 						</div>
 						<div className="about-mission-grid">
 							{missionCards.map((card) => {
@@ -249,12 +257,12 @@ const About: NextPage = () => {
 			<section className="about-section about-roles-section">
 				<div className="about-shell">
 					<div className="about-section-heading about-heading-center">
-						<span>PLATFORM ROLES</span>
-						<h2>Different roles, one platform</h2>
+						<span>{t('aboutPage.rolesEyebrow')}</span>
+						<h2>{t('aboutPage.rolesTitle')}</h2>
 					</div>
 					<div className="about-role-grid">
 						{roleCards.map((role) => (
-							<article className={`about-role-card about-role-${role.tone}`} key={role.title}>
+							<article className={`about-role-card about-role-${role.tone}`} key={role.tone}>
 								<div className="about-role-content">
 									<h3>{role.title}</h3>
 									<ul>
@@ -278,14 +286,14 @@ const About: NextPage = () => {
 					<div className="about-feature-panel about-feature-available">
 						<div className="about-feature-title">
 							<CheckCircleRoundedIcon />
-							<h2>What works today</h2>
+							<h2>{t('aboutPage.availableTitle')}</h2>
 						</div>
 						<div className="about-feature-grid">
-							{availableFeatures.map((feature) => {
+							{availableFeatures.map((feature, index) => {
 								const Icon = feature.icon;
 
 								return (
-									<div className="about-feature-item" key={feature.title}>
+									<div className="about-feature-item" key={`${index}-${feature.title}`}>
 										<span>
 											<Icon />
 										</span>
@@ -298,19 +306,19 @@ const About: NextPage = () => {
 					<div className="about-feature-panel about-feature-planned">
 						<div className="about-feature-title">
 							<CalendarMonthRoundedIcon />
-							<h2>What comes next</h2>
+							<h2>{t('aboutPage.plannedTitle')}</h2>
 						</div>
 						<div className="about-feature-grid">
-							{plannedFeatures.map((feature) => {
+							{plannedFeatures.map((feature, index) => {
 								const Icon = feature.icon;
 
 								return (
-									<div className="about-feature-item about-feature-item-planned" key={feature.title}>
+									<div className="about-feature-item about-feature-item-planned" key={`${index}-${feature.title}`}>
 										<span>
 											<Icon />
 										</span>
 										<strong>{feature.title}</strong>
-										<em>Planned</em>
+										<em>{t('aboutPage.plannedBadge')}</em>
 									</div>
 								);
 							})}
@@ -322,10 +330,10 @@ const About: NextPage = () => {
 			<section className="about-section about-trust-section">
 				<div className="about-shell about-trust-panel">
 					<div className="about-photo-frame about-shield-visual">
-						<img src={aboutImages.safety} alt="Green shield and lock illustration representing child data safety" />
+						<img src={aboutImages.safety} alt={t('aboutPage.safetyImageAlt')} />
 					</div>
 					<div className="about-trust-copy">
-						<h2>Trust & access policy</h2>
+						<h2>{t('aboutPage.trustTitle')}</h2>
 						<ul>
 							{trustItems.map((item) => (
 								<li key={item}>
@@ -341,21 +349,21 @@ const About: NextPage = () => {
 			<section className="about-section about-final-section">
 				<div className="about-shell about-final-card">
 					<div className="about-final-copy">
-						<h2>Explore the KidsGarden experience</h2>
-						<p>Browse kindergartens today and preview the tools planned for families, teachers, and centers.</p>
+						<h2>{t('aboutPage.finalTitle')}</h2>
+						<p>{t('aboutPage.finalCopy')}</p>
 						<div className="about-actions">
 							<Link href="/kindergartens" className="about-action about-action-primary">
-								Browse Kindergartens
+								{t('aboutPage.browseKindergartens')}
 								<ArrowForwardRoundedIcon />
 							</Link>
 							<Link href="/" className="about-action about-action-secondary">
-								Back to Home
+								{t('aboutPage.backToHome')}
 								<HomeWorkRoundedIcon />
 							</Link>
 						</div>
 					</div>
 					<div className="about-photo-frame about-final-photo">
-						<img src={aboutImages.final} alt="Parent and child learning together in a warm KidsGarden setting" />
+						<img src={aboutImages.final} alt={t('aboutPage.finalImageAlt')} />
 					</div>
 					<span className="about-leaf about-leaf-final" aria-hidden="true" />
 				</div>

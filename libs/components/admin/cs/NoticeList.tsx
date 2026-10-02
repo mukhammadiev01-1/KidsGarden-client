@@ -22,6 +22,9 @@ import Typography from '@mui/material/Typography';
 import { Stack } from '@mui/material';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import { NotePencil } from 'phosphor-react';
+import { useAdminTranslation } from '../../../i18n/adminTranslator';
+
+type AdminTranslate = ReturnType<typeof useAdminTranslation>['t'];
 
 type Order = 'asc' | 'desc';
 
@@ -41,48 +44,48 @@ interface HeadCell {
 	numeric: boolean;
 }
 
-const headCells: readonly HeadCell[] = [
+const getHeadCells = (t: AdminTranslate): readonly HeadCell[] => [
 	{
 		id: 'category',
 		numeric: true,
 		disablePadding: false,
-		label: 'Category',
+		label: t('adminTables.category'),
 	},
 	{
 		id: 'title',
 		numeric: true,
 		disablePadding: false,
-		label: 'TITLE',
+		label: t('adminTables.title'),
 	},
 	{
 		id: 'id',
 		numeric: true,
 		disablePadding: false,
-		label: 'ID',
+		label: t('adminTables.id'),
 	},
 	{
 		id: 'writer',
 		numeric: true,
 		disablePadding: false,
-		label: 'WRITER',
+		label: t('adminTables.author'),
 	},
 	{
 		id: 'date',
 		numeric: true,
 		disablePadding: false,
-		label: 'DATE',
+		label: t('dashboardCommon.date'),
 	},
 	{
 		id: 'view',
 		numeric: true,
 		disablePadding: false,
-		label: 'VIEW',
+		label: t('adminTables.views'),
 	},
 	{
 		id: 'action',
 		numeric: false,
 		disablePadding: false,
-		label: 'ACTION',
+		label: t('adminTables.actions'),
 	},
 ];
 
@@ -105,6 +108,7 @@ interface EnhancedTableToolbarProps {
 }
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
+	const { t } = useAdminTranslation();
 	const [select, setSelect] = useState('');
 	const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
 
@@ -121,15 +125,15 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 									checked={rowCount > 0 && numSelected === rowCount}
 									onChange={onSelectAllClick}
 									inputProps={{
-										'aria-label': 'select all',
+										'aria-label': t('adminCs.NoticeList.selectAll'),
 									}}
 								/>
 								<Typography sx={{ flex: '1 1 100%' }} color="inherit" variant="h6" component="div">
-									{numSelected} selected
+									{t('adminCs.NoticeList.selectedCount', { count: numSelected })}
 								</Typography>
 							</Box>
 							<Button variant={'text'} size={'large'}>
-								Delete
+								{t('common.delete')}
 							</Button>
 						</Box>
 					</Toolbar>
@@ -144,11 +148,11 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 								checked={rowCount > 0 && numSelected === rowCount}
 								onChange={onSelectAllClick}
 								inputProps={{
-									'aria-label': 'select all',
+									'aria-label': t('adminCs.NoticeList.selectAll'),
 								}}
 							/>
 						</TableCell>
-						{headCells.map((headCell) => (
+						{getHeadCells(t).map((headCell) => (
 							<TableCell
 								key={headCell.id}
 								align={headCell.numeric ? 'left' : 'right'}
@@ -185,6 +189,7 @@ export const NoticeList = (props: NoticeListType) => {
 		handleMenuIconClose,
 		generateMentorTypeHandle,
 	} = props;
+	const { t } = useAdminTranslation();
 	const router = useRouter();
 
 	/** APOLLO REQUESTS **/
@@ -224,12 +229,12 @@ export const NoticeList = (props: NoticeListType) => {
 									<TableCell align="left">member.mb_phone</TableCell>
 									<TableCell align="left">member.mb_phone</TableCell>
 									<TableCell align="right">
-										<Tooltip title={'delete'}>
+										<Tooltip title={t('common.delete')}>
 											<IconButton>
 												<DeleteRoundedIcon />
 											</IconButton>
 										</Tooltip>
-										<Tooltip title="edit">
+										<Tooltip title={t('common.edit')}>
 											<IconButton onClick={() => router.push(`/_admin/cs/notice_create?id=notice._id`)}>
 												<NotePencil size={24} weight="fill" />
 											</IconButton>

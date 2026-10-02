@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useApolloClient, useQuery, useReactiveVar } from '@apollo/client';
 import { Button, Chip, Stack, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { userVar } from '../../../apollo/store';
 import { GET_CHILDREN, GET_GROUP, GET_KINDERGARTEN } from '../../../apollo/user/query';
 import { MemberType } from '../../enums/member.enum';
@@ -25,6 +26,7 @@ const getAge = (birthDate?: Date | string) => {
 };
 
 const ParentChildren = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const apolloClient = useApolloClient();
 	const user = useReactiveVar(userVar);
@@ -80,9 +82,9 @@ const ParentChildren = () => {
 						fetchPolicy: 'cache-first',
 					});
 
-					return [kindergartenId, result.data?.getKindergarten?.kindergartenTitle || 'Kindergarten'] as const;
+					return [kindergartenId, result.data?.getKindergarten?.kindergartenTitle || t('statuses.KINDERGARTEN')] as const;
 				} catch (err) {
-					return [kindergartenId, 'Kindergarten'] as const;
+					return [kindergartenId, t('statuses.KINDERGARTEN')] as const;
 				}
 			}),
 		).then((entries) => {
@@ -96,7 +98,7 @@ const ParentChildren = () => {
 		return () => {
 			isMounted = false;
 		};
-	}, [apolloClient, kindergartenIds, kindergartenNames]);
+	}, [apolloClient, kindergartenIds, kindergartenNames, t]);
 
 	useEffect(() => {
 		const missingGroupIds = groupIds.filter((groupId) => !(groupId in groupsById));
@@ -143,26 +145,26 @@ const ParentChildren = () => {
 	return (
 		<Stack className="parent-dashboard-screen parent-children-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>My Children</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>{t('mypage.menu.myChildren')}</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					View your enrolled children and their kindergarten details.
+					{t('mypageText.ParentChildren.subtitle')}
 				</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Children</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypage.menu.children')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Enrollment, classroom, and center details linked to your parent account.
+							{t('mypageText.ParentChildren.panelSubtitle')}
 						</Typography>
 					</Stack>
-					<Chip label={`${children.length} linked`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('mypageText.ParentChildren.linkedCount', { count: children.length })} size="small" className="dashboard-count-chip" />
 				</Stack>
-				{loading && <Typography sx={{ color: '#6b7280' }}>Loading your children...</Typography>}
+				{loading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.ParentChildren.loading')}</Typography>}
 				{!loading && children.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						No children are linked to your parent account yet. Please contact your kindergarten center.
+						{t('mypageText.ParentChildren.empty')}
 					</Typography>
 				)}
 				{children.length > 0 && (
@@ -183,30 +185,39 @@ const ParentChildren = () => {
 												{child.childFullName}
 											</Typography>
 											<Typography className="dashboard-muted-text parent-nowrap">
-												Born {formatDate(child.childBirthDate)}
+												{t('mypageText.ParentChildren.born', { date: formatDate(child.childBirthDate) })}
 											</Typography>
 										</Stack>
-										<Chip label={getStatusLabel(child.childStatus)} size="small" sx={getStatusChipSx(child.childStatus)} />
+										<Chip
+											label={t(`statuses.${child.childStatus}`, { defaultValue: getStatusLabel(child.childStatus) })}
+											size="small"
+											sx={getStatusChipSx(child.childStatus)}
+										/>
 									</Stack>
 
 									<Stack className="parent-record-grid parent-child-grid">
 										<Stack className="parent-meta-item">
-											<Typography className="parent-meta-label">Age / gender</Typography>
+											<Typography className="parent-meta-label">{t('mypageText.ParentChildren.ageGender')}</Typography>
 											<Typography className="parent-meta-value">
-												{getAge(child.childBirthDate)} years / {child.childGender}
+												{t('mypageText.ParentChildren.ageGenderValue', {
+													age: getAge(child.childBirthDate),
+													gender: child.childGender,
+												})}
 											</Typography>
 										</Stack>
 										<Stack className="parent-meta-item">
-											<Typography className="parent-meta-label">Kindergarten</Typography>
+											<Typography className="parent-meta-label">{t('statuses.KINDERGARTEN')}</Typography>
 											<Typography className="parent-meta-value">
-												{kindergartenNames[child.kindergartenId] || 'Kindergarten'}
+												{kindergartenNames[child.kindergartenId] || t('statuses.KINDERGARTEN')}
 											</Typography>
 										</Stack>
 										<Stack className="parent-meta-item">
-											<Typography className="parent-meta-label">Group / classroom</Typography>
-											<Typography className="parent-meta-value">{group?.groupName || 'Classroom'}</Typography>
+											<Typography className="parent-meta-label">{t('mypageText.ParentChildren.groupClassroom')}</Typography>
+											<Typography className="parent-meta-value">{group?.groupName || t('mypageText.ParentChildren.classroomFallback')}</Typography>
 											{group?.groupAgeRange && (
-												<Typography className="dashboard-muted-text">Age range {group.groupAgeRange}</Typography>
+												<Typography className="dashboard-muted-text">
+													{t('mypageText.ParentChildren.ageRange', { range: group.groupAgeRange })}
+												</Typography>
 											)}
 										</Stack>
 									</Stack>
@@ -218,13 +229,15 @@ const ParentChildren = () => {
 												return (
 													<Button key={teacherId} variant="outlined" onClick={() => toggleChat(child._id, teacherId)}>
 														{isActive
-															? 'Close Teacher Chat'
-															: `Open Teacher Chat${teacherIds.length > 1 ? ` ${index + 1}` : ''}`}
+															? t('mypageText.ParentChildren.closeTeacherChat')
+															: teacherIds.length > 1
+															? t('mypageText.ParentChildren.openTeacherChatNumbered', { index: index + 1 })
+															: t('mypageText.ParentChildren.openTeacherChat')}
 													</Button>
 												);
 											})
 										) : (
-											<Typography className="dashboard-muted-text">No assigned teacher</Typography>
+											<Typography className="dashboard-muted-text">{t('mypageText.ParentChildren.noAssignedTeacher')}</Typography>
 										)}
 									</Stack>
 
@@ -232,7 +245,7 @@ const ParentChildren = () => {
 										<ParentTeacherChatPanel
 											childId={child._id}
 											teacherId={activeTeacherId}
-											title="Teacher chat"
+											title={t('mypageText.ParentChildren.teacherChat')}
 											onClose={() => setActiveChat(null)}
 										/>
 									)}

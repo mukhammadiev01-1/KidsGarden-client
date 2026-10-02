@@ -27,7 +27,8 @@ import { AttendancesInquiry } from '../../../libs/types/attendance/attendance.in
 import { AttendanceStatus } from '../../../libs/enums/attendance.enum';
 import { Direction } from '../../../libs/enums/common.enum';
 import { sweetErrorHandling } from '../../../libs/sweetAlert';
-import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from '../../../libs/components/mypage/dashboardUtils';
+import { formatDate, getStatusChipSx, truncateId } from '../../../libs/components/mypage/dashboardUtils';
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
 
 const statusTabs = [
 	'ALL',
@@ -59,6 +60,7 @@ const truncateText = (text?: string, visible = 72) => {
 };
 
 const AdminOperationsAttendance: NextPage = ({ initialInquiry }: any) => {
+	const { t, statusLabel } = useAdminTranslation();
 	const [attendancesInquiry, setAttendancesInquiry] = useState<AttendancesInquiry>(initialInquiry);
 	const [statusFilter, setStatusFilter] = useState<string>('ALL');
 	const [kindergartenIdFilter, setKindergartenIdFilter] = useState<string>('');
@@ -115,7 +117,7 @@ const AdminOperationsAttendance: NextPage = ({ initialInquiry }: any) => {
 			return (
 				<TableRow>
 					<TableCell colSpan={10} align="center">
-						Loading attendance records...
+						{t('adminOps.attendance.loading')}
 					</TableCell>
 				</TableRow>
 			);
@@ -125,7 +127,7 @@ const AdminOperationsAttendance: NextPage = ({ initialInquiry }: any) => {
 			return (
 				<TableRow>
 					<TableCell colSpan={10} align="center">
-						Attendance records could not be loaded.
+						{t('adminOps.attendance.loadError')}
 					</TableCell>
 				</TableRow>
 			);
@@ -135,7 +137,7 @@ const AdminOperationsAttendance: NextPage = ({ initialInquiry }: any) => {
 			return (
 				<TableRow>
 					<TableCell colSpan={10} align="center">
-						No attendance records found.
+						{t('adminOps.attendance.empty')}
 					</TableCell>
 				</TableRow>
 			);
@@ -158,7 +160,7 @@ const AdminOperationsAttendance: NextPage = ({ initialInquiry }: any) => {
 				<TableCell align="left">{formatDate(attendance.attendanceDate)}</TableCell>
 				<TableCell align="center">
 					<Chip
-						label={getStatusLabel(attendance.attendanceStatus)}
+						label={statusLabel(attendance.attendanceStatus)}
 						size="small"
 						sx={getStatusChipSx(attendance.attendanceStatus)}
 					/>
@@ -180,10 +182,10 @@ const AdminOperationsAttendance: NextPage = ({ initialInquiry }: any) => {
 	return (
 		<Box component="div" className="content">
 			<Typography variant="h2" className="tit" sx={{ mb: '12px' }}>
-				Operations Attendance
+				{t('adminOps.attendance.title')}
 			</Typography>
 			<Typography sx={{ mb: '24px', color: '#64746b' }}>
-				Inspect attendance records across the platform. This MVP view is read-only.
+				{t('adminOps.attendance.subtitle')}
 			</Typography>
 
 			<Box component="div" className="table-wrap">
@@ -197,7 +199,7 @@ const AdminOperationsAttendance: NextPage = ({ initialInquiry }: any) => {
 									value={status}
 									className={statusFilter === status ? 'li on' : 'li'}
 								>
-									{getStatusLabel(status)}
+									{statusLabel(status)}
 								</ListItem>
 							))}
 						</List>
@@ -205,35 +207,35 @@ const AdminOperationsAttendance: NextPage = ({ initialInquiry }: any) => {
 						<Stack className="search-area" sx={{ m: '24px', gap: '12px', flexDirection: 'row', flexWrap: 'wrap' }}>
 							<TextField
 								size="small"
-								label="Kindergarten ID"
+								label={t('adminOps.common.kindergartenId')}
 								value={kindergartenIdFilter}
 								onChange={(event) => setKindergartenIdFilter(event.target.value)}
 							/>
 							<TextField
 								size="small"
-								label="Group ID"
+								label={t('adminOps.common.groupId')}
 								value={groupIdFilter}
 								onChange={(event) => setGroupIdFilter(event.target.value)}
 							/>
 							<TextField
 								size="small"
-								label="Child ID"
+								label={t('adminOps.common.childId')}
 								value={childIdFilter}
 								onChange={(event) => setChildIdFilter(event.target.value)}
 							/>
 							<TextField
 								size="small"
-								label="Attendance date"
+								label={t('adminOps.attendance.attendanceDate')}
 								type="date"
 								value={attendanceDateFilter}
 								onChange={(event) => setAttendanceDateFilter(event.target.value)}
 								InputLabelProps={{ shrink: true }}
 							/>
 							<Button variant="contained" onClick={() => applyFilters()}>
-								Apply
+								{t('common.apply')}
 							</Button>
 							<Button variant="outlined" onClick={clearFilters}>
-								Clear
+								{t('common.clear')}
 							</Button>
 						</Stack>
 						<Divider />
@@ -243,16 +245,16 @@ const AdminOperationsAttendance: NextPage = ({ initialInquiry }: any) => {
 						<Table sx={{ minWidth: 1320 }} size="medium">
 							<TableHead>
 								<TableRow>
-									<TableCell align="left">ATTENDANCE ID</TableCell>
-									<TableCell align="left">CHILD ID</TableCell>
-									<TableCell align="left">KINDERGARTEN ID</TableCell>
-									<TableCell align="left">GROUP ID</TableCell>
-									<TableCell align="left">DATE</TableCell>
-									<TableCell align="center">STATUS</TableCell>
-									<TableCell align="left">MARKED BY</TableCell>
-									<TableCell align="left">NOTE</TableCell>
-									<TableCell align="left">CREATED</TableCell>
-									<TableCell align="left">UPDATED</TableCell>
+									<TableCell align="left">{t('adminOps.attendance.attendanceId')}</TableCell>
+									<TableCell align="left">{t('adminOps.common.childId')}</TableCell>
+									<TableCell align="left">{t('adminOps.common.kindergartenId')}</TableCell>
+									<TableCell align="left">{t('adminOps.common.groupId')}</TableCell>
+									<TableCell align="left">{t('dashboardCommon.date')}</TableCell>
+									<TableCell align="center">{t('adminTables.status')}</TableCell>
+									<TableCell align="left">{t('adminOps.attendance.markedBy')}</TableCell>
+									<TableCell align="left">{t('adminOps.attendance.note')}</TableCell>
+									<TableCell align="left">{t('adminTables.created')}</TableCell>
+									<TableCell align="left">{t('adminTables.updated')}</TableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>{renderRows()}</TableBody>

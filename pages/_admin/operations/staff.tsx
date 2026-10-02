@@ -29,7 +29,8 @@ import { KindergartenStaffsInquiry } from '../../../libs/types/kindergarten-staf
 import { StaffRole, StaffStatus } from '../../../libs/enums/kindergarten-staff.enum';
 import { Direction } from '../../../libs/enums/common.enum';
 import { sweetErrorHandling } from '../../../libs/sweetAlert';
-import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from '../../../libs/components/mypage/dashboardUtils';
+import { formatDate, getStatusChipSx, truncateId } from '../../../libs/components/mypage/dashboardUtils';
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
 
 const statusTabs = ['ALL', StaffStatus.ACTIVE, StaffStatus.PENDING, StaffStatus.BLOCKED, StaffStatus.REMOVED];
 
@@ -43,6 +44,7 @@ const buildSearch = (status: string, role: string, kindergartenId: string, membe
 };
 
 const AdminOperationsStaff: NextPage = ({ initialInquiry }: any) => {
+	const { t, statusLabel, roleLabel } = useAdminTranslation();
 	const [staffInquiry, setStaffInquiry] = useState<KindergartenStaffsInquiry>(initialInquiry);
 	const [statusFilter, setStatusFilter] = useState<string>('ALL');
 	const [roleFilter, setRoleFilter] = useState<string>('ALL');
@@ -102,7 +104,7 @@ const AdminOperationsStaff: NextPage = ({ initialInquiry }: any) => {
 			return (
 				<TableRow>
 					<TableCell colSpan={7} align="center">
-						Loading staff records...
+						{t('adminOps.staff.loading')}
 					</TableCell>
 				</TableRow>
 			);
@@ -112,7 +114,7 @@ const AdminOperationsStaff: NextPage = ({ initialInquiry }: any) => {
 			return (
 				<TableRow>
 					<TableCell colSpan={7} align="center">
-						Staff records could not be loaded.
+						{t('adminOps.staff.loadError')}
 					</TableCell>
 				</TableRow>
 			);
@@ -122,7 +124,7 @@ const AdminOperationsStaff: NextPage = ({ initialInquiry }: any) => {
 			return (
 				<TableRow>
 					<TableCell colSpan={7} align="center">
-						No staff records found.
+						{t('adminOps.staff.empty')}
 					</TableCell>
 				</TableRow>
 			);
@@ -144,12 +146,12 @@ const AdminOperationsStaff: NextPage = ({ initialInquiry }: any) => {
 					</TableCell>
 					<TableCell align="center">
 						<Stack spacing={0.75} alignItems="center">
-							<Chip label={getStatusLabel(staff.staffRole)} size="small" sx={getStatusChipSx(staff.staffRole)} />
-							{isOwner && <Chip label="Protected Owner" size="small" sx={getStatusChipSx(StaffStatus.BLOCKED)} />}
+							<Chip label={roleLabel(staff.staffRole)} size="small" sx={getStatusChipSx(staff.staffRole)} />
+							{isOwner && <Chip label={t('adminOps.staff.protectedOwner')} size="small" sx={getStatusChipSx(StaffStatus.BLOCKED)} />}
 						</Stack>
 					</TableCell>
 					<TableCell align="center">
-						<Chip label={getStatusLabel(staff.staffStatus)} size="small" sx={getStatusChipSx(staff.staffStatus)} />
+						<Chip label={statusLabel(staff.staffStatus)} size="small" sx={getStatusChipSx(staff.staffStatus)} />
 					</TableCell>
 					<TableCell align="left">{formatDate(staff.createdAt)}</TableCell>
 					<TableCell align="left">{formatDate(staff.updatedAt)}</TableCell>
@@ -161,10 +163,10 @@ const AdminOperationsStaff: NextPage = ({ initialInquiry }: any) => {
 	return (
 		<Box component="div" className="content">
 			<Typography variant="h2" className="tit" sx={{ mb: '12px' }}>
-				Operations Staff
+				{t('adminOps.staff.title')}
 			</Typography>
 			<Typography sx={{ mb: '24px', color: '#64746b' }}>
-				Inspect kindergarten staff records across the platform. This MVP view is read-only.
+				{t('adminOps.staff.subtitle')}
 			</Typography>
 
 			<Box component="div" className="table-wrap">
@@ -178,37 +180,37 @@ const AdminOperationsStaff: NextPage = ({ initialInquiry }: any) => {
 									value={status}
 									className={statusFilter === status ? 'li on' : 'li'}
 								>
-									{getStatusLabel(status)}
+									{statusLabel(status)}
 								</ListItem>
 							))}
 						</List>
 						<Divider />
 						<Stack className="search-area" sx={{ m: '24px', gap: '12px', flexDirection: 'row', flexWrap: 'wrap' }}>
 							<Select sx={{ width: 170 }} value={roleFilter} onChange={(event) => roleChangeHandler(event.target.value)}>
-								<MenuItem value="ALL">All roles</MenuItem>
+								<MenuItem value="ALL">{t('adminOps.staff.allRoles')}</MenuItem>
 								{Object.values(StaffRole).map((role) => (
 									<MenuItem value={role} key={role}>
-										{getStatusLabel(role)}
+										{roleLabel(role)}
 									</MenuItem>
 								))}
 							</Select>
 							<TextField
 								size="small"
-								label="Kindergarten ID"
+								label={t('adminOps.common.kindergartenId')}
 								value={kindergartenIdFilter}
 								onChange={(event) => setKindergartenIdFilter(event.target.value)}
 							/>
 							<TextField
 								size="small"
-								label="Member ID"
+								label={t('adminTables.memberId')}
 								value={memberIdFilter}
 								onChange={(event) => setMemberIdFilter(event.target.value)}
 							/>
 							<Button variant="contained" onClick={() => applyFilters()}>
-								Apply
+								{t('common.apply')}
 							</Button>
 							<Button variant="outlined" onClick={clearFilters}>
-								Clear
+								{t('common.clear')}
 							</Button>
 						</Stack>
 						<Divider />
@@ -218,13 +220,13 @@ const AdminOperationsStaff: NextPage = ({ initialInquiry }: any) => {
 						<Table sx={{ minWidth: 980 }} size="medium">
 							<TableHead>
 								<TableRow>
-									<TableCell align="left">STAFF ID</TableCell>
-									<TableCell align="left">KINDERGARTEN ID</TableCell>
-									<TableCell align="left">MEMBER ID</TableCell>
-									<TableCell align="center">ROLE</TableCell>
-									<TableCell align="center">STATUS</TableCell>
-									<TableCell align="left">CREATED</TableCell>
-									<TableCell align="left">UPDATED</TableCell>
+									<TableCell align="left">{t('adminOps.staff.staffId')}</TableCell>
+									<TableCell align="left">{t('adminOps.common.kindergartenId')}</TableCell>
+									<TableCell align="left">{t('adminTables.memberId')}</TableCell>
+									<TableCell align="center">{t('dashboardCommon.role')}</TableCell>
+									<TableCell align="center">{t('adminTables.status')}</TableCell>
+									<TableCell align="left">{t('adminTables.created')}</TableCell>
+									<TableCell align="left">{t('adminTables.updated')}</TableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>{renderRows()}</TableBody>

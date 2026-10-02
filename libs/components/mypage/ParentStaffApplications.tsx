@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useApolloClient, useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Button, Chip, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { CANCEL_STAFF_APPLICATION } from '../../../apollo/user/mutation';
 import { GET_KINDERGARTEN, GET_MY_STAFF_APPLICATIONS } from '../../../apollo/user/query';
 import { userVar } from '../../../apollo/store';
@@ -13,6 +14,7 @@ import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '.
 import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from './dashboardUtils';
 
 const ParentStaffApplications = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const apolloClient = useApolloClient();
 	const user = useReactiveVar(userVar);
@@ -80,10 +82,10 @@ const ParentStaffApplications = () => {
 
 	const cancelApplicationHandler = async (applicationId: string) => {
 		try {
-			if (!(await sweetConfirmAlert('Cancel this teacher application?'))) return;
+			if (!(await sweetConfirmAlert(t('mypageText.ParentStaffApplications.cancelConfirm')))) return;
 			await cancelStaffApplication({ variables: { applicationId } });
 			await refetch();
-			await sweetMixinSuccessAlert('Application canceled');
+			await sweetMixinSuccessAlert(t('mypageText.ParentStaffApplications.canceled'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -106,19 +108,19 @@ const ParentStaffApplications = () => {
 	return (
 		<Stack className="parent-dashboard-screen parent-staff-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Teacher Access Request</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>{t('mypage.menu.teacherAccessRequest')}</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Track your applications to teach at kindergartens and cancel pending requests.
+					{t('mypageText.ParentStaffApplications.subtitle')}
 				</Typography>
 			</Stack>
 
 			{approvedApplication && (
 				<Stack className="dashboard-approved-notice" spacing={1.5} sx={{ padding: '20px 24px', borderRadius: '16px', background: '#ecfdf5' }}>
 					<Typography sx={{ color: '#166534', fontWeight: 700 }}>
-						Approved. Please log out and sign in again to access the teacher dashboard.
+						{t('mypageText.ParentStaffApplications.approvedNotice')}
 					</Typography>
 					<Button variant="contained" onClick={reloginHandler} sx={{ width: 'fit-content' }}>
-						Log out and sign in again
+						{t('mypageText.ParentStaffApplications.relogin')}
 					</Button>
 				</Stack>
 			)}
@@ -126,17 +128,17 @@ const ParentStaffApplications = () => {
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Applications</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.ParentStaffApplications.applications')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Requests you have sent from kindergarten detail pages.
+							{t('mypageText.ParentStaffApplications.panelSubtitle')}
 						</Typography>
 					</Stack>
-					<Chip label={`${applications.length} total`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('mypageText.ParentStaffApplications.totalCount', { count: applications.length })} size="small" className="dashboard-count-chip" />
 				</Stack>
-				{loading && <Typography sx={{ color: '#6b7280' }}>Loading your applications...</Typography>}
+				{loading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.ParentStaffApplications.loading')}</Typography>}
 				{!loading && applications.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						No teacher applications yet. Open a kindergarten detail page to apply.
+						{t('mypageText.ParentStaffApplications.empty')}
 					</Typography>
 				)}
 				{applications.length > 0 && (
@@ -144,13 +146,13 @@ const ParentStaffApplications = () => {
 						<Table size="small">
 							<TableHead>
 								<TableRow>
-									<TableCell>Kindergarten</TableCell>
-									<TableCell>Role</TableCell>
-									<TableCell>Status</TableCell>
-									<TableCell>Message</TableCell>
-									<TableCell>Review</TableCell>
-									<TableCell>Created</TableCell>
-									<TableCell align="right">Actions</TableCell>
+									<TableCell>{t('statuses.KINDERGARTEN')}</TableCell>
+									<TableCell>{t('dashboardCommon.role')}</TableCell>
+									<TableCell>{t('dashboardCommon.status')}</TableCell>
+									<TableCell>{t('mypageText.ParentStaffApplications.message')}</TableCell>
+									<TableCell>{t('mypageText.ParentStaffApplications.review')}</TableCell>
+									<TableCell>{t('mypageText.ParentStaffApplications.created')}</TableCell>
+									<TableCell align="right">{t('dashboardCommon.actions')}</TableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>
@@ -159,17 +161,21 @@ const ParentStaffApplications = () => {
 										<TableCell sx={{ maxWidth: 240 }}>
 											<Stack spacing={0.25}>
 												<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
-													{kindergartenNames[application.kindergartenId] || 'Kindergarten reference'}
+													{kindergartenNames[application.kindergartenId] || t('mypageText.ParentStaffApplications.kindergartenReference')}
 												</Typography>
 												<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
 													{truncateId(application.kindergartenId)}
 												</Typography>
 											</Stack>
 										</TableCell>
-										<TableCell>{application.requestedRole}</TableCell>
+										<TableCell>
+											{t(`roles.${application.requestedRole}`, { defaultValue: application.requestedRole })}
+										</TableCell>
 										<TableCell>
 											<Chip
-												label={getStatusLabel(application.applicationStatus)}
+												label={t(`statuses.${application.applicationStatus}`, {
+												defaultValue: getStatusLabel(application.applicationStatus),
+											})}
 												size="small"
 												sx={getStatusChipSx(application.applicationStatus)}
 											/>
@@ -193,7 +199,9 @@ const ParentStaffApplications = () => {
 												disabled={application.applicationStatus !== StaffApplicationStatus.PENDING}
 												onClick={() => cancelApplicationHandler(application._id)}
 											>
-												{application.applicationStatus === StaffApplicationStatus.PENDING ? 'Cancel' : 'Closed'}
+												{application.applicationStatus === StaffApplicationStatus.PENDING
+												? t('common.cancel')
+												: t('statuses.CLOSED')}
 											</Button>
 										</TableCell>
 									</TableRow>

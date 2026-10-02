@@ -4,6 +4,7 @@ import { AccordionDetails, Box, Stack, Typography } from '@mui/material';
 import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/AccordionSummary';
 import { styled } from '@mui/material/styles';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import { useTranslation } from 'next-i18next';
 
 const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(
 	({ theme }) => ({
@@ -29,6 +30,7 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
 }));
 
 const Faq = () => {
+	const { t } = useTranslation('common');
 	const [category, setCategory] = useState<string>('families');
 	const [expanded, setExpanded] = useState<string | false>('families-1');
 
@@ -42,73 +44,80 @@ const Faq = () => {
 		setExpanded(newExpanded ? panel : false);
 	};
 
+	const categories = [
+		{ id: 'families', label: t('csPage.Faq.categoryFamilies') },
+		{ id: 'parents', label: t('home.roles.parentsTitle') },
+		{ id: 'accounts', label: t('csPage.Faq.categoryAccounts') },
+		{ id: 'community', label: t('Community') },
+	];
+
 	const data: any = {
 		families: [
 			{
 				id: 'families-1',
-				subject: 'How do I find a kindergarten?',
-				content: 'Use the kindergarten search page to browse by location, center type, programs, age range, and capacity.',
+				subject: t('csPage.Faq.families.findSubject'),
+				content: t('csPage.Faq.families.findContent'),
 			},
 			{
 				id: 'families-2',
-				subject: 'How do I save favorite kindergartens?',
-				content: 'Sign in with a parent account and use the heart icon to save kindergartens for later.',
+				subject: t('csPage.Faq.families.saveSubject'),
+				content: t('csPage.Faq.families.saveContent'),
 			},
 			{
 				id: 'families-3',
-				subject: 'Where can I ask general parent questions?',
-				content: 'Use the Parent Board in the Community section to share questions and experiences with other families.',
+				subject: t('csPage.Faq.families.askSubject'),
+				content: t('csPage.Faq.families.askContent'),
 			},
 		],
 		parents: [
 			{
 				id: 'parents-1',
-				subject: 'How can I apply as a teacher?',
-				content: 'Open a kindergarten profile and use the teacher application form if applications are available for that kindergarten.',
+				subject: t('csPage.Faq.parents.applyTeacherSubject'),
+				content: t('csPage.Faq.parents.applyTeacherContent'),
 			},
 			{
 				id: 'parents-2',
-				subject: 'How can I apply to manage a kindergarten?',
-				content: 'Parent accounts can submit a kindergarten admin application from My Page for Super Admin review.',
+				subject: t('csPage.Faq.parents.applyAdminSubject'),
+				content: t('csPage.Faq.parents.applyAdminContent'),
 			},
 			{
 				id: 'parents-3',
-				subject: 'Can I see my child attendance?',
-				content: 'Parents can view attendance for their own children after the kindergarten links the child record to the parent account.',
+				subject: t('csPage.Faq.parents.attendanceSubject'),
+				content: t('csPage.Faq.parents.attendanceContent'),
 			},
 		],
 		accounts: [
 			{
 				id: 'accounts-1',
-				subject: 'Why do I need to log in again after approval?',
-				content: 'Your role is stored in your login token. After approval, signing in again gives you a fresh token with the updated role.',
+				subject: t('csPage.Faq.accounts.reloginSubject'),
+				content: t('csPage.Faq.accounts.reloginContent'),
 			},
 			{
 				id: 'accounts-2',
-				subject: 'What account type do I get when I sign up?',
-				content: 'Public signup creates a parent account. Additional roles require an application or approval flow.',
+				subject: t('csPage.Faq.accounts.accountTypeSubject'),
+				content: t('csPage.Faq.accounts.accountTypeContent'),
 			},
 			{
 				id: 'accounts-3',
-				subject: 'Can I update my profile information?',
-				content: 'Yes. Sign in and open My Page to update your profile details.',
+				subject: t('csPage.Faq.accounts.updateProfileSubject'),
+				content: t('csPage.Faq.accounts.updateProfileContent'),
 			},
 		],
 		community: [
 			{
 				id: 'community-1',
-				subject: 'What can I post in Community?',
-				content: 'Families can share kindergarten questions, helpful updates, and parent experiences.',
+				subject: t('csPage.Faq.community.postSubject'),
+				content: t('csPage.Faq.community.postContent'),
 			},
 			{
 				id: 'community-2',
-				subject: 'What should I avoid posting?',
-				content: 'Avoid personal data, private child information, spam, and anything unrelated to family or kindergarten topics.',
+				subject: t('csPage.Faq.community.avoidSubject'),
+				content: t('csPage.Faq.community.avoidContent'),
 			},
 			{
 				id: 'community-3',
-				subject: 'How do I report inappropriate content?',
-				content: 'Contact support through the Help Center if you notice content that should be reviewed.',
+				subject: t('csPage.Faq.community.reportSubject'),
+				content: t('csPage.Faq.community.reportContent'),
 			},
 		],
 	};
@@ -116,53 +125,32 @@ const Faq = () => {
 	return (
 		<Stack className={'faq-content'}>
 			<Box className={'categories'} component={'div'}>
-				<div
-					className={category === 'families' ? 'active' : ''}
-					onClick={() => {
-						changeCategoryHandler('families');
-					}}
-				>
-					Families
-				</div>
-				<div
-					className={category === 'parents' ? 'active' : ''}
-					onClick={() => {
-						changeCategoryHandler('parents');
-					}}
-				>
-					Parents
-				</div>
-				<div
-					className={category === 'accounts' ? 'active' : ''}
-					onClick={() => {
-						changeCategoryHandler('accounts');
-					}}
-				>
-					Accounts
-				</div>
-				<div
-					className={category === 'community' ? 'active' : ''}
-					onClick={() => {
-						changeCategoryHandler('community');
-					}}
-				>
-					Community
-				</div>
+				{categories.map((item) => (
+					<div
+						key={item.id}
+						className={category === item.id ? 'active' : ''}
+						onClick={() => {
+							changeCategoryHandler(item.id);
+						}}
+					>
+						{item.label}
+					</div>
+				))}
 			</Box>
 			<Box className={'wrap'} component={'div'}>
 				{data[category] &&
 					data[category].map((ele: any) => (
-						<Accordion expanded={expanded === ele?.id} onChange={handleChange(ele?.id)} key={ele?.subject}>
+						<Accordion expanded={expanded === ele?.id} onChange={handleChange(ele?.id)} key={ele?.id}>
 							<AccordionSummary id="panel1d-header" className="question" aria-controls="panel1d-content">
 								<Typography className="badge" variant={'h4'}>
-									Q
+									{t('csPage.Faq.questionBadge')}
 								</Typography>
 								<Typography> {ele?.subject}</Typography>
 							</AccordionSummary>
 							<AccordionDetails>
 								<Stack className={'answer flex-box'}>
 									<Typography className="badge" variant={'h4'} color={'primary'}>
-										A
+										{t('csPage.Faq.answerBadge')}
 									</Typography>
 									<Typography> {ele?.content}</Typography>
 								</Stack>

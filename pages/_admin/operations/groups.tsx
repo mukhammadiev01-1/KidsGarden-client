@@ -29,7 +29,8 @@ import { GroupsInquiry } from '../../../libs/types/group/group.input';
 import { GroupStatus } from '../../../libs/enums/group.enum';
 import { Direction } from '../../../libs/enums/common.enum';
 import { sweetErrorHandling } from '../../../libs/sweetAlert';
-import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from '../../../libs/components/mypage/dashboardUtils';
+import { formatDate, getStatusChipSx, truncateId } from '../../../libs/components/mypage/dashboardUtils';
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
 
 const statusTabs = ['ALL', GroupStatus.ACTIVE, GroupStatus.INACTIVE, GroupStatus.FULL, GroupStatus.ARCHIVED];
 
@@ -42,6 +43,7 @@ const buildSearch = (status: string, kindergartenId: string, groupName: string) 
 };
 
 const AdminOperationsGroups: NextPage = ({ initialInquiry }: any) => {
+	const { t, statusLabel } = useAdminTranslation();
 	const [groupsInquiry, setGroupsInquiry] = useState<GroupsInquiry>(initialInquiry);
 	const [statusFilter, setStatusFilter] = useState<string>('ALL');
 	const [kindergartenIdFilter, setKindergartenIdFilter] = useState<string>('');
@@ -90,21 +92,25 @@ const AdminOperationsGroups: NextPage = ({ initialInquiry }: any) => {
 	};
 
 	const renderTeacherIds = (teacherIds: string[] = []) => {
-		if (!teacherIds.length) return <Typography sx={{ color: '#9ca3af' }}>No teachers</Typography>;
+		if (!teacherIds.length) return <Typography sx={{ color: '#9ca3af' }}>{t('adminOps.groups.noTeachers')}</Typography>;
 
 		const previewIds = teacherIds.slice(0, 3);
 		const remaining = teacherIds.length - previewIds.length;
 
 		return (
 			<Stack spacing={0.25}>
-				<Typography sx={{ fontWeight: 700 }}>{teacherIds.length} teacher{teacherIds.length === 1 ? '' : 's'}</Typography>
+				<Typography sx={{ fontWeight: 700 }}>
+					{teacherIds.length === 1
+						? t('adminOps.groups.teacherCountOne')
+						: t('adminOps.groups.teacherCount', { count: teacherIds.length })}
+				</Typography>
 				{previewIds.map((teacherId) => (
 					<Typography key={teacherId} title={teacherId} sx={{ fontSize: '12px', color: '#6b7280' }}>
 						{truncateId(teacherId)}
 					</Typography>
 				))}
 				{remaining > 0 && (
-					<Typography sx={{ fontSize: '12px', color: '#9ca3af' }}>+{remaining} more</Typography>
+					<Typography sx={{ fontSize: '12px', color: '#9ca3af' }}>{t('adminOps.groups.moreCount', { count: remaining })}</Typography>
 				)}
 			</Stack>
 		);
@@ -115,7 +121,7 @@ const AdminOperationsGroups: NextPage = ({ initialInquiry }: any) => {
 			return (
 				<TableRow>
 					<TableCell colSpan={9} align="center">
-						Loading groups...
+						{t('adminOps.groups.loading')}
 					</TableCell>
 				</TableRow>
 			);
@@ -125,7 +131,7 @@ const AdminOperationsGroups: NextPage = ({ initialInquiry }: any) => {
 			return (
 				<TableRow>
 					<TableCell colSpan={9} align="center">
-						Groups could not be loaded.
+						{t('adminOps.groups.loadError')}
 					</TableCell>
 				</TableRow>
 			);
@@ -135,7 +141,7 @@ const AdminOperationsGroups: NextPage = ({ initialInquiry }: any) => {
 			return (
 				<TableRow>
 					<TableCell colSpan={9} align="center">
-						No groups found.
+						{t('adminOps.groups.empty')}
 					</TableCell>
 				</TableRow>
 			);
@@ -155,7 +161,7 @@ const AdminOperationsGroups: NextPage = ({ initialInquiry }: any) => {
 				<TableCell align="center">{group.groupAgeRange || '-'}</TableCell>
 				<TableCell align="center">{group.groupCapacity}</TableCell>
 				<TableCell align="center">
-					<Chip label={getStatusLabel(group.groupStatus)} size="small" sx={getStatusChipSx(group.groupStatus)} />
+					<Chip label={statusLabel(group.groupStatus)} size="small" sx={getStatusChipSx(group.groupStatus)} />
 				</TableCell>
 				<TableCell align="left">{renderTeacherIds(group.teacherIds)}</TableCell>
 				<TableCell align="left">{formatDate(group.createdAt)}</TableCell>
@@ -167,10 +173,10 @@ const AdminOperationsGroups: NextPage = ({ initialInquiry }: any) => {
 	return (
 		<Box component="div" className="content">
 			<Typography variant="h2" className="tit" sx={{ mb: '12px' }}>
-				Operations Groups
+				{t('adminOps.groups.title')}
 			</Typography>
 			<Typography sx={{ mb: '24px', color: '#64746b' }}>
-				Inspect kindergarten class groups across the platform. This MVP view is read-only.
+				{t('adminOps.groups.subtitle')}
 			</Typography>
 
 			<Box component="div" className="table-wrap">
@@ -184,7 +190,7 @@ const AdminOperationsGroups: NextPage = ({ initialInquiry }: any) => {
 									value={status}
 									className={statusFilter === status ? 'li on' : 'li'}
 								>
-									{getStatusLabel(status)}
+									{statusLabel(status)}
 								</ListItem>
 							))}
 						</List>
@@ -192,21 +198,21 @@ const AdminOperationsGroups: NextPage = ({ initialInquiry }: any) => {
 						<Stack className="search-area" sx={{ m: '24px', gap: '12px', flexDirection: 'row', flexWrap: 'wrap' }}>
 							<TextField
 								size="small"
-								label="Kindergarten ID"
+								label={t('adminOps.common.kindergartenId')}
 								value={kindergartenIdFilter}
 								onChange={(event) => setKindergartenIdFilter(event.target.value)}
 							/>
 							<TextField
 								size="small"
-								label="Group name"
+								label={t('adminOps.groups.groupName')}
 								value={groupNameFilter}
 								onChange={(event) => setGroupNameFilter(event.target.value)}
 							/>
 							<Button variant="contained" onClick={() => applyFilters()}>
-								Apply
+								{t('common.apply')}
 							</Button>
 							<Button variant="outlined" onClick={clearFilters}>
-								Clear
+								{t('common.clear')}
 							</Button>
 						</Stack>
 						<Divider />
@@ -216,15 +222,15 @@ const AdminOperationsGroups: NextPage = ({ initialInquiry }: any) => {
 						<Table sx={{ minWidth: 1120 }} size="medium">
 							<TableHead>
 								<TableRow>
-									<TableCell align="left">GROUP ID</TableCell>
-									<TableCell align="left">KINDERGARTEN ID</TableCell>
-									<TableCell align="left">GROUP NAME</TableCell>
-									<TableCell align="center">AGE RANGE</TableCell>
-									<TableCell align="center">CAPACITY</TableCell>
-									<TableCell align="center">STATUS</TableCell>
-									<TableCell align="left">TEACHERS</TableCell>
-									<TableCell align="left">CREATED</TableCell>
-									<TableCell align="left">UPDATED</TableCell>
+									<TableCell align="left">{t('adminOps.common.groupId')}</TableCell>
+									<TableCell align="left">{t('adminOps.common.kindergartenId')}</TableCell>
+									<TableCell align="left">{t('adminOps.groups.groupName')}</TableCell>
+									<TableCell align="center">{t('adminTables.ageRange')}</TableCell>
+									<TableCell align="center">{t('adminTables.capacity')}</TableCell>
+									<TableCell align="center">{t('adminTables.status')}</TableCell>
+									<TableCell align="left">{t('kadmin.teachers')}</TableCell>
+									<TableCell align="left">{t('adminTables.created')}</TableCell>
+									<TableCell align="left">{t('adminTables.updated')}</TableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>{renderRows()}</TableBody>

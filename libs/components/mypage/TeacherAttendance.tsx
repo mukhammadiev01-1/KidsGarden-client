@@ -9,6 +9,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { userVar } from '../../../apollo/store';
 import { GET_ATTENDANCES, GET_CHILDREN, GET_GROUPS } from '../../../apollo/user/query';
 import { MARK_ATTENDANCE, UPDATE_ATTENDANCE } from '../../../apollo/user/mutation';
@@ -101,6 +102,7 @@ const mergeAttendancePages = (previousResult: any, { fetchMoreResult }: any) => 
 };
 
 const TeacherAttendance = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [selectedGroupId, setSelectedGroupId] = useState('');
@@ -258,8 +260,8 @@ const TeacherAttendance = () => {
 
 	const saveAttendanceHandler = async (child: Child) => {
 		try {
-			if (!selectedGroupId) throw new Error('Please select a group.');
-			if (!selectedDate) throw new Error('Please select an attendance date.');
+			if (!selectedGroupId) throw new Error(t('mypageText.TeacherAttendance.selectGroupError'));
+			if (!selectedDate) throw new Error(t('mypageText.TeacherAttendance.selectDateError'));
 
 			const draft = drafts[child._id] ?? {
 				attendanceStatus: AttendanceStatus.PRESENT,
@@ -270,7 +272,7 @@ const TeacherAttendance = () => {
 			const kindergartenId = child.kindergartenId || selectedGroup?.kindergartenId;
 			const note = draft.note.trim() || undefined;
 
-			if (!kindergartenId) throw new Error('Could not determine kindergarten for this child.');
+			if (!kindergartenId) throw new Error(t('mypageText.TeacherAttendance.kindergartenUnknownError'));
 
 			if (attendance) {
 				const input: AttendanceUpdate = {
@@ -284,7 +286,7 @@ const TeacherAttendance = () => {
 				};
 
 				await updateAttendance({ variables: { input } });
-				await sweetMixinSuccessAlert('Attendance updated');
+				await sweetMixinSuccessAlert(t('mypageText.TeacherAttendance.attendanceUpdated'));
 			} else {
 				const input: AttendanceInput = {
 					childId: child._id,
@@ -297,13 +299,13 @@ const TeacherAttendance = () => {
 
 				try {
 					await markAttendance({ variables: { input } });
-					await sweetMixinSuccessAlert('Attendance marked');
+					await sweetMixinSuccessAlert(t('mypageText.TeacherAttendance.attendanceMarked'));
 				} catch (markErr: any) {
 					const isDuplicateLikeError = String(markErr?.message ?? '').includes('Create failed');
 					if (!isDuplicateLikeError) throw markErr;
 
 					await refetchAttendances();
-					await sweetMixinErrorAlert('Attendance already exists. Please try saving again.');
+					await sweetMixinErrorAlert(t('mypageText.TeacherAttendance.attendanceExists'));
 					return;
 				}
 			}
@@ -326,31 +328,31 @@ const TeacherAttendance = () => {
 	return (
 		<Stack className="teacher-dashboard-screen teacher-attendance-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Attendance</Typography>
-				<Typography sx={{ color: '#6b7280' }}>Mark attendance for the groups assigned to you.</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>{t('mypage.menu.attendance')}</Typography>
+				<Typography sx={{ color: '#6b7280' }}>{t('mypageText.TeacherAttendance.subtitle')}</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select group and date</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.TeacherAttendance.selectGroupAndDate')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Choose the active group and attendance day before marking children.
+							{t('mypageText.TeacherAttendance.selectGroupAndDateSubtitle')}
 						</Typography>
 					</Stack>
-					<Chip label={`${groups.length} groups`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('mypageText.TeacherAttendance.groupsCount', { count: groups.length })} size="small" className="dashboard-count-chip" />
 				</Stack>
-				{groupsLoading && <Typography sx={{ color: '#6b7280' }}>Loading your groups...</Typography>}
+				{groupsLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.TeacherAttendance.loadingGroups')}</Typography>}
 				{!groupsLoading && groups.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						No active groups are assigned to you yet.
+						{t('mypageText.TeacherAttendance.noGroups')}
 					</Typography>
 				)}
 				<Stack className="dashboard-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						select
-						label="Group"
+						label={t('adminTables.group')}
 						value={selectedGroupId}
 						onChange={(event) => {
 							setSelectedGroupId(event.target.value);
@@ -366,7 +368,7 @@ const TeacherAttendance = () => {
 					</TextField>
 					<TextField
 						fullWidth
-						label="Attendance date"
+						label={t('mypageText.TeacherAttendance.attendanceDate')}
 						type="date"
 						value={selectedDate}
 						onChange={(event) => {
@@ -379,10 +381,13 @@ const TeacherAttendance = () => {
 				{selectedGroup && (
 					<Stack className="dashboard-context-card">
 						<Typography className="dashboard-primary-text">
-							{selectedGroup.groupName} for {selectedDate}
+							{t('mypageText.TeacherAttendance.groupForDate', { group: selectedGroup.groupName, date: selectedDate })}
 						</Typography>
 						<Typography className="dashboard-muted-text">
-							Age range {selectedGroup.groupAgeRange} · Capacity {selectedGroup.groupCapacity} children
+							{t('mypageText.TeacherAttendance.groupMeta', {
+								ageRange: selectedGroup.groupAgeRange,
+								capacity: selectedGroup.groupCapacity,
+							})}
 						</Typography>
 					</Stack>
 				)}
@@ -391,19 +396,19 @@ const TeacherAttendance = () => {
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Daily attendance</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.TeacherAttendance.dailyAttendance')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Choose a status for each child, add an optional note, then click Mark or Update.
+							{t('mypageText.TeacherAttendance.dailyAttendanceSubtitle')}
 						</Typography>
 					</Stack>
-					<Chip label={`${children.length} children`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('mypageText.TeacherAttendance.childrenCount', { count: children.length })} size="small" className="dashboard-count-chip" />
 				</Stack>
 				{(childrenLoading || attendancesLoading || fetchingMoreAttendances) && (
-					<Typography sx={{ color: '#6b7280' }}>Loading attendance records...</Typography>
+					<Typography sx={{ color: '#6b7280' }}>{t('mypageText.TeacherAttendance.loadingRecords')}</Typography>
 				)}
 				{!childrenLoading && selectedGroupId && children.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						No active children found in this group.
+						{t('mypageText.TeacherAttendance.noChildren')}
 					</Typography>
 				)}
 				{children.length > 0 && (
@@ -427,18 +432,22 @@ const TeacherAttendance = () => {
 										</Stack>
 										{hasExistingRecord ? (
 											<Chip
-												label={`Saved: ${getStatusLabel(attendance?.attendanceStatus)}`}
+												label={t('mypageText.TeacherAttendance.savedStatus', {
+													status: t(`statuses.${attendance?.attendanceStatus}`, {
+														defaultValue: getStatusLabel(attendance?.attendanceStatus),
+													}),
+												})}
 												size="small"
 												sx={getStatusChipSx(attendance?.attendanceStatus)}
 											/>
 										) : (
-											<Chip label="Not marked yet" size="small" sx={getStatusChipSx('INACTIVE')} />
+											<Chip label={t('mypageText.TeacherAttendance.notMarkedYet')} size="small" sx={getStatusChipSx('INACTIVE')} />
 										)}
 									</Stack>
 
 									<Stack className="teacher-record-grid teacher-attendance-grid">
 										<Stack className="teacher-meta-item">
-											<Typography className="teacher-meta-label">Attendance status</Typography>
+											<Typography className="teacher-meta-label">{t('mypageText.TeacherAttendance.attendanceStatus')}</Typography>
 											<TextField
 												fullWidth
 												select
@@ -450,17 +459,17 @@ const TeacherAttendance = () => {
 											>
 												{attendanceStatusOptions.map((status) => (
 													<MenuItem key={status} value={status}>
-														{getStatusLabel(status)}
+														{t(`statuses.${status}`, { defaultValue: getStatusLabel(status) })}
 													</MenuItem>
 												))}
 											</TextField>
 										</Stack>
 										<Stack className="teacher-meta-item teacher-meta-wide">
-											<Typography className="teacher-meta-label">Optional note</Typography>
+											<Typography className="teacher-meta-label">{t('adminForms.optionalNote')}</Typography>
 											<TextField
 												fullWidth
 												size="small"
-												placeholder="Optional note"
+												placeholder={t('adminForms.optionalNote')}
 												value={draft.note}
 												onChange={(event) => updateDraft(child._id, { note: event.target.value })}
 											/>
@@ -469,17 +478,21 @@ const TeacherAttendance = () => {
 
 									<Stack className="teacher-record-actions">
 										<Button variant="outlined" onClick={() => toggleChat(child._id)}>
-											{isChatOpen ? 'Close Parent Chat' : 'Open Parent Chat'}
+											{isChatOpen
+												? t('mypageText.TeacherAttendance.closeParentChat')
+												: t('mypageText.TeacherAttendance.openParentChat')}
 										</Button>
 										<Button variant="contained" onClick={() => saveAttendanceHandler(child)}>
-											{hasExistingRecord ? 'Update attendance' : 'Mark attendance'}
+											{hasExistingRecord
+												? t('mypageText.TeacherAttendance.updateAttendance')
+												: t('mypageText.TeacherAttendance.markAttendance')}
 										</Button>
 									</Stack>
 
 									{isChatOpen && (
 										<ParentTeacherChatPanel
 											childId={child._id}
-											title="Parent chat"
+											title={t('mypageText.TeacherAttendance.parentChat')}
 											onClose={() => setActiveChatChildId(null)}
 										/>
 									)}

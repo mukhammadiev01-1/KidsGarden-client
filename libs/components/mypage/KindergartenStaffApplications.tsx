@@ -10,12 +10,14 @@ import {
 	Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { APPROVE_STAFF_APPLICATION, REJECT_STAFF_APPLICATION } from '../../../apollo/user/mutation';
 import { GET_OWNER_KINDERGARTENS, GET_STAFF_APPLICATIONS } from '../../../apollo/user/query';
 import { userVar } from '../../../apollo/store';
 import { KindergartenStatus } from '../../enums/kindergarten.enum';
 import { MemberType } from '../../enums/member.enum';
 import { StaffApplicationStatus } from '../../enums/staff-application.enum';
+import { StaffRole } from '../../enums/kindergarten-staff.enum';
 import { StaffApplication } from '../../types/staff-application/staff-application';
 import { Kindergarten } from '../../types/kindergarten/kindergarten';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
@@ -35,8 +37,14 @@ const applicationStatusOptions = [
 ];
 
 const staffReviewStatuses = [StaffApplicationStatus.APPROVED, StaffApplicationStatus.REJECTED];
+const staffRoleLabelKeys: Record<string, string> = {
+	[StaffRole.OWNER]: 'mypageText.KindergartenStaff.roleOwner',
+	[StaffRole.ADMIN]: 'mypageText.KindergartenStaff.roleAdmin',
+	[StaffRole.TEACHER]: 'mypageText.KindergartenStaff.roleTeacher',
+};
 
 const KindergartenStaffApplications = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [selectedKindergartenId, setSelectedKindergartenId] = useState('');
@@ -96,6 +104,10 @@ const KindergartenStaffApplications = () => {
 	const applications: StaffApplication[] = applicationsData?.getStaffApplications?.list ?? [];
 	const hideKindergartenSelector = shouldHideKindergartenSelector(user.memberType, kindergartens);
 	const selectedKindergartenTitle = getSelectedKindergartenTitle(kindergartens, selectedKindergartenId);
+	const roleLabel = (role?: string) =>
+		role ? t(staffRoleLabelKeys[role] ?? '', { defaultValue: getStatusLabel(role) }) : '-';
+	const statusLabel = (status?: string) => (status ? t(`statuses.${status}`, { defaultValue: getStatusLabel(status) }) : '-');
+	const memberTypeLabel = (type?: string) => (type ? t(`roles.${type}`, { defaultValue: getStatusLabel(type) }) : '-');
 
 	useEffect(() => {
 		if (!selectedKindergartenId && kindergartens.length > 0) {
@@ -105,10 +117,10 @@ const KindergartenStaffApplications = () => {
 
 	const approveApplicationHandler = async (applicationId: string) => {
 		try {
-			if (!(await sweetConfirmAlert('Approve this teacher application?'))) return;
+			if (!(await sweetConfirmAlert(t('mypageText.KindergartenStaffApplications.approveConfirm')))) return;
 			await approveStaffApplication({ variables: { input: { _id: applicationId } } });
 			await refetchApplications();
-			await sweetMixinSuccessAlert('Application approved');
+			await sweetMixinSuccessAlert(t('mypageText.KindergartenStaffApplications.approved'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -125,12 +137,12 @@ const KindergartenStaffApplications = () => {
 	const rejectApplicationHandler = async (applicationId: string) => {
 		try {
 			const rejectReason = rejectReasons[applicationId]?.trim();
-			if (!rejectReason) throw new Error('Enter a reject reason before rejecting.');
-			if (!(await sweetConfirmAlert('Reject this teacher application?'))) return;
+			if (!rejectReason) throw new Error(t('mypageText.KindergartenStaffApplications.rejectReasonRequired'));
+			if (!(await sweetConfirmAlert(t('mypageText.KindergartenStaffApplications.rejectConfirm')))) return;
 			await rejectStaffApplication({ variables: { input: { _id: applicationId, rejectReason } } });
 			setRejectReasons((prev) => ({ ...prev, [applicationId]: '' }));
 			await refetchApplications();
-			await sweetMixinSuccessAlert('Application rejected');
+			await sweetMixinSuccessAlert(t('mypageText.KindergartenStaffApplications.rejected'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -159,25 +171,25 @@ const KindergartenStaffApplications = () => {
 	return (
 		<Stack className="admin-dashboard-screen admin-staff-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Teacher Access Requests</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>{t('mypage.menu.teacherAccessRequests')}</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Review teacher applications submitted to your kindergarten.
+					{t('mypageText.KindergartenStaffApplications.subtitle')}
 				</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Filters</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('kindergartens.filters')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Review applications for the selected kindergarten and status.
+							{t('mypageText.KindergartenStaffApplications.filtersHint')}
 						</Typography>
 					</Stack>
 				</Stack>
-				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>Loading your kindergartens...</Typography>}
+				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenStaff.loadingKindergartens')}</Typography>}
 				{!ownerLoading && kindergartens.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						Create a kindergarten profile before reviewing applications.
+						{t('mypageText.KindergartenStaffApplications.createKindergartenFirst')}
 					</Typography>
 				)}
 				{kindergartens.length > 0 && (
@@ -185,14 +197,14 @@ const KindergartenStaffApplications = () => {
 						{hideKindergartenSelector ? (
 							<Stack className="admin-selector-card admin-readonly-selector">
 								<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
-									Kindergarten: {selectedKindergartenTitle}
+									{t('mypageText.KindergartenStaff.kindergartenLabel', { title: selectedKindergartenTitle })}
 								</Typography>
 							</Stack>
 						) : (
 							<TextField
 								fullWidth
 								select
-								label="Kindergarten"
+								label={t('adminTables.kindergarten')}
 								value={selectedKindergartenId}
 								onChange={(event) => setSelectedKindergartenId(event.target.value)}
 							>
@@ -206,14 +218,14 @@ const KindergartenStaffApplications = () => {
 						<TextField
 							fullWidth
 							select
-							label="Status"
+							label={t('dashboardCommon.status')}
 							value={statusFilter}
 							onChange={(event) => setStatusFilter(event.target.value as StaffApplicationStatus | 'ALL')}
 						>
-							<MenuItem value="ALL">ALL</MenuItem>
+							<MenuItem value="ALL">{t('statuses.ALL')}</MenuItem>
 							{applicationStatusOptions.map((status) => (
 								<MenuItem key={status} value={status}>
-									{status}
+									{statusLabel(status)}
 								</MenuItem>
 							))}
 						</TextField>
@@ -224,17 +236,17 @@ const KindergartenStaffApplications = () => {
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Applications</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('adminPages.applications.panelTitle')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Applicant details are shown only in this guarded review screen.
+							{t('mypageText.KindergartenStaffApplications.applicationsHint')}
 						</Typography>
 					</Stack>
-					<Chip label={`${applications.length} found`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('mypageText.KindergartenStaffApplications.foundCount', { count: applications.length })} size="small" className="dashboard-count-chip" />
 				</Stack>
-				{applicationsLoading && <Typography sx={{ color: '#6b7280' }}>Loading applications...</Typography>}
+				{applicationsLoading && <Typography sx={{ color: '#6b7280' }}>{t('adminPages.applications.loading')}</Typography>}
 				{!applicationsLoading && selectedKindergartenId && applications.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						No applications found for this filter.
+						{t('mypageText.KindergartenStaffApplications.noApplications')}
 					</Typography>
 				)}
 				{applications.length > 0 && (
@@ -246,21 +258,21 @@ const KindergartenStaffApplications = () => {
 							const isStatusMenuOpen = statusMenu.applicationId === application._id && Boolean(statusMenu.anchorEl);
 							const applicantName = applicant?.memberNick
 								? `${applicant.memberNick}${applicant.memberFullName ? ` (${applicant.memberFullName})` : ''}`
-								: applicant?.memberFullName || 'Applicant';
+								: applicant?.memberFullName || t('mypageText.KindergartenStaffApplications.applicantFallback');
 
 							return (
 								<Stack key={application._id} className="admin-record-card admin-staff-application-card" spacing={2}>
 									<Stack className="admin-record-card-header">
 										<Stack className="admin-record-title-block" spacing={0.5}>
 											<Typography className="dashboard-primary-text admin-record-title">{applicantName}</Typography>
-											<Typography className="dashboard-muted-text">{applicant?.memberPhone || 'No phone'}</Typography>
+											<Typography className="dashboard-muted-text">{applicant?.memberPhone || t('mypageText.KindergartenStaff.noPhone')}</Typography>
 											<Stack className="admin-chip-row">
 												{applicant?.memberType && (
-													<Chip label={getStatusLabel(applicant.memberType)} size="small" className="admin-info-chip" />
+													<Chip label={memberTypeLabel(applicant.memberType)} size="small" className="admin-info-chip" />
 												)}
 												{applicant?.memberStatus && (
 													<Chip
-														label={getStatusLabel(applicant.memberStatus)}
+														label={statusLabel(applicant.memberStatus)}
 														size="small"
 														sx={getStatusChipSx(applicant.memberStatus)}
 													/>
@@ -268,31 +280,31 @@ const KindergartenStaffApplications = () => {
 											</Stack>
 										</Stack>
 										<Chip
-											label={getStatusLabel(application.applicationStatus)}
+											label={statusLabel(application.applicationStatus)}
 											size="small"
 											sx={getStatusChipSx(application.applicationStatus)}
 										/>
 									</Stack>
 									<Stack className="admin-record-grid admin-application-grid">
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Requested role</Typography>
-											<Typography className="admin-meta-value">{application.requestedRole}</Typography>
+											<Typography className="admin-meta-label">{t('mypageText.KindergartenStaffApplications.requestedRole')}</Typography>
+											<Typography className="admin-meta-value">{roleLabel(application.requestedRole)}</Typography>
 										</Stack>
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Created</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.created')}</Typography>
 											<Typography className="admin-meta-value">{formatDate(application.createdAt)}</Typography>
 										</Stack>
 										<Stack className="admin-meta-item admin-meta-wide">
-											<Typography className="admin-meta-label">Message</Typography>
-											<Typography className="dashboard-note-text">{application.message || 'No message provided.'}</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.message')}</Typography>
+											<Typography className="dashboard-note-text">{application.message || t('mypageText.KindergartenStaffApplications.noMessage')}</Typography>
 										</Stack>
 										<Stack className="admin-meta-item admin-meta-wide">
-											<Typography className="admin-meta-label">Reject reason</Typography>
+											<Typography className="admin-meta-label">{t('mypageText.KindergartenStaffApplications.rejectReason')}</Typography>
 											{isPending ? (
 												<TextField
 													fullWidth
 													size="small"
-													placeholder="Reason for rejection"
+													placeholder={t('mypageText.KindergartenStaffApplications.rejectReasonPlaceholder')}
 													value={rejectReasons[application._id] || ''}
 													onChange={(event) =>
 														setRejectReasons((prev) => ({
@@ -304,10 +316,10 @@ const KindergartenStaffApplications = () => {
 											) : (
 												<Stack spacing={0.25}>
 													<Typography className="dashboard-note-text">
-														{application.rejectReason || 'No reject reason recorded.'}
+														{application.rejectReason || t('mypageText.KindergartenStaffApplications.noRejectReason')}
 													</Typography>
 													<Typography className="dashboard-muted-text">
-														Reviewed {formatDate(application.reviewedAt)}
+														{t('mypageText.KindergartenStaffApplications.reviewedAt', { date: formatDate(application.reviewedAt) })}
 													</Typography>
 												</Stack>
 											)}
@@ -322,7 +334,7 @@ const KindergartenStaffApplications = () => {
 											aria-expanded={isStatusMenuOpen ? 'true' : undefined}
 											onClick={(event) => openStatusMenuHandler(event, application._id)}
 										>
-											Change Status
+											{t('mypageText.KindergartenStaffApplications.changeStatus')}
 										</Button>
 										<Menu
 											anchorEl={statusMenu.anchorEl}
@@ -357,7 +369,7 @@ const KindergartenStaffApplications = () => {
 														fontWeight: 800,
 													}}
 												>
-													{getStatusLabel(status)}
+													{statusLabel(status)}
 												</MenuItem>
 											))}
 										</Menu>

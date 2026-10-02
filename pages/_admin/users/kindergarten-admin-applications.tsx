@@ -24,7 +24,10 @@ import { KindergartenAdminApplicationStatus } from '../../../libs/enums/kinderga
 import { KindergartenAdminApplication } from '../../../libs/types/kindergarten-admin-application/kindergarten-admin-application';
 import { KindergartenAdminApplicationsInquiry } from '../../../libs/types/kindergarten-admin-application/kindergarten-admin-application.input';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
-import { formatDate, getStatusChipSx, getStatusLabel } from '../../../libs/components/mypage/dashboardUtils';
+import { formatDate, getStatusChipSx } from '../../../libs/components/mypage/dashboardUtils';
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
+
+type AdminTranslate = ReturnType<typeof useAdminTranslation>['t'];
 
 const statusTabs = [
 	'ALL',
@@ -34,26 +37,27 @@ const statusTabs = [
 	KindergartenAdminApplicationStatus.CANCELED,
 ];
 
-const getApplicantName = (application: KindergartenAdminApplication) => {
+const getApplicantName = (application: KindergartenAdminApplication, t: AdminTranslate) => {
 	const applicant = application.applicantData;
 	if (applicant?.memberNick && applicant?.memberFullName) return `${applicant.memberNick} (${applicant.memberFullName})`;
-	return applicant?.memberNick || applicant?.memberFullName || 'Applicant';
+	return applicant?.memberNick || applicant?.memberFullName || t('adminUsersText.KindergartenAdminApplications.applicant');
 };
 
-const getFinalStateCopy = (status: KindergartenAdminApplicationStatus) => {
+const getFinalStateCopy = (status: KindergartenAdminApplicationStatus, t: AdminTranslate) => {
 	switch (status) {
 		case KindergartenAdminApplicationStatus.APPROVED:
-			return 'Approved applications are final in this review queue.';
+			return t('adminUsersText.KindergartenAdminApplications.approvedFinal');
 		case KindergartenAdminApplicationStatus.REJECTED:
-			return 'Rejected applications are final in this review queue.';
+			return t('adminUsersText.KindergartenAdminApplications.rejectedFinal');
 		case KindergartenAdminApplicationStatus.CANCELED:
-			return 'Canceled applications cannot be reviewed.';
+			return t('adminUsersText.KindergartenAdminApplications.canceledFinal');
 		default:
 			return '';
 	}
 };
 
 const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) => {
+	const { t, statusLabel, roleLabel } = useAdminTranslation();
 	const [applicationsInquiry, setApplicationsInquiry] =
 		useState<KindergartenAdminApplicationsInquiry>(initialInquiry);
 	const [value, setValue] = useState<string>(KindergartenAdminApplicationStatus.PENDING);
@@ -98,10 +102,10 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 
 	const approveApplicationHandler = async (applicationId: string) => {
 		try {
-			if (!(await sweetConfirmAlert('Approve this kindergarten admin application?'))) return;
+			if (!(await sweetConfirmAlert(t('adminUsersText.KindergartenAdminApplications.approveConfirm')))) return;
 			await approveKindergartenAdminApplication({ variables: { input: { _id: applicationId } } });
 			await refetch();
-			await sweetMixinSuccessAlert('Application approved');
+			await sweetMixinSuccessAlert(t('adminUsersText.KindergartenAdminApplications.approved'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -110,12 +114,12 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 	const rejectApplicationHandler = async (applicationId: string) => {
 		try {
 			const rejectReason = rejectReasons[applicationId]?.trim();
-			if (!rejectReason) throw new Error('Enter a reject reason before rejecting.');
-			if (!(await sweetConfirmAlert('Reject this kindergarten admin application?'))) return;
+			if (!rejectReason) throw new Error(t('adminUsersText.KindergartenAdminApplications.rejectReasonRequired'));
+			if (!(await sweetConfirmAlert(t('adminUsersText.KindergartenAdminApplications.rejectConfirm')))) return;
 			await rejectKindergartenAdminApplication({ variables: { input: { _id: applicationId, rejectReason } } });
 			setRejectReasons((prev) => ({ ...prev, [applicationId]: '' }));
 			await refetch();
-			await sweetMixinSuccessAlert('Application rejected');
+			await sweetMixinSuccessAlert(t('adminUsersText.KindergartenAdminApplications.rejected'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -125,15 +129,15 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 		<Box component={'div'} className={'content admin-kindergarten-admin-applications'}>
 			<Stack className="admin-review-page-header">
 				<Stack spacing={0.75}>
-					<Typography className="admin-review-kicker">Super Admin Review Queue</Typography>
+					<Typography className="admin-review-kicker">{t('adminUsersText.KindergartenAdminApplications.kicker')}</Typography>
 					<Typography variant={'h2'} className={'tit'}>
-						Kindergarten Admin Applications
+						{t('admin.menu.kindergartenAdminApplications')}
 					</Typography>
 					<Typography className="admin-review-subtitle">
-						Review center admin access requests without exposing raw technical identifiers in the normal workflow.
+						{t('adminUsersText.KindergartenAdminApplications.subtitle')}
 					</Typography>
 				</Stack>
-				<Chip className="admin-review-count-chip" label={`${total} total`} />
+				<Chip className="admin-review-count-chip" label={t('adminTables.totalCount', { count: total })} />
 			</Stack>
 
 			<Box component={'div'} className={'table-wrap admin-review-wrap'}>
@@ -148,7 +152,7 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 										value={status}
 										className={value === status ? 'li on' : 'li'}
 									>
-										{getStatusLabel(status)}
+										{statusLabel(status)}
 									</ListItem>
 								))}
 							</List>
@@ -157,46 +161,46 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 						<div className="admin-review-list">
 							{loading && (
 								<Stack className="admin-review-state-card">
-									<Typography className="admin-review-state-title">Loading applications...</Typography>
-									<Typography className="admin-review-state-copy">Fetching the latest Super Admin review queue.</Typography>
+									<Typography className="admin-review-state-title">{t('adminPages.applications.loading')}</Typography>
+									<Typography className="admin-review-state-copy">{t('adminUsersText.KindergartenAdminApplications.loadingCopy')}</Typography>
 								</Stack>
 							)}
 							{!loading && error && (
 								<Stack className="admin-review-state-card">
-									<Typography className="admin-review-state-title">Unable to load applications.</Typography>
+									<Typography className="admin-review-state-title">{t('adminUsersText.KindergartenAdminApplications.loadErrorTitle')}</Typography>
 									<Typography className="admin-review-state-copy">
-										Check the backend connection and try refreshing the review queue.
+										{t('adminUsersText.KindergartenAdminApplications.loadErrorCopy')}
 									</Typography>
 								</Stack>
 							)}
 							{!loading && !error && applications.length === 0 && (
 								<Stack className="admin-review-state-card">
 									<Typography className="admin-review-state-title">
-										No kindergarten admin applications yet.
+										{t('adminUsersText.KindergartenAdminApplications.emptyTitle')}
 									</Typography>
 									<Typography className="admin-review-state-copy">
-										Applications will appear here when a parent or center user requests admin access.
+										{t('adminUsersText.KindergartenAdminApplications.emptyCopy')}
 									</Typography>
 								</Stack>
 							)}
 							{!error && applications.map((application) => {
 								const applicant = application.applicantData;
 								const isPending = application.applicationStatus === KindergartenAdminApplicationStatus.PENDING;
-								const finalStateCopy = getFinalStateCopy(application.applicationStatus);
+								const finalStateCopy = getFinalStateCopy(application.applicationStatus, t);
 
 								return (
 									<Stack className="admin-review-card" key={application._id}>
 										<Stack className="admin-review-card-header">
 											<Stack spacing={0.4}>
 												<Typography className="admin-review-card-title">
-													{application.kindergartenTitle || 'Kindergarten draft'}
+													{application.kindergartenTitle || t('adminUsersText.KindergartenAdminApplications.kindergartenDraft')}
 												</Typography>
 												<Typography className="admin-review-card-meta">
-													Created {formatDate(application.createdAt)}
+													{t('adminUsersText.KindergartenAdminApplications.createdAt', { date: formatDate(application.createdAt) })}
 												</Typography>
 											</Stack>
 											<Chip
-												label={getStatusLabel(application.applicationStatus)}
+												label={statusLabel(application.applicationStatus)}
 												size="small"
 												sx={getStatusChipSx(application.applicationStatus)}
 											/>
@@ -204,47 +208,53 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 
 										<Stack className="admin-review-card-grid">
 											<Stack className="admin-review-info-box">
-												<Typography className="admin-review-label">Applicant</Typography>
-												<Typography className="admin-review-primary">{getApplicantName(application)}</Typography>
-												<Typography className="admin-review-muted">{applicant?.memberPhone || 'No phone provided'}</Typography>
+												<Typography className="admin-review-label">{t('adminUsersText.KindergartenAdminApplications.applicant')}</Typography>
+												<Typography className="admin-review-primary">{getApplicantName(application, t)}</Typography>
+												<Typography className="admin-review-muted">{applicant?.memberPhone || t('adminUsersText.KindergartenAdminApplications.noPhone')}</Typography>
 												<Typography className="admin-review-muted">
-													{[applicant?.memberType, applicant?.memberStatus].filter(Boolean).join(' · ') ||
-														'Account details unavailable'}
+													{[
+														applicant?.memberType ? roleLabel(applicant.memberType) : '',
+														applicant?.memberStatus ? statusLabel(applicant.memberStatus) : '',
+													]
+														.filter(Boolean)
+														.join(' · ') || t('adminUsersText.KindergartenAdminApplications.accountDetailsUnavailable')}
 												</Typography>
 											</Stack>
 
 											<Stack className="admin-review-info-box admin-review-wide">
-												<Typography className="admin-review-label">Kindergarten Draft</Typography>
+												<Typography className="admin-review-label">{t('adminUsersText.KindergartenAdminApplications.kindergartenDraftLabel')}</Typography>
 												<Typography className="admin-review-primary">
-													{application.kindergartenTitle || 'Untitled center'}
+													{application.kindergartenTitle || t('adminUsersText.KindergartenAdminApplications.untitledCenter')}
 												</Typography>
 												<Typography className="admin-review-muted">
-													{application.kindergartenAddress || 'No address provided'}
+													{application.kindergartenAddress || t('adminUsersText.KindergartenAdminApplications.noAddress')}
 												</Typography>
 												<Typography className="admin-review-muted">
-													{application.kindergartenPhone || 'No center phone provided'}
+													{application.kindergartenPhone || t('adminUsersText.KindergartenAdminApplications.noCenterPhone')}
 												</Typography>
 											</Stack>
 
 											<Stack className="admin-review-info-box">
-												<Typography className="admin-review-label">Review</Typography>
+												<Typography className="admin-review-label">{t('admin.badges.review')}</Typography>
 												<Typography className="admin-review-muted">
-													Reviewed: {formatDate(application.reviewedAt)}
+													{t('adminUsersText.KindergartenAdminApplications.reviewedAt', { date: formatDate(application.reviewedAt) })}
 												</Typography>
 												<Typography className="admin-review-muted">
-													{application.rejectReason ? `Reason: ${application.rejectReason}` : 'No review note yet'}
+													{application.rejectReason
+														? t('adminUsersText.KindergartenAdminApplications.reason', { reason: application.rejectReason })
+														: t('adminUsersText.KindergartenAdminApplications.noReviewNote')}
 												</Typography>
 											</Stack>
 										</Stack>
 
 										<Stack className="admin-review-text-grid">
 											<Stack className="admin-review-text-panel">
-												<Typography className="admin-review-label">Business info</Typography>
-												<Typography className="admin-review-body">{application.businessInfo || 'No business info provided.'}</Typography>
+												<Typography className="admin-review-label">{t('adminUsersText.KindergartenAdminApplications.businessInfo')}</Typography>
+												<Typography className="admin-review-body">{application.businessInfo || t('adminUsersText.KindergartenAdminApplications.noBusinessInfo')}</Typography>
 											</Stack>
 											<Stack className="admin-review-text-panel">
-												<Typography className="admin-review-label">Applicant message</Typography>
-												<Typography className="admin-review-body">{application.message || 'No message provided.'}</Typography>
+												<Typography className="admin-review-label">{t('adminUsersText.KindergartenAdminApplications.applicantMessage')}</Typography>
+												<Typography className="admin-review-body">{application.message || t('adminUsersText.KindergartenAdminApplications.noMessage')}</Typography>
 											</Stack>
 										</Stack>
 
@@ -254,7 +264,7 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 													<TextField
 														className="admin-review-reject-field"
 														size="small"
-														placeholder="Reason required to reject"
+														placeholder={t('adminUsersText.KindergartenAdminApplications.rejectReasonPlaceholder')}
 														value={rejectReasons[application._id] || ''}
 														onChange={(event) =>
 															setRejectReasons((prev) => ({
@@ -265,16 +275,16 @@ const AdminKindergartenAdminApplications: NextPage = ({ initialInquiry }: any) =
 													/>
 													<Stack className="admin-review-actions">
 														<Button variant="contained" onClick={() => approveApplicationHandler(application._id)}>
-															Approve
+															{t('adminUsersText.KindergartenAdminApplications.approve')}
 														</Button>
 														<Button variant="outlined" color="error" onClick={() => rejectApplicationHandler(application._id)}>
-															Reject
+															{t('adminUsersText.KindergartenAdminApplications.reject')}
 														</Button>
 													</Stack>
 												</>
 											) : (
 												<Stack className="admin-review-final-state">
-													<Typography>{finalStateCopy || 'This application is no longer pending.'}</Typography>
+													<Typography>{finalStateCopy || t('adminUsersText.KindergartenAdminApplications.noLongerPending')}</Typography>
 												</Stack>
 											)}
 										</Stack>

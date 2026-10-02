@@ -27,7 +27,8 @@ import { StaffApplicationStatus } from '../../../libs/enums/staff-application.en
 import { StaffApplication } from '../../../libs/types/staff-application/staff-application';
 import { StaffApplicationsInquiry } from '../../../libs/types/staff-application/staff-application.input';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
-import { formatDate, getStatusChipSx, getStatusLabel, truncateId } from '../../../libs/components/mypage/dashboardUtils';
+import { formatDate, getStatusChipSx, truncateId } from '../../../libs/components/mypage/dashboardUtils';
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
 
 const statusTabs = [
 	'ALL',
@@ -38,6 +39,7 @@ const statusTabs = [
 ];
 
 const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
+	const { t, statusLabel, roleLabel } = useAdminTranslation();
 	const [applicationsInquiry, setApplicationsInquiry] = useState<StaffApplicationsInquiry>(initialInquiry);
 	const [value, setValue] = useState<string>(StaffApplicationStatus.PENDING);
 	const [rejectReasons, setRejectReasons] = useState<Record<string, string>>({});
@@ -81,10 +83,10 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 
 	const approveApplicationHandler = async (applicationId: string) => {
 		try {
-			if (!(await sweetConfirmAlert('Approve this teacher application?'))) return;
+			if (!(await sweetConfirmAlert(t('adminUsersText.StaffApplications.approveConfirm')))) return;
 			await approveStaffApplication({ variables: { input: { _id: applicationId } } });
 			await refetch();
-			await sweetMixinSuccessAlert('Application approved');
+			await sweetMixinSuccessAlert(t('adminUsersText.StaffApplications.approved'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -93,12 +95,12 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 	const rejectApplicationHandler = async (applicationId: string) => {
 		try {
 			const rejectReason = rejectReasons[applicationId]?.trim();
-			if (!rejectReason) throw new Error('Enter a reject reason before rejecting.');
-			if (!(await sweetConfirmAlert('Reject this teacher application?'))) return;
+			if (!rejectReason) throw new Error(t('adminUsersText.StaffApplications.rejectReasonRequired'));
+			if (!(await sweetConfirmAlert(t('adminUsersText.StaffApplications.rejectConfirm')))) return;
 			await rejectStaffApplication({ variables: { input: { _id: applicationId, rejectReason } } });
 			setRejectReasons((prev) => ({ ...prev, [applicationId]: '' }));
 			await refetch();
-			await sweetMixinSuccessAlert('Application rejected');
+			await sweetMixinSuccessAlert(t('adminUsersText.StaffApplications.rejected'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -107,7 +109,7 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Teacher Applications
+				{t('admin.menu.teacherApplications')}
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
@@ -121,7 +123,7 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 										value={status}
 										className={value === status ? 'li on' : 'li'}
 									>
-										{getStatusLabel(status)}
+										{statusLabel(status)}
 									</ListItem>
 								))}
 							</List>
@@ -131,28 +133,28 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 							<Table sx={{ minWidth: 1220 }} size="medium">
 								<TableHead>
 									<TableRow>
-										<TableCell>Applicant</TableCell>
-										<TableCell>Kindergarten</TableCell>
-										<TableCell>Role</TableCell>
-										<TableCell>Status</TableCell>
-										<TableCell>Message</TableCell>
-										<TableCell>Created</TableCell>
-										<TableCell>Review</TableCell>
-										<TableCell align="right">Actions</TableCell>
+										<TableCell>{t('adminUsersText.StaffApplications.applicant')}</TableCell>
+										<TableCell>{t('adminTables.kindergarten')}</TableCell>
+										<TableCell>{t('dashboardCommon.role')}</TableCell>
+										<TableCell>{t('adminTables.status')}</TableCell>
+										<TableCell>{t('adminTables.message')}</TableCell>
+										<TableCell>{t('adminTables.created')}</TableCell>
+										<TableCell>{t('admin.badges.review')}</TableCell>
+										<TableCell align="right">{t('adminTables.actions')}</TableCell>
 									</TableRow>
 								</TableHead>
 								<TableBody>
 									{loading && (
 										<TableRow>
 											<TableCell align="center" colSpan={8}>
-												Loading applications...
+												{t('adminPages.applications.loading')}
 											</TableCell>
 										</TableRow>
 									)}
 									{!loading && applications.length === 0 && (
 										<TableRow>
 											<TableCell align="center" colSpan={8}>
-												<span className={'no-data'}>No teacher applications found.</span>
+												<span className={'no-data'}>{t('adminUsersText.StaffApplications.empty')}</span>
 											</TableCell>
 										</TableRow>
 									)}
@@ -167,13 +169,18 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 														<Typography sx={{ fontWeight: 700 }}>
 															{applicant?.memberNick
 																? `${applicant.memberNick}${applicant.memberFullName ? ` (${applicant.memberFullName})` : ''}`
-																: applicant?.memberFullName || 'Applicant reference'}
+																: applicant?.memberFullName || t('adminUsersText.StaffApplications.applicantReference')}
 														</Typography>
 														<Typography sx={{ fontSize: '13px', color: '#6b7280' }}>
-															{applicant?.memberPhone || 'No phone'}
+															{applicant?.memberPhone || t('adminUsersText.StaffApplications.noPhone')}
 														</Typography>
 														<Typography sx={{ fontSize: '12px', color: '#6b7280' }}>
-															{[applicant?.memberType, applicant?.memberStatus].filter(Boolean).join(' · ') || '-'}
+															{[
+																applicant?.memberType ? roleLabel(applicant.memberType) : '',
+																applicant?.memberStatus ? statusLabel(applicant.memberStatus) : '',
+															]
+																.filter(Boolean)
+																.join(' · ') || '-'}
 														</Typography>
 														<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
 															{truncateId(application.applicantId)}
@@ -182,16 +189,16 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 												</TableCell>
 												<TableCell sx={{ maxWidth: 220 }}>
 													<Stack spacing={0.25}>
-														<Typography sx={{ fontWeight: 700 }}>Kindergarten</Typography>
+														<Typography sx={{ fontWeight: 700 }}>{t('adminTables.kindergarten')}</Typography>
 														<Typography sx={{ fontSize: '12px', color: '#9ca3af', wordBreak: 'break-all' }}>
 															{truncateId(application.kindergartenId)}
 														</Typography>
 													</Stack>
 												</TableCell>
-												<TableCell>{application.requestedRole}</TableCell>
+												<TableCell>{roleLabel(application.requestedRole)}</TableCell>
 												<TableCell>
 													<Chip
-														label={getStatusLabel(application.applicationStatus)}
+														label={statusLabel(application.applicationStatus)}
 														size="small"
 														sx={getStatusChipSx(application.applicationStatus)}
 													/>
@@ -203,7 +210,7 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 														<TextField
 															fullWidth
 															size="small"
-															placeholder="Reason for rejection"
+															placeholder={t('adminUsersText.StaffApplications.rejectReasonPlaceholder')}
 															value={rejectReasons[application._id] || ''}
 															onChange={(event) =>
 																setRejectReasons((prev) => ({
@@ -228,7 +235,7 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 															disabled={!isPending}
 															onClick={() => approveApplicationHandler(application._id)}
 														>
-															Approve
+															{t('adminUsersText.StaffApplications.approve')}
 														</Button>
 														<Button
 															variant="outlined"
@@ -236,7 +243,7 @@ const AdminStaffApplications: NextPage = ({ initialInquiry }: any) => {
 															disabled={!isPending}
 															onClick={() => rejectApplicationHandler(application._id)}
 														>
-															Reject
+															{t('adminUsersText.StaffApplications.reject')}
 														</Button>
 													</Stack>
 												</TableCell>

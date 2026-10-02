@@ -14,6 +14,7 @@ import { Direction } from '../../enums/common.enum';
 import { useRealtimeEvent } from '../../hooks/useRealtimeEvent';
 import { Conversation } from '../../types/chat/conversation';
 import { ChatAttachment, Message } from '../../types/chat/message';
+import { useTranslation } from 'next-i18next';
 import { formatDate } from '../mypage/dashboardUtils';
 import ChatImagePreview from './ChatImagePreview';
 import { CHAT_IMAGE_ACCEPT, compressChatImageFiles, MAX_CHAT_IMAGES, toChatAttachmentInput } from './chatImageAttachments';
@@ -36,8 +37,10 @@ interface ApplicationChatMessageCreatedPayload extends Message {
 	};
 }
 
-const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClose }: Props) => {
+const ApplicationChatPanel = ({ applicationId, title, onClose }: Props) => {
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
+	const panelTitle = title ?? t('messages.conversationTypes.APPLICATION_CHAT');
 	const [conversation, setConversation] = useState<Conversation | null>(null);
 	const [messageText, setMessageText] = useState('');
 	const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -117,7 +120,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 				setConversation(nextConversation);
 				await markConversationRead({ variables: { conversationId: nextConversation._id } });
 			} catch (err: any) {
-				if (mounted) setErrorMessage(err?.message || 'Could not open application chat.');
+				if (mounted) setErrorMessage(err?.message || t('chatPanel.openApplicationChatError'));
 			}
 		};
 
@@ -125,7 +128,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 		return () => {
 			mounted = false;
 		};
-	}, [applicationId, getOrCreateConversation, markConversationRead]);
+	}, [applicationId, getOrCreateConversation, markConversationRead, t]);
 
 	const imageSelectHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(event.target.files || []);
@@ -134,10 +137,10 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 
 		try {
 			setErrorMessage('');
-			const compressedFiles = await compressChatImageFiles(files);
+			const compressedFiles = await compressChatImageFiles(files, t);
 			setSelectedImages(compressedFiles);
 		} catch (err: any) {
-			setErrorMessage(err?.message || 'Could not prepare chat images.');
+			setErrorMessage(err?.message || t('messages.prepareImagesError'));
 			setSelectedImages([]);
 		}
 	};
@@ -149,7 +152,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 	const openImagePreview = (attachment: ChatAttachment) => {
 		setPreviewImage({
 			url: getImageUrl(attachment.url),
-			alt: attachment.name || 'Chat image preview',
+			alt: attachment.name || t('messages.chatImagePreviewAlt'),
 		});
 	};
 
@@ -157,11 +160,11 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 		const text = messageText.trim();
 		if (!conversation?._id) return;
 		if (!text && !selectedImages.length) {
-			setErrorMessage('Message cannot be empty.');
+			setErrorMessage(t('messages.emptyMessageError'));
 			return;
 		}
 		if (text.length > MAX_CHAT_MESSAGE_LENGTH) {
-			setErrorMessage('Message must be 2000 characters or fewer.');
+			setErrorMessage(t('messages.tooLongError'));
 			return;
 		}
 
@@ -171,7 +174,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 			if (selectedImages.length) {
 				const uploadResult = await uploadChatImages({ variables: { files: selectedImages } });
 				attachments = (uploadResult.data?.chatImagesUploader || []).map(toChatAttachmentInput);
-				if (attachments.length !== selectedImages.length) throw new Error('Could not upload all chat images.');
+				if (attachments.length !== selectedImages.length) throw new Error(t('messages.uploadImagesError'));
 			}
 
 			await sendMessage({
@@ -188,7 +191,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 			await refetchMessages();
 			await markConversationRead({ variables: { conversationId: conversation._id } });
 		} catch (err: any) {
-			setErrorMessage(err?.message || 'Could not send message.');
+			setErrorMessage(err?.message || t('messages.sendError'));
 		}
 	};
 
@@ -207,23 +210,23 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 			}}
 		>
 			<Stack className="kg-chat-header" direction="row" alignItems="center" justifyContent="space-between" gap={1}>
-				<Typography sx={{ fontWeight: 700, color: '#24332d' }}>{title}</Typography>
+				<Typography sx={{ fontWeight: 700, color: '#24332d' }}>{panelTitle}</Typography>
 				{onClose && (
 					<Button size="small" variant="outlined" onClick={onClose}>
-						Close
+						{t('common.close')}
 					</Button>
 				)}
 			</Stack>
 
 			{(creatingConversation || loadingMessages) && (
-				<Typography sx={{ fontSize: '13px', color: '#64746b' }}>Loading chat...</Typography>
+				<Typography sx={{ fontSize: '13px', color: '#64746b' }}>{t('chatPanel.loadingChat')}</Typography>
 			)}
 			{errorMessage && <Typography sx={{ fontSize: '13px', color: '#b42318' }}>{errorMessage}</Typography>}
 
 			<Stack ref={messagesBoxRef} className="kg-chat-messages" spacing={1} sx={{ maxHeight: 260, overflowY: 'auto' }}>
 				{!loadingMessages && messages.length === 0 && (
 					<Typography className="kg-chat-empty" sx={{ fontSize: '13px', color: '#64746b' }}>
-						No messages yet.
+						{t('messages.noMessagesYet')}
 					</Typography>
 				)}
 				{messages.map((message) => {
@@ -252,7 +255,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 											key={`${message._id}-${attachment.url}`}
 											component="img"
 											src={getImageUrl(attachment.url)}
-											alt={attachment.name || 'Chat image'}
+											alt={attachment.name || t('messages.chatImageAlt')}
 											onClick={() => openImagePreview(attachment)}
 											sx={{
 												maxWidth: '180px',
@@ -284,10 +287,10 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 							sx={{ fontSize: '12px', color: '#4b5d52' }}
 						>
 							<Typography sx={{ fontSize: '12px', overflowWrap: 'anywhere' }}>
-								{file.name} ({Math.ceil(file.size / 1024)} KB)
+								{file.name} ({t('chatPanel.fileSizeKb', { size: Math.ceil(file.size / 1024) })})
 							</Typography>
 							<Button size="small" variant="text" onClick={() => removeSelectedImage(index)}>
-								Remove
+								{t('messages.remove')}
 							</Button>
 						</Stack>
 					))}
@@ -300,7 +303,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 					size="small"
 					value={messageText}
 					inputProps={{ maxLength: MAX_CHAT_MESSAGE_LENGTH }}
-					placeholder="Type a message"
+					placeholder={t('chatPanel.typeMessage')}
 					onChange={(event) => setMessageText(event.target.value)}
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' && !event.shiftKey) {
@@ -315,7 +318,7 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 					disabled={!conversation?._id || sendingMessage || uploadingImages || creatingConversation}
 					sx={{ minWidth: 120 }}
 				>
-					Images
+					{t('messages.images')}
 					<input type="file" hidden multiple accept={CHAT_IMAGE_ACCEPT} onChange={imageSelectHandler} />
 				</Button>
 				<Button
@@ -324,11 +327,11 @@ const ApplicationChatPanel = ({ applicationId, title = 'Application chat', onClo
 					onClick={sendMessageHandler}
 					sx={{ minWidth: 110, backgroundColor: '#2f7d4a' }}
 				>
-					{uploadingImages ? 'Uploading...' : 'Send'}
+					{uploadingImages ? t('messages.uploading') : t('messages.send')}
 				</Button>
 			</Stack>
 			<Typography sx={{ fontSize: '11px', color: '#8b9a90' }}>
-				Up to {MAX_CHAT_IMAGES} JPG, PNG, or WEBP images. Images are compressed before upload.
+				{t('chatPanel.imageHelp', { count: MAX_CHAT_IMAGES })}
 			</Typography>
 			<ChatImagePreview
 				open={Boolean(previewImage)}

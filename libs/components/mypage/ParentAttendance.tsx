@@ -8,6 +8,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { userVar } from '../../../apollo/store';
 import { GET_ATTENDANCES, GET_CHILDREN, GET_GROUP } from '../../../apollo/user/query';
 import { MemberType } from '../../enums/member.enum';
@@ -18,6 +19,7 @@ import { sweetErrorHandling } from '../../sweetAlert';
 import { formatDate, getStatusChipSx, getStatusLabel } from './dashboardUtils';
 
 const ParentAttendance = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const apolloClient = useApolloClient();
 	const user = useReactiveVar(userVar);
@@ -118,30 +120,38 @@ const ParentAttendance = () => {
 	return (
 		<Stack className="parent-dashboard-screen parent-attendance-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Attendance</Typography>
-				<Typography sx={{ color: '#6b7280' }}>Review attendance history for your children.</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>{t('mypage.menu.attendance')}</Typography>
+				<Typography sx={{ color: '#6b7280' }}>{t('mypageText.ParentAttendance.subtitle')}</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select child</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.ParentAttendance.selectChild')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Choose a child to review attendance records from their group.
+							{t('mypageText.ParentAttendance.selectChildSubtitle')}
 						</Typography>
 					</Stack>
-					<Chip label={`${children.length} child${children.length === 1 ? '' : 'ren'}`} size="small" className="dashboard-count-chip" />
+					<Chip
+						label={
+							children.length === 1
+								? t('mypageText.ParentAttendance.childCountOne')
+								: t('mypageText.ParentAttendance.childCount', { count: children.length })
+						}
+						size="small"
+						className="dashboard-count-chip"
+					/>
 				</Stack>
-				{childrenLoading && <Typography sx={{ color: '#6b7280' }}>Loading your children...</Typography>}
+				{childrenLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.ParentAttendance.loadingChildren')}</Typography>}
 				{!childrenLoading && children.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						No children are linked to your parent account yet. Please contact your kindergarten center.
+						{t('mypageText.ParentAttendance.noChildren')}
 					</Typography>
 				)}
 				{children.length > 0 && (
 					<TextField
 						select
-						label="Child"
+						label={t('mypageText.ParentAttendance.childLabel')}
 						value={selectedChildId}
 						onChange={(event) => setSelectedChildId(event.target.value)}
 						sx={{ maxWidth: 520 }}
@@ -155,9 +165,11 @@ const ParentAttendance = () => {
 				)}
 				{selectedChild && (
 					<Stack className="dashboard-context-card">
-						<Typography className="dashboard-primary-text">Showing attendance for {selectedChild.childFullName}</Typography>
+						<Typography className="dashboard-primary-text">
+							{t('mypageText.ParentAttendance.showingFor', { name: selectedChild.childFullName })}
+						</Typography>
 						<Typography className="dashboard-muted-text">
-							Group: {groupsById[selectedChild.groupId]?.groupName || 'Classroom'}
+							{t('mypageText.ParentAttendance.group', { name: groupsById[selectedChild.groupId]?.groupName || t('mypageText.ParentAttendance.classroom') })}
 						</Typography>
 					</Stack>
 				)}
@@ -166,17 +178,17 @@ const ParentAttendance = () => {
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Attendance history</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.ParentAttendance.historyTitle')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Presence, absence, and staff notes for the selected child.
+							{t('mypageText.ParentAttendance.historySubtitle')}
 						</Typography>
 					</Stack>
-					<Chip label={`${attendances.length} records`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('mypageText.ParentAttendance.recordsCount', { count: attendances.length })} size="small" className="dashboard-count-chip" />
 				</Stack>
-				{attendancesLoading && <Typography sx={{ color: '#6b7280' }}>Loading attendance history...</Typography>}
+				{attendancesLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.ParentAttendance.loadingHistory')}</Typography>}
 				{!attendancesLoading && selectedChildId && attendances.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						No attendance records found for this child yet.
+						{t('mypageText.ParentAttendance.noRecords')}
 					</Typography>
 				)}
 				{attendances.length > 0 && (
@@ -190,7 +202,9 @@ const ParentAttendance = () => {
 										</Typography>
 									</Stack>
 									<Chip
-										label={getStatusLabel(attendance.attendanceStatus)}
+										label={t(`statuses.${attendance.attendanceStatus}`, {
+										defaultValue: getStatusLabel(attendance.attendanceStatus),
+									})}
 										size="small"
 										sx={getStatusChipSx(attendance.attendanceStatus)}
 									/>
@@ -198,13 +212,13 @@ const ParentAttendance = () => {
 
 								<Stack className="parent-record-grid parent-attendance-grid">
 									<Stack className="parent-meta-item parent-meta-wide">
-										<Typography className="parent-meta-label">Note</Typography>
-										<Typography className="dashboard-note-text">{attendance.note || 'No note recorded'}</Typography>
+										<Typography className="parent-meta-label">{t('mypageText.ParentAttendance.note')}</Typography>
+										<Typography className="dashboard-note-text">{attendance.note || t('mypageText.ParentAttendance.noNote')}</Typography>
 									</Stack>
 									<Stack className="parent-meta-item">
-										<Typography className="parent-meta-label">Marked by</Typography>
+										<Typography className="parent-meta-label">{t('mypageText.ParentAttendance.markedBy')}</Typography>
 										<Typography className="parent-meta-value">
-											{attendance.markedBy ? 'Staff member' : 'Not available'}
+											{attendance.markedBy ? t('mypageText.ParentAttendance.staffMember') : t('mypageText.ParentAttendance.notAvailable')}
 										</Typography>
 									</Stack>
 								</Stack>

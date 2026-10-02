@@ -12,8 +12,10 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import TablePagination from '@mui/material/TablePagination';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { InquiryList } from '../../../libs/components/admin/cs/InquiryList';
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
 
 const InquiryArticles: NextPage = (props: any) => {
+	const { t, statusLabel } = useAdminTranslation();
 	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
 
 	/** APOLLO REQUESTS **/
@@ -23,7 +25,7 @@ const InquiryArticles: NextPage = (props: any) => {
 	return (
 		<Box component={'div'} className={'content'}>
 			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				1:1 Inquiry Management
+				{t('adminCs.InquiryArticles.title')}
 			</Typography>
 			<Box component={'div'} className={'table-wrap'}>
 				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
@@ -35,35 +37,35 @@ const InquiryArticles: NextPage = (props: any) => {
 									value="all"
 									className={'all' === 'all' ? 'li on' : 'li'}
 								>
-									All (0)
+									{t('statuses.ALL')} (0)
 								</ListItem>
 								<ListItem
 									// onClick={(e) => handleTabChange(e, 'active')}
 									value="active"
 									className={'all' === 'all' ? 'li on' : 'li'}
 								>
-									Active (0)
+									{statusLabel('ACTIVE')} (0)
 								</ListItem>
 								<ListItem
 									// onClick={(e) => handleTabChange(e, 'blocked')}
 									value="blocked"
 									className={'all' === 'all' ? 'li on' : 'li'}
 								>
-									Blocked (0)
+									{statusLabel('BLOCKED')} (0)
 								</ListItem>
 								<ListItem
 									// onClick={(e) => handleTabChange(e, 'deleted')}
 									value="deleted"
 									className={'all' === 'all' ? 'li on' : 'li'}
 								>
-									Deleted (0)
+									{statusLabel('DELETE')} (0)
 								</ListItem>
 							</List>
 							<Divider />
 							<Stack className={'search-area'} sx={{ m: '24px' }}>
 								<Select sx={{ width: '160px', mr: '20px' }} value={'searchCategory'}>
-									<MenuItem value={'mb_nick'}>mb_nick</MenuItem>
-									<MenuItem value={'mb_id'}>mb_id</MenuItem>
+									<MenuItem value={'mb_nick'}>{t('adminTables.nickname')}</MenuItem>
+									<MenuItem value={'mb_id'}>{t('adminTables.memberId')}</MenuItem>
 								</Select>
 
 								<OutlinedInput
@@ -71,7 +73,7 @@ const InquiryArticles: NextPage = (props: any) => {
 									// onChange={(e) => handleInput(e.target.value)}
 									sx={{ width: '100%' }}
 									className={'search'}
-									placeholder="Search user name"
+									placeholder={t('adminFilters.searchUserName')}
 									onKeyDown={(event) => {
 										// if (event.key == 'Enter') searchTargetHandler().then();
 									}}

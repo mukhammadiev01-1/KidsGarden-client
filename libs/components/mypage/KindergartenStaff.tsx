@@ -9,6 +9,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { userVar } from '../../../apollo/store';
 import {
 	GET_KINDERGARTEN_STAFFS,
@@ -41,9 +42,15 @@ import {
 
 const staffRoleOptions = [StaffRole.ADMIN, StaffRole.TEACHER];
 const staffStatusOptions = [StaffStatus.ACTIVE, StaffStatus.PENDING, StaffStatus.BLOCKED];
+const staffRoleLabelKeys: Record<string, string> = {
+	[StaffRole.OWNER]: 'mypageText.KindergartenStaff.roleOwner',
+	[StaffRole.ADMIN]: 'mypageText.KindergartenStaff.roleAdmin',
+	[StaffRole.TEACHER]: 'mypageText.KindergartenStaff.roleTeacher',
+};
 type StaffSelectableMember = Pick<Member, '_id' | 'memberNick' | 'memberPhone' | 'memberType' | 'memberStatus' | 'memberImage'>;
 
 const KindergartenStaff = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const apolloClient = useApolloClient();
 	const user = useReactiveVar(userVar);
@@ -118,10 +125,17 @@ const KindergartenStaff = () => {
 		() => Array.from(new Set(staffRecords.map((staff) => staff.memberId).filter(Boolean))),
 		[staffRecords],
 	);
+	const roleLabel = (role?: string) =>
+		role ? t(staffRoleLabelKeys[role] ?? '', { defaultValue: getStatusLabel(role) }) : '-';
+	const statusLabel = (status?: string) => (status ? t(`statuses.${status}`, { defaultValue: getStatusLabel(status) }) : '-');
+	const memberTypeLabel = (type?: string) => (type ? t(`roles.${type}`, { defaultValue: getStatusLabel(type) }) : '-');
 	const expectedMemberType = form.staffRole === StaffRole.ADMIN ? MemberType.KINDERGARTEN_ADMIN : MemberType.TEACHER;
 	const previewRoleError =
 		memberPreview && memberPreview.memberType !== expectedMemberType
-			? `${form.staffRole} staff must use a ${expectedMemberType} account.`
+			? t('mypageText.KindergartenStaff.roleAccountMismatch', {
+					role: roleLabel(form.staffRole),
+					accountType: memberTypeLabel(expectedMemberType),
+			  })
 			: '';
 	const canCreateStaff = Boolean(selectedKindergartenId && memberPreview && !memberPreviewError && !previewRoleError);
 
@@ -180,9 +194,9 @@ const KindergartenStaff = () => {
 						fetchPolicy: 'cache-first',
 					});
 
-					return [memberId, result.data?.getMember?.memberNick || 'Staff member'] as const;
+					return [memberId, result.data?.getMember?.memberNick || t('mypageText.KindergartenStaff.staffMemberFallback')] as const;
 				} catch (err) {
-					return [memberId, 'Staff member'] as const;
+					return [memberId, t('mypageText.KindergartenStaff.staffMemberFallback')] as const;
 				}
 			}),
 		).then((entries) => {
@@ -196,13 +210,13 @@ const KindergartenStaff = () => {
 		return () => {
 			isMounted = false;
 		};
-	}, [apolloClient, memberNames, staffMemberIds]);
+	}, [apolloClient, memberNames, staffMemberIds, t]);
 
 	const searchStaffCandidatesHandler = async () => {
 		try {
 			const trimmedSearchText = searchText.trim();
-			if (!selectedKindergartenId) throw new Error('Please select a kindergarten first.');
-			if (!trimmedSearchText) throw new Error('Enter a nickname or phone to search.');
+			if (!selectedKindergartenId) throw new Error(t('mypageText.KindergartenStaff.selectKindergartenFirst'));
+			if (!trimmedSearchText) throw new Error(t('mypageText.KindergartenStaff.enterSearchText'));
 
 			setSearchingCandidates(true);
 			setCandidateSearchError('');
@@ -226,7 +240,7 @@ const KindergartenStaff = () => {
 		} catch (err: any) {
 			setCandidates([]);
 			setHasSearchedCandidates(true);
-			setCandidateSearchError('Could not search staff candidates. Please try again.');
+			setCandidateSearchError(t('mypageText.KindergartenStaff.candidateSearchFailed'));
 		} finally {
 			setSearchingCandidates(false);
 		}
@@ -238,15 +252,15 @@ const KindergartenStaff = () => {
 		setForm((prev) => ({ ...prev, memberId: candidate._id }));
 		setMemberNames((prev) => ({
 			...prev,
-			[candidate._id]: candidate.memberNick || 'Selected member',
+			[candidate._id]: candidate.memberNick || t('mypageText.KindergartenStaff.selectedMember'),
 		}));
 	};
 
 	const previewMemberHandler = async () => {
 		try {
 			const memberId = form.memberId.trim();
-			if (!selectedKindergartenId) throw new Error('Please select a kindergarten first.');
-			if (!memberId) throw new Error('Please enter a member ID.');
+			if (!selectedKindergartenId) throw new Error(t('mypageText.KindergartenStaff.selectKindergartenFirst'));
+			if (!memberId) throw new Error(t('mypageText.KindergartenStaff.enterMemberId'));
 
 			const result = await apolloClient.query({
 				query: PREVIEW_KINDERGARTEN_MEMBER,
@@ -261,26 +275,26 @@ const KindergartenStaff = () => {
 				fetchPolicy: 'network-only',
 			});
 			const member: StaffSelectableMember | null = result.data?.previewKindergartenMember ?? null;
-			if (!member) throw new Error('Member was not found.');
+			if (!member) throw new Error(t('mypageText.KindergartenStaff.memberNotFound'));
 
 			setMemberPreview(member);
 			setMemberPreviewError('');
 			setMemberNames((prev) => ({
 				...prev,
-				[memberId]: member.memberNick || 'Selected member',
+				[memberId]: member.memberNick || t('mypageText.KindergartenStaff.selectedMember'),
 			}));
 		} catch (err: any) {
 			setMemberPreview(null);
-			setMemberPreviewError(err?.message || 'Could not load member preview.');
+			setMemberPreviewError(err?.message || t('mypageText.KindergartenStaff.memberPreviewFailed'));
 		}
 	};
 
 	const createStaffHandler = async () => {
 		try {
 			const memberId = form.memberId.trim();
-			if (!selectedKindergartenId) throw new Error('Please select a kindergarten first.');
-			if (!memberId) throw new Error('Please enter a member ID.');
-			if (!memberPreview) throw new Error('Preview member before adding.');
+			if (!selectedKindergartenId) throw new Error(t('mypageText.KindergartenStaff.selectKindergartenFirst'));
+			if (!memberId) throw new Error(t('mypageText.KindergartenStaff.enterMemberId'));
+			if (!memberPreview) throw new Error(t('mypageText.KindergartenStaff.previewBeforeAdding'));
 			if (previewRoleError) throw new Error(previewRoleError);
 
 			await createKindergartenStaff({
@@ -302,7 +316,7 @@ const KindergartenStaff = () => {
 			setMemberPreview(null);
 			setMemberPreviewError('');
 			await refetchStaff();
-			await sweetMixinSuccessAlert('Staff record created');
+			await sweetMixinSuccessAlert(t('mypageText.KindergartenStaff.staffCreated'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -312,7 +326,7 @@ const KindergartenStaff = () => {
 		try {
 			await updateKindergartenStaff({ variables: { input } });
 			await refetchStaff();
-			await sweetMixinSuccessAlert('Staff record updated');
+			await sweetMixinSuccessAlert(t('mypageText.KindergartenStaff.staffUpdated'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -320,10 +334,10 @@ const KindergartenStaff = () => {
 
 	const removeStaffHandler = async (staffId: string) => {
 		try {
-			if (!(await sweetConfirmAlert('Remove this staff record?'))) return;
+			if (!(await sweetConfirmAlert(t('mypageText.KindergartenStaff.removeConfirm')))) return;
 			await removeKindergartenStaff({ variables: { input: staffId } });
 			await refetchStaff();
-			await sweetMixinSuccessAlert('Staff record removed');
+			await sweetMixinSuccessAlert(t('mypageText.KindergartenStaff.staffRemoved'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -341,38 +355,38 @@ const KindergartenStaff = () => {
 	return (
 		<Stack className="admin-dashboard-screen admin-staff-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Staff</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>{t('mypage.menu.staff')}</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Search existing teacher or kindergarten admin accounts and add them to your center.
+					{t('mypageText.KindergartenStaff.subtitle')}
 				</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select kindergarten</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.KindergartenStaff.selectKindergarten')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Staff changes apply only to the selected kindergarten.
+							{t('mypageText.KindergartenStaff.selectKindergartenHint')}
 						</Typography>
 					</Stack>
 				</Stack>
-				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>Loading your kindergartens...</Typography>}
+				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenStaff.loadingKindergartens')}</Typography>}
 				{!ownerLoading && kindergartens.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						Create a kindergarten profile before managing staff.
+						{t('mypageText.KindergartenStaff.createKindergartenFirst')}
 					</Typography>
 				)}
 				{hideKindergartenSelector && (
 					<Stack className="admin-selector-card admin-readonly-selector">
 						<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
-							Kindergarten: {selectedKindergartenTitle}
+							{t('mypageText.KindergartenStaff.kindergartenLabel', { title: selectedKindergartenTitle })}
 						</Typography>
 					</Stack>
 				)}
 				{kindergartens.length > 0 && !hideKindergartenSelector && (
 					<TextField
 						select
-						label="Kindergarten"
+						label={t('adminTables.kindergarten')}
 						value={selectedKindergartenId}
 						onChange={(event) => setSelectedKindergartenId(event.target.value)}
 						sx={{ maxWidth: 520 }}
@@ -389,9 +403,9 @@ const KindergartenStaff = () => {
 			<Stack className="dashboard-panel admin-staff-create-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Add staff member</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.KindergartenStaff.addStaffTitle')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Choose a role, search by nickname or phone, then select a candidate before adding.
+							{t('mypageText.KindergartenStaff.addStaffHint')}
 						</Typography>
 					</Stack>
 				</Stack>
@@ -399,19 +413,19 @@ const KindergartenStaff = () => {
 					<TextField
 						fullWidth
 						select
-						label="Role"
+						label={t('dashboardCommon.role')}
 						value={form.staffRole}
 						onChange={(event) => updateStaffRole(event.target.value as StaffRole)}
 					>
 						{staffRoleOptions.map((role) => (
 							<MenuItem key={role} value={role}>
-								{role}
+								{roleLabel(role)}
 							</MenuItem>
 						))}
 					</TextField>
 					<TextField
 						fullWidth
-						label="Search by nickname or phone"
+						label={t('mypageText.KindergartenStaff.searchLabel')}
 						value={searchText}
 						onChange={(event) => updateSearchText(event.target.value)}
 					/>
@@ -421,25 +435,25 @@ const KindergartenStaff = () => {
 						disabled={!selectedKindergartenId || !searchText.trim() || searchingCandidates}
 						sx={{ minWidth: 140 }}
 					>
-						{searchingCandidates ? 'Searching...' : 'Search'}
+						{searchingCandidates ? t('kindergartens.searching') : t('common.search')}
 					</Button>
 					<TextField
 						fullWidth
 						select
-						label="Status"
+						label={t('dashboardCommon.status')}
 						value={form.staffStatus}
 						onChange={(event) => setForm((prev) => ({ ...prev, staffStatus: event.target.value as StaffStatus }))}
 					>
 						{staffStatusOptions.map((status) => (
 							<MenuItem key={status} value={status}>
-								{status}
+								{statusLabel(status)}
 							</MenuItem>
 						))}
 					</TextField>
 				</Stack>
 				{candidateSearchError && <Typography sx={{ color: '#dc2626' }}>{candidateSearchError}</Typography>}
 				{hasSearchedCandidates && !searchingCandidates && candidates.length === 0 && !candidateSearchError && (
-					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>No available candidates found.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenStaff.noCandidates')}</Typography>
 				)}
 				{candidates.length > 0 && (
 					<Stack className="admin-candidate-list" spacing={1.25}>
@@ -454,16 +468,16 @@ const KindergartenStaff = () => {
 							>
 								<Stack spacing={0.25}>
 									<Typography className="dashboard-primary-text">
-										{candidate.memberNick || 'Unnamed member'}
+										{candidate.memberNick || t('mypageText.KindergartenStaff.unnamedMember')}
 									</Typography>
-									<Typography className="dashboard-muted-text">{candidate.memberPhone || 'No phone'}</Typography>
+									<Typography className="dashboard-muted-text">{candidate.memberPhone || t('mypageText.KindergartenStaff.noPhone')}</Typography>
 									<Stack className="admin-chip-row">
-										<Chip label={getStatusLabel(candidate.memberType)} size="small" className="admin-info-chip" />
-										<Chip label={getStatusLabel(candidate.memberStatus)} size="small" sx={getStatusChipSx(candidate.memberStatus)} />
+										<Chip label={memberTypeLabel(candidate.memberType)} size="small" className="admin-info-chip" />
+										<Chip label={statusLabel(candidate.memberStatus)} size="small" sx={getStatusChipSx(candidate.memberStatus)} />
 									</Stack>
 								</Stack>
 								<Button variant="contained" onClick={() => selectCandidate(candidate)}>
-									Select
+									{t('mypageText.KindergartenStaff.select')}
 								</Button>
 							</Stack>
 						))}
@@ -471,33 +485,33 @@ const KindergartenStaff = () => {
 				)}
 				{memberPreview && (
 					<Stack className="admin-candidate-card admin-selected-member-card" spacing={0.75}>
-						<Typography className="admin-form-section-title">Selected member</Typography>
+						<Typography className="admin-form-section-title">{t('mypageText.KindergartenStaff.selectedMember')}</Typography>
 						<Typography className="dashboard-primary-text">
-							{memberPreview.memberNick || 'Unnamed member'}
+							{memberPreview.memberNick || t('mypageText.KindergartenStaff.unnamedMember')}
 						</Typography>
-						<Typography className="dashboard-muted-text">{memberPreview.memberPhone || 'No phone'}</Typography>
+						<Typography className="dashboard-muted-text">{memberPreview.memberPhone || t('mypageText.KindergartenStaff.noPhone')}</Typography>
 						<Stack className="admin-chip-row">
-							<Chip label={getStatusLabel(memberPreview.memberType)} size="small" className="admin-info-chip" />
-							<Chip label={getStatusLabel(memberPreview.memberStatus)} size="small" sx={getStatusChipSx(memberPreview.memberStatus)} />
+							<Chip label={memberTypeLabel(memberPreview.memberType)} size="small" className="admin-info-chip" />
+							<Chip label={statusLabel(memberPreview.memberStatus)} size="small" sx={getStatusChipSx(memberPreview.memberStatus)} />
 						</Stack>
 					</Stack>
 				)}
 				{memberPreviewError && <Typography sx={{ color: '#dc2626' }}>{memberPreviewError}</Typography>}
 				{previewRoleError && <Typography sx={{ color: '#dc2626' }}>{previewRoleError}</Typography>}
 				{!memberPreview && !memberPreviewError && (
-					<Typography sx={{ color: '#6b7280' }}>Select a member before adding.</Typography>
+					<Typography sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenStaff.selectMemberHint')}</Typography>
 				)}
 				<Button variant="text" onClick={() => setShowManualFallback((prev) => !prev)} sx={{ width: 'fit-content' }}>
-					{showManualFallback ? 'Hide advanced member link' : 'Advanced: link member by ID'}
+					{showManualFallback ? t('mypageText.KindergartenStaff.hideAdvanced') : t('mypageText.KindergartenStaff.showAdvanced')}
 				</Button>
 				{showManualFallback && (
 					<Stack className="admin-form-grid admin-advanced-panel" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 						<TextField
 							fullWidth
-							label="Member ID (advanced)"
+							label={t('mypageText.KindergartenStaff.memberIdLabel')}
 							value={form.memberId}
 							onChange={(event) => updateMemberId(event.target.value)}
-							helperText="Use this fallback only when search cannot find an approved staff account."
+							helperText={t('mypageText.KindergartenStaff.memberIdHelper')}
 						/>
 						<Button
 							variant="outlined"
@@ -505,29 +519,29 @@ const KindergartenStaff = () => {
 							disabled={!form.memberId.trim()}
 							sx={{ minWidth: 150 }}
 						>
-							Preview member
+							{t('mypageText.KindergartenStaff.previewMember')}
 						</Button>
 					</Stack>
 				)}
 				<Button variant="contained" onClick={createStaffHandler} disabled={!canCreateStaff} sx={{ width: 'fit-content' }}>
-					Create Staff
+					{t('mypageText.KindergartenStaff.createStaff')}
 				</Button>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Staff list</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.KindergartenStaff.staffListTitle')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Review roles and statuses. Owner records are protected.
+							{t('mypageText.KindergartenStaff.staffListHint')}
 						</Typography>
 					</Stack>
-					<Chip label={`${staffRecords.length} records`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('mypageText.KindergartenStaff.recordsCount', { count: staffRecords.length })} size="small" className="dashboard-count-chip" />
 				</Stack>
-				{staffLoading && <Typography sx={{ color: '#6b7280' }}>Loading staff records...</Typography>}
+				{staffLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenStaff.loadingStaff')}</Typography>}
 				{!staffLoading && selectedKindergartenId && staffRecords.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						No staff records found for this kindergarten.
+						{t('mypageText.KindergartenStaff.noStaff')}
 					</Typography>
 				)}
 				{staffRecords.length > 0 && (
@@ -546,19 +560,19 @@ const KindergartenStaff = () => {
 									<Stack className="admin-record-card-header">
 										<Stack className="admin-record-title-block" spacing={0.5}>
 											<Typography className="dashboard-primary-text admin-record-title">
-												{memberNames[staff.memberId] || 'Staff member'}
+												{memberNames[staff.memberId] || t('mypageText.KindergartenStaff.staffMemberFallback')}
 											</Typography>
-											<Typography className="dashboard-muted-text">Team member</Typography>
+											<Typography className="dashboard-muted-text">{t('mypageText.KindergartenStaff.teamMember')}</Typography>
 										</Stack>
 										<Stack className="admin-chip-row">
-											<Chip label={getStatusLabel(staff.staffRole)} size="small" className="admin-info-chip" />
-											<Chip label={getStatusLabel(staff.staffStatus)} size="small" sx={getStatusChipSx(staff.staffStatus)} />
-											{isOwner && <Chip label="Protected Owner" size="small" className="admin-protected-badge" />}
+											<Chip label={roleLabel(staff.staffRole)} size="small" className="admin-info-chip" />
+											<Chip label={statusLabel(staff.staffStatus)} size="small" sx={getStatusChipSx(staff.staffStatus)} />
+											{isOwner && <Chip label={t('mypageText.KindergartenStaff.protectedOwner')} size="small" className="admin-protected-badge" />}
 										</Stack>
 									</Stack>
 									<Stack className="admin-record-grid admin-staff-grid">
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Role</Typography>
+											<Typography className="admin-meta-label">{t('dashboardCommon.role')}</Typography>
 											<TextField
 												select
 												size="small"
@@ -569,17 +583,17 @@ const KindergartenStaff = () => {
 												}
 											>
 												{staff.staffRole === StaffRole.OWNER && (
-													<MenuItem value={StaffRole.OWNER}>{StaffRole.OWNER}</MenuItem>
+													<MenuItem value={StaffRole.OWNER}>{roleLabel(StaffRole.OWNER)}</MenuItem>
 												)}
 												{staffRoleOptions.map((role) => (
 													<MenuItem key={role} value={role}>
-														{role}
+														{roleLabel(role)}
 													</MenuItem>
 												))}
 											</TextField>
 										</Stack>
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Status</Typography>
+											<Typography className="admin-meta-label">{t('dashboardCommon.status')}</Typography>
 											<TextField
 												select
 												size="small"
@@ -591,14 +605,14 @@ const KindergartenStaff = () => {
 											>
 												{staffStatusOptions.map((status) => (
 													<MenuItem key={status} value={status}>
-														{status}
+														{statusLabel(status)}
 													</MenuItem>
 												))}
-												{isRemoved && <MenuItem value={StaffStatus.REMOVED}>{StaffStatus.REMOVED}</MenuItem>}
+												{isRemoved && <MenuItem value={StaffStatus.REMOVED}>{statusLabel(StaffStatus.REMOVED)}</MenuItem>}
 											</TextField>
 										</Stack>
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Created</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.created')}</Typography>
 											<Typography className="admin-meta-value">{formatDate(staff.createdAt)}</Typography>
 										</Stack>
 									</Stack>
@@ -609,7 +623,7 @@ const KindergartenStaff = () => {
 											disabled={isRemoved || isOwner}
 											onClick={() => removeStaffHandler(staff._id)}
 										>
-											{isRemoved ? 'Removed' : 'Remove'}
+											{isRemoved ? t('statuses.REMOVED') : t('messages.remove')}
 										</Button>
 									</Stack>
 								</Stack>

@@ -9,6 +9,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { userVar } from '../../../apollo/store';
 import {
 	GET_CHILDREN,
@@ -69,6 +70,7 @@ const getAge = (birthDate?: Date | string) => {
 };
 
 const KindergartenChildren = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const apolloClient = useApolloClient();
 	const user = useReactiveVar(userVar);
@@ -202,9 +204,9 @@ const KindergartenChildren = () => {
 						fetchPolicy: 'cache-first',
 					});
 
-					return [parentId, result.data?.getMember?.memberNick || 'Linked parent'] as const;
+					return [parentId, result.data?.getMember?.memberNick || t('mypageText.KindergartenChildren.linkedParent')] as const;
 				} catch (err) {
-					return [parentId, 'Linked parent'] as const;
+					return [parentId, t('mypageText.KindergartenChildren.linkedParent')] as const;
 				}
 			}),
 		).then((entries) => {
@@ -237,8 +239,8 @@ const KindergartenChildren = () => {
 	const previewParentHandler = async () => {
 		try {
 			const parentId = form.parentId.trim();
-			if (!selectedKindergartenId) throw new Error('Please select a kindergarten first.');
-			if (!parentId) throw new Error('Please enter the parent link value.');
+			if (!selectedKindergartenId) throw new Error(t('mypageText.KindergartenChildren.selectKindergartenFirst'));
+			if (!parentId) throw new Error(t('mypageText.KindergartenChildren.enterParentLink'));
 
 			const result = await apolloClient.query({
 				query: PREVIEW_KINDERGARTEN_MEMBER,
@@ -253,17 +255,17 @@ const KindergartenChildren = () => {
 			});
 			const member: ParentPreview | null = result.data?.previewKindergartenMember ?? null;
 
-			if (!member) throw new Error('Parent member was not found.');
+			if (!member) throw new Error(t('mypageText.KindergartenChildren.parentNotFound'));
 
 			setParentPreview(member);
-			setParentPreviewError(member.memberType !== MemberType.PARENT ? 'Selected member is not a PARENT account.' : '');
+			setParentPreviewError(member.memberType !== MemberType.PARENT ? t('mypageText.KindergartenChildren.notParentAccount') : '');
 			setParentNames((prev) => ({
 				...prev,
-				[parentId]: member.memberNick || 'Linked parent',
+				[parentId]: member.memberNick || t('mypageText.KindergartenChildren.linkedParent'),
 			}));
 		} catch (err: any) {
 			setParentPreview(null);
-			setParentPreviewError(err?.message || 'Could not load parent preview.');
+			setParentPreviewError(err?.message || t('mypageText.KindergartenChildren.previewLoadFailed'));
 		}
 	};
 
@@ -287,12 +289,12 @@ const KindergartenChildren = () => {
 	const submitChildHandler = async () => {
 		try {
 			const parentId = form.parentId.trim();
-			if (!selectedKindergartenId) throw new Error('Please select a kindergarten first.');
-			if (!form.groupId) throw new Error('Please select a group.');
-			if (!form.childFullName.trim()) throw new Error('Please enter the child full name.');
-			if (!form.childBirthDate) throw new Error('Please enter the child birth date.');
-			if (!parentId) throw new Error('Please link a parent account.');
-			if (parentPreviewInvalid) throw new Error('Selected member is not a PARENT account.');
+			if (!selectedKindergartenId) throw new Error(t('mypageText.KindergartenChildren.selectKindergartenFirst'));
+			if (!form.groupId) throw new Error(t('mypageText.KindergartenChildren.selectGroup'));
+			if (!form.childFullName.trim()) throw new Error(t('mypageText.KindergartenChildren.enterChildName'));
+			if (!form.childBirthDate) throw new Error(t('mypageText.KindergartenChildren.enterBirthDate'));
+			if (!parentId) throw new Error(t('mypageText.KindergartenChildren.linkParent'));
+			if (parentPreviewInvalid) throw new Error(t('mypageText.KindergartenChildren.notParentAccount'));
 
 			if (selectedChildId) {
 				const input: ChildUpdate = {
@@ -307,7 +309,7 @@ const KindergartenChildren = () => {
 				};
 
 				await updateChild({ variables: { input } });
-				await sweetMixinSuccessAlert('Child updated');
+				await sweetMixinSuccessAlert(t('mypageText.KindergartenChildren.childUpdated'));
 			} else {
 				const input: ChildInput = {
 					...form,
@@ -319,7 +321,7 @@ const KindergartenChildren = () => {
 				};
 
 				await createChild({ variables: { input } });
-				await sweetMixinSuccessAlert('Child created');
+				await sweetMixinSuccessAlert(t('mypageText.KindergartenChildren.childCreated'));
 			}
 
 			resetForm();
@@ -331,10 +333,10 @@ const KindergartenChildren = () => {
 
 	const removeChildHandler = async (childId: string) => {
 		try {
-			if (!(await sweetConfirmAlert('Set this child inactive?'))) return;
+			if (!(await sweetConfirmAlert(t('mypageText.KindergartenChildren.confirmInactive')))) return;
 			await removeChild({ variables: { input: childId } });
 			await refetchChildren();
-			await sweetMixinSuccessAlert('Child set inactive');
+			await sweetMixinSuccessAlert(t('mypageText.KindergartenChildren.childSetInactive'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -352,34 +354,34 @@ const KindergartenChildren = () => {
 	return (
 		<Stack className="admin-dashboard-screen admin-children-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Children</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>{t('mypage.menu.children')}</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Review enrolled children, classroom placement, and parent links for your center.
+					{t('mypageText.KindergartenChildren.subtitle')}
 				</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2}>
 				<Stack className="dashboard-panel-header" spacing={0.5}>
-					<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select kindergarten</Typography>
+					<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.KindergartenChildren.selectKindergarten')}</Typography>
 					<Typography className="dashboard-panel-subtitle">
-						Child records are scoped to the selected kindergarten.
+						{t('mypageText.KindergartenChildren.scopeHint')}
 					</Typography>
 				</Stack>
-				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>Loading your kindergartens...</Typography>}
+				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenChildren.loadingKindergartens')}</Typography>}
 				{!ownerLoading && kindergartens.length === 0 && (
-					<Typography className="dashboard-empty-state">Create a kindergarten profile before managing children.</Typography>
+					<Typography className="dashboard-empty-state">{t('mypageText.KindergartenChildren.noKindergartens')}</Typography>
 				)}
 				{hideKindergartenSelector && (
 					<Stack className="admin-selector-card admin-readonly-selector">
 						<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
-							Kindergarten: {selectedKindergartenTitle}
+							{t('mypageText.KindergartenChildren.kindergartenLabel', { title: selectedKindergartenTitle })}
 						</Typography>
 					</Stack>
 				)}
 				{kindergartens.length > 0 && !hideKindergartenSelector && (
 					<TextField
 						select
-						label="Kindergarten"
+						label={t('adminTables.kindergarten')}
 						value={selectedKindergartenId}
 						onChange={(event) => setSelectedKindergartenId(event.target.value)}
 						sx={{ maxWidth: 520 }}
@@ -396,19 +398,19 @@ const KindergartenChildren = () => {
 			<Stack className="dashboard-panel admin-children-list-panel" spacing={2}>
 				<Stack className="admin-list-panel-header" direction={{ xs: 'column', md: 'row' }} justifyContent={'space-between'} spacing={2}>
 					<Stack className="dashboard-panel-header" spacing={0.5}>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Children list</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.KindergartenChildren.listTitle')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Review enrollment status, parent links, and group assignments.
+							{t('mypageText.KindergartenChildren.listSubtitle')}
 						</Typography>
 					</Stack>
 					<TextField
 						select
-						label="Group filter"
+						label={t('mypageText.KindergartenChildren.groupFilter')}
 						value={selectedGroupFilter}
 						onChange={(event) => setSelectedGroupFilter(event.target.value)}
 						sx={{ minWidth: 260 }}
 					>
-						<MenuItem value="">All groups</MenuItem>
+						<MenuItem value="">{t('mypageText.KindergartenChildren.allGroups')}</MenuItem>
 						{groups.map((group) => (
 							<MenuItem key={group._id} value={group._id}>
 								{group.groupName}
@@ -416,9 +418,9 @@ const KindergartenChildren = () => {
 						))}
 					</TextField>
 				</Stack>
-				{childrenLoading && <Typography sx={{ color: '#6b7280' }}>Loading children...</Typography>}
+				{childrenLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenChildren.loadingChildren')}</Typography>}
 				{!childrenLoading && selectedKindergartenId && children.length === 0 && (
-					<Typography className="dashboard-empty-state">No children found for this kindergarten.</Typography>
+					<Typography className="dashboard-empty-state">{t('mypageText.KindergartenChildren.noChildren')}</Typography>
 				)}
 				{children.length > 0 && (
 					<Stack className="admin-card-list admin-children-list">
@@ -436,36 +438,43 @@ const KindergartenChildren = () => {
 										<Stack className="admin-record-title-block" spacing={0.5}>
 											<Typography className="dashboard-primary-text admin-record-title">{child.childFullName}</Typography>
 											<Typography className="dashboard-muted-text">
-												{getAge(child.childBirthDate)} years old · {child.childGender}
+												{t('mypageText.KindergartenChildren.ageAndGender', {
+													age: getAge(child.childBirthDate),
+													gender: t(`mypageText.KindergartenChildren.gender.${child.childGender}`, { defaultValue: child.childGender }),
+												})}
 											</Typography>
 										</Stack>
-										<Chip label={getStatusLabel(child.childStatus)} size="small" sx={getStatusChipSx(child.childStatus)} />
+										<Chip
+											label={t(`statuses.${child.childStatus}`, { defaultValue: getStatusLabel(child.childStatus) })}
+											size="small"
+											sx={getStatusChipSx(child.childStatus)}
+										/>
 									</Stack>
 									<Stack className="admin-record-grid admin-child-grid">
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Birth date</Typography>
+											<Typography className="admin-meta-label">{t('mypageText.KindergartenChildren.birthDate')}</Typography>
 											<Typography className="admin-meta-value">{formatDate(child.childBirthDate)}</Typography>
 										</Stack>
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Kindergarten</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.kindergarten')}</Typography>
 											<Typography className="admin-meta-value">{selectedKindergartenTitle}</Typography>
 										</Stack>
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Group</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.group')}</Typography>
 											<Typography className="admin-meta-value">
-												{groupNameById[child.groupId] || 'Unassigned group'}
+												{groupNameById[child.groupId] || t('mypageText.KindergartenChildren.unassignedGroup')}
 											</Typography>
 										</Stack>
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Parent</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.parent')}</Typography>
 											<Typography className="admin-meta-value">
-												{parentNames[child.parentId] || 'Linked parent'}
+												{parentNames[child.parentId] || t('mypageText.KindergartenChildren.linkedParent')}
 											</Typography>
 										</Stack>
 									</Stack>
 									<Stack className="admin-record-actions admin-danger-actions">
 										<Button variant="outlined" onClick={() => editChildHandler(child)}>
-											Edit
+											{t('common.edit')}
 										</Button>
 										<Button
 											variant="outlined"
@@ -473,7 +482,7 @@ const KindergartenChildren = () => {
 											disabled={isInactive}
 											onClick={() => removeChildHandler(child._id)}
 										>
-											{isInactive ? 'Inactive' : 'Set inactive'}
+											{isInactive ? t('statuses.INACTIVE') : t('mypageText.KindergartenChildren.setInactive')}
 										</Button>
 									</Stack>
 								</Stack>
@@ -487,33 +496,33 @@ const KindergartenChildren = () => {
 				<Stack className="dashboard-panel-header" direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
 					<Stack spacing={0.5}>
 						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>
-							{selectedChildId ? 'Edit child' : 'Create child'}
+							{selectedChildId ? t('mypageText.KindergartenChildren.editChild') : t('mypageText.KindergartenChildren.createChild')}
 						</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Add or update a child record after checking the existing list above.
+							{t('mypageText.KindergartenChildren.formSubtitle')}
 						</Typography>
 					</Stack>
 					{selectedChildId && (
 						<Button variant="text" onClick={resetForm}>
-							Cancel edit
+							{t('mypageText.KindergartenChildren.cancelEdit')}
 						</Button>
 					)}
 				</Stack>
-				{groupsLoading && <Typography sx={{ color: '#6b7280' }}>Loading groups...</Typography>}
+				{groupsLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenChildren.loadingGroups')}</Typography>}
 				{!groupsLoading && selectedKindergartenId && selectableGroups.length === 0 && (
-					<Typography className="dashboard-empty-state">Create an active group before adding children.</Typography>
+					<Typography className="dashboard-empty-state">{t('mypageText.KindergartenChildren.noActiveGroups')}</Typography>
 				)}
-				<Typography className="admin-form-section-title">Child details</Typography>
+				<Typography className="admin-form-section-title">{t('mypageText.KindergartenChildren.childDetails')}</Typography>
 				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
-						label="Child full name"
+						label={t('mypageText.KindergartenChildren.childFullName')}
 						value={form.childFullName}
 						onChange={(event) => setForm((prev) => ({ ...prev, childFullName: event.target.value }))}
 					/>
 					<TextField
 						fullWidth
-						label="Birth date"
+						label={t('mypageText.KindergartenChildren.birthDate')}
 						type="date"
 						value={form.childBirthDate}
 						onChange={(event) => setForm((prev) => ({ ...prev, childBirthDate: event.target.value }))}
@@ -524,80 +533,88 @@ const KindergartenChildren = () => {
 					<TextField
 						fullWidth
 						select
-						label="Gender"
+						label={t('mypageText.KindergartenChildren.genderLabel')}
 						value={form.childGender}
 						onChange={(event) => setForm((prev) => ({ ...prev, childGender: event.target.value as ChildGender }))}
 					>
 						{childGenderOptions.map((gender) => (
 							<MenuItem key={gender} value={gender}>
-								{gender}
+								{t(`mypageText.KindergartenChildren.gender.${gender}`, { defaultValue: gender })}
 							</MenuItem>
 						))}
 					</TextField>
 					<TextField
 						fullWidth
 						select
-						label="Status"
+						label={t('common.status')}
 						value={form.childStatus}
 						onChange={(event) => setForm((prev) => ({ ...prev, childStatus: event.target.value as ChildStatus }))}
 					>
 						{childStatusOptions.map((status) => (
 							<MenuItem key={status} value={status}>
-								{status}
+								{t(`statuses.${status}`, { defaultValue: getStatusLabel(status) })}
 							</MenuItem>
 						))}
 					</TextField>
 				</Stack>
-				<Typography className="admin-form-section-title">Enrollment</Typography>
+				<Typography className="admin-form-section-title">{t('mypageText.KindergartenChildren.enrollment')}</Typography>
 				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
 						select
-						label="Group"
+						label={t('adminTables.group')}
 						value={form.groupId}
 						onChange={(event) => setForm((prev) => ({ ...prev, groupId: event.target.value }))}
 					>
 						{selectableGroups.map((group) => (
 							<MenuItem key={group._id} value={group._id}>
-								{group.groupName} ({group.groupStatus})
+								{group.groupName} ({t(`statuses.${group.groupStatus}`, { defaultValue: getStatusLabel(group.groupStatus) })})
 							</MenuItem>
 						))}
 					</TextField>
 				</Stack>
 				<Stack className="admin-parent-link-section" spacing={1.25}>
-					<Typography className="admin-form-section-title">Parent link</Typography>
+					<Typography className="admin-form-section-title">{t('mypageText.KindergartenChildren.parentLink')}</Typography>
 					<Typography className="dashboard-panel-subtitle">
-						Parent search is not available in this screen yet. Use Advanced options only when manually linking an existing parent account.
+						{t('mypageText.KindergartenChildren.parentLinkHint')}
 					</Typography>
 					<Button
 						variant="text"
 						onClick={() => setShowAdvancedParentLink((prev) => !prev)}
 						sx={{ width: 'fit-content' }}
 					>
-						{showAdvancedParentLink ? 'Hide advanced options' : 'Advanced options'}
+						{showAdvancedParentLink ? t('mypageText.KindergartenChildren.hideAdvanced') : t('mypageText.KindergartenChildren.advancedOptions')}
 					</Button>
 					{showAdvancedParentLink && (
 						<Stack className="admin-advanced-panel" spacing={1.5}>
 							<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 								<TextField
 									fullWidth
-									label="Manual parent link"
+									label={t('mypageText.KindergartenChildren.manualParentLink')}
 									value={form.parentId}
 									onChange={(event) => updateParentId(event.target.value)}
-									helperText="Use only when the parent cannot be found through normal search or selection."
+									helperText={t('mypageText.KindergartenChildren.manualParentHelper')}
 								/>
 								<Button variant="outlined" onClick={previewParentHandler} sx={{ minWidth: 160 }}>
-									Preview Parent
+									{t('mypageText.KindergartenChildren.previewParent')}
 								</Button>
 							</Stack>
 							{parentPreview && (
 								<Stack className="admin-candidate-card admin-selected-member-card" spacing={0.5}>
-									<Typography className="admin-form-section-title">Parent preview</Typography>
-									<Typography className="dashboard-primary-text">{parentPreview.memberNick || 'Unnamed parent'}</Typography>
-									<Typography className="dashboard-muted-text">{parentPreview.memberPhone || 'No phone'}</Typography>
+									<Typography className="admin-form-section-title">{t('mypageText.KindergartenChildren.parentPreview')}</Typography>
+									<Typography className="dashboard-primary-text">{parentPreview.memberNick || t('mypageText.KindergartenChildren.unnamedParent')}</Typography>
+									<Typography className="dashboard-muted-text">{parentPreview.memberPhone || t('mypageText.KindergartenChildren.noPhone')}</Typography>
 									<Stack className="admin-chip-row">
-										<Chip label={getStatusLabel(parentPreview.memberType)} size="small" className="admin-info-chip" />
-										<Chip label={getStatusLabel(parentPreview.memberStatus)} size="small" sx={getStatusChipSx(parentPreview.memberStatus)} />
+										<Chip
+											label={t(`roles.${parentPreview.memberType}`, { defaultValue: getStatusLabel(parentPreview.memberType) })}
+											size="small"
+											className="admin-info-chip"
+										/>
+										<Chip
+											label={t(`statuses.${parentPreview.memberStatus}`, { defaultValue: getStatusLabel(parentPreview.memberStatus) })}
+											size="small"
+											sx={getStatusChipSx(parentPreview.memberStatus)}
+										/>
 									</Stack>
 								</Stack>
 							)}
@@ -611,7 +628,7 @@ const KindergartenChildren = () => {
 					disabled={!selectedKindergartenId || !form.groupId || parentPreviewInvalid}
 					sx={{ width: 'fit-content' }}
 				>
-					{selectedChildId ? 'Save Child' : 'Create Child'}
+					{selectedChildId ? t('mypageText.KindergartenChildren.saveChild') : t('mypageText.KindergartenChildren.createChildButton')}
 				</Button>
 			</Stack>
 		</Stack>

@@ -13,8 +13,10 @@ import TablePagination from '@mui/material/TablePagination';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { FaqArticlesPanelList } from '../../../libs/components/admin/cs/FaqList';
+import { useAdminTranslation } from '../../../libs/i18n/adminTranslator';
 
 const FaqArticles: NextPage = (props: any) => {
+	const { t, statusLabel } = useAdminTranslation();
 	const [anchorEl, setAnchorEl] = useState<[] | HTMLElement[]>([]);
 
 	/** APOLLO REQUESTS **/
@@ -25,7 +27,7 @@ const FaqArticles: NextPage = (props: any) => {
 		// @ts-ignore
 		<Box component={'div'} className={'content'}>
 			<Box component={'div'} className={'title flex_space'}>
-				<Typography variant={'h2'}>FAQ Management</Typography>
+				<Typography variant={'h2'}>{t('adminCs.FaqArticles.title')}</Typography>
 				<Button
 					className="btn_add"
 					variant={'contained'}
@@ -33,7 +35,7 @@ const FaqArticles: NextPage = (props: any) => {
 					// onClick={() => router.push(`/_admin/cs/faq_create`)}
 				>
 					<AddRoundedIcon sx={{ mr: '8px' }} />
-					ADD
+					{t('dashboardCommon.add')}
 				</Button>
 			</Box>
 			<Box component={'div'} className={'table-wrap'}>
@@ -46,35 +48,35 @@ const FaqArticles: NextPage = (props: any) => {
 									value="all"
 									className={'all' === 'all' ? 'li on' : 'li'}
 								>
-									All (0)
+									{t('statuses.ALL')} (0)
 								</ListItem>
 								<ListItem
 									// onClick={(e) => handleTabChange(e, 'active')}
 									value="active"
 									className={'all' === 'all' ? 'li on' : 'li'}
 								>
-									Active (0)
+									{statusLabel('ACTIVE')} (0)
 								</ListItem>
 								<ListItem
 									// onClick={(e) => handleTabChange(e, 'blocked')}
 									value="blocked"
 									className={'all' === 'all' ? 'li on' : 'li'}
 								>
-									Blocked (0)
+									{statusLabel('BLOCKED')} (0)
 								</ListItem>
 								<ListItem
 									// onClick={(e) => handleTabChange(e, 'deleted')}
 									value="deleted"
 									className={'all' === 'all' ? 'li on' : 'li'}
 								>
-									Deleted (0)
+									{statusLabel('DELETE')} (0)
 								</ListItem>
 							</List>
 							<Divider />
 							<Stack className={'search-area'} sx={{ m: '24px' }}>
 								<Select sx={{ width: '160px', mr: '20px' }} value={'searchCategory'}>
-									<MenuItem value={'mb_nick'}>mb_nick</MenuItem>
-									<MenuItem value={'mb_id'}>mb_id</MenuItem>
+									<MenuItem value={'mb_nick'}>{t('adminTables.nickname')}</MenuItem>
+									<MenuItem value={'mb_id'}>{t('adminTables.memberId')}</MenuItem>
 								</Select>
 
 								<OutlinedInput
@@ -82,7 +84,7 @@ const FaqArticles: NextPage = (props: any) => {
 									// onChange={(e) => handleInput(e.target.value)}
 									sx={{ width: '100%' }}
 									className={'search'}
-									placeholder="Search user name"
+									placeholder={t('adminFilters.searchUserName')}
 									onKeyDown={(event) => {
 										// if (event.key == 'Enter') searchTargetHandler().then();
 									}}

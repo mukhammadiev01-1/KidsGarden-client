@@ -10,6 +10,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { UPDATE_APPLICATION_STATUS } from '../../../apollo/user/mutation';
 import { GET_KINDERGARTEN_APPLICATIONS } from '../../../apollo/user/query';
 import { userVar } from '../../../apollo/store';
@@ -28,13 +29,15 @@ const reviewStatuses = [
 	ApplicationStatus.NEED_MORE_INFO,
 ];
 
-const formatDocumentSize = (size: number) => {
-	if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
-	return `${Math.max(1, Math.round(size / 1024))} KB`;
+type Translate = (key: string, options?: Record<string, unknown>) => string;
+
+const formatDocumentSize = (size: number, t: Translate) => {
+	if (size >= 1024 * 1024) return t('mypageText.KindergartenApplications.sizeMb', { size: (size / (1024 * 1024)).toFixed(1) });
+	return t('mypageText.KindergartenApplications.sizeKb', { size: Math.max(1, Math.round(size / 1024)) });
 };
 
-const renderApplicationDocuments = (documents?: ApplicationDocument[]) => {
-	if (!documents?.length) return <Typography className="dashboard-muted-text">No documents</Typography>;
+const renderApplicationDocuments = (documents: ApplicationDocument[] | undefined, t: Translate) => {
+	if (!documents?.length) return <Typography className="dashboard-muted-text">{t('mypageText.KindergartenApplications.noDocuments')}</Typography>;
 
 	return (
 		<Stack spacing={0.5}>
@@ -46,7 +49,7 @@ const renderApplicationDocuments = (documents?: ApplicationDocument[]) => {
 					rel="noreferrer"
 					className="dashboard-document-link"
 				>
-					{document.name} ({formatDocumentSize(document.size)})
+					{document.name} ({formatDocumentSize(document.size, t)})
 				</a>
 			))}
 		</Stack>
@@ -54,6 +57,7 @@ const renderApplicationDocuments = (documents?: ApplicationDocument[]) => {
 };
 
 const KindergartenApplications = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [activeChatApplicationId, setActiveChatApplicationId] = useState<string>('');
@@ -86,6 +90,8 @@ const KindergartenApplications = () => {
 	// The chip used to show the page size (applications.length), not the real total.
 	const applicationsTotal: number = data?.getKindergartenApplications?.metaCounter?.[0]?.total ?? applications.length;
 
+	const statusLabel = (status?: string) => (status ? t(`statuses.${status}`, { defaultValue: getStatusLabel(status) }) : '-');
+
 	const toggleChatHandler = (applicationId: string) => {
 		setActiveChatApplicationId((currentId) => (currentId === applicationId ? '' : applicationId));
 	};
@@ -101,7 +107,7 @@ const KindergartenApplications = () => {
 	const updateStatusHandler = async (application: Application, status: ApplicationStatus) => {
 		try {
 			const adminNote = adminNotes[application._id]?.trim();
-			if (!(await sweetConfirmAlert(`Set this application to ${getStatusLabel(status)}?`))) return;
+			if (!(await sweetConfirmAlert(t('mypageText.KindergartenApplications.setStatusConfirm', { status: statusLabel(status) })))) return;
 			await updateApplicationStatus({
 				variables: {
 					input: {
@@ -113,7 +119,7 @@ const KindergartenApplications = () => {
 			});
 			setAdminNotes((prev) => ({ ...prev, [application._id]: '' }));
 			await refetch();
-			await sweetMixinSuccessAlert('Application updated');
+			await sweetMixinSuccessAlert(t('mypageText.KindergartenApplications.updated'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -138,27 +144,27 @@ const KindergartenApplications = () => {
 		<Stack className="admin-dashboard-screen kindergarten-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>
-					Kindergarten Applications
+					{t('mypage.menu.kindergartenApplications')}
 				</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Review parent applications sent to kindergartens you manage.
+					{t('mypageText.KindergartenApplications.subtitle')}
 				</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Applications</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('adminPages.applications.panelTitle')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Applicant information is visible only in this guarded dashboard.
+							{t('mypageText.KindergartenApplications.applicationsHint')}
 						</Typography>
 					</Stack>
-					<Chip label={`${applicationsTotal} found`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('mypageText.KindergartenStaffApplications.foundCount', { count: applicationsTotal })} size="small" className="dashboard-count-chip" />
 				</Stack>
-				{loading && <Typography sx={{ color: '#6b7280' }}>Loading applications...</Typography>}
+				{loading && <Typography sx={{ color: '#6b7280' }}>{t('adminPages.applications.loading')}</Typography>}
 				{!loading && applications.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						No kindergarten applications found.
+						{t('mypageText.KindergartenApplications.noApplications')}
 					</Typography>
 				)}
 				{applications.length > 0 && (
@@ -167,8 +173,8 @@ const KindergartenApplications = () => {
 							const parent = application.parentData;
 							const isFinal = FINAL_APPLICATION_STATUSES.includes(application.status);
 							const isStatusMenuOpen = statusMenu.applicationId === application._id && Boolean(statusMenu.anchorEl);
-							const parentName = parent?.memberNick || parent?.memberFullName || 'Parent applicant';
-							const kindergartenTitle = application.kindergartenData?.kindergartenTitle || 'Kindergarten';
+							const parentName = parent?.memberNick || parent?.memberFullName || t('mypageText.KindergartenApplications.parentFallback');
+							const kindergartenTitle = application.kindergartenData?.kindergartenTitle || t('adminTables.kindergarten');
 
 							return (
 								<Stack key={application._id} className="admin-record-card admin-application-card" spacing={2}>
@@ -177,32 +183,32 @@ const KindergartenApplications = () => {
 											<Typography className="dashboard-primary-text admin-record-title">{parentName}</Typography>
 											<Typography className="dashboard-muted-text">{kindergartenTitle}</Typography>
 										</Stack>
-										<Chip label={getStatusLabel(application.status)} size="small" sx={getStatusChipSx(application.status)} />
+										<Chip label={statusLabel(application.status)} size="small" sx={getStatusChipSx(application.status)} />
 									</Stack>
 									<Stack className="admin-record-grid admin-application-grid">
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Child</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.child')}</Typography>
 											<Typography className="admin-meta-value">{application.childName}</Typography>
-											<Typography className="dashboard-muted-text">{application.childAge} years old</Typography>
+											<Typography className="dashboard-muted-text">{t('mypageText.KindergartenApplications.yearsOld', { count: application.childAge })}</Typography>
 										</Stack>
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Created</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.created')}</Typography>
 											<Typography className="admin-meta-value">{formatDate(application.createdAt)}</Typography>
 										</Stack>
 										<Stack className="admin-meta-item admin-meta-wide">
-											<Typography className="admin-meta-label">Message</Typography>
-											<Typography className="dashboard-note-text">{application.parentMessage || 'No message provided.'}</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.message')}</Typography>
+											<Typography className="dashboard-note-text">{application.parentMessage || t('mypageText.KindergartenStaffApplications.noMessage')}</Typography>
 										</Stack>
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Documents</Typography>
-											{renderApplicationDocuments(application.documents)}
+											<Typography className="admin-meta-label">{t('adminTables.documents')}</Typography>
+											{renderApplicationDocuments(application.documents, t)}
 										</Stack>
 										<Stack className="admin-meta-item admin-note-field">
-											<Typography className="admin-meta-label">Admin note</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.adminNote')}</Typography>
 											<TextField
 												fullWidth
 												size="small"
-												placeholder={application.adminNote || 'Optional note'}
+												placeholder={application.adminNote || t('adminForms.optionalNote')}
 												value={adminNotes[application._id] || ''}
 												onChange={(event) =>
 													setAdminNotes((prev) => ({
@@ -216,7 +222,7 @@ const KindergartenApplications = () => {
 									</Stack>
 									<Stack className="admin-record-actions admin-review-actions">
 										<Button className="admin-chat-action" variant="outlined" onClick={() => toggleChatHandler(application._id)}>
-											{activeChatApplicationId === application._id ? 'Close Chat' : 'Open Chat'}
+											{activeChatApplicationId === application._id ? t('adminActions.closeChat') : t('adminActions.openChat')}
 										</Button>
 										<Button
 											className="admin-change-status-button"
@@ -226,7 +232,7 @@ const KindergartenApplications = () => {
 											aria-expanded={isStatusMenuOpen ? 'true' : undefined}
 											onClick={(event) => openStatusMenuHandler(event, application._id)}
 										>
-											Change Status
+											{t('mypageText.KindergartenStaffApplications.changeStatus')}
 										</Button>
 										<Menu
 											anchorEl={statusMenu.anchorEl}
@@ -273,13 +279,13 @@ const KindergartenApplications = () => {
 															},
 														}}
 													>
-														{getStatusLabel(status)}
+														{statusLabel(status)}
 														{isCurrentStatus && (
 															<Typography
 																component="span"
 																sx={{ color: '#6d856f', fontSize: 11, fontWeight: 900, lineHeight: 1 }}
 															>
-																Current
+																{t('mypageText.KindergartenApplications.currentStatus')}
 															</Typography>
 														)}
 													</MenuItem>
@@ -290,7 +296,7 @@ const KindergartenApplications = () => {
 									{activeChatApplicationId === application._id && (
 										<ApplicationChatPanel
 											applicationId={application._id}
-											title="Application chat"
+											title={t('messages.conversationTypes.APPLICATION_CHAT')}
 											onClose={() => setActiveChatApplicationId('')}
 										/>
 									)}

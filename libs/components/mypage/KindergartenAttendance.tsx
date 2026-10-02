@@ -9,6 +9,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { userVar } from '../../../apollo/store';
 import { GET_ATTENDANCES, GET_CHILDREN, GET_GROUPS, GET_OWNER_KINDERGARTENS } from '../../../apollo/user/query';
 import { MARK_ATTENDANCE, REMOVE_ATTENDANCE, UPDATE_ATTENDANCE } from '../../../apollo/user/mutation';
@@ -108,6 +109,7 @@ const mergeAttendancePages = (previousResult: any, { fetchMoreResult }: any) => 
 };
 
 const KindergartenAttendance = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [selectedKindergartenId, setSelectedKindergartenId] = useState('');
@@ -214,7 +216,7 @@ const KindergartenAttendance = () => {
 	const selectableGroups = groups.filter(
 		(group) => group.groupStatus === GroupStatus.ACTIVE || group.groupStatus === GroupStatus.FULL,
 	);
-	const selectedGroupName = selectableGroups.find((group) => group._id === selectedGroupId)?.groupName || 'Selected group';
+	const selectedGroupName = selectableGroups.find((group) => group._id === selectedGroupId)?.groupName || t('mypageText.KindergartenAttendance.selectedGroup');
 	const attendanceByChildId = useMemo(() => {
 		return attendances.reduce<Record<string, Attendance>>((acc, attendance) => {
 			if (isSameAttendanceDay(attendance.attendanceDate, selectedDate)) {
@@ -301,9 +303,9 @@ const KindergartenAttendance = () => {
 
 	const saveAttendanceHandler = async (child: Child) => {
 		try {
-			if (!selectedKindergartenId) throw new Error('Please select a kindergarten first.');
-			if (!selectedGroupId) throw new Error('Please select a group.');
-			if (!selectedDate) throw new Error('Please select an attendance date.');
+			if (!selectedKindergartenId) throw new Error(t('mypageText.KindergartenAttendance.selectKindergartenFirst'));
+			if (!selectedGroupId) throw new Error(t('mypageText.KindergartenAttendance.selectGroup'));
+			if (!selectedDate) throw new Error(t('mypageText.KindergartenAttendance.selectDate'));
 
 			const draft = drafts[child._id] ?? {
 				attendanceStatus: AttendanceStatus.PRESENT,
@@ -325,7 +327,7 @@ const KindergartenAttendance = () => {
 				};
 
 				await updateAttendance({ variables: { input } });
-				await sweetMixinSuccessAlert('Attendance updated');
+				await sweetMixinSuccessAlert(t('mypageText.KindergartenAttendance.attendanceUpdated'));
 			} else {
 				const input: AttendanceInput = {
 					childId: child._id,
@@ -338,13 +340,13 @@ const KindergartenAttendance = () => {
 
 				try {
 					await markAttendance({ variables: { input } });
-					await sweetMixinSuccessAlert('Attendance marked');
+					await sweetMixinSuccessAlert(t('mypageText.KindergartenAttendance.attendanceMarked'));
 				} catch (markErr: any) {
 					const isDuplicateLikeError = String(markErr?.message ?? '').includes('Create failed');
 					if (!isDuplicateLikeError) throw markErr;
 
 					await refetchAttendances();
-					await sweetMixinErrorAlert('Attendance already exists. Please try saving again.');
+					await sweetMixinErrorAlert(t('mypageText.KindergartenAttendance.attendanceExists'));
 					return;
 				}
 			}
@@ -357,10 +359,10 @@ const KindergartenAttendance = () => {
 
 	const removeAttendanceHandler = async (attendanceId: string) => {
 		try {
-			if (!(await sweetConfirmAlert('Remove this attendance record?'))) return;
+			if (!(await sweetConfirmAlert(t('mypageText.KindergartenAttendance.confirmRemove')))) return;
 			await removeAttendance({ variables: { input: attendanceId } });
 			await refetchAttendances();
-			await sweetMixinSuccessAlert('Attendance removed');
+			await sweetMixinSuccessAlert(t('mypageText.KindergartenAttendance.attendanceRemoved'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -378,32 +380,32 @@ const KindergartenAttendance = () => {
 	return (
 		<Stack className="admin-dashboard-screen admin-attendance-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Attendance</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>{t('mypage.menu.attendance')}</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Prepare the daily classroom roll call and save each child independently.
+					{t('mypageText.KindergartenAttendance.subtitle')}
 				</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel admin-attendance-scope-panel" spacing={2}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Daily attendance setup</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.KindergartenAttendance.setupTitle')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Choose the center, classroom, and date before marking attendance.
+							{t('mypageText.KindergartenAttendance.setupSubtitle')}
 						</Typography>
 					</Stack>
 				</Stack>
-				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>Loading your kindergartens...</Typography>}
+				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenAttendance.loadingKindergartens')}</Typography>}
 				{!ownerLoading && kindergartens.length === 0 && (
 					<Typography className="dashboard-empty-state">
-						Create a kindergarten profile before managing attendance.
+						{t('mypageText.KindergartenAttendance.noKindergartens')}
 					</Typography>
 				)}
 				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					{hideKindergartenSelector && (
 						<Stack className="admin-selector-card admin-readonly-selector">
 							<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
-								Kindergarten: {selectedKindergartenTitle}
+								{t('mypageText.KindergartenAttendance.kindergartenLabel', { title: selectedKindergartenTitle })}
 							</Typography>
 						</Stack>
 					)}
@@ -411,7 +413,7 @@ const KindergartenAttendance = () => {
 						<TextField
 							fullWidth
 							select
-							label="Kindergarten"
+							label={t('adminTables.kindergarten')}
 							value={selectedKindergartenId}
 							onChange={(event) => setSelectedKindergartenId(event.target.value)}
 						>
@@ -425,7 +427,7 @@ const KindergartenAttendance = () => {
 					<TextField
 						fullWidth
 						select
-						label="Group"
+						label={t('adminTables.group')}
 						value={selectedGroupId}
 						onChange={(event) => {
 							setSelectedGroupId(event.target.value);
@@ -435,13 +437,13 @@ const KindergartenAttendance = () => {
 					>
 						{selectableGroups.map((group) => (
 							<MenuItem key={group._id} value={group._id}>
-								{group.groupName} ({group.groupStatus})
+								{group.groupName} ({t(`statuses.${group.groupStatus}`, { defaultValue: getStatusLabel(group.groupStatus) })})
 							</MenuItem>
 						))}
 					</TextField>
 					<TextField
 						fullWidth
-						label="Attendance date"
+						label={t('mypageText.KindergartenAttendance.attendanceDate')}
 						type="date"
 						value={selectedDate}
 						onChange={(event) => {
@@ -453,66 +455,66 @@ const KindergartenAttendance = () => {
 				</Stack>
 				<Stack className="admin-attendance-context" direction={{ xs: 'column', md: 'row' }} spacing={1.5}>
 					<Stack className="dashboard-context-card">
-						<Typography className="admin-meta-label">Kindergarten</Typography>
+						<Typography className="admin-meta-label">{t('adminTables.kindergarten')}</Typography>
 						<Typography className="admin-meta-value">
-							{selectedKindergartenId ? selectedKindergartenTitle : 'No kindergarten selected'}
+							{selectedKindergartenId ? selectedKindergartenTitle : t('mypageText.KindergartenAttendance.noKindergartenSelected')}
 						</Typography>
 					</Stack>
 					<Stack className="dashboard-context-card">
-						<Typography className="admin-meta-label">Group</Typography>
+						<Typography className="admin-meta-label">{t('adminTables.group')}</Typography>
 						<Typography className="admin-meta-value">
-							{selectedGroupId ? selectedGroupName : 'No group selected'}
+							{selectedGroupId ? selectedGroupName : t('mypageText.KindergartenAttendance.noGroupSelected')}
 						</Typography>
 					</Stack>
 					<Stack className="dashboard-context-card">
-						<Typography className="admin-meta-label">Date</Typography>
+						<Typography className="admin-meta-label">{t('dashboardCommon.date')}</Typography>
 						<Typography className="admin-meta-value">{selectedDate || '-'}</Typography>
 					</Stack>
 				</Stack>
 				<Typography className="dashboard-note-text">
-					Selected date is saved as the attendance day for the chosen group.
+					{t('mypageText.KindergartenAttendance.dateNote')}
 				</Typography>
 				{!ownerLoading && kindergartens.length > 0 && !selectedKindergartenId && (
-					<Typography className="dashboard-empty-state">Select a kindergarten to load attendance groups.</Typography>
+					<Typography className="dashboard-empty-state">{t('mypageText.KindergartenAttendance.selectKindergartenHint')}</Typography>
 				)}
 				{selectedKindergartenId && !selectedGroupId && selectableGroups.length > 0 && (
-					<Typography className="dashboard-empty-state">Select a group to load children and attendance records.</Typography>
+					<Typography className="dashboard-empty-state">{t('mypageText.KindergartenAttendance.selectGroupHint')}</Typography>
 				)}
 				{!groupsLoading && selectedKindergartenId && selectableGroups.length === 0 && (
-					<Typography className="dashboard-empty-state">Create an active group before marking attendance.</Typography>
+					<Typography className="dashboard-empty-state">{t('mypageText.KindergartenAttendance.noActiveGroups')}</Typography>
 				)}
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Classroom roll call</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.KindergartenAttendance.rollCallTitle')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Choose a status, add a short note if needed, then mark or update the record.
+							{t('mypageText.KindergartenAttendance.rollCallSubtitle')}
 						</Typography>
 					</Stack>
-					<Chip label={`${children.length} children`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('mypageText.KindergartenAttendance.childrenCount', { count: children.length })} size="small" className="dashboard-count-chip" />
 				</Stack>
 				{(childrenLoading || attendancesLoading || fetchingMoreAttendances) && (
-					<Typography sx={{ color: '#6b7280' }}>Loading attendance records...</Typography>
+					<Typography sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenAttendance.loadingRecords')}</Typography>
 				)}
 				{!selectedKindergartenId && !ownerLoading && (
-					<Typography className="dashboard-empty-state">No kindergarten selected.</Typography>
+					<Typography className="dashboard-empty-state">{t('mypageText.KindergartenAttendance.noKindergartenSelectedEmpty')}</Typography>
 				)}
 				{selectedKindergartenId && !selectedGroupId && (
-					<Typography className="dashboard-empty-state">No group selected.</Typography>
+					<Typography className="dashboard-empty-state">{t('mypageText.KindergartenAttendance.noGroupSelectedEmpty')}</Typography>
 				)}
 				{!childrenLoading && selectedGroupId && children.length === 0 && (
 					<Stack className="admin-polished-empty-state admin-attendance-empty-state" spacing={1.25}>
 						<Stack className="admin-empty-indicator" aria-hidden="true">
 							<span />
 						</Stack>
-						<Typography className="admin-empty-title">No active children in this classroom</Typography>
+						<Typography className="admin-empty-title">{t('mypageText.KindergartenAttendance.emptyTitle')}</Typography>
 						<Typography className="dashboard-note-text">
-							No active children are assigned to this group yet. Add children or choose another group to mark attendance.
+							{t('mypageText.KindergartenAttendance.emptyBody')}
 						</Typography>
 						<Button variant="outlined" onClick={() => router.push('/mypage?category=children')} sx={{ width: 'fit-content' }}>
-							Go to Children
+							{t('mypageText.KindergartenAttendance.goToChildren')}
 						</Button>
 					</Stack>
 				)}
@@ -535,28 +537,30 @@ const KindergartenAttendance = () => {
 										</Stack>
 										{hasExistingRecord ? (
 											<Chip
-												label={getStatusLabel(attendance?.attendanceStatus)}
+												label={t(`statuses.${attendance?.attendanceStatus}`, { defaultValue: getStatusLabel(attendance?.attendanceStatus) })}
 												size="small"
 												sx={getStatusChipSx(attendance?.attendanceStatus)}
 											/>
 										) : (
-											<Chip label="Not marked yet" size="small" sx={getStatusChipSx('INACTIVE')} />
+											<Chip label={t('mypageText.KindergartenAttendance.notMarkedYet')} size="small" sx={getStatusChipSx('INACTIVE')} />
 										)}
 									</Stack>
 									<Stack className="admin-record-grid admin-attendance-grid">
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Saved status</Typography>
+											<Typography className="admin-meta-label">{t('mypageText.KindergartenAttendance.savedStatus')}</Typography>
 											<Typography className="admin-meta-value">
-												{hasExistingRecord ? getStatusLabel(attendance?.attendanceStatus) : 'Not marked yet'}
+												{hasExistingRecord
+													? t(`statuses.${attendance?.attendanceStatus}`, { defaultValue: getStatusLabel(attendance?.attendanceStatus) })
+													: t('mypageText.KindergartenAttendance.notMarkedYet')}
 											</Typography>
 											{hasExistingRecord && (
 												<Typography className="dashboard-muted-text">
-													Updated {formatDate(attendance?.updatedAt)}
+													{t('mypageText.KindergartenAttendance.updatedAt', { date: formatDate(attendance?.updatedAt) })}
 												</Typography>
 											)}
 										</Stack>
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">New status</Typography>
+											<Typography className="admin-meta-label">{t('mypageText.KindergartenAttendance.newStatus')}</Typography>
 											<TextField
 												select
 												size="small"
@@ -567,17 +571,17 @@ const KindergartenAttendance = () => {
 											>
 												{attendanceStatusOptions.map((status) => (
 													<MenuItem key={status} value={status}>
-														{status}
+														{t(`statuses.${status}`, { defaultValue: getStatusLabel(status) })}
 													</MenuItem>
 												))}
 											</TextField>
 										</Stack>
 										<Stack className="admin-meta-item admin-meta-wide">
-											<Typography className="admin-meta-label">Note</Typography>
+											<Typography className="admin-meta-label">{t('mypageText.KindergartenAttendance.noteLabel')}</Typography>
 											<TextField
 												fullWidth
 												size="small"
-												placeholder="Optional note"
+												placeholder={t('mypageText.KindergartenAttendance.optionalNote')}
 												value={draft.note}
 												onChange={(event) => updateDraft(child._id, { note: event.target.value })}
 											/>
@@ -585,7 +589,7 @@ const KindergartenAttendance = () => {
 									</Stack>
 									<Stack className="admin-record-actions admin-danger-actions">
 										<Button variant="contained" onClick={() => saveAttendanceHandler(child)}>
-											{hasExistingRecord ? 'Update attendance' : 'Mark attendance'}
+											{hasExistingRecord ? t('mypageText.KindergartenAttendance.updateAttendance') : t('mypageText.KindergartenAttendance.markAttendance')}
 										</Button>
 										{hasExistingRecord && (
 											<Button
@@ -593,7 +597,7 @@ const KindergartenAttendance = () => {
 												color="error"
 												onClick={() => attendance && removeAttendanceHandler(attendance._id)}
 											>
-												Remove
+												{t('messages.remove')}
 											</Button>
 										)}
 									</Stack>

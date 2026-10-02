@@ -11,6 +11,7 @@ import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -18,95 +19,94 @@ export const getStaticProps = async ({ locale }: any) => ({
 	},
 });
 
-const supportCategories = [
-	{
-		title: 'For Parents',
-		copy: 'Find centers, manage applications, and follow your child dashboard.',
-		icon: <FamilyRestroomRoundedIcon />,
-	},
-	{
-		title: 'For Kindergartens',
-		copy: 'Get help with center profiles, staff, groups, children, and approvals.',
-		icon: <ApartmentRoundedIcon />,
-	},
-	{
-		title: 'For Teachers',
-		copy: 'Understand assigned groups, attendance tools, and classroom workflows.',
-		icon: <SchoolRoundedIcon />,
-	},
-	{
-		title: 'Account & Login',
-		copy: 'Fix sign-in issues, password questions, and role-based dashboard access.',
-		icon: <LoginRoundedIcon />,
-	},
-	{
-		title: 'Applications & Enrollment',
-		copy: 'Learn how applications, approvals, and enrollment steps work.',
-		icon: <AssignmentTurnedInRoundedIcon />,
-	},
-	{
-		title: 'Safety & Privacy',
-		copy: 'See how KidsGarden keeps parent, child, and center information protected.',
-		icon: <SecurityRoundedIcon />,
-	},
-];
-
-const faqs = [
-	{
-		question: 'How do I find a kindergarten?',
-		answer: 'Open Kindergartens, search by location or program, and compare center details before choosing one.',
-	},
-	{
-		question: 'How do applications work?',
-		answer: 'Parents can apply through KidsGarden. Centers and administrators review requests through private dashboards.',
-	},
-	{
-		question: 'Can teachers create accounts?',
-		answer: 'Public signup creates a parent account first. Teacher access requires an approved staff flow.',
-	},
-	{
-		question: 'How is parent/child data protected?',
-		answer: 'Private dashboards are role-based, and public pages do not expose child, parent, teacher, or staff directories.',
-	},
-	{
-		question: 'How do I contact support?',
-		answer: 'Use the support email below with your account nickname, center name, and a short description of the issue.',
-	},
-];
-
 const CS: NextPage = () => {
+	const { t } = useTranslation('common');
+
+	const supportCategories = [
+		{
+			title: t('csPage.page.categories.parentsTitle'),
+			copy: t('csPage.page.categories.parentsCopy'),
+			icon: <FamilyRestroomRoundedIcon />,
+		},
+		{
+			title: t('csPage.page.categories.kindergartensTitle'),
+			copy: t('csPage.page.categories.kindergartensCopy'),
+			icon: <ApartmentRoundedIcon />,
+		},
+		{
+			title: t('csPage.page.categories.teachersTitle'),
+			copy: t('csPage.page.categories.teachersCopy'),
+			icon: <SchoolRoundedIcon />,
+		},
+		{
+			title: t('csPage.page.categories.accountTitle'),
+			copy: t('csPage.page.categories.accountCopy'),
+			icon: <LoginRoundedIcon />,
+		},
+		{
+			title: t('csPage.page.categories.applicationsTitle'),
+			copy: t('csPage.page.categories.applicationsCopy'),
+			icon: <AssignmentTurnedInRoundedIcon />,
+		},
+		{
+			title: t('csPage.page.categories.safetyTitle'),
+			copy: t('csPage.page.categories.safetyCopy'),
+			icon: <SecurityRoundedIcon />,
+		},
+	];
+
+	const faqs = [
+		{
+			question: t('csPage.page.faqs.findQuestion'),
+			answer: t('csPage.page.faqs.findAnswer'),
+		},
+		{
+			question: t('csPage.page.faqs.applicationsQuestion'),
+			answer: t('csPage.page.faqs.applicationsAnswer'),
+		},
+		{
+			question: t('csPage.page.faqs.teachersQuestion'),
+			answer: t('csPage.page.faqs.teachersAnswer'),
+		},
+		{
+			question: t('csPage.page.faqs.dataQuestion'),
+			answer: t('csPage.page.faqs.dataAnswer'),
+		},
+		{
+			question: t('csPage.page.faqs.contactQuestion'),
+			answer: t('csPage.page.faqs.contactAnswer'),
+		},
+	];
+
 	return (
 		<div className="cs-page">
 			<div className="container">
 				<section className="cs-hero">
 					<div className="cs-hero-copy">
-						<span className="cs-eyebrow">KidsGarden Help Center</span>
-						<h1>How can we help?</h1>
-						<p className="cs-hero-subtitle">
-							Support for parents, teachers, and kindergartens using KidsGarden to find centers, manage
-							applications, and keep learning spaces organized.
-						</p>
+						<span className="cs-eyebrow">{t('csPage.page.eyebrow')}</span>
+						<h1>{t('csPage.page.title')}</h1>
+						<p className="cs-hero-subtitle">{t('csPage.page.subtitle')}</p>
 						<div className="cs-search-prompt">
 							<SearchRoundedIcon />
-							<span>Search help topics, applications, accounts, privacy, or community guidance.</span>
+							<span>{t('csPage.page.searchPrompt')}</span>
 						</div>
 					</div>
 					<div className="cs-hero-card">
-						<span>Common starting points</span>
-						<strong>Applications, accounts, attendance, and safe community support.</strong>
+						<span>{t('csPage.page.heroCardLabel')}</span>
+						<strong>{t('csPage.page.heroCardTitle')}</strong>
 						<div className="cs-hero-card-grid">
-							<p>Parent dashboard</p>
-							<p>Center tools</p>
-							<p>Teacher access</p>
-							<p>Privacy</p>
+							<p>{t('csPage.page.heroCardParentDashboard')}</p>
+							<p>{t('csPage.page.heroCardCenterTools')}</p>
+							<p>{t('csPage.page.heroCardTeacherAccess')}</p>
+							<p>{t('csPage.page.heroCardPrivacy')}</p>
 						</div>
 					</div>
 				</section>
 
 				<section className="cs-section">
 					<div className="cs-section-heading">
-						<span>Support categories</span>
-						<h2>Choose the area you need</h2>
+						<span>{t('csPage.page.categoriesEyebrow')}</span>
+						<h2>{t('csPage.page.categoriesTitle')}</h2>
 					</div>
 					<div className="cs-category-grid">
 						{supportCategories.map((category) => (
@@ -122,8 +122,8 @@ const CS: NextPage = () => {
 				<section className="cs-faq-layout">
 					<div className="cs-faq-panel">
 						<div className="cs-section-heading align-left">
-							<span>FAQ</span>
-							<h2>Quick answers</h2>
+							<span>{t('admin.menu.faq')}</span>
+							<h2>{t('csPage.page.faqTitle')}</h2>
 						</div>
 						<div className="cs-faq-list">
 							{faqs.map((faq) => (
@@ -142,12 +142,10 @@ const CS: NextPage = () => {
 						<div className="cs-contact-icon">
 							<EmailRoundedIcon />
 						</div>
-						<h2>Still need help?</h2>
-						<p>
-							Send us a short message and the KidsGarden support team will help you find the right next step.
-						</p>
+						<h2>{t('csPage.page.contactTitle')}</h2>
+						<p>{t('csPage.page.contactCopy')}</p>
 						<a className="cs-support-button" href="mailto:support@kidsgarden.com">
-							Email support
+							{t('csPage.page.emailSupport')}
 						</a>
 						<span>support@kidsgarden.com</span>
 					</aside>

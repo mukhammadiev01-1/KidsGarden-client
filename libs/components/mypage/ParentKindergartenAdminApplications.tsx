@@ -14,6 +14,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import {
 	CANCEL_KINDERGARTEN_ADMIN_APPLICATION,
 	CREATE_KINDERGARTEN_ADMIN_APPLICATION,
@@ -37,6 +38,7 @@ const emptyForm: KindergartenAdminApplicationInput = {
 };
 
 const ParentKindergartenAdminApplications = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [form, setForm] = useState<KindergartenAdminApplicationInput>(emptyForm);
@@ -76,7 +78,7 @@ const ParentKindergartenAdminApplications = () => {
 
 	const createApplicationHandler = async () => {
 		try {
-			if (pendingApplication) throw new Error('You already have a pending application.');
+			if (pendingApplication) throw new Error(t('mypageText.ParentKindergartenAdminApplications.pendingExists'));
 			await createKindergartenAdminApplication({
 				variables: {
 					input: {
@@ -90,7 +92,7 @@ const ParentKindergartenAdminApplications = () => {
 			});
 			setForm(emptyForm);
 			await refetch();
-			await sweetMixinSuccessAlert('Application submitted');
+			await sweetMixinSuccessAlert(t('mypageText.ParentKindergartenAdminApplications.submitted'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -98,10 +100,10 @@ const ParentKindergartenAdminApplications = () => {
 
 	const cancelApplicationHandler = async (applicationId: string) => {
 		try {
-			if (!(await sweetConfirmAlert('Cancel this kindergarten admin application?'))) return;
+			if (!(await sweetConfirmAlert(t('mypageText.ParentKindergartenAdminApplications.cancelConfirm')))) return;
 			await cancelKindergartenAdminApplication({ variables: { applicationId } });
 			await refetch();
-			await sweetMixinSuccessAlert('Application canceled');
+			await sweetMixinSuccessAlert(t('mypageText.ParentKindergartenAdminApplications.canceled'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -125,44 +127,44 @@ const ParentKindergartenAdminApplications = () => {
 		<Stack className="parent-dashboard-screen parent-admin-applications-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
 				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>
-					Center Admin Access Request
+					{t('mypage.menu.centerAdminAccessRequest')}
 				</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Apply to manage your own kindergarten. A super admin will review your request.
+					{t('mypageText.ParentKindergartenAdminApplications.subtitle')}
 				</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel parent-application-form-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Apply to manage a kindergarten</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.ParentKindergartenAdminApplications.formTitle')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Share the basic center information a super admin should review.
+							{t('mypageText.ParentKindergartenAdminApplications.formSubtitle')}
 						</Typography>
 					</Stack>
-					{pendingApplication && <Chip label="Application pending" size="small" className="dashboard-warning-chip" />}
+					{pendingApplication && <Chip label={t('mypageText.ParentKindergartenAdminApplications.pendingChip')} size="small" className="dashboard-warning-chip" />}
 				</Stack>
 				{approvedApplication && (
 					<Stack className="dashboard-approved-notice" spacing={1.5} sx={{ padding: '16px 18px', borderRadius: '12px', background: '#ecfdf5' }}>
 						<Typography sx={{ color: '#166534', fontWeight: 700 }}>
-							Approved. Please log out and sign in again to access the kindergarten admin dashboard.
+							{t('mypageText.ParentKindergartenAdminApplications.approvedNotice')}
 						</Typography>
 						<Button variant="contained" onClick={reloginHandler} sx={{ width: 'fit-content' }}>
-							Log out and sign in again
+							{t('mypageText.ParentKindergartenAdminApplications.relogin')}
 						</Button>
 					</Stack>
 				)}
 				<Stack className="dashboard-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
-						label="Kindergarten title"
+						label={t('mypageText.ParentKindergartenAdminApplications.kindergartenTitle')}
 						value={form.kindergartenTitle}
 						onChange={(event) => updateForm('kindergartenTitle', event.target.value)}
 						disabled={Boolean(pendingApplication)}
 					/>
 					<TextField
 						fullWidth
-						label="Kindergarten phone"
+						label={t('mypageText.ParentKindergartenAdminApplications.kindergartenPhone')}
 						value={form.kindergartenPhone}
 						onChange={(event) => updateForm('kindergartenPhone', event.target.value)}
 						disabled={Boolean(pendingApplication)}
@@ -170,7 +172,7 @@ const ParentKindergartenAdminApplications = () => {
 				</Stack>
 				<TextField
 					fullWidth
-					label="Kindergarten address"
+					label={t('mypageText.ParentKindergartenAdminApplications.kindergartenAddress')}
 					value={form.kindergartenAddress}
 					onChange={(event) => updateForm('kindergartenAddress', event.target.value)}
 					disabled={Boolean(pendingApplication)}
@@ -179,7 +181,7 @@ const ParentKindergartenAdminApplications = () => {
 					fullWidth
 					multiline
 					minRows={3}
-					label="Business info"
+					label={t('mypageText.ParentKindergartenAdminApplications.businessInfo')}
 					value={form.businessInfo}
 					onChange={(event) => updateForm('businessInfo', event.target.value)}
 					disabled={Boolean(pendingApplication)}
@@ -188,7 +190,7 @@ const ParentKindergartenAdminApplications = () => {
 					fullWidth
 					multiline
 					minRows={3}
-					label="Message"
+					label={t('mypageText.ParentKindergartenAdminApplications.message')}
 					value={form.message}
 					onChange={(event) => updateForm('message', event.target.value)}
 					disabled={Boolean(pendingApplication)}
@@ -199,36 +201,40 @@ const ParentKindergartenAdminApplications = () => {
 					disabled={Boolean(pendingApplication) || creatingApplication}
 					sx={{ width: 'fit-content' }}
 				>
-					{creatingApplication ? 'Submitting...' : pendingApplication ? 'Application Pending' : 'Submit Application'}
+					{creatingApplication
+						? t('mypageText.ParentKindergartenAdminApplications.submitting')
+						: pendingApplication
+						? t('mypageText.ParentKindergartenAdminApplications.applicationPending')
+						: t('mypageText.ParentKindergartenAdminApplications.submitApplication')}
 				</Button>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Application history</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.ParentKindergartenAdminApplications.historyTitle')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Review status, feedback, and submitted kindergarten draft details.
+							{t('mypageText.ParentKindergartenAdminApplications.historySubtitle')}
 						</Typography>
 					</Stack>
-					<Chip label={`${applications.length} total`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('mypageText.ParentKindergartenAdminApplications.totalCount', { count: applications.length })} size="small" className="dashboard-count-chip" />
 				</Stack>
-				{loading && <Typography sx={{ color: '#6b7280' }}>Loading your applications...</Typography>}
+				{loading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.ParentKindergartenAdminApplications.loading')}</Typography>}
 				{!loading && applications.length === 0 && (
-					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>No kindergarten admin applications yet.</Typography>
+					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>{t('mypageText.ParentKindergartenAdminApplications.empty')}</Typography>
 				)}
 				{applications.length > 0 && (
 					<TableContainer className="dashboard-table-container parent-applications-table">
 						<Table size="small">
 							<TableHead>
 								<TableRow>
-									<TableCell>Kindergarten draft</TableCell>
-									<TableCell>Status</TableCell>
-									<TableCell>Business info</TableCell>
-									<TableCell>Message</TableCell>
-									<TableCell>Review</TableCell>
-									<TableCell>Created</TableCell>
-									<TableCell align="right">Actions</TableCell>
+									<TableCell>{t('mypageText.ParentKindergartenAdminApplications.kindergartenDraft')}</TableCell>
+									<TableCell>{t('dashboardCommon.status')}</TableCell>
+									<TableCell>{t('mypageText.ParentKindergartenAdminApplications.businessInfo')}</TableCell>
+									<TableCell>{t('mypageText.ParentKindergartenAdminApplications.message')}</TableCell>
+									<TableCell>{t('mypageText.ParentKindergartenAdminApplications.review')}</TableCell>
+									<TableCell>{t('mypageText.ParentKindergartenAdminApplications.created')}</TableCell>
+									<TableCell align="right">{t('dashboardCommon.actions')}</TableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>
@@ -237,7 +243,7 @@ const ParentKindergartenAdminApplications = () => {
 										<TableCell sx={{ maxWidth: 240 }}>
 											<Stack spacing={0.25}>
 												<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
-													{application.kindergartenTitle || 'Kindergarten draft'}
+													{application.kindergartenTitle || t('mypageText.ParentKindergartenAdminApplications.kindergartenDraft')}
 												</Typography>
 												<Typography sx={{ fontSize: '12px', color: '#6b7280' }}>
 													{application.kindergartenAddress || '-'}
@@ -249,7 +255,9 @@ const ParentKindergartenAdminApplications = () => {
 										</TableCell>
 										<TableCell>
 											<Chip
-												label={getStatusLabel(application.applicationStatus)}
+												label={t(`statuses.${application.applicationStatus}`, {
+												defaultValue: getStatusLabel(application.applicationStatus),
+											})}
 												size="small"
 												sx={getStatusChipSx(application.applicationStatus)}
 											/>
@@ -276,7 +284,9 @@ const ParentKindergartenAdminApplications = () => {
 												disabled={application.applicationStatus !== KindergartenAdminApplicationStatus.PENDING}
 												onClick={() => cancelApplicationHandler(application._id)}
 											>
-												{application.applicationStatus === KindergartenAdminApplicationStatus.PENDING ? 'Cancel' : 'Closed'}
+												{application.applicationStatus === KindergartenAdminApplicationStatus.PENDING
+												? t('common.cancel')
+												: t('statuses.CLOSED')}
 											</Button>
 										</TableCell>
 									</TableRow>

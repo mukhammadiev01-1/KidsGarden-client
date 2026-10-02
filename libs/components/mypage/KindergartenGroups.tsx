@@ -11,6 +11,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { userVar } from '../../../apollo/store';
 import { GET_GROUPS, GET_KINDERGARTEN_STAFFS, GET_MEMBER, GET_OWNER_KINDERGARTENS } from '../../../apollo/user/query';
 import { CREATE_GROUP, REMOVE_GROUP, UPDATE_GROUP } from '../../../apollo/user/mutation';
@@ -51,6 +52,7 @@ const parseTeacherIds = (value: string): string[] => {
 };
 
 const KindergartenGroups = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const apolloClient = useApolloClient();
 	const user = useReactiveVar(userVar);
@@ -174,9 +176,9 @@ const KindergartenGroups = () => {
 						fetchPolicy: 'cache-first',
 					});
 
-					return [memberId, result.data?.getMember?.memberNick || 'Teacher'] as const;
+					return [memberId, result.data?.getMember?.memberNick || t('roles.TEACHER')] as const;
 				} catch (err) {
-					return [memberId, 'Teacher'] as const;
+					return [memberId, t('roles.TEACHER')] as const;
 				}
 			}),
 		).then((entries) => {
@@ -190,7 +192,7 @@ const KindergartenGroups = () => {
 		return () => {
 			isMounted = false;
 		};
-	}, [activeTeacherIds, apolloClient, groupTeacherIds, teacherNames]);
+	}, [activeTeacherIds, apolloClient, groupTeacherIds, teacherNames, t]);
 
 	const resetForm = () => {
 		setSelectedGroupId('');
@@ -223,10 +225,10 @@ const KindergartenGroups = () => {
 	const submitGroupHandler = async () => {
 		try {
 			const teacherIds = Array.from(new Set([...selectedTeacherIds, ...parseTeacherIds(teacherIdsInput)]));
-			if (!selectedKindergartenId) throw new Error('Please select a kindergarten first.');
-			if (!form.groupName.trim()) throw new Error('Please enter a group name.');
-			if (!form.groupAgeRange.trim()) throw new Error('Please enter an age range.');
-			if (form.groupCapacity <= 0) throw new Error('Capacity must be greater than 0.');
+			if (!selectedKindergartenId) throw new Error(t('mypageText.KindergartenGroups.selectKindergartenFirst'));
+			if (!form.groupName.trim()) throw new Error(t('mypageText.KindergartenGroups.enterGroupName'));
+			if (!form.groupAgeRange.trim()) throw new Error(t('mypageText.KindergartenGroups.enterAgeRange'));
+			if (form.groupCapacity <= 0) throw new Error(t('mypageText.KindergartenGroups.capacityPositive'));
 
 			if (selectedGroupId) {
 				const input: GroupUpdate = {
@@ -238,7 +240,7 @@ const KindergartenGroups = () => {
 					groupStatus: form.groupStatus,
 				};
 				await updateGroup({ variables: { input } });
-				await sweetMixinSuccessAlert('Group updated');
+				await sweetMixinSuccessAlert(t('mypageText.KindergartenGroups.groupUpdated'));
 			} else {
 				const input: GroupInput = {
 					...form,
@@ -249,7 +251,7 @@ const KindergartenGroups = () => {
 					teacherIds,
 				};
 				await createGroup({ variables: { input } });
-				await sweetMixinSuccessAlert('Group created');
+				await sweetMixinSuccessAlert(t('mypageText.KindergartenGroups.groupCreated'));
 			}
 
 			resetForm();
@@ -261,10 +263,10 @@ const KindergartenGroups = () => {
 
 	const removeGroupHandler = async (groupId: string) => {
 		try {
-			if (!(await sweetConfirmAlert('Archive this group?'))) return;
+			if (!(await sweetConfirmAlert(t('mypageText.KindergartenGroups.archiveConfirm')))) return;
 			await removeGroup({ variables: { input: groupId } });
 			await refetchGroups();
-			await sweetMixinSuccessAlert('Group archived');
+			await sweetMixinSuccessAlert(t('mypageText.KindergartenGroups.groupArchived'));
 		} catch (err: any) {
 			await sweetErrorHandling(err);
 		}
@@ -282,38 +284,38 @@ const KindergartenGroups = () => {
 	return (
 		<Stack className="admin-dashboard-screen admin-groups-dashboard" spacing={3} sx={{ width: '100%' }}>
 			<Stack className="dashboard-page-header" spacing={1}>
-				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>Groups</Typography>
+				<Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#24332d' }}>{t('mypage.menu.groups')}</Typography>
 				<Typography sx={{ color: '#6b7280' }}>
-					Create class groups for a selected kindergarten and assign active teacher staff.
+					{t('mypageText.KindergartenGroups.subtitle')}
 				</Typography>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Select kindergarten</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.KindergartenGroups.selectKindergarten')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Group changes apply only to the selected kindergarten.
+							{t('mypageText.KindergartenGroups.selectKindergartenSubtitle')}
 						</Typography>
 					</Stack>
 				</Stack>
-				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>Loading your kindergartens...</Typography>}
+				{ownerLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.MyKindergarten.loadingKindergartens')}</Typography>}
 				{!ownerLoading && kindergartens.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						Create a kindergarten profile before managing groups.
+						{t('mypageText.KindergartenGroups.createProfileFirst')}
 					</Typography>
 				)}
 				{hideKindergartenSelector && (
 					<Stack className="admin-selector-card admin-readonly-selector">
 						<Typography sx={{ fontWeight: 700, color: '#24332d' }}>
-							Kindergarten: {selectedKindergartenTitle}
+							{t('mypageText.KindergartenGroups.kindergartenTitle', { title: selectedKindergartenTitle })}
 						</Typography>
 					</Stack>
 				)}
 				{kindergartens.length > 0 && !hideKindergartenSelector && (
 					<TextField
 						select
-						label="Kindergarten"
+						label={t('kindergartens.card.kindergarten')}
 						value={selectedKindergartenId}
 						onChange={(event) => setSelectedKindergartenId(event.target.value)}
 						sx={{ maxWidth: 520 }}
@@ -331,29 +333,29 @@ const KindergartenGroups = () => {
 				<Stack className="dashboard-panel-header">
 					<Stack>
 						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>
-							{selectedGroupId ? 'Edit group' : 'Create group'}
+							{selectedGroupId ? t('mypageText.KindergartenGroups.editGroup') : t('mypageText.KindergartenGroups.createGroup')}
 						</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Set the class details and assign active teacher staff.
+							{t('mypageText.KindergartenGroups.formSubtitle')}
 						</Typography>
 					</Stack>
 					{selectedGroupId && (
 						<Button variant="text" onClick={resetForm}>
-							Cancel edit
+							{t('mypageText.KindergartenGroups.cancelEdit')}
 						</Button>
 					)}
 				</Stack>
-				<Typography className="admin-form-section-title">Group details</Typography>
+				<Typography className="admin-form-section-title">{t('mypageText.KindergartenGroups.groupDetails')}</Typography>
 				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
-						label="Group name"
+						label={t('mypageText.KindergartenGroups.groupName')}
 						value={form.groupName}
 						onChange={(event) => setForm((prev) => ({ ...prev, groupName: event.target.value }))}
 					/>
 					<TextField
 						fullWidth
-						label="Age range"
+						label={t('adminTables.ageRange')}
 						placeholder="4-5"
 						value={form.groupAgeRange}
 						onChange={(event) => setForm((prev) => ({ ...prev, groupAgeRange: event.target.value }))}
@@ -362,7 +364,7 @@ const KindergartenGroups = () => {
 				<Stack className="admin-form-grid" direction={{ xs: 'column', md: 'row' }} spacing={2}>
 					<TextField
 						fullWidth
-						label="Capacity"
+						label={t('adminTables.capacity')}
 						type="number"
 						value={form.groupCapacity}
 						onChange={(event) => setForm((prev) => ({ ...prev, groupCapacity: Number(event.target.value) }))}
@@ -370,26 +372,26 @@ const KindergartenGroups = () => {
 					<TextField
 						fullWidth
 						select
-						label="Status"
+						label={t('dashboardCommon.status')}
 						value={form.groupStatus}
 						onChange={(event) => setForm((prev) => ({ ...prev, groupStatus: event.target.value as GroupStatus }))}
 					>
 						{groupStatusOptions.map((status) => (
 							<MenuItem key={status} value={status}>
-								{status}
+								{t(`statuses.${status}`)}
 							</MenuItem>
 						))}
 					</TextField>
 				</Stack>
 				<Stack className="admin-teacher-assignment" spacing={1}>
-					<Typography className="admin-form-section-title">Assign teachers</Typography>
+					<Typography className="admin-form-section-title">{t('mypageText.KindergartenGroups.assignTeachers')}</Typography>
 					<Typography className="dashboard-panel-subtitle">
-						Only ACTIVE TEACHER staff can be assigned to groups.
+						{t('mypageText.KindergartenGroups.assignTeachersHint')}
 					</Typography>
-					{staffLoading && <Typography sx={{ color: '#6b7280' }}>Loading active teachers...</Typography>}
+					{staffLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenGroups.loadingTeachers')}</Typography>}
 					{!staffLoading && activeTeacherStaff.length === 0 && (
 						<Typography className="dashboard-empty-state" sx={{ color: '#9ca3af' }}>
-							No active teachers yet. Add teachers in Staff first.
+							{t('mypageText.KindergartenGroups.noActiveTeachers')}
 						</Typography>
 					)}
 					{activeTeacherStaff.length > 0 && (
@@ -407,9 +409,9 @@ const KindergartenGroups = () => {
 									label={
 										<Stack>
 											<Typography className="dashboard-primary-text">
-												{teacherNames[staff.memberId] || 'Teacher'}
+												{teacherNames[staff.memberId] || t('roles.TEACHER')}
 											</Typography>
-											<Typography className="dashboard-muted-text">Active teacher staff</Typography>
+											<Typography className="dashboard-muted-text">{t('mypageText.KindergartenGroups.activeTeacherStaff')}</Typography>
 										</Stack>
 									}
 								/>
@@ -421,40 +423,40 @@ const KindergartenGroups = () => {
 						onClick={() => setShowAdvancedTeacherEntry((prev) => !prev)}
 						sx={{ width: 'fit-content' }}
 					>
-						{showAdvancedTeacherEntry ? 'Hide advanced teacher link' : 'Advanced: link teacher by member ID'}
+						{showAdvancedTeacherEntry ? t('mypageText.KindergartenGroups.hideAdvanced') : t('mypageText.KindergartenGroups.showAdvanced')}
 					</Button>
 					{showAdvancedTeacherEntry && (
 						<Stack className="admin-advanced-panel">
 							<TextField
 								fullWidth
-								label="Teacher member IDs (advanced)"
+								label={t('mypageText.KindergartenGroups.teacherIdsLabel')}
 								placeholder="teacherId1, teacherId2"
 								value={teacherIdsInput}
 								onChange={(event) => setTeacherIdsInput(event.target.value)}
-								helperText="Optional fallback for comma-separated teacher member IDs."
+								helperText={t('mypageText.KindergartenGroups.teacherIdsHelper')}
 							/>
 						</Stack>
 					)}
 				</Stack>
 				<Button variant="contained" onClick={submitGroupHandler} disabled={!selectedKindergartenId} sx={{ width: 'fit-content' }}>
-					{selectedGroupId ? 'Save Group' : 'Create Group'}
+					{selectedGroupId ? t('mypageText.KindergartenGroups.saveGroup') : t('mypageText.KindergartenGroups.createGroupButton')}
 				</Button>
 			</Stack>
 
 			<Stack className="dashboard-panel" spacing={2} sx={{ padding: '24px', borderRadius: '16px', background: '#fff' }}>
 				<Stack className="dashboard-panel-header">
 					<Stack>
-						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>Group list</Typography>
+						<Typography sx={{ fontSize: '20px', fontWeight: 700 }}>{t('mypageText.KindergartenGroups.groupList')}</Typography>
 						<Typography className="dashboard-panel-subtitle">
-							Review class groups, assigned teachers, and status.
+							{t('mypageText.KindergartenGroups.groupListSubtitle')}
 						</Typography>
 					</Stack>
-					<Chip label={`${groups.length} groups`} size="small" className="dashboard-count-chip" />
+					<Chip label={t('mypageText.KindergartenGroups.groupCount', { count: groups.length })} size="small" className="dashboard-count-chip" />
 				</Stack>
-				{groupsLoading && <Typography sx={{ color: '#6b7280' }}>Loading groups...</Typography>}
+				{groupsLoading && <Typography sx={{ color: '#6b7280' }}>{t('mypageText.KindergartenGroups.loadingGroups')}</Typography>}
 				{!groupsLoading && selectedKindergartenId && groups.length === 0 && (
 					<Typography className="dashboard-empty-state" sx={{ color: '#6b7280' }}>
-						No groups found for this kindergarten.
+						{t('mypageText.KindergartenGroups.noGroups')}
 					</Typography>
 				)}
 				{groups.length > 0 && (
@@ -472,35 +474,35 @@ const KindergartenGroups = () => {
 									<Stack className="admin-record-card-header">
 										<Stack className="admin-record-title-block" spacing={0.5}>
 											<Typography className="dashboard-primary-text admin-record-title">{group.groupName}</Typography>
-											<Typography className="dashboard-muted-text">Class group</Typography>
+											<Typography className="dashboard-muted-text">{t('mypageText.KindergartenGroups.classGroup')}</Typography>
 										</Stack>
 										<Chip label={getStatusLabel(group.groupStatus)} size="small" sx={getStatusChipSx(group.groupStatus)} />
 									</Stack>
 									<Stack className="admin-record-grid admin-group-grid">
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Age range</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.ageRange')}</Typography>
 											<Typography className="admin-meta-value">{group.groupAgeRange}</Typography>
 										</Stack>
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Capacity</Typography>
-											<Typography className="admin-meta-value">{group.groupCapacity} children</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.capacity')}</Typography>
+											<Typography className="admin-meta-value">{t('mypageText.KindergartenGroups.childrenCount', { count: group.groupCapacity })}</Typography>
 										</Stack>
 										<Stack className="admin-meta-item">
-											<Typography className="admin-meta-label">Created</Typography>
+											<Typography className="admin-meta-label">{t('adminTables.created')}</Typography>
 											<Typography className="admin-meta-value">{formatDate(group.createdAt)}</Typography>
 										</Stack>
 										<Stack className="admin-meta-item admin-meta-wide">
-											<Typography className="admin-meta-label">Teachers</Typography>
+											<Typography className="admin-meta-label">{t('kadmin.teachers')}</Typography>
 											<Typography className="admin-meta-value">
 												{group.teacherIds?.length
-													? group.teacherIds.map((teacherId) => teacherNames[teacherId] || 'Assigned teacher').join(', ')
-													: 'No teachers assigned'}
+													? group.teacherIds.map((teacherId) => teacherNames[teacherId] || t('mypageText.KindergartenGroups.assignedTeacher')).join(', ')
+													: t('mypageText.KindergartenGroups.noTeachersAssigned')}
 											</Typography>
 										</Stack>
 									</Stack>
 									<Stack className="admin-record-actions admin-danger-actions">
 										<Button variant="outlined" disabled={isArchived} onClick={() => editGroupHandler(group)}>
-											Edit
+											{t('common.edit')}
 										</Button>
 										<Button
 											variant="outlined"
@@ -508,7 +510,7 @@ const KindergartenGroups = () => {
 											disabled={isArchived}
 											onClick={() => removeGroupHandler(group._id)}
 										>
-											{isArchived ? 'Archived' : 'Archive'}
+											{isArchived ? t('statuses.ARCHIVED') : t('mypageText.KindergartenGroups.archive')}
 										</Button>
 									</Stack>
 								</Stack>

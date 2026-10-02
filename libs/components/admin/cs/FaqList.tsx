@@ -16,6 +16,10 @@ import {
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import { Stack } from '@mui/material';
+import { MemberType } from '../../../enums/member.enum';
+import { useAdminTranslation } from '../../../i18n/adminTranslator';
+
+type AdminTranslate = ReturnType<typeof useAdminTranslation>['t'];
 
 interface Data {
 	category: string;
@@ -45,37 +49,37 @@ interface HeadCell {
 	numeric: boolean;
 }
 
-const headCells: readonly HeadCell[] = [
+const getHeadCells = (t: AdminTranslate): readonly HeadCell[] => [
 	{
 		id: 'category',
 		numeric: true,
 		disablePadding: false,
-		label: 'CATEGORY',
+		label: t('adminTables.category'),
 	},
 	{
 		id: 'title',
 		numeric: true,
 		disablePadding: false,
-		label: 'TITLE',
+		label: t('adminTables.title'),
 	},
 
 	{
 		id: 'writer',
 		numeric: true,
 		disablePadding: false,
-		label: 'WRITER',
+		label: t('adminTables.author'),
 	},
 	{
 		id: 'date',
 		numeric: true,
 		disablePadding: false,
-		label: 'DATE',
+		label: t('dashboardCommon.date'),
 	},
 	{
 		id: 'status',
 		numeric: false,
 		disablePadding: false,
-		label: 'STATUS',
+		label: t('adminTables.status'),
 	},
 ];
 
@@ -89,12 +93,13 @@ interface EnhancedTableProps {
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
+	const { t } = useAdminTranslation();
 	const { onSelectAllClick } = props;
 
 	return (
 		<TableHead>
 			<TableRow>
-				{headCells.map((headCell) => (
+				{getHeadCells(t).map((headCell) => (
 					<TableCell
 						key={headCell.id}
 						align={headCell.numeric ? 'left' : 'center'}
@@ -128,6 +133,7 @@ export const FaqArticlesPanelList = (props: FaqArticlesPanelListType) => {
 		handleMenuIconClose,
 		generateMentorTypeHandle,
 	} = props;
+	const { t, roleLabel } = useAdminTranslation();
 	const router = useRouter();
 
 	/** APOLLO REQUESTS **/
@@ -181,12 +187,12 @@ export const FaqArticlesPanelList = (props: FaqArticlesPanelListType) => {
 										>
 											<MenuItem onClick={(e) => generateMentorTypeHandle('member._id', 'mentor', 'originate')}>
 												<Typography variant={'subtitle1'} component={'span'}>
-													MENTOR
+													{t('adminCs.FaqList.mentor')}
 												</Typography>
 											</MenuItem>
 											<MenuItem onClick={(e) => generateMentorTypeHandle('member._id', 'user', 'remove')}>
 												<Typography variant={'subtitle1'} component={'span'}>
-													PARENT
+													{roleLabel(MemberType.PARENT)}
 												</Typography>
 											</MenuItem>
 										</Menu>
