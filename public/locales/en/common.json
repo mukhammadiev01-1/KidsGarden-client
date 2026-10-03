@@ -130,7 +130,10 @@
 		"parentFirstCopy": "Simple applications for families",
 		"easyTitle": "Easy to Use",
 		"easyCopy": "Clear steps from discovery to apply",
-		"kakaoFailed": "Kakao login failed"
+		"kakaoFailed": "Kakao login failed",
+		"appReturnMessage": "Returning you to the KidsGarden app…",
+		"appReturnButton": "Open the app",
+		"appReturnFailed": "We could not complete the sign-in. Close this window and try again from the app."
 	},
 	"common": {
 		"save": "Save",

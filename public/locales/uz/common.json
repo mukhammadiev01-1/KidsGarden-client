@@ -130,7 +130,10 @@
 		"parentFirstTitle": "Ota-onalar uchun",
 		"parentFirstCopy": "Oilalar uchun oddiy arizalar",
 		"easyTitle": "Foydalanish oson",
-		"easyCopy": "Qidirishdan arizagacha aniq bosqichlar"
+		"easyCopy": "Qidirishdan arizagacha aniq bosqichlar",
+		"appReturnMessage": "KidsGarden ilovasiga qaytarilmoqdasiz…",
+		"appReturnButton": "Ilovani ochish",
+		"appReturnFailed": "Kirishni yakunlab bo‘lmadi. Bu oynani yoping va ilovadan qayta urinib ko‘ring."
 	},
 	"common": {
 		"save": "Saqlash",
