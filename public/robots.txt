@@ -1,0 +1,12 @@
+# KidsGarden
+User-agent: *
+Allow: /
+# Signed-in and administrative areas have nothing to index.
+Disallow: /_admin
+Disallow: /mypage
+Disallow: /messages
+Disallow: /account/
+Disallow: /member
+Disallow: /_next/data/
+
+Host: https://kidsgarden.uz

@@ -391,9 +391,24 @@ const requestSignUpJwtToken = async ({
 	}
 };
 
+/**
+ * Drops everything Apollo cached for the previous identity and refetches what is
+ * on screen. Lists and detail queries carry per-viewer fields (meLiked,
+ * meFollowed) and some dashboards read cache-first, so without this a member
+ * who signs in after a guest -- or after another member on a shared computer --
+ * kept seeing the previous viewer's hearts, follows and names until a reload.
+ */
+const resetApolloCache = () => {
+	if (typeof window === 'undefined') return;
+	initializeApollo()
+		.resetStore()
+		.catch(() => undefined);
+};
+
 export const updateStorage = ({ jwtToken }: { jwtToken: any }) => {
 	setJwtToken(jwtToken);
 	window.localStorage.setItem('login', Date.now().toString());
+	resetApolloCache();
 };
 
 export const updateUserInfo = (jwtToken: any) => {
@@ -437,6 +452,7 @@ export const logOut = () => {
 	// keeps running -- and keeps reconnecting -- on the credentials of the user
 	// who just signed out.
 	realtimeClient.disconnect();
+	resetApolloCache();
 };
 
 /**
@@ -448,6 +464,7 @@ export const applyRemoteLogout = () => {
 	localStorage.removeItem('accessToken');
 	deleteUserInfo();
 	realtimeClient.disconnect();
+	resetApolloCache();
 };
 
 const deleteStorage = () => {

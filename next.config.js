@@ -10,6 +10,32 @@ const nextConfig = {
 	// Photos are now JPEG under the same basename; the database and older
 	// content still reference the .png names, so any .png that no longer exists
 	// on disk falls through to its .jpg (afterFiles = only when no such file).
+	// "X-Powered-By: Next.js" only tells scanners which exploits to try.
+	poweredByHeader: false,
+	async headers() {
+		// A day in the browser, a week of serving the old copy while it refreshes.
+		// Files under /img, /video(s) keep their names when replaced, so this is
+		// deliberately not "immutable"; hashed /_next/static files already are.
+		const staticAsset = [{ key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' }];
+		return [
+			{
+				source: '/:path*',
+				headers: [
+					// HTTPS only from now on (nginx already redirects http -> https).
+					{ key: 'Strict-Transport-Security', value: 'max-age=31536000' },
+					// Never guess a file's type from its content.
+					{ key: 'X-Content-Type-Options', value: 'nosniff' },
+					// The site is never meant to be framed by another origin (clickjacking).
+					{ key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+					{ key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+					{ key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
+				],
+			},
+			{ source: '/img/:path*', headers: staticAsset },
+			{ source: '/video/:path*', headers: staticAsset },
+			{ source: '/videos/:path*', headers: staticAsset },
+		];
+	},
 	async rewrites() {
 		return {
 			beforeFiles: [],
